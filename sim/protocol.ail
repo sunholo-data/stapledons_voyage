@@ -1,0 +1,36 @@
+module sim/protocol
+
+-- Core coordinate type
+export type Coord = { x: int, y: int }
+
+-- Mouse input state
+export type MouseState = {
+    x: float,
+    y: float,
+    buttons: [int]
+}
+
+-- Keyboard event
+export type KeyEvent = {
+    key: int,
+    kind: string
+}
+
+-- Frame input from engine
+export type FrameInput = {
+    mouse: MouseState,
+    keys: [KeyEvent]
+}
+
+-- Draw commands (tagged union)
+export type DrawCmd =
+    | Sprite(int, float, float, int)
+    | Rect(float, float, float, float, int, int)
+    | Text(string, float, float, int)
+
+-- Frame output to engine
+export type FrameOutput = {
+    draw: [DrawCmd],
+    sounds: [int],
+    debug: [string]
+}

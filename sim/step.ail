@@ -1,0 +1,62 @@
+module sim/step
+
+-- Local type definitions (until imports work)
+type Coord = { x: int, y: int }
+type Tile = { biome: int }
+type PlanetState = { width: int, height: int, tiles: [Tile] }
+type NPC = { id: int, pos: Coord }
+type World = { tick: int, planet: PlanetState, npcs: [NPC] }
+
+type MouseState = { x: float, y: float, buttons: [int] }
+type KeyEvent = { key: int, kind: string }
+type FrameInput = { mouse: MouseState, keys: [KeyEvent] }
+
+type DrawCmd =
+    | Sprite(int, float, float, int)
+    | Rect(float, float, float, float, int, int)
+    | Text(string, float, float, int)
+
+type FrameOutput = { draw: [DrawCmd], sounds: [int], debug: [string] }
+
+-- Helper: generate list of n items using function
+pure func generate(n: int, f: int -> Tile) -> [Tile] {
+    match n {
+        0 => [],
+        _ => f(n - 1) :: generate(n - 1, f)
+    }
+}
+
+-- Helper: build draw commands from tiles
+-- Note: intToFloat is auto-imported from std/prelude
+pure func tilesToDraw(tiles: [Tile], width: int, idx: int) -> [DrawCmd] {
+    match tiles {
+        [] => [],
+        t :: rest => {
+            let x = idx % width;
+            let y = idx / width;
+            let cmd = Rect(intToFloat(x * 4), intToFloat(y * 4), 4.0, 4.0, t.biome, 0);
+            cmd :: tilesToDraw(rest, width, idx + 1)
+        }
+    }
+}
+
+-- Initialize world with seed
+export func init_world(seed: int) -> World {
+    let w = 2;
+    let h = 2;
+    let tiles = [{ biome: 0 }, { biome: 1 }, { biome: 2 }, { biome: 3 }];
+    {
+        tick: 0,
+        planet: { width: w, height: h, tiles: tiles },
+        npcs: []
+    }
+}
+
+-- Step function: update world and produce draw commands
+export func step(world: World, input: FrameInput) -> (World, FrameOutput) {
+    let newTick = world.tick + 1;
+    let drawCmds = tilesToDraw(world.planet.tiles, world.planet.width, 0);
+    let newWorld = { tick: newTick, planet: world.planet, npcs: world.npcs };
+    let output = { draw: drawCmds, sounds: [], debug: [] };
+    (newWorld, output)
+}

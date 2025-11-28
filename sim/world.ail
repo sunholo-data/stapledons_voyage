@@ -1,0 +1,27 @@
+module sim/world
+
+-- Define Coord locally (until imports work)
+type Coord = { x: int, y: int }
+
+-- Tile with biome identifier
+export type Tile = { biome: int }
+
+-- Planet state (grid stored as flat list)
+export type PlanetState = {
+    width: int,
+    height: int,
+    tiles: [Tile]
+}
+
+-- NPC entity
+export type NPC = {
+    id: int,
+    pos: Coord
+}
+
+-- Complete world state
+export type World = {
+    tick: int,
+    planet: PlanetState,
+    npcs: [NPC]
+}

@@ -1,0 +1,16 @@
+module sim/npc_ai
+
+-- Local type definitions (until imports work)
+type Coord = { x: int, y: int }
+type NPC = { id: int, pos: Coord }
+
+-- NPC AI logic
+-- TODO: Add actual AI behavior when we understand RNG/effects better
+export pure func think(npc: NPC) -> NPC {
+    npc
+}
+
+-- Move NPC by delta
+export pure func moveNpc(npc: NPC, dx: int, dy: int) -> NPC {
+    { id: npc.id, pos: { x: npc.pos.x + dx, y: npc.pos.y + dy } }
+}
