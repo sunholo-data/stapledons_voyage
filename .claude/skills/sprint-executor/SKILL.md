@@ -29,28 +29,78 @@ Invoke this skill when:
 
 ## Core Principles
 
-1. **Test-Driven**: Run `ailang check` after every change
+1. **Test-Driven**: Run `ailang check` after every change (or `go test` for mock-only sprints)
 2. **Feedback-First**: Report AILANG issues immediately
 3. **Pause Points**: Stop after each milestone for review
-4. **Track Progress**: Use TodoWrite for visibility
+4. **Track Progress**: Use TodoWrite AND update sprint JSON
 5. **Document Workarounds**: Record how you navigated limitations
+
+## JSON Progress Tracking (IMPORTANT)
+
+**Always update the sprint JSON file as you work.** This enables session continuity.
+
+```bash
+# Location: sprints/<sprint-id>.json
+
+# Update task status (after completing each task)
+.claude/skills/sprint-executor/scripts/update_progress.sh \
+  sprints/<sprint-id>.json task <task_id> completed
+
+# Update phase status (after completing all phase tasks)
+.claude/skills/sprint-executor/scripts/update_progress.sh \
+  sprints/<sprint-id>.json phase <phase_id> completed
+
+# Update sprint status
+.claude/skills/sprint-executor/scripts/update_progress.sh \
+  sprints/<sprint-id>.json sprint in_progress
+
+# Show current progress
+.claude/skills/sprint-executor/scripts/update_progress.sh \
+  sprints/<sprint-id>.json show
+```
+
+**Status values:** `pending` | `in_progress` | `completed` | `blocked`
+
+### When to Update JSON
+- Mark sprint as `in_progress` when starting
+- Mark each task `completed` immediately after finishing it
+- Mark phase `completed` after all its tasks are done
+- Mark sprint `completed` at the end
+
+## Mock-Only Sprints (No AILANG)
+
+When AILANG compiler isn't ready, use mock sprints:
+
+```bash
+# Use -mock targets
+make game-mock    # Build without AILANG
+make run-mock     # Run without AILANG
+make eval-mock    # Test without AILANG
+go test ./...     # Run Go tests
+```
+
+For mock sprints, skip AILANG-specific steps and focus on Go implementation.
 
 ## Execution Flow
 
 ### Phase 1: Initialize Sprint
 
-1. **Check AILANG Status**
+1. **Check Status**
    ```bash
-   # Verify all modules compile
+   # For AILANG sprints:
    for f in sim/*.ail; do ailang check "$f"; done
-
-   # Check for AILANG team messages
    ailang agent inbox stapledons_voyage
+
+   # For mock-only sprints:
+   go test ./...
+   make game-mock
    ```
 
-2. **Review Limitations**
-   - Read CLAUDE.md "Known Limitations" section
-   - Note which limitations affect this sprint
+2. **Initialize JSON Progress**
+   ```bash
+   .claude/skills/sprint-executor/scripts/update_progress.sh \
+     sprints/<sprint-id>.json sprint in_progress
+   ```
 
 3. **Create Todo List**
    - Use TodoWrite for all milestones
@@ -90,13 +140,21 @@ Invoke this skill when:
      "Feature needed" "Why it would help" "stapledons_voyage"
    ```
 
-5. **Update Documentation**
+5. **Update Progress (IMPORTANT)**
+   ```bash
+   # After each task
+   .claude/skills/sprint-executor/scripts/update_progress.sh \
+     sprints/<sprint-id>.json task <task_id> completed
+
+   # After completing all tasks in a phase
+   .claude/skills/sprint-executor/scripts/update_progress.sh \
+     sprints/<sprint-id>.json phase <phase_id> completed
+   ```
    - Note workarounds used
    - Update CLAUDE.md if new limitations found
-   - Mark milestone complete in sprint plan
 
 6. **Pause for Review**
-   - Show progress to user
+   - Show progress: `.../update_progress.sh sprints/<id>.json show`
    - Ask if ready to continue
 
 ### Phase 3: Engine Integration (if needed)

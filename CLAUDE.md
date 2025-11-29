@@ -2,20 +2,45 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+**Related docs:**
+- [README.md](README.md) - User-facing overview, quick start
+- [docs/game-vision.md](docs/game-vision.md) - Full game design document
+- [DEVELOPMENT.md](DEVELOPMENT.md) - Technical reference, data flow, types
+- [design_docs/](design_docs/) - Feature design documentation
+
 ## Project Overview
 
-**This project is primarily an integration test for AILANG** - the game itself is a rewarding side effect. We use the AILANG binary and messaging system to iteratively build the game while stress-testing AILANG's capabilities.
+**Stapledon's Voyage** is a hard sci-fi philosophy simulator where you pilot a near-light-speed ship with 100 subjective years to explore the galaxy. Every journey triggers relativistic time dilation: civilizations rise and fall in the centuries that pass between your visits. At the end, the game fast-forwards to Year 1,000,000 and shows you what your choices did to the galaxy.
 
-Stapledons Voyage is a game engine host that integrates with AILANG (a separate language/compiler repo). This repo is the "host" while AILANG is the "brain". The game compiles AILANG code to Go, links it with an Ebiten-based 2D engine, and runs benchmarks/scenarios.
+**This project is also the primary integration test for AILANG** - the game simulation logic will be written in AILANG, a new programming language. This repo is the "host" (Go/Ebiten engine) while AILANG is the "brain" (simulation logic).
 
 ## Build Commands
+
+### With AILANG Compiler (when `ailc` is available)
 
 ```bash
 make sim      # Compile AILANG → Go (prerequisite for all others)
 make game     # Build executable to bin/game
 make run      # Run game directly with go run
 make eval     # Run benchmarks + scenarios, output to out/report.json
-make clean    # Remove generated artifacts (sim_gen/, bin/, out/*)
+```
+
+### Without AILANG Compiler (mock mode)
+
+Use these targets while AILANG compiler is in development:
+
+```bash
+make game-mock   # Build using mock sim_gen (no ailc needed)
+make run-mock    # Run game using mock sim_gen
+make eval-mock   # Run benchmarks + scenarios using mock sim_gen
+make sprites     # Generate test sprite PNGs
+```
+
+### Cleanup
+
+```bash
+make clean       # Remove bin/, out/* (preserves sim_gen for mock mode)
+make clean-all   # Remove sim_gen/, bin/, out/* (full clean)
 ```
 
 ## AILANG CLI
@@ -57,6 +82,8 @@ ailang agent ack <msg-id>              # Acknowledge message
 2. **Engine Layer (Go/Ebiten)** - Pure Go in `engine/` and `cmd/`
    - `cmd/game/main.go` - Ebiten game loop
    - `engine/render/` - CaptureInput() and RenderFrame() bridge functions
+   - `engine/assets/` - Sprite, font, and sound loading with manifest support
+   - `engine/display/` - Window configuration, fullscreen (F11), resolution settings
 
 3. **Evaluation Layer** - `cmd/eval/` and `engine/bench/`
    - Produces `out/report.json` for AI-driven AILANG improvements
@@ -82,9 +109,49 @@ Always reference `ailang prompt` output when writing AILANG code to ensure corre
 ## Code Generation Boundary
 
 - **Manually edit:** `sim/*.ail` files
-- **Never edit:** `sim_gen/*.go` (auto-generated from AILANG)
+- **Never edit:** `sim_gen/*.go` (auto-generated from AILANG or mock)
 
-The generated Go package `sim_gen` exports `InitWorld`, `Step`, and all ADT types.
+The `sim_gen` package exports `InitWorld`, `Step`, and all ADT types. It can be:
+- **Generated** - From AILANG via `make sim` (when `ailc` is available)
+- **Mock** - Hand-written Go types matching AILANG protocol (for development without `ailc`)
+
+## Mock sim_gen Development (IMPORTANT)
+
+Until AILANG's Go codegen ships (`ailang compile --emit-go` in v0.5.0), we use **mock sim_gen** - hand-written Go that mimics what AILANG would generate.
+
+### Layer Boundaries
+
+| Layer | Location | Contains | Permanent? |
+|-------|----------|----------|------------|
+| **AILANG Source** | `sim/*.ail` | Game logic (future) | Yes |
+| **Simulation Mock** | `sim_gen/*.go` | Game logic (temporary) | **No - replaced when AILANG ships** |
+| **Engine** | `engine/*.go` | IO bridge only | Yes |
+| **Entry** | `cmd/*.go` | Wiring | Yes |
+
+### What Goes Where
+
+**sim_gen/ (MOCK - temporary):**
+- World state types and Step function
+- Game logic (actions, building, NPC behavior)
+- DrawCmd generation
+- This is SIMULATION LAYER code, just written in Go until AILANG works
+
+**engine/ (PERMANENT):**
+- Input capture (keyboard, mouse → FrameInput)
+- Rendering (FrameOutput → pixels)
+- Asset management (sprites, sounds)
+- Display config (resolution, fullscreen)
+- **NO GAME LOGIC** - just IO bridging
+
+### Key Principle
+
+The engine layer should be "dumb" - it captures input, passes it to sim_gen, and renders whatever sim_gen outputs. All decisions about game behavior belong in sim_gen (mock) or sim/*.ail (AILANG).
+
+When AILANG compiler ships:
+1. Write game logic in `sim/*.ail`
+2. Run `ailang compile --emit-go`
+3. Generated code replaces mock `sim_gen/*.go`
+4. Engine layer stays unchanged
 
 ## Key Types (defined in protocol.ail)
 

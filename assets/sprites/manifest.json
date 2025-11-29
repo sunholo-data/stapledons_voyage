@@ -1,0 +1,10 @@
+{
+  "sprites": {
+    "0": {"file": "tile_water.png", "width": 16, "height": 16},
+    "1": {"file": "tile_forest.png", "width": 16, "height": 16},
+    "2": {"file": "tile_desert.png", "width": 16, "height": 16},
+    "3": {"file": "tile_mountain.png", "width": 16, "height": 16},
+    "100": {"file": "player.png", "width": 32, "height": 32},
+    "101": {"file": "npc.png", "width": 32, "height": 32}
+  }
+}

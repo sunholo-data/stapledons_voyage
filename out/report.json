@@ -1,0 +1,15 @@
+{
+  "benchmarks": {},
+  "scenarios": [
+    {
+      "name": "init_world",
+      "passed": true,
+      "ticks": 0
+    },
+    {
+      "name": "step_100_ticks",
+      "passed": true,
+      "ticks": 100
+    }
+  ]
+}

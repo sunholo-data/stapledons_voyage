@@ -31,6 +31,7 @@ design_docs/
 | [Asset Management](planned/v0_2_0/asset-management.md) | Sprite, font, and sound loading | P0 |
 | [Audio System](planned/v0_2_0/audio-system.md) | Sound effects and music playback | P1 |
 | [Display Configuration](planned/v0_2_0/display-config.md) | Resolution, fullscreen, settings persistence | P1 |
+| [Player Interaction](planned/v0_2_0/player-interaction.md) | Click-to-select, tile highlighting, input handling | P1 |
 
 ### v0.3.0 - Rendering & Camera
 
@@ -38,6 +39,13 @@ design_docs/
 |----------|-------------|----------|
 | [Camera & Viewport](planned/v0_3_0/camera-viewport.md) | Scrolling, zoom, viewport culling | P0 |
 | [Tilemap Rendering](planned/v0_3_0/tilemap-rendering.md) | Batching, atlases, performance optimization | P1 |
+
+### v0.4.0 - Gameplay Features
+
+| Document | Description | Priority |
+|----------|-------------|----------|
+| [Player Actions](planned/v0_4_0/player-actions.md) | Inspect, build, clear actions on selected tiles | P1 |
+| [NPC Movement](planned/v0_4_0/npc-movement.md) | NPC spawning, movement patterns, AI foundation | P1 |
 
 ## Creating New Design Documents
 
