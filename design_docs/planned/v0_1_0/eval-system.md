@@ -1,7 +1,7 @@
 # Evaluation System Design
 
 **Version:** 0.1.0
-**Status:** Implemented
+**Status:** Planned
 **Priority:** P1 (Medium)
 **Complexity:** Medium
 **Packages:** `engine/scenario`, `engine/bench`, `cmd/eval`
@@ -213,23 +213,23 @@ eval output → analyze bottlenecks → report to AILANG core → iterate
 ## Success Criteria
 
 ### Benchmarks
-- [x] BenchmarkInitWorld runs without panic
-- [x] BenchmarkStep measures single-tick throughput
-- [x] BenchmarkStep100 measures burst performance
-- [x] Memory allocation tracked (allocs/op, bytes/op)
+- [ ] BenchmarkInitWorld runs without panic
+- [ ] BenchmarkStep measures single-tick throughput
+- [ ] BenchmarkStep100 measures burst performance
+- [ ] Memory allocation tracked (allocs/op, bytes/op)
 
 ### Scenarios
-- [x] init_world scenario verifies world creation
-- [x] step_100_ticks scenario verifies simulation loop
-- [x] Scenario results captured in JSON format
+- [ ] init_world scenario verifies world creation
+- [ ] step_100_ticks scenario verifies simulation loop
+- [ ] Scenario results captured in JSON format
 
 ### Output
-- [x] `out/report.json` generated on `make eval`
-- [x] Report structure matches expected schema
-- [x] Scenarios show pass/fail status
-- [x] Results parseable for CI/CD integration
+- [ ] `out/report.json` generated on `make eval`
+- [ ] Report structure matches expected schema
+- [ ] Scenarios show pass/fail status
+- [ ] Results parseable for CI/CD integration
 
 ### Integration Test Purpose
-- [x] Exercise AILANG codegen under real workload
-- [x] Detect performance regressions
-- [x] Validate simulation determinism
+- [ ] Exercise AILANG codegen under real workload
+- [ ] Detect performance regressions
+- [ ] Validate simulation determinism

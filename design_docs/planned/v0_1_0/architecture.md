@@ -1,7 +1,7 @@
 # Stapledons Voyage Architecture
 
 **Version:** 0.1.0
-**Status:** Implemented
+**Status:** Planned
 **Priority:** P0 (High)
 **Complexity:** Complex
 **AILANG Workarounds:** Module imports, duplicate types
@@ -139,7 +139,7 @@ The Makefile enforces this:
 
 ## AILANG Constraints
 
-**Limitations encountered during v0.1.0:**
+**Known limitations to work around:**
 
 | Limitation | Impact | Workaround |
 |------------|--------|------------|
@@ -153,21 +153,21 @@ The Makefile enforces this:
 ## Success Criteria
 
 ### Architecture
-- [x] Three-layer separation (AILANG → Go codegen → Ebiten)
-- [x] Pure simulation layer (deterministic, no side effects)
-- [x] Thin engine layer (input capture + rendering only)
-- [x] Clean code generation boundary (never edit sim_gen/)
+- [ ] Three-layer separation (AILANG → Go codegen → Ebiten)
+- [ ] Pure simulation layer (deterministic, no side effects)
+- [ ] Thin engine layer (input capture + rendering only)
+- [ ] Clean code generation boundary (never edit sim_gen/)
 
 ### Build Pipeline
-- [x] `make sim` compiles AILANG to Go
-- [x] `make game` produces working executable
-- [x] `make run` launches game window
-- [x] `make eval` generates evaluation report
+- [ ] `make sim` compiles AILANG to Go
+- [ ] `make game` produces working executable
+- [ ] `make run` launches game window
+- [ ] `make eval` generates evaluation report
 
 ### Integration
-- [x] FrameInput/FrameOutput bridge working
-- [x] DrawCmd rendering functional
-- [x] World state persists between frames
+- [ ] FrameInput/FrameOutput bridge working
+- [ ] DrawCmd rendering functional
+- [ ] World state persists between frames
 
 ## Version History
 

@@ -6,24 +6,38 @@ This directory contains design documentation for game features and systems.
 
 ```
 design_docs/
-├── planned/              # Future features (not yet implemented)
-│   └── v0_2_0/           # Targeted for game v0.2.0
-├── implemented/          # Completed features
-│   └── v0_1_0/           # Implemented in v0.1.0
+├── planned/              # Features not yet implemented
+│   ├── v0_1_0/           # Core architecture (first milestone)
+│   ├── v0_2_0/           # Engine systems
+│   └── v0_3_0/           # Rendering & camera
+├── implemented/          # Completed features (empty for now)
 └── README.md             # This index
 ```
 
-## Implemented Features (v0.1.0)
-
-| Document | Description | Status |
-|----------|-------------|--------|
-| [Architecture](implemented/v0_1_0/architecture.md) | Three-layer design, data flow, build pipeline | Complete |
-| [Engine Layer](implemented/v0_1_0/engine-layer.md) | Go/Ebiten input capture and rendering | Complete |
-| [Evaluation System](implemented/v0_1_0/eval-system.md) | Benchmarks, scenarios, report generation | Complete |
-
 ## Planned Features
 
-*No planned features documented yet. Use the design-doc-creator skill to add new designs.*
+### v0.1.0 - Core Architecture (First Milestone)
+
+| Document | Description | Priority |
+|----------|-------------|----------|
+| [Architecture](planned/v0_1_0/architecture.md) | Three-layer design, data flow, build pipeline | P0 |
+| [Engine Layer](planned/v0_1_0/engine-layer.md) | Go/Ebiten input capture and rendering | P0 |
+| [Evaluation System](planned/v0_1_0/eval-system.md) | Benchmarks, scenarios, report generation | P1 |
+
+### v0.2.0 - Core Engine Systems
+
+| Document | Description | Priority |
+|----------|-------------|----------|
+| [Asset Management](planned/v0_2_0/asset-management.md) | Sprite, font, and sound loading | P0 |
+| [Audio System](planned/v0_2_0/audio-system.md) | Sound effects and music playback | P1 |
+| [Display Configuration](planned/v0_2_0/display-config.md) | Resolution, fullscreen, settings persistence | P1 |
+
+### v0.3.0 - Rendering & Camera
+
+| Document | Description | Priority |
+|----------|-------------|----------|
+| [Camera & Viewport](planned/v0_3_0/camera-viewport.md) | Scrolling, zoom, viewport culling | P0 |
+| [Tilemap Rendering](planned/v0_3_0/tilemap-rendering.md) | Batching, atlases, performance optimization | P1 |
 
 ## Creating New Design Documents
 

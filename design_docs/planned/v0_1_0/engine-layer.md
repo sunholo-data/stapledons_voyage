@@ -1,7 +1,7 @@
 # Engine Layer Design
 
 **Version:** 0.1.0
-**Status:** Implemented
+**Status:** Planned
 **Priority:** P0 (High)
 **Complexity:** Medium
 **Package:** `engine/render`
@@ -160,19 +160,19 @@ engine/render/
 ## Success Criteria
 
 ### Input System
-- [x] Mouse position captured each frame
-- [x] Mouse button state tracked (left, right, middle)
-- [x] Keyboard events captured (pressed keys)
-- [x] FrameInput struct populated correctly
+- [ ] Mouse position captured each frame
+- [ ] Mouse button state tracked (left, right, middle)
+- [ ] Keyboard events captured (pressed keys)
+- [ ] FrameInput struct populated correctly
 
 ### Rendering
-- [x] DrawCmd list processed from FrameOutput
-- [x] Rect commands render solid colors
-- [x] Z-ordering sorts back-to-front
-- [x] Biome colors display correctly
+- [ ] DrawCmd list processed from FrameOutput
+- [ ] Rect commands render solid colors
+- [ ] Z-ordering sorts back-to-front
+- [ ] Biome colors display correctly
 
 ### Integration
-- [x] sim_gen.Step() called with captured input
-- [x] World state updated between frames
-- [x] No game logic in engine layer
-- [x] Asset manager stub compiles (ready for v0.2.0)
+- [ ] sim_gen.Step() called with captured input
+- [ ] World state updated between frames
+- [ ] No game logic in engine layer
+- [ ] Asset manager stub compiles (ready for v0.2.0)
