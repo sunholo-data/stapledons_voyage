@@ -47,6 +47,12 @@ design_docs/
 | [Player Actions](planned/v0_4_0/player-actions.md) | Inspect, build, clear actions on selected tiles | P1 |
 | [NPC Movement](planned/v0_4_0/npc-movement.md) | NPC spawning, movement patterns, AI foundation | P1 |
 
+### v0.5.0 - UI Modes Architecture
+
+| Document | Description | Priority |
+|----------|-------------|----------|
+| [UI Modes](planned/v0_5_0/ui-modes.md) | WorldMode state machine, all 10+ UI surfaces, mode transitions | P0 |
+
 ## Creating New Design Documents
 
 Use the design-doc-creator skill:

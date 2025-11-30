@@ -1,8 +1,8 @@
 goos: darwin
 goarch: arm64
 pkg: stapledons_voyage/engine/bench
-BenchmarkInitWorld-8   	   94914	     13727 ns/op	   98496 B/op	       2 allocs/op
-BenchmarkStep-8        	   16882	     74616 ns/op	  336208 B/op	    4101 allocs/op
-BenchmarkStep100-8     	     158	   7939327 ns/op	33719396 B/op	  410103 allocs/op
+BenchmarkInitWorld-8   	  110337	     10911 ns/op	   98688 B/op	       4 allocs/op
+BenchmarkStep-8        	   15501	     78915 ns/op	  336321 B/op	    4102 allocs/op
+BenchmarkStep100-8     	     152	   7860382 ns/op	33730749 B/op	  410204 allocs/op
 PASS
-ok  	stapledons_voyage/engine/bench	5.629s
+ok  	stapledons_voyage/engine/bench	5.487s

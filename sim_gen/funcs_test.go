@@ -190,13 +190,18 @@ func TestActionWithNoSelection(t *testing.T) {
 func TestNPCInitialization(t *testing.T) {
 	world := InitWorld(1234)
 
-	if len(world.NPCs) != 3 {
-		t.Errorf("Expected 3 NPCs, got %d", len(world.NPCs))
+	if len(world.NPCs) != 4 {
+		t.Errorf("Expected 4 NPCs, got %d", len(world.NPCs))
 	}
 
 	// Check first NPC
 	if world.NPCs[0].ID != 1 || world.NPCs[0].X != 10 || world.NPCs[0].Y != 10 {
 		t.Errorf("NPC 1 has wrong position: got (%d,%d)", world.NPCs[0].X, world.NPCs[0].Y)
+	}
+
+	// Check patrol NPC exists
+	if _, ok := world.NPCs[3].Pattern.(PatternPatrol); !ok {
+		t.Error("Expected NPC 4 to have PatternPatrol")
 	}
 }
 
@@ -306,5 +311,115 @@ func TestMultipleNPCsIndependent(t *testing.T) {
 	}
 	if !moved {
 		t.Error("No random walk NPCs moved after 100 ticks")
+	}
+}
+
+// TestPatrolMovement verifies patrol NPC follows its path
+func TestPatrolMovement(t *testing.T) {
+	// Create an NPC with a simple patrol path: East, East, West, West
+	// This should result in the NPC moving right 2 tiles, then back to start
+	npc := NPC{
+		ID:          1,
+		X:           10,
+		Y:           10,
+		Sprite:      0,
+		Pattern:     PatternPatrol{Path: []Direction{East, East, West, West}, Interval: 1},
+		PatrolIndex: 0,
+		MoveCounter: 0, // Ready to move immediately
+	}
+
+	world := World{
+		Tick: 0,
+		Planet: PlanetState{
+			Width:  64,
+			Height: 64,
+			Tiles:  make([]Tile, 64*64),
+		},
+		NPCs:      []NPC{npc},
+		Selection: SelectionNone{},
+	}
+
+	// First move: East (10,10) -> (11,10)
+	world, _, _ = Step(world, FrameInput{})
+	if world.NPCs[0].X != 11 || world.NPCs[0].Y != 10 {
+		t.Errorf("After 1st move: expected (11,10), got (%d,%d)", world.NPCs[0].X, world.NPCs[0].Y)
+	}
+
+	// Wait for interval (MoveCounter resets to 1)
+	world, _, _ = Step(world, FrameInput{})
+
+	// Second move: East (11,10) -> (12,10)
+	world, _, _ = Step(world, FrameInput{})
+	if world.NPCs[0].X != 12 || world.NPCs[0].Y != 10 {
+		t.Errorf("After 2nd move: expected (12,10), got (%d,%d)", world.NPCs[0].X, world.NPCs[0].Y)
+	}
+
+	// Wait + Third move: West (12,10) -> (11,10)
+	world, _, _ = Step(world, FrameInput{})
+	world, _, _ = Step(world, FrameInput{})
+	if world.NPCs[0].X != 11 || world.NPCs[0].Y != 10 {
+		t.Errorf("After 3rd move: expected (11,10), got (%d,%d)", world.NPCs[0].X, world.NPCs[0].Y)
+	}
+
+	// Wait + Fourth move: West (11,10) -> (10,10) - back to start!
+	world, _, _ = Step(world, FrameInput{})
+	world, _, _ = Step(world, FrameInput{})
+	if world.NPCs[0].X != 10 || world.NPCs[0].Y != 10 {
+		t.Errorf("After 4th move: expected (10,10), got (%d,%d)", world.NPCs[0].X, world.NPCs[0].Y)
+	}
+
+	// Verify patrol loops - should continue with East again
+	world, _, _ = Step(world, FrameInput{})
+	world, _, _ = Step(world, FrameInput{})
+	if world.NPCs[0].X != 11 || world.NPCs[0].Y != 10 {
+		t.Errorf("After patrol loop: expected (11,10), got (%d,%d)", world.NPCs[0].X, world.NPCs[0].Y)
+	}
+}
+
+// TestPatrolBoundaryHandling verifies patrol NPC handles blocked moves
+func TestPatrolBoundaryHandling(t *testing.T) {
+	// Create NPC at corner with patrol that tries to go out of bounds
+	npc := NPC{
+		ID:          1,
+		X:           0,
+		Y:           0,
+		Sprite:      0,
+		Pattern:     PatternPatrol{Path: []Direction{North, West, South, East}, Interval: 1},
+		PatrolIndex: 0,
+		MoveCounter: 0,
+	}
+
+	world := World{
+		Tick: 0,
+		Planet: PlanetState{
+			Width:  64,
+			Height: 64,
+			Tiles:  make([]Tile, 64*64),
+		},
+		NPCs:      []NPC{npc},
+		Selection: SelectionNone{},
+	}
+
+	// First move: North blocked (at Y=0), NPC stays but patrol index advances
+	world, _, _ = Step(world, FrameInput{})
+	if world.NPCs[0].X != 0 || world.NPCs[0].Y != 0 {
+		t.Errorf("NPC should stay at (0,0) when blocked, got (%d,%d)", world.NPCs[0].X, world.NPCs[0].Y)
+	}
+	if world.NPCs[0].PatrolIndex != 1 {
+		t.Errorf("Patrol index should advance even when blocked, got %d", world.NPCs[0].PatrolIndex)
+	}
+
+	// Wait + Second move: West blocked, index advances to 2
+	world, _, _ = Step(world, FrameInput{})
+	world, _, _ = Step(world, FrameInput{})
+	if world.NPCs[0].PatrolIndex != 2 {
+		t.Errorf("Patrol index should be 2, got %d", world.NPCs[0].PatrolIndex)
+	}
+
+	// Wait + Third move: South works! (0,0) -> (0,1)
+	world, _, _ = Step(world, FrameInput{})
+	world, _, _ = Step(world, FrameInput{})
+	if world.NPCs[0].X != 0 || world.NPCs[0].Y != 1 {
+		t.Errorf("Expected (0,1), got (%d,%d)", world.NPCs[0].X, world.NPCs[0].Y)
 	}
 }

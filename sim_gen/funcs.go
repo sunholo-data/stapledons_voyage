@@ -45,6 +45,11 @@ func InitWorld(seed int64) World {
 		{ID: 1, X: 10, Y: 10, Sprite: 0, Pattern: PatternRandomWalk{Interval: 30}, PatrolIndex: 0, MoveCounter: 30},
 		{ID: 2, X: 20, Y: 15, Sprite: 1, Pattern: PatternRandomWalk{Interval: 45}, PatrolIndex: 0, MoveCounter: 45},
 		{ID: 3, X: 30, Y: 20, Sprite: 2, Pattern: PatternStatic{}, PatrolIndex: 0, MoveCounter: 0},
+		// Patrol NPC: walks in a 4x4 square pattern (clockwise)
+		{ID: 4, X: 40, Y: 30, Sprite: 3, Pattern: PatternPatrol{
+			Path:     []Direction{South, South, South, East, East, East, North, North, North, West, West, West},
+			Interval: 20,
+		}, PatrolIndex: 0, MoveCounter: 20},
 	}
 
 	return World{
@@ -91,7 +96,7 @@ func updateNPC(npc NPC, world World) NPC {
 	case PatternRandomWalk:
 		return updateRandomWalk(npc, world, p.Interval)
 	case PatternPatrol:
-		return updatePatrol(npc, world, p.Path)
+		return updatePatrol(npc, world, p.Path, p.Interval)
 	default:
 		return npc
 	}
@@ -139,10 +144,54 @@ func updateRandomWalk(npc NPC, world World, interval int) NPC {
 	}
 }
 
-// updatePatrol follows a fixed path (placeholder for now)
-func updatePatrol(npc NPC, world World, path []Direction) NPC {
-	// TODO: Implement patrol logic
-	return npc
+// updatePatrol follows a fixed path, looping back to start when complete
+func updatePatrol(npc NPC, world World, path []Direction, interval int) NPC {
+	// Empty path means static
+	if len(path) == 0 {
+		return npc
+	}
+
+	if npc.MoveCounter <= 0 {
+		// Time to move! Get current direction from path
+		dir := path[npc.PatrolIndex%len(path)]
+		dx, dy := directionOffset(dir)
+		newX, newY := npc.X+dx, npc.Y+dy
+
+		// Advance to next path index (wrap around)
+		nextIndex := (npc.PatrolIndex + 1) % len(path)
+
+		if isValidPosition(newX, newY, world.Planet.Width, world.Planet.Height) {
+			return NPC{
+				ID:          npc.ID,
+				X:           newX,
+				Y:           newY,
+				Sprite:      npc.Sprite,
+				Pattern:     npc.Pattern,
+				PatrolIndex: nextIndex,
+				MoveCounter: interval,
+			}
+		}
+		// Blocked - still advance index so patrol continues, reset counter
+		return NPC{
+			ID:          npc.ID,
+			X:           npc.X,
+			Y:           npc.Y,
+			Sprite:      npc.Sprite,
+			Pattern:     npc.Pattern,
+			PatrolIndex: nextIndex,
+			MoveCounter: interval,
+		}
+	}
+	// Decrement counter
+	return NPC{
+		ID:          npc.ID,
+		X:           npc.X,
+		Y:           npc.Y,
+		Sprite:      npc.Sprite,
+		Pattern:     npc.Pattern,
+		PatrolIndex: npc.PatrolIndex,
+		MoveCounter: npc.MoveCounter - 1,
+	}
 }
 
 // updateAllNPCs processes all NPCs for one tick

@@ -35,9 +35,10 @@ type PatternRandomWalk struct {
 
 func (PatternRandomWalk) isMovementPattern() {}
 
-// PatternPatrol follows a fixed path
+// PatternPatrol follows a fixed path, moving every Interval ticks
 type PatternPatrol struct {
-	Path []Direction
+	Path     []Direction
+	Interval int // ticks between moves
 }
 
 func (PatternPatrol) isMovementPattern() {}

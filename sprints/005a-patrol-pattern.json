@@ -1,0 +1,46 @@
+{
+  "sprint_id": "005a-patrol-pattern",
+  "status": "completed",
+  "created": "2025-11-30",
+  "design_doc": "design_docs/planned/v0_4_0/npc-movement.md",
+  "phases": [
+    {
+      "id": "phase-1",
+      "name": "PatternPatrol Implementation",
+      "priority": "P1",
+      "status": "completed",
+      "tasks": [
+        {
+          "id": "1.1",
+          "desc": "Add Interval field to PatternPatrol type",
+          "status": "completed"
+        },
+        {
+          "id": "1.2",
+          "desc": "Implement updatePatrol function",
+          "status": "completed"
+        },
+        {
+          "id": "1.3",
+          "desc": "Add test NPC with patrol pattern",
+          "status": "completed"
+        },
+        {
+          "id": "1.4",
+          "desc": "Verify patrol movement works correctly",
+          "status": "completed"
+        },
+        {
+          "id": "1.5",
+          "desc": "Run tests and verify",
+          "status": "completed"
+        }
+      ]
+    }
+  ],
+  "ailang_feedback": [],
+  "notes": [
+    "Follow-up to sprint 005 - PatternPatrol was missing from original sprint"
+  ],
+  "last_updated": "2025-11-30T17:42:55Z"
+}
