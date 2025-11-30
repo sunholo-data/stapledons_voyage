@@ -1,22 +1,9 @@
 module sim/step
 
--- Local type definitions (until imports work)
-type Coord = { x: int, y: int }
-type Tile = { biome: int }
-type PlanetState = { width: int, height: int, tiles: [Tile] }
-type NPC = { id: int, pos: Coord }
-type World = { tick: int, planet: PlanetState, npcs: [NPC] }
-
-type MouseState = { x: float, y: float, buttons: [int] }
-type KeyEvent = { key: int, kind: string }
-type FrameInput = { mouse: MouseState, keys: [KeyEvent] }
-
-type DrawCmd =
-    | Sprite(int, float, float, int)
-    | Rect(float, float, float, float, int, int)
-    | Text(string, float, float, int)
-
-type FrameOutput = { draw: [DrawCmd], sounds: [int], debug: [string] }
+-- Import types from protocol and world modules (imports fixed in v0.4.9)
+import sim/protocol (FrameInput, FrameOutput, DrawCmd, Rect, Coord, PlayerAction, ActionNone)
+import sim/world (World, PlanetState, Tile, Selection, SelectionNone, SelectionTile)
+import sim/npc_ai (NPC, PatternStatic, PatternRandomWalk, updateAllNPCs)
 
 -- Helper: generate list of n items using function
 pure func generate(n: int, f: int -> Tile) -> [Tile] {
@@ -26,37 +13,107 @@ pure func generate(n: int, f: int -> Tile) -> [Tile] {
     }
 }
 
--- Helper: build draw commands from tiles
--- Note: intToFloat is auto-imported from std/prelude
+-- Helper: build draw commands from tiles (tileSize=8 inlined due to AILANG scoping)
 pure func tilesToDraw(tiles: [Tile], width: int, idx: int) -> [DrawCmd] {
     match tiles {
         [] => [],
         t :: rest => {
             let x = idx % width;
             let y = idx / width;
-            let cmd = Rect(intToFloat(x * 4), intToFloat(y * 4), 4.0, 4.0, t.biome, 0);
+            let cmd = Rect(intToFloat(x * 8), intToFloat(y * 8), 8.0, 8.0, t.biome, 0);
             cmd :: tilesToDraw(rest, width, idx + 1)
         }
     }
 }
 
+-- Helper: build draw commands for NPCs
+pure func npcsToDraw(npcs: [NPC]) -> [DrawCmd] {
+    match npcs {
+        [] => [],
+        npc :: rest => {
+            let pos = npc.pos;
+            let cmd = Rect(intToFloat(pos.x * 8), intToFloat(pos.y * 8), 8.0, 8.0, 10 + npc.id, 2);
+            cmd :: npcsToDraw(rest)
+        }
+    }
+}
+
+-- Helper: build draw command for selection highlight
+pure func selectionToDraw(sel: Selection) -> [DrawCmd] {
+    match sel {
+        SelectionNone => [],
+        SelectionTile(x, y) => [Rect(intToFloat(x * 8), intToFloat(y * 8), 8.0, 8.0, 4, 3)]
+    }
+}
+
+-- Helper: concatenate two lists of draw commands
+pure func concatDrawCmds(a: [DrawCmd], b: [DrawCmd]) -> [DrawCmd] {
+    match a {
+        [] => b,
+        x :: rest => x :: concatDrawCmds(rest, b)
+    }
+}
+
+-- Process click to update selection (tileSize=8 inlined)
+pure func processSelection(input: FrameInput, world: World) -> Selection {
+    if input.clickedThisFrame then {
+        let tileX = floatToInt(input.worldMouseX / 8.0);
+        let tileY = floatToInt(input.worldMouseY / 8.0);
+        -- Check bounds (break nested access due to AILANG limitation)
+        let planet = world.planet;
+        if tileX >= 0 && tileX < planet.width && tileY >= 0 && tileY < planet.height then
+            SelectionTile(tileX, tileY)
+        else
+            SelectionNone
+    } else
+        world.selection
+}
+
 -- Initialize world with seed
 export func init_world(seed: int) -> World {
-    let w = 2;
-    let h = 2;
-    let tiles = [{ biome: 0 }, { biome: 1 }, { biome: 2 }, { biome: 3 }];
+    let w = 8;
+    let h = 8;
+    -- Create tiles with varied biomes based on position
+    let tiles = generate(w * h, \i. { biome: i % 4 });
+    -- Create test NPCs with movement patterns
+    let testNpcs = [
+        { id: 1, pos: { x: 2, y: 2 }, pattern: PatternRandomWalk(30), moveCounter: 30, patrolIndex: 0 },
+        { id: 2, pos: { x: 5, y: 3 }, pattern: PatternRandomWalk(45), moveCounter: 45, patrolIndex: 0 },
+        { id: 3, pos: { x: 4, y: 4 }, pattern: PatternStatic, moveCounter: 0, patrolIndex: 0 }
+    ];
     {
         tick: 0,
         planet: { width: w, height: h, tiles: tiles },
-        npcs: []
+        npcs: testNpcs,
+        selection: SelectionNone
     }
 }
 
 -- Step function: update world and produce draw commands
 export func step(world: World, input: FrameInput) -> (World, FrameOutput) {
+    -- Process selection
+    let newSelection = processSelection(input, world);
+
+    -- Update NPCs (break nested access for planet.width/height)
+    let planet = world.planet;
     let newTick = world.tick + 1;
-    let drawCmds = tilesToDraw(world.planet.tiles, world.planet.width, 0);
-    let newWorld = { tick: newTick, planet: world.planet, npcs: world.npcs };
+    let updatedNpcs = updateAllNPCs(world.npcs, newTick, planet.width, planet.height);
+
+    -- Update world state with new NPCs and selection
+    let newWorld = {
+        tick: newTick,
+        planet: planet,
+        npcs: updatedNpcs,
+        selection: newSelection
+    };
+
+    -- Generate draw commands for tiles, NPCs, and selection
+    let tiles = planet.tiles;
+    let tileCmds = tilesToDraw(tiles, planet.width, 0);
+    let npcCmds = npcsToDraw(updatedNpcs);
+    let selCmds = selectionToDraw(newSelection);
+    let drawCmds = concatDrawCmds(concatDrawCmds(tileCmds, npcCmds), selCmds);
+
     let output = { draw: drawCmds, sounds: [], debug: [] };
     (newWorld, output)
 }

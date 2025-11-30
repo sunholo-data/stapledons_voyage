@@ -102,12 +102,38 @@ cmd/game/main.go     # Game entry point
 # 1. Type check
 ailang check sim/step.ail
 
-# 2. Run entry function
+# 2. Run inline tests
+ailang test sim/npc_ai.ail
+
+# 3. Run entry function
 ailang run --entry init_world sim/step.ail
 
-# 3. Build and run game
+# 4. Build and run game
 make run
 ```
+
+### Inline Tests (v0.4.7+)
+
+Add inline tests for executable documentation:
+
+```ailang
+-- Syntax: tests [(input, expected), ...]
+pure func isInBounds(x: int, y: int, w: int, h: int) -> bool
+tests [
+    ((0, 0, 10, 10), true),
+    ((10, 5, 10, 10), false)
+] {
+    x >= 0 && x < w && y >= 0 && y < h
+}
+```
+
+Run tests:
+```bash
+ailang test sim/npc_ai.ail
+ailang test sim/            # all files in directory
+```
+
+**Limitation:** ADT constructors (North, South, etc.) crash the test harness. Only use primitive types (int, bool, string) in test inputs.
 
 ## Debugging
 
@@ -120,8 +146,8 @@ make run
 ### Common Issues
 | Issue | Cause | Fix |
 |-------|-------|-----|
-| Module not found | Imports don't work | Define types locally |
-| Recursion overflow | Deep recursion | Reduce data size or restructure |
+| Type inference fail | Nested field access | Break `a.b.c` into `let b = a.b; b.c` |
+| Test harness panic | ADT in test input | Only use primitives in tests |
 | Type mismatch | Wrong ADT constructor | Check pattern matching |
 | Unknown effect | Invalid effect name | Use IO, FS, Net, Env |
 

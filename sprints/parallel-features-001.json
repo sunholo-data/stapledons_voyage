@@ -1,0 +1,101 @@
+{
+  "sprint_id": "parallel-features-001",
+  "name": "Parallel Features: AILANG Expansion + Engine Polish",
+  "status": "completed",
+  "created": "2025-11-30",
+  "completed": "2025-11-30",
+  "phases": [
+    {
+      "id": "phase-1",
+      "name": "AILANG Track: Selection & Actions",
+      "status": "completed",
+      "tasks": [
+        {
+          "id": "ail-1",
+          "name": "Add Selection type to world.ail",
+          "status": "completed"
+        },
+        {
+          "id": "ail-2",
+          "name": "Add PlayerAction types to protocol.ail",
+          "status": "completed"
+        },
+        {
+          "id": "ail-3",
+          "name": "Implement processSelection in step.ail",
+          "status": "completed"
+        },
+        {
+          "id": "ail-4",
+          "name": "Add inline tests for selection logic",
+          "status": "blocked",
+          "notes": "ADT constructors crash test harness - AILANG bug reported"
+        }
+      ]
+    },
+    {
+      "id": "phase-2",
+      "name": "AILANG Track: NPC Movement Patterns",
+      "status": "completed",
+      "tasks": [
+        {
+          "id": "ail-5",
+          "name": "Add MovementPattern ADT to npc_ai.ail",
+          "status": "completed"
+        },
+        {
+          "id": "ail-6",
+          "name": "Implement updateNPC with patterns",
+          "status": "completed"
+        },
+        {
+          "id": "ail-7",
+          "name": "Integrate NPC updates into step function",
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "id": "phase-3",
+      "name": "Engine Track: Display Configuration",
+      "status": "completed",
+      "tasks": [
+        {
+          "id": "eng-1",
+          "name": "Add fullscreen toggle (F11)",
+          "status": "completed",
+          "notes": "Already implemented in engine/display/manager.go"
+        },
+        {
+          "id": "eng-2",
+          "name": "Add resolution settings",
+          "status": "completed",
+          "notes": "Already implemented in engine/display/config.go"
+        }
+      ]
+    }
+  ],
+  "ailang_issues": [
+    {
+      "issue": "Module-level let bindings not accessible in functions",
+      "workaround": "Inline constant values directly",
+      "reported": true
+    },
+    {
+      "issue": "Nested field access fails type inference (a.b.c)",
+      "workaround": "Break into separate let bindings: let b = a.b; b.c",
+      "reported": true
+    },
+    {
+      "issue": "ADT constructors crash inline test harness",
+      "workaround": "Only test functions with primitive inputs",
+      "reported": true
+    }
+  ],
+  "workarounds": [
+    "Inlined tileSize=8 constant throughout step.ail",
+    "Broke nested field access into separate let bindings",
+    "Built new NPC records explicitly instead of record update syntax for complex types"
+  ],
+  "summary": "Successfully implemented AILANG game logic for selection handling and NPC movement patterns. Engine display features were already in place. Key AILANG limitations documented and workarounds applied."
+}

@@ -16,10 +16,24 @@ export type KeyEvent = {
     kind: string
 }
 
--- Frame input from engine
+-- Structure types for building
+export type StructureType = StructureHouse | StructureFarm | StructureRoad
+
+-- Player action types (tagged union matching Go mock)
+export type PlayerAction =
+    | ActionNone
+    | ActionInspect
+    | ActionBuild(StructureType)
+    | ActionClear
+
+-- Frame input from engine (extended for selection/actions)
 export type FrameInput = {
     mouse: MouseState,
-    keys: [KeyEvent]
+    keys: [KeyEvent],
+    clickedThisFrame: bool,
+    worldMouseX: float,
+    worldMouseY: float,
+    actionRequested: PlayerAction
 }
 
 -- Draw commands (tagged union)

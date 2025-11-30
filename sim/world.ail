@@ -1,9 +1,12 @@
 module sim/world
 
--- Define Coord locally (until imports work)
-type Coord = { x: int, y: int }
+-- Import Coord from protocol (imports fixed in v0.4.9)
+import sim/protocol (Coord)
 
--- Tile with biome identifier
+-- Import NPC type from npc_ai (NPC now has MovementPattern)
+import sim/npc_ai (NPC, MovementPattern, PatternStatic, PatternRandomWalk, PatternPatrol, Direction)
+
+-- Re-export NPC type for consumers
 export type Tile = { biome: int }
 
 -- Planet state (grid stored as flat list)
@@ -13,15 +16,15 @@ export type PlanetState = {
     tiles: [Tile]
 }
 
--- NPC entity
-export type NPC = {
-    id: int,
-    pos: Coord
-}
+-- Selection state (tagged union matching Go mock)
+export type Selection =
+    | SelectionNone
+    | SelectionTile(int, int)  -- x, y tile coordinates
 
 -- Complete world state
 export type World = {
     tick: int,
     planet: PlanetState,
-    npcs: [NPC]
+    npcs: [NPC],
+    selection: Selection
 }

@@ -177,16 +177,42 @@ When working on this project, follow this iterative process:
 
 ### Known Limitations (as of current testing)
 
-- **Module imports not working** - Use local type definitions as workaround
-- **Recursion depth limits** - Avoid deep recursion; use literal lists for small data
 - **RNG effect coming in v0.5.1** - `rand_float()` (0-1), `rand_int(max)` (0-max), `AILANG_SEED` for determinism
 - **Array type coming in v0.5.0** - Currently only lists (O(n) access)
-- **Record update may fail** - Construct new records explicitly instead of `{base | field: val}`
+- **No tuple destructuring in let** - Use `match pair { (x, y) => ... }` instead of `let (x, y) = pair`
+- **Nested field access can fail type inference** - Break `npc.pos.x` into `let pos = npc.pos; pos.x`
+- **Inline test harness crashes on ADT constructors** - Tests with `North`, `South` etc. as inputs cause panic
+- **Record update fails with derived nested values** - `{b | pos: newPos}` fails if `newPos` was derived from `b.pos`. Use explicit construction instead.
+
+### Design Choices (Intentional)
+
+- **Module-level `let` not accessible in functions** - This is intentional for determinism. Module-level bindings are evaluated once at load time; if functions could access them, order of evaluation could affect results. Workaround: inline constants or pass as parameters.
+
+### Fixed in v0.4.9
+
+- **Module imports** - Both std library (`import std/list (length)`) and local (`import sim/world (World)`) imports now work
+- **Record update with type inference** - `{base | field: val}` now works in lambdas (e.g., `\world. {world | tick: world.tick + 1}`)
+- **Match in recursive functions** - Match expressions with int literals now work correctly (e.g., `match n { 0 => 0, _ => 1 + count(n-1) }`)
 
 ### Available in std/prelude (auto-imported)
 
 - `intToFloat(n)` - Convert int to float (e.g., `intToFloat(42)` → `42.0`)
 - `floatToInt(f)` - Convert float to int
+
+### Inline Tests (v0.4.7+)
+
+Use inline tests for executable documentation:
+
+```ailang
+-- Syntax: tests [(input, expected), ...]
+pure func square(x: int) -> int tests [(0, 0), (5, 25), (-3, 9)] {
+    x * x
+}
+
+-- Run tests with: ailang test sim/
+```
+
+Add inline tests to pure functions where practical. This documents expected behavior and catches regressions.
 
 Report any additional issues encountered to AILANG core.
 
@@ -203,7 +229,7 @@ This project targets **AILANG v0.5.x**. See [ailang_resources/consumer-contract-
 
 | Version | Features |
 |---------|----------|
-| v0.4.9 | Bug fixes (in progress) |
+| v0.4.9 | Bug fixes: record update inference, match recursion depth |
 | v0.5.0 | Go codegen, ADT structs, Array type |
 | v0.5.1 | RNG effect, Debug effect, AI effect |
 | v0.5.2 | Extern functions, CLI flags |
@@ -238,7 +264,7 @@ If AILANG breaks, the game breaks - making this an effective stress test for the
    ```bash
    ~/.claude/skills/ailang-feedback/scripts/send_feedback.sh <type> "<title>" "<description>" "stapledons_voyage"
    ```
-   Types: `bug`, `feature`, `docs`, `compatibility`, `performance`
+   Types: `bug`, `feature`, `docs`, `compatibility`, `performance`, `dx` (developer experience)
 
 ### Checking for Responses
 

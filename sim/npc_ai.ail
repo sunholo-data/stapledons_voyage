@@ -1,16 +1,131 @@
 module sim/npc_ai
 
--- Local type definitions (until imports work)
-type Coord = { x: int, y: int }
-type NPC = { id: int, pos: Coord }
+-- Import types (imports fixed in v0.4.9)
+import sim/protocol (Coord)
 
--- NPC AI logic
--- TODO: Add actual AI behavior when we understand RNG/effects better
-export pure func think(npc: NPC) -> NPC {
-    npc
+-- Direction type for movement
+export type Direction = North | South | East | West
+
+-- Movement behavior pattern (ADT)
+export type MovementPattern =
+    | PatternStatic                  -- NPC stays in place
+    | PatternRandomWalk(int)         -- move every N ticks
+    | PatternPatrol([Direction])     -- follow path of directions
+
+-- NPC entity with movement state
+export type NPC = {
+    id: int,
+    pos: Coord,
+    pattern: MovementPattern,
+    moveCounter: int,    -- ticks until next move
+    patrolIndex: int     -- current index in patrol path
 }
 
--- Move NPC by delta
-export pure func moveNpc(npc: NPC, dx: int, dy: int) -> NPC {
-    { id: npc.id, pos: { x: npc.pos.x + dx, y: npc.pos.y + dy } }
+-- Check if position is within bounds
+export pure func isInBounds(x: int, y: int, width: int, height: int) -> bool
+tests [
+    ((0, 0, 10, 10), true),
+    ((9, 9, 10, 10), true),
+    ((10, 5, 10, 10), false),
+    ((-1, 5, 10, 10), false),
+    ((5, -1, 10, 10), false)
+] {
+    x >= 0 && x < width && y >= 0 && y < height
+}
+
+-- Get X offset for a direction
+-- Note: Can't add inline tests - ADT constructors crash test harness (AILANG bug)
+pure func directionDx(dir: Direction) -> int {
+    match dir {
+        North => 0,
+        South => 0,
+        East => 1,
+        West => -1
+    }
+}
+
+-- Get Y offset for a direction
+pure func directionDy(dir: Direction) -> int {
+    match dir {
+        North => -1,
+        South => 1,
+        East => 0,
+        West => 0
+    }
+}
+
+-- Convert index (0-3) to direction (deterministic "random")
+pure func indexToDirection(idx: int) -> Direction {
+    match idx % 4 {
+        0 => North,
+        1 => South,
+        2 => East,
+        _ => West
+    }
+}
+
+-- Create NPC with updated position (preserves other fields)
+pure func npcWithPos(npc: NPC, newX: int, newY: int) -> NPC {
+    {
+        id: npc.id,
+        pos: { x: newX, y: newY },
+        pattern: npc.pattern,
+        moveCounter: npc.moveCounter,
+        patrolIndex: npc.patrolIndex
+    }
+}
+
+-- Create NPC with updated counter (preserves other fields)
+pure func npcWithCounter(npc: NPC, counter: int) -> NPC {
+    {
+        id: npc.id,
+        pos: npc.pos,
+        pattern: npc.pattern,
+        moveCounter: counter,
+        patrolIndex: npc.patrolIndex
+    }
+}
+
+-- Try to move NPC in a direction, return new NPC (or same if blocked)
+export pure func tryMoveDirection(npc: NPC, dir: Direction, width: int, height: int) -> NPC {
+    let dx = directionDx(dir);
+    let dy = directionDy(dir);
+    let pos = npc.pos;
+    let newX = pos.x + dx;
+    let newY = pos.y + dy;
+    if isInBounds(newX, newY, width, height) then
+        npcWithPos(npc, newX, newY)
+    else
+        npc
+}
+
+-- Update random walk NPC for one tick
+pure func updateRandomWalk(npc: NPC, tick: int, interval: int, width: int, height: int) -> NPC {
+    if npc.moveCounter <= 0 then {
+        -- Time to move! Pick direction based on tick + id (deterministic "random")
+        let dirIndex = (tick + npc.id) % 4;
+        let dir = indexToDirection(dirIndex);
+        let movedNpc = tryMoveDirection(npc, dir, width, height);
+        -- Reset counter to interval
+        npcWithCounter(movedNpc, interval)
+    } else
+        -- Decrement counter
+        npcWithCounter(npc, npc.moveCounter - 1)
+}
+
+-- Update single NPC for one tick based on its pattern
+export pure func updateNPC(npc: NPC, tick: int, width: int, height: int) -> NPC {
+    match npc.pattern {
+        PatternStatic => npc,
+        PatternRandomWalk(interval) => updateRandomWalk(npc, tick, interval, width, height),
+        PatternPatrol(path) => npc  -- TODO: implement patrol when list indexing available
+    }
+}
+
+-- Update all NPCs recursively
+export pure func updateAllNPCs(npcs: [NPC], tick: int, width: int, height: int) -> [NPC] {
+    match npcs {
+        [] => [],
+        npc :: rest => updateNPC(npc, tick, width, height) :: updateAllNPCs(rest, tick, width, height)
+    }
 }

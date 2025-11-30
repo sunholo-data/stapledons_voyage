@@ -188,11 +188,36 @@ For mock sprints, skip AILANG-specific steps and focus on Go implementation.
    - List all issues reported during sprint
    - Note any responses received
 
-3. **Sprint Report**
+3. **Developer Experience (DX) Report** (REQUIRED)
+
+   After every sprint, send a DX feedback message reflecting on the overall experience:
+
+   ```bash
+   ~/.claude/skills/ailang-feedback/scripts/send_feedback.sh dx \
+     "Sprint DX: <sprint-name>" \
+     "<honest reflection on working with AILANG this sprint>" \
+     "stapledons_voyage"
+   ```
+
+   **Include in your reflection:**
+   - **Positives**: What worked well? What felt natural?
+   - **Friction points**: Where did you get stuck? What was confusing?
+   - **Productivity**: Could you express your intent easily?
+   - **Error messages**: Were they helpful or cryptic?
+   - **Documentation**: Did `ailang prompt` have what you needed?
+   - **Overall sentiment**: Would you want to use AILANG again?
+
+   **Be honest** - negative feedback is valuable. Examples:
+   - "Pattern matching felt natural and expressive"
+   - "Nested field access errors were frustrating to debug"
+   - "The functional style made NPC updates clean"
+   - "Had to fight the type system on record updates"
+
+4. **Sprint Report**
    - Milestones completed
    - AILANG issues encountered
    - Workarounds used
-   - Time spent vs estimated
+   - DX rating (1-5 stars)
 
 ## Error Handling
 
@@ -216,6 +241,78 @@ For mock sprints, skip AILANG-specific steps and focus on Go implementation.
 1. Design workaround
 2. Document the workaround
 3. Report as feature request
+
+## Common AILANG Workarounds
+
+Quick reference for known issues and their solutions:
+
+| Problem | Error Message | Workaround |
+|---------|---------------|------------|
+| Nested field access | "cannot unify open record with TVar2" | Break `a.b.c` into `let b = a.b; b.c` |
+| Record update with derived value | "cannot unify open record" on `{b \| pos: newPos}` | Use explicit construction: `{ field1: b.field1, pos: newPos }` |
+| Module-level `let` in function | "undefined variable" | Inline constant or pass as parameter (intentional design) |
+| Tuple destructuring | Parse error on `let (x, y) = pair` | Use `match pair { (x, y) => ... }` |
+| ADT in inline tests | Test harness crashes | Only use primitive types in test inputs |
+
+### Maintaining This List (IMPORTANT)
+
+**This project's purpose is to surface and fix AILANG issues.** Keep this workarounds table current:
+
+**Scripts for tracking workarounds:**
+
+```bash
+# Check inbox and verify workarounds still needed
+.claude/skills/sprint-executor/scripts/check_workarounds.sh
+
+# Add a new workaround (updates both SKILL.md and CLAUDE.md)
+.claude/skills/sprint-executor/scripts/add_workaround.sh \
+  "Problem name" "Error message" "Workaround description"
+
+# Mark an issue as fixed (moves to Fixed section)
+.claude/skills/sprint-executor/scripts/mark_fixed.sh \
+  "problem keyword" "v0.5.0"
+```
+
+**When you discover a new issue:**
+1. Run `add_workaround.sh` with problem, error, and workaround
+2. Report via `ailang-feedback` with detailed repro steps
+
+**When AILANG fixes an issue:**
+1. Check inbox: `ailang agent inbox stapledons_voyage`
+2. Verify fix: `ailang check sim/*.ail`
+3. Run `mark_fixed.sh "<keyword>" "<version>"`
+4. Remove workarounds from code where practical
+5. Acknowledge: `ailang agent ack <msg-id>`
+
+**At sprint start:**
+```bash
+# Full status check
+.claude/skills/sprint-executor/scripts/check_workarounds.sh
+```
+
+### Record Update Pattern
+
+When updating nested records, this pattern works:
+```ailang
+-- WORKS: newPos comes from parameter or fresh construction
+pure func moveBox(b: Box, newPos: Point) -> Box {
+    {b | pos: newPos}
+}
+
+-- FAILS: newPos derived from b.pos
+pure func moveBoxBad(b: Box) -> Box {
+    let oldPos = b.pos;
+    let newPos = { x: oldPos.x + 1, y: oldPos.y };
+    {b | pos: newPos}  -- ERROR!
+}
+
+-- WORKAROUND: explicit construction
+pure func moveBoxFixed(b: Box) -> Box {
+    let oldPos = b.pos;
+    let newPos = { x: oldPos.x + 1, y: oldPos.y };
+    { pos: newPos, size: b.size }  -- Explicit fields
+}
+```
 
 ## Quality Checkpoints
 
