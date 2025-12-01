@@ -53,12 +53,6 @@ pure func concatDrawCmds(a: [DrawCmd], b: [DrawCmd]) -> [DrawCmd] {
     }
 }
 
--- Create patrol NPC (separate function to avoid type inference bug)
-pure func makePatrolNPC() -> NPC {
-    let path = [East, South, West, North];
-    { id: 4, pos: { x: 1, y: 1 }, pattern: PatternPatrol(path), moveCounter: 0, patrolIndex: 0 }
-}
-
 -- Process click to update selection (tileSize=8 inlined, TVar2 fix v0.5.0)
 pure func processSelection(input: FrameInput, world: World) -> Selection {
     if input.clickedThisFrame then {
@@ -78,12 +72,14 @@ export func init_world(seed: int) -> World {
     let h = 8;
     -- Create tiles with varied biomes based on position
     let tiles = generate(w * h, \i. { biome: i % 4 });
-    -- Create test NPCs with movement patterns
-    let npc1 = { id: 1, pos: { x: 2, y: 2 }, pattern: PatternRandomWalk(30), moveCounter: 30, patrolIndex: 0 };
-    let npc2 = { id: 2, pos: { x: 5, y: 3 }, pattern: PatternRandomWalk(45), moveCounter: 45, patrolIndex: 0 };
-    let npc3 = { id: 3, pos: { x: 4, y: 4 }, pattern: PatternStatic, moveCounter: 0, patrolIndex: 0 };
-    let npc4 = makePatrolNPC();
-    let testNpcs = [npc1, npc2, npc3, npc4];
+    -- Create test NPCs with movement patterns (type inference fix v0.5.0)
+    let patrolPath = [East, East, South, South, West, West, North, North];
+    let testNpcs = [
+        { id: 1, pos: { x: 2, y: 2 }, pattern: PatternRandomWalk(30), moveCounter: 30, patrolIndex: 0 },
+        { id: 2, pos: { x: 5, y: 3 }, pattern: PatternRandomWalk(45), moveCounter: 45, patrolIndex: 0 },
+        { id: 3, pos: { x: 4, y: 4 }, pattern: PatternStatic, moveCounter: 0, patrolIndex: 0 },
+        { id: 4, pos: { x: 1, y: 1 }, pattern: PatternPatrol(patrolPath), moveCounter: 0, patrolIndex: 0 }
+    ];
     {
         tick: 0,
         planet: { width: w, height: h, tiles: tiles },

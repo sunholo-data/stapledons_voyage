@@ -186,6 +186,7 @@ When working on this project, follow this iterative process:
 - **Nested field access** - `npc.pos.x` now works through function params, match bindings, list patterns
 - **Record update with nested values** - `{ npc | pos: { x: newX, y: newY } }` works correctly
 - **ADT inline tests** - Tests like `tests [(North, 0), (South, 0)]` now resolve local constructors
+- **Imported ADT type pollution** - Mixed ADT constructors (e.g., `PatternPatrol([Direction])` + `PatternRandomWalk(int)`) in same scope no longer cause type inference errors
 
 ### Design Choices (Intentional)
 
