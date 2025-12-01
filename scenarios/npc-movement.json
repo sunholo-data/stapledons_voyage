@@ -1,0 +1,13 @@
+{
+  "name": "npc-movement",
+  "description": "Capture NPC movement over time",
+  "seed": 1234,
+  "test_mode": true,
+  "camera": {"x": 200, "y": 200, "zoom": 1.0},
+  "events": [
+    {"frame": 0, "capture": "tick-0.png"},
+    {"frame": 30, "capture": "tick-30.png"},
+    {"frame": 60, "capture": "tick-60.png"},
+    {"frame": 90, "capture": "tick-90.png"}
+  ]
+}

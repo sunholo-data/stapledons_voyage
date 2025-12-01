@@ -15,7 +15,22 @@ import (
 // SpriteManager handles sprite loading and caching.
 type SpriteManager struct {
 	sprites     map[int]*ebiten.Image
+	animations  map[int]*SpriteAnimDef // Animation definitions per sprite ID
 	placeholder *ebiten.Image
+}
+
+// SpriteAnimDef defines animation sequences for a sprite.
+type SpriteAnimDef struct {
+	Animations  map[string]SpriteAnimSeq `json:"animations"`
+	FrameWidth  int                      `json:"frameWidth"`
+	FrameHeight int                      `json:"frameHeight"`
+}
+
+// SpriteAnimSeq defines a single animation sequence.
+type SpriteAnimSeq struct {
+	StartFrame int     `json:"startFrame"`
+	FrameCount int     `json:"frameCount"`
+	FPS        float64 `json:"fps"`
 }
 
 // NewSpriteManager creates a new sprite manager with an empty cache.
@@ -26,6 +41,7 @@ func NewSpriteManager() *SpriteManager {
 
 	return &SpriteManager{
 		sprites:     make(map[int]*ebiten.Image),
+		animations:  make(map[int]*SpriteAnimDef),
 		placeholder: placeholder,
 	}
 }
@@ -54,6 +70,15 @@ func (sm *SpriteManager) LoadManifest(spritePath string) error {
 		}
 
 		sm.sprites[id] = img
+
+		// Store animation definitions if present
+		if len(entry.Animations) > 0 && entry.FrameWidth > 0 && entry.FrameHeight > 0 {
+			sm.animations[id] = &SpriteAnimDef{
+				Animations:  entry.Animations,
+				FrameWidth:  entry.FrameWidth,
+				FrameHeight: entry.FrameHeight,
+			}
+		}
 	}
 
 	return nil
@@ -70,6 +95,17 @@ func (sm *SpriteManager) Get(id int) *ebiten.Image {
 // Has returns true if a sprite with the given ID is loaded.
 func (sm *SpriteManager) Has(id int) bool {
 	_, ok := sm.sprites[id]
+	return ok
+}
+
+// GetAnimation returns the animation definition for a sprite, or nil if not animated.
+func (sm *SpriteManager) GetAnimation(id int) *SpriteAnimDef {
+	return sm.animations[id]
+}
+
+// HasAnimation returns true if the sprite has animation definitions.
+func (sm *SpriteManager) HasAnimation(id int) bool {
+	_, ok := sm.animations[id]
 	return ok
 }
 

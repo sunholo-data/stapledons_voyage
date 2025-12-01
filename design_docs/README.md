@@ -7,9 +7,19 @@ This directory contains design documentation for game features and systems.
 ```
 design_docs/
 ├── planned/              # Features not yet implemented
-│   ├── v0_1_0/           # Core architecture (first milestone)
+│   ├── v0_1_0/           # Core architecture
 │   ├── v0_2_0/           # Engine systems
-│   └── v0_3_0/           # Rendering & camera
+│   ├── v0_3_0/           # Rendering & camera
+│   ├── v0_4_0/           # Gameplay features
+│   ├── v0_5_0/           # UI modes architecture
+│   ├── v0_5_1/           # Ship exploration
+│   ├── v0_5_2/           # Galaxy map
+│   ├── v0_5_3/           # Dialogue system
+│   ├── v0_6_0/           # Journey system
+│   ├── v0_6_1/           # Civilization & trade
+│   ├── v0_7_0/           # Exploration modes
+│   ├── v0_8_0/           # Endgame
+│   └── v0_9_0/           # Supporting UIs
 ├── implemented/          # Completed features (empty for now)
 └── README.md             # This index
 ```
@@ -52,6 +62,54 @@ design_docs/
 | Document | Description | Priority |
 |----------|-------------|----------|
 | [UI Modes](planned/v0_5_0/ui-modes.md) | WorldMode state machine, all 10+ UI surfaces, mode transitions | P0 |
+
+### v0.5.1 - Ship Exploration
+
+| Document | Description | Priority |
+|----------|-------------|----------|
+| [Ship Exploration](planned/v0_5_1/ship-exploration.md) | Multi-deck ship interior, player movement, crew interaction, room system | P0 |
+
+### v0.5.2 - Galaxy Map
+
+| Document | Description | Priority |
+|----------|-------------|----------|
+| [Galaxy Map](planned/v0_5_2/galaxy-map.md) | Pan/zoom starfield, civilization nodes, contact network, time dilation preview | P0 |
+
+### v0.5.3 - Dialogue System
+
+| Document | Description | Priority |
+|----------|-------------|----------|
+| [Dialogue System](planned/v0_5_3/dialogue-system.md) | Branching conversations, portrait system, choice effects, crew dialogues | P0 |
+
+### v0.6.0 - Journey System
+
+| Document | Description | Priority |
+|----------|-------------|----------|
+| [Journey System](planned/v0_6_0/journey-system.md) | Journey planning, time dilation calculator, crew projection, journey events, arrival sequence | P0 |
+
+### v0.6.1 - Civilization & Trade
+
+| Document | Description | Priority |
+|----------|-------------|----------|
+| [Civilization & Trade](planned/v0_6_1/civilization-trade.md) | Civilization detail screen, philosophy system, trade UI, impact preview | P1 |
+
+### v0.7.0 - Exploration Modes
+
+| Document | Description | Priority |
+|----------|-------------|----------|
+| [Exploration Modes](planned/v0_7_0/exploration-modes.md) | Planet surface mode, ruins/archaeology, artifacts, ancient logs | P1 |
+
+### v0.8.0 - Endgame
+
+| Document | Description | Priority |
+|----------|-------------|----------|
+| [Endgame Legacy](planned/v0_8_0/endgame-legacy.md) | Fast-forward to Year 1,000,000, network comparison, victory scoring, counterfactuals, epilogue | P0 |
+
+### v0.9.0 - Supporting UIs
+
+| Document | Description | Priority |
+|----------|-------------|----------|
+| [Supporting UIs](planned/v0_9_0/supporting-uis.md) | Logbook, crew sociogram, tech inventory, philosophy browser, time comparison | P2 |
 
 ## Creating New Design Documents
 

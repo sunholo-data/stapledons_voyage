@@ -116,6 +116,7 @@ type World struct {
 	Planet    PlanetState
 	NPCs      []NPC
 	Selection Selection
+	Camera    Camera // Camera position and zoom
 }
 
 // PlayerAction represents an action the player wants to perform (tagged union)

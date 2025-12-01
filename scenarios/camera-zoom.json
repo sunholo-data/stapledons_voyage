@@ -1,0 +1,16 @@
+{
+  "name": "camera-zoom",
+  "description": "Test camera zoom with Q/E keys",
+  "seed": 1234,
+  "test_mode": true,
+  "camera": {"x": 0, "y": 0, "zoom": 1.0},
+  "events": [
+    {"frame": 0, "capture": "zoom-1x.png"},
+    {"frame": 1, "key": "E", "action": "down"},
+    {"frame": 60, "key": "E", "action": "up"},
+    {"frame": 60, "capture": "zoom-in.png"},
+    {"frame": 61, "key": "Q", "action": "down"},
+    {"frame": 180, "key": "Q", "action": "up"},
+    {"frame": 180, "capture": "zoom-out.png"}
+  ]
+}

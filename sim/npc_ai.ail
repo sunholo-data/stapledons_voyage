@@ -33,9 +33,9 @@ tests [
     x >= 0 && x < width && y >= 0 && y < height
 }
 
--- Get X offset for a direction
--- Note: Can't add inline tests - ADT constructors crash test harness (AILANG bug)
-pure func directionDx(dir: Direction) -> int {
+-- Get X offset for a direction (ADT test fix v0.5.0)
+pure func directionDx(dir: Direction) -> int
+tests [(North, 0), (South, 0), (East, 1), (West, -1)] {
     match dir {
         North => 0,
         South => 0,
@@ -45,7 +45,8 @@ pure func directionDx(dir: Direction) -> int {
 }
 
 -- Get Y offset for a direction
-pure func directionDy(dir: Direction) -> int {
+pure func directionDy(dir: Direction) -> int
+tests [(North, -1), (South, 1), (East, 0), (West, 0)] {
     match dir {
         North => -1,
         South => 1,
@@ -64,35 +65,39 @@ pure func indexToDirection(idx: int) -> Direction {
     }
 }
 
--- Create NPC with updated position (preserves other fields)
-pure func npcWithPos(npc: NPC, newX: int, newY: int) -> NPC {
-    {
-        id: npc.id,
-        pos: { x: newX, y: newY },
-        pattern: npc.pattern,
-        moveCounter: npc.moveCounter,
-        patrolIndex: npc.patrolIndex
+-- Get length of a direction list (for patrol path cycling)
+pure func pathLength(path: [Direction]) -> int {
+    match path {
+        [] => 0,
+        _ :: rest => 1 + pathLength(rest)
     }
 }
 
--- Create NPC with updated counter (preserves other fields)
-pure func npcWithCounter(npc: NPC, counter: int) -> NPC {
-    {
-        id: npc.id,
-        pos: npc.pos,
-        pattern: npc.pattern,
-        moveCounter: counter,
-        patrolIndex: npc.patrolIndex
+-- Get direction at index from path (0-indexed, returns North if out of bounds)
+pure func pathGet(path: [Direction], idx: int) -> Direction {
+    match path {
+        [] => North,
+        dir :: rest => if idx <= 0 then dir else pathGet(rest, idx - 1)
     }
+}
+
+-- Create NPC with updated position (record update v0.5.0)
+pure func npcWithPos(npc: NPC, newX: int, newY: int) -> NPC {
+    { npc | pos: { x: newX, y: newY } }
+}
+
+-- Create NPC with updated counter (record update v0.5.0)
+pure func npcWithCounter(npc: NPC, counter: int) -> NPC {
+    { npc | moveCounter: counter }
 }
 
 -- Try to move NPC in a direction, return new NPC (or same if blocked)
+-- Direct nested access (TVar2 list pattern fix v0.5.0)
 export pure func tryMoveDirection(npc: NPC, dir: Direction, width: int, height: int) -> NPC {
     let dx = directionDx(dir);
     let dy = directionDy(dir);
-    let pos = npc.pos;
-    let newX = pos.x + dx;
-    let newY = pos.y + dy;
+    let newX = npc.pos.x + dx;
+    let newY = npc.pos.y + dy;
     if isInBounds(newX, newY, width, height) then
         npcWithPos(npc, newX, newY)
     else
@@ -113,12 +118,29 @@ pure func updateRandomWalk(npc: NPC, tick: int, interval: int, width: int, heigh
         npcWithCounter(npc, npc.moveCounter - 1)
 }
 
+-- Update patrol NPC for one tick (moves every 20 ticks along path)
+pure func updatePatrol(npc: NPC, path: [Direction], width: int, height: int) -> NPC {
+    let len = pathLength(path);
+    if len <= 0 then
+        npc  -- Empty path, stay put
+    else if npc.moveCounter <= 0 then {
+        -- Time to move! Get direction from path at current index
+        let dir = pathGet(path, npc.patrolIndex);
+        let movedNpc = tryMoveDirection(npc, dir, width, height);
+        -- Advance patrol index (cycle using modulo)
+        let nextIndex = (npc.patrolIndex + 1) % len;
+        { movedNpc | patrolIndex: nextIndex, moveCounter: 20 }
+    } else
+        -- Decrement counter
+        npcWithCounter(npc, npc.moveCounter - 1)
+}
+
 -- Update single NPC for one tick based on its pattern
 export pure func updateNPC(npc: NPC, tick: int, width: int, height: int) -> NPC {
     match npc.pattern {
         PatternStatic => npc,
         PatternRandomWalk(interval) => updateRandomWalk(npc, tick, interval, width, height),
-        PatternPatrol(path) => npc  -- TODO: implement patrol when list indexing available
+        PatternPatrol(path) => updatePatrol(npc, path, width, height)
     }
 }
 

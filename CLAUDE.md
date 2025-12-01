@@ -180,9 +180,12 @@ When working on this project, follow this iterative process:
 - **RNG effect coming in v0.5.1** - `rand_float()` (0-1), `rand_int(max)` (0-max), `AILANG_SEED` for determinism
 - **Array type coming in v0.5.0** - Currently only lists (O(n) access)
 - **No tuple destructuring in let** - Use `match pair { (x, y) => ... }` instead of `let (x, y) = pair`
-- **Nested field access can fail type inference** - Break `npc.pos.x` into `let pos = npc.pos; pos.x`
-- **Inline test harness crashes on ADT constructors** - Tests with `North`, `South` etc. as inputs cause panic
-- **Record update fails with derived nested values** - `{b | pos: newPos}` fails if `newPos` was derived from `b.pos`. Use explicit construction instead.
+
+### Fixed in v0.5.0 (Dec 2025)
+
+- **Nested field access** - `npc.pos.x` now works through function params, match bindings, list patterns
+- **Record update with nested values** - `{ npc | pos: { x: newX, y: newY } }` works correctly
+- **ADT inline tests** - Tests like `tests [(North, 0), (South, 0)]` now resolve local constructors
 
 ### Design Choices (Intentional)
 

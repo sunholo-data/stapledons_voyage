@@ -1,0 +1,12 @@
+module sim/test_repro
+
+import sim/protocol (Coord)
+import sim/npc_ai (NPC, PatternStatic, PatternRandomWalk, PatternPatrol, Direction, North, South, East, West)
+
+-- Test: inline [Direction] list with int fields in same scope
+pure func testMixedTypes() -> [NPC] {
+    let patrolPath = [East, South, West, North];
+    let npc4 = { id: 4, pos: { x: 1, y: 1 }, pattern: PatternPatrol(patrolPath), moveCounter: 0, patrolIndex: 0 };
+    let npc1 = { id: 1, pos: { x: 2, y: 2 }, pattern: PatternRandomWalk(30), moveCounter: 30, patrolIndex: 0 };
+    [npc4, npc1]
+}

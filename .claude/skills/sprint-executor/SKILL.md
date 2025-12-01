@@ -69,7 +69,7 @@ Invoke this skill when:
 
 ## Mock-Only Sprints (No AILANG)
 
-When AILANG compiler isn't ready, use mock sprints:
+When AILANG compiler isn't ready or the sprint is pure engine work, use mock sprints:
 
 ```bash
 # Use -mock targets
@@ -79,7 +79,13 @@ make eval-mock    # Test without AILANG
 go test ./...     # Run Go tests
 ```
 
-For mock sprints, skip AILANG-specific steps and focus on Go implementation.
+**For mock sprints, skip these AILANG-specific steps:**
+- `ailang check` → use `go build ./...` instead
+- `ailang run` → use `make run-mock` instead
+- AILANG feedback messages → **do not send** (no AILANG issues to report)
+- DX feedback → **skip** (feedback skill is for AILANG, not Go)
+
+Focus on Go implementation and standard Go testing.
 
 ## Execution Flow
 
@@ -188,9 +194,11 @@ For mock sprints, skip AILANG-specific steps and focus on Go implementation.
    - List all issues reported during sprint
    - Note any responses received
 
-3. **Developer Experience (DX) Report** (REQUIRED)
+3. **Developer Experience (DX) Report** (AILANG sprints only)
 
-   After every sprint, send a DX feedback message reflecting on the overall experience:
+   **Skip this for mock-only sprints** - the `ailang-feedback` skill is for AILANG language feedback, not general sprint completion.
+
+   For sprints that involve AILANG code, send a DX feedback message reflecting on the overall experience:
 
    ```bash
    ~/.claude/skills/ailang-feedback/scripts/send_feedback.sh dx \
@@ -215,9 +223,9 @@ For mock sprints, skip AILANG-specific steps and focus on Go implementation.
 
 4. **Sprint Report**
    - Milestones completed
-   - AILANG issues encountered
-   - Workarounds used
-   - DX rating (1-5 stars)
+   - AILANG issues encountered (if any)
+   - Workarounds used (if any)
+   - DX rating (1-5 stars) - for AILANG sprints only
 
 ## Error Handling
 

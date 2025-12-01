@@ -46,7 +46,27 @@ Ask user:
 - Estimated complexity? (simple, medium, complex)
 - Any AILANG limitations to work around?
 
-### 2. Consider AILANG Constraints
+### 2. Game Vision Alignment
+
+**Every feature should be scored against the game's core pillars:**
+
+| Pillar | Question |
+|--------|----------|
+| **Time Dilation Consequence** | Does this reinforce irreversible time choices? |
+| **Civilization Simulation** | Does it enhance galaxy-scale simulation? |
+| **Philosophical Depth** | Does it add moral/philosophical decisions? |
+| **Ship & Crew Life** | Does it connect to finite crew narrative? |
+| **Legacy Impact** | Does it contribute to Year 1,000,000 report? |
+| **Hard Sci-Fi Authenticity** | Does it maintain scientific plausibility? |
+
+**Feature types:**
+- **Gameplay features** should score positively on multiple pillars
+- **Engine/Infrastructure** features can score N/A on most pillars (they're enabling tech)
+- **No feature** should score negatively on any pillar (violates game vision)
+
+**Reference:** [docs/game-vision.md](../../../docs/game-vision.md)
+
+### 3. Consider AILANG Constraints
 
 **Important for this project:** All game logic is written in AILANG. Consider:
 - No mutable state - must use functional updates
@@ -54,16 +74,17 @@ Ask user:
 - Limited data structures - lists only, no arrays
 - Known issues - check CLAUDE.md for current limitations
 
-### 3. Design Doc Structure
+### 4. Design Doc Structure
 
 **Game-specific sections:**
+- **Game Vision Alignment**: Score against core pillars
 - **Feature Overview**: What gameplay does this enable?
 - **AILANG Implementation**: Types, functions, effects needed
 - **Engine Integration**: How Go/Ebiten renders this
 - **Performance**: Recursion depth, list operations needed
 - **Testing**: How to verify the feature works
 
-### 4. Example: NPC Movement Design Doc
+### 5. Example: NPC Movement Design Doc
 
 ```markdown
 # NPC Movement System

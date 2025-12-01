@@ -61,11 +61,75 @@ func InitWorld(seed int64) World {
 		},
 		NPCs:      testNPCs,
 		Selection: SelectionNone{},
+		Camera:    Camera{X: 0, Y: 0, Zoom: 1.0}, // Start centered on origin
 	}
 }
 
 // TileSize is the pixel size of each tile
 const TileSize = 8.0
+
+// CameraSpeed is how fast the camera moves per frame (in world units)
+const CameraSpeed = 4.0
+
+// Ebiten key codes for camera movement (from ebiten.Key* constants)
+const (
+	KeyArrowUp    = 31
+	KeyArrowDown  = 28
+	KeyArrowLeft  = 29
+	KeyArrowRight = 30
+	KeyW          = 22
+	KeyA          = 0
+	KeyS          = 18
+	KeyD          = 3
+	KeyQ          = 16 // Zoom out
+	KeyE          = 4  // Zoom in
+)
+
+// isKeyDown checks if a key is currently pressed
+func isKeyDown(keys []KeyEvent, keyCode int) bool {
+	for _, k := range keys {
+		if k.Key == keyCode && k.Kind == "down" {
+			return true
+		}
+	}
+	return false
+}
+
+// updateCamera processes camera movement from input
+func updateCamera(cam Camera, keys []KeyEvent) Camera {
+	newX, newY := cam.X, cam.Y
+	newZoom := cam.Zoom
+
+	// Arrow keys or WASD for movement
+	if isKeyDown(keys, KeyArrowUp) || isKeyDown(keys, KeyW) {
+		newY -= CameraSpeed / cam.Zoom
+	}
+	if isKeyDown(keys, KeyArrowDown) || isKeyDown(keys, KeyS) {
+		newY += CameraSpeed / cam.Zoom
+	}
+	if isKeyDown(keys, KeyArrowLeft) || isKeyDown(keys, KeyA) {
+		newX -= CameraSpeed / cam.Zoom
+	}
+	if isKeyDown(keys, KeyArrowRight) || isKeyDown(keys, KeyD) {
+		newX += CameraSpeed / cam.Zoom
+	}
+
+	// Q/E for zoom
+	if isKeyDown(keys, KeyQ) {
+		newZoom = cam.Zoom * 0.98 // Zoom out
+		if newZoom < 0.25 {
+			newZoom = 0.25
+		}
+	}
+	if isKeyDown(keys, KeyE) {
+		newZoom = cam.Zoom * 1.02 // Zoom in
+		if newZoom > 4.0 {
+			newZoom = 4.0
+		}
+	}
+
+	return Camera{X: newX, Y: newY, Zoom: newZoom}
+}
 
 // directionOffset returns the x, y offset for a direction
 func directionOffset(dir Direction) (int, int) {
@@ -206,6 +270,9 @@ func updateAllNPCs(npcs []NPC, world World) []NPC {
 // Step advances the simulation by one frame.
 // Returns new world state and frame output with draw commands.
 func Step(world World, input FrameInput) (World, FrameOutput, error) {
+	// Process camera movement
+	newCamera := updateCamera(world.Camera, input.Keys)
+
 	// Process selection on click
 	newSelection := world.Selection
 	if input.ClickedThisFrame {
@@ -224,7 +291,23 @@ func Step(world World, input FrameInput) (World, FrameOutput, error) {
 
 	// Process action on current selection
 	var debugMessages []string
-	newPlanet := world.Planet // May be modified by build/clear
+	var sounds []int                // Sound IDs to play this frame
+	newPlanet := world.Planet       // May be modified by build/clear
+
+	// Sound IDs: 1=click, 2=build, 3=error, 4=select
+	const (
+		SoundClick  = 1
+		SoundBuild  = 2
+		SoundError  = 3
+		SoundSelect = 4
+	)
+
+	// Play select sound when selection changes
+	if input.ClickedThisFrame {
+		if _, ok := newSelection.(SelectionTile); ok {
+			sounds = append(sounds, SoundSelect)
+		}
+	}
 
 	if input.ActionRequested != nil {
 		switch action := input.ActionRequested.(type) {
@@ -239,9 +322,11 @@ func Step(world World, input FrameInput) (World, FrameOutput, error) {
 					}
 					msg := fmt.Sprintf("Tile (%d,%d): %s - %s", sel.X, sel.Y, getBiomeName(tile.Biome), structInfo)
 					debugMessages = append(debugMessages, msg)
+					sounds = append(sounds, SoundClick)
 				}
 			} else {
 				debugMessages = append(debugMessages, "No tile selected")
+				sounds = append(sounds, SoundError)
 			}
 
 		case ActionBuild:
@@ -263,12 +348,15 @@ func Step(world World, input FrameInput) (World, FrameOutput, error) {
 							Tiles:  newTiles,
 						}
 						debugMessages = append(debugMessages, fmt.Sprintf("Built %s at (%d,%d)", getStructureName(action.StructureType), sel.X, sel.Y))
+						sounds = append(sounds, SoundBuild)
 					} else {
 						debugMessages = append(debugMessages, "Tile already has a structure")
+						sounds = append(sounds, SoundError)
 					}
 				}
 			} else {
 				debugMessages = append(debugMessages, "No tile selected")
+				sounds = append(sounds, SoundError)
 			}
 
 		case ActionClear:
@@ -290,12 +378,15 @@ func Step(world World, input FrameInput) (World, FrameOutput, error) {
 							Tiles:  newTiles,
 						}
 						debugMessages = append(debugMessages, fmt.Sprintf("Cleared structure at (%d,%d)", sel.X, sel.Y))
+						sounds = append(sounds, SoundClick)
 					} else {
 						debugMessages = append(debugMessages, "No structure to clear")
+						sounds = append(sounds, SoundError)
 					}
 				}
 			} else {
 				debugMessages = append(debugMessages, "No tile selected")
+				sounds = append(sounds, SoundError)
 			}
 		}
 	}
@@ -306,82 +397,107 @@ func Step(world World, input FrameInput) (World, FrameOutput, error) {
 		Planet:    newPlanet,
 		NPCs:      world.NPCs,
 		Selection: newSelection,
+		Camera:    newCamera,
 	}
 	// Update all NPCs (needs newWorld for tick)
 	newWorld.NPCs = updateAllNPCs(world.NPCs, newWorld)
 
-	// Generate draw commands for tiles
-	drawCmds := make([]DrawCmd, 0, len(newPlanet.Tiles)*2+1) // tiles + structures + possible highlight
+	// Generate draw commands for tiles using isometric rendering
+	drawCmds := make([]DrawCmd, 0, len(newPlanet.Tiles)*2+len(newWorld.NPCs)+1)
 
 	for i, tile := range newPlanet.Tiles {
 		x := i % newPlanet.Width
 		y := i / newPlanet.Width
-		// Draw base tile
-		cmd := DrawCmdRect{
-			X:     float64(x) * TileSize,
-			Y:     float64(y) * TileSize,
-			W:     TileSize,
-			H:     TileSize,
-			Color: tile.Biome,
-			Z:     0,
+		// Draw base tile as isometric diamond
+		cmd := DrawCmdIsoTile{
+			Tile:     Coord{X: x, Y: y},
+			Height:   0,
+			SpriteID: 0, // Use colored fallback
+			Layer:    0, // Ground layer
+			Color:    tile.Biome,
 		}
 		drawCmds = append(drawCmds, cmd)
 
-		// Draw structure on top if present (colors 5-7)
+		// Draw structure on top if present
 		if hs, ok := tile.Structure.(HasStructure); ok {
-			structCmd := DrawCmdRect{
-				X:     float64(x)*TileSize + 1, // Slightly inset
-				Y:     float64(y)*TileSize + 1,
-				W:     TileSize - 2,
-				H:     TileSize - 2,
-				Color: 5 + int(hs.Type), // 5=House, 6=Farm, 7=Road
-				Z:     1,                // On top of terrain
+			structCmd := DrawCmdIsoTile{
+				Tile:     Coord{X: x, Y: y},
+				Height:   1, // Slightly elevated
+				SpriteID: 0,
+				Layer:    50, // Structure layer
+				Color:    5 + int(hs.Type), // 5=House, 6=Farm, 7=Road
 			}
 			drawCmds = append(drawCmds, structCmd)
 		}
 	}
 
-	// Draw NPCs on top of terrain and structures (Z=2)
+	// Draw NPCs as isometric entities
+	// NPC.Sprite field (0-3) maps to SpriteID 100-103
 	for _, npc := range newWorld.NPCs {
-		npcCmd := DrawCmdRect{
-			X:     float64(npc.X) * TileSize,
-			Y:     float64(npc.Y) * TileSize,
-			W:     TileSize,
-			H:     TileSize,
-			Color: 10 + npc.Sprite, // NPC colors start at index 10
-			Z:     2,
+		npcCmd := DrawCmdIsoEntity{
+			ID:       fmt.Sprintf("npc-%d", npc.ID),
+			Tile:     Coord{X: npc.X, Y: npc.Y},
+			OffsetX:  0,
+			OffsetY:  0,
+			Height:   0,
+			SpriteID: 100 + npc.Sprite, // Map NPC sprite index to sprite ID 100+
+			Layer:    100,              // Entity layer (above tiles)
 		}
 		drawCmds = append(drawCmds, npcCmd)
 	}
 
-	// Add selection highlight on top (Z=3, above NPCs)
+	// Add selection highlight
 	if sel, ok := newSelection.(SelectionTile); ok {
-		highlightCmd := DrawCmdRect{
-			X:     float64(sel.X) * TileSize,
-			Y:     float64(sel.Y) * TileSize,
-			W:     TileSize,
-			H:     TileSize,
-			Color: 4, // Yellow highlight (index 4 in biomeColors)
-			Z:     3, // Draw on top of tiles, structures, and NPCs
+		highlightCmd := DrawCmdIsoTile{
+			Tile:     Coord{X: sel.X, Y: sel.Y},
+			Height:   0,
+			SpriteID: 0,
+			Layer:    150, // Highlight layer (above entities)
+			Color:    4, // Yellow highlight
 		}
 		drawCmds = append(drawCmds, highlightCmd)
 	}
 
-	// Calculate camera centered on world
-	worldPixelW := float64(world.Planet.Width) * TileSize
-	worldPixelH := float64(world.Planet.Height) * TileSize
-	camera := Camera{
-		X:    worldPixelW / 2,
-		Y:    worldPixelH / 2,
-		Zoom: 1.0,
+	// Add UI panels only when not in test mode (test mode strips UI for golden files)
+	if !input.TestMode {
+		// Add UI panel showing camera position and controls
+		cameraPanel := DrawCmdUi{
+			ID:       "camera-info",
+			Kind:     UiKindPanel,
+			X:        0.02,
+			Y:        0.02,
+			W:        0.28,
+			H:        0.06,
+			Text:     fmt.Sprintf("Cam: (%.0f, %.0f) Zoom: %.2fx", newCamera.X, newCamera.Y, newCamera.Zoom),
+			SpriteID: 0,
+			Z:        0,
+			Color:    3,
+		}
+		drawCmds = append(drawCmds, cameraPanel)
+
+		// Controls help panel
+		controlsPanel := DrawCmdUi{
+			ID:       "controls-help",
+			Kind:     UiKindPanel,
+			X:        0.02,
+			Y:        0.88,
+			W:        0.45,
+			H:        0.10,
+			Text:     "WASD/Arrows: Move | Q/E: Zoom | Click: Select | I: Inspect | B: Build | X: Clear",
+			SpriteID: 0,
+			Z:        0,
+			Color:    0, // Water blue
+		}
+		drawCmds = append(drawCmds, controlsPanel)
 	}
 
 	output := FrameOutput{
 		Draw:   drawCmds,
-		Sounds: []int{},
+		Sounds: sounds,
 		Debug:  debugMessages,
-		Camera: camera,
+		Camera: newCamera,
 	}
 
 	return newWorld, output, nil
 }
+

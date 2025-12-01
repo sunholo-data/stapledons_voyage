@@ -1,10 +1,62 @@
 {
   "sprites": {
-    "0": {"file": "tile_water.png", "width": 16, "height": 16},
-    "1": {"file": "tile_forest.png", "width": 16, "height": 16},
-    "2": {"file": "tile_desert.png", "width": 16, "height": 16},
-    "3": {"file": "tile_mountain.png", "width": 16, "height": 16},
-    "100": {"file": "player.png", "width": 32, "height": 32},
-    "101": {"file": "npc.png", "width": 32, "height": 32}
+    "1": {"file": "iso_tiles/water.png", "width": 64, "height": 32, "type": "tile"},
+    "2": {"file": "iso_tiles/forest.png", "width": 64, "height": 32, "type": "tile"},
+    "3": {"file": "iso_tiles/desert.png", "width": 64, "height": 32, "type": "tile"},
+    "4": {"file": "iso_tiles/mountain.png", "width": 64, "height": 32, "type": "tile"},
+    "100": {
+      "file": "iso_entities/npc_red.png",
+      "width": 128, "height": 48, "type": "entity",
+      "frameWidth": 32, "frameHeight": 48,
+      "animations": {
+        "idle": {"startFrame": 0, "frameCount": 1, "fps": 0},
+        "walk": {"startFrame": 0, "frameCount": 4, "fps": 6}
+      }
+    },
+    "101": {
+      "file": "iso_entities/npc_green.png",
+      "width": 128, "height": 48, "type": "entity",
+      "frameWidth": 32, "frameHeight": 48,
+      "animations": {
+        "idle": {"startFrame": 0, "frameCount": 1, "fps": 0},
+        "walk": {"startFrame": 0, "frameCount": 4, "fps": 6}
+      }
+    },
+    "102": {
+      "file": "iso_entities/npc_blue.png",
+      "width": 128, "height": 48, "type": "entity",
+      "frameWidth": 32, "frameHeight": 48,
+      "animations": {
+        "idle": {"startFrame": 0, "frameCount": 1, "fps": 0},
+        "walk": {"startFrame": 0, "frameCount": 4, "fps": 6}
+      }
+    },
+    "103": {
+      "file": "iso_entities/npc_yellow.png",
+      "width": 128, "height": 48, "type": "entity",
+      "frameWidth": 32, "frameHeight": 48,
+      "animations": {
+        "idle": {"startFrame": 0, "frameCount": 1, "fps": 0},
+        "walk": {"startFrame": 0, "frameCount": 4, "fps": 6}
+      }
+    },
+    "104": {
+      "file": "iso_entities/npc_purple.png",
+      "width": 128, "height": 48, "type": "entity",
+      "frameWidth": 32, "frameHeight": 48,
+      "animations": {
+        "idle": {"startFrame": 0, "frameCount": 1, "fps": 0},
+        "walk": {"startFrame": 0, "frameCount": 4, "fps": 6}
+      }
+    },
+    "105": {
+      "file": "iso_entities/player.png",
+      "width": 128, "height": 48, "type": "entity",
+      "frameWidth": 32, "frameHeight": 48,
+      "animations": {
+        "idle": {"startFrame": 0, "frameCount": 1, "fps": 0},
+        "walk": {"startFrame": 0, "frameCount": 4, "fps": 8}
+      }
+    }
   }
 }

@@ -70,21 +70,25 @@ cat > "$DOC_PATH" <<'EOF'
 **Estimated**: [Time estimate, e.g., 2 days]
 **Dependencies**: [None or list other features]
 
-## AI-First Alignment Check
+## Game Vision Alignment
 
-**Score this feature against AILANG's core principles:**
+**Score this feature against Stapledon's Voyage core pillars:**
 
-| Principle | Impact | Score | Notes |
-|-----------|--------|-------|-------|
-| Reduce Syntactic Noise | [+/0/−] | [+1/0/−1] | [e.g., "Removes import boilerplate"] |
-| Preserve Semantic Clarity | [+/0/−] | [+1/0/−1] | [e.g., "Effects remain explicit in types"] |
-| Increase Determinism | [+/0/−] | [+1/0/−1] | [e.g., "Injection is deterministic per entry module"] |
-| Lower Token Cost | [+/0/−] | [+1/0/−1] | [e.g., "~30 token reduction per example"] |
+| Pillar | Relevance | Score | Notes |
+|--------|-----------|-------|-------|
+| Time Dilation Consequence | [+/0/−/N/A] | [+1/0/−1] | [Does this reinforce irreversible time choices?] |
+| Civilization Simulation | [+/0/−/N/A] | [+1/0/−1] | [Does it enhance galaxy-scale simulation?] |
+| Philosophical Depth | [+/0/−/N/A] | [+1/0/−1] | [Does it add moral/philosophical decisions?] |
+| Ship & Crew Life | [+/0/−/N/A] | [+1/0/−1] | [Does it connect to finite crew narrative?] |
+| Legacy Impact | [+/0/−/N/A] | [+1/0/−1] | [Does it contribute to Year 1,000,000 report?] |
+| Hard Sci-Fi Authenticity | [+/0/−/N/A] | [+1/0/−1] | [Does it maintain scientific plausibility?] |
 | **Net Score** | | **[Total]** | **Decision: [Move forward / Reject / Redesign]** |
 
-**Decision rule:** Net score > +1 → Move forward | ≤ 0 → Reject or redesign
+**Feature type:** [Gameplay / Engine / Infrastructure]
+- **Gameplay**: Direct player-facing features → should score positively on multiple pillars
+- **Engine/Infrastructure**: Enabling tech → N/A is acceptable, no negative scores
 
-**Reference:** See [AI-first DX philosophy](../v0_3_15/example-parity-vision-alignment.md#-design-principle-ai-first-dx)
+**Reference:** See [game-vision.md](../../../docs/game-vision.md)
 
 ## Problem Statement
 

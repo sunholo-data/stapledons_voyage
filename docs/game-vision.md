@@ -92,3 +92,44 @@ The game is built using:
 - **Mock simulation** - Hand-written Go for development while AILANG compiler is built
 
 See [DEVELOPMENT.md](../DEVELOPMENT.md) for technical details.
+
+## AI-Assisted Development
+
+This project serves as a primary integration test for AILANG and embraces AI-assisted development. Key principles:
+
+### Self-Testing & Autonomous Verification
+
+The development environment should enable AI agents (like Claude Code) to:
+
+1. **Verify visual output** - Capture screenshots programmatically to validate rendering
+2. **Run automated scenarios** - Execute predefined input sequences and verify outcomes
+3. **Detect regressions** - Compare current output against golden images/expected states
+4. **Debug autonomously** - Investigate issues without requiring human screenshots
+
+### Headless Testing Capabilities
+
+The game supports headless rendering modes for automated testing:
+
+- `--screenshot <frames> <output.png>` - Capture frame after N ticks
+- `--scenario <name>` - Run predefined test scenario with simulated inputs
+- Golden image comparison for visual regression testing
+
+### Continuous Verification Loop
+
+```
+Code Change → Build → Headless Test → Screenshot → AI Analysis → Fix/Iterate
+```
+
+This enables rapid iteration where the AI can:
+- Make a change
+- Run the game headlessly
+- View the screenshot output
+- Verify correctness or identify issues
+- Continue iterating without human intervention
+
+### Benefits
+
+- **Faster development** - AI can self-verify without waiting for human testing
+- **Better coverage** - Automated scenarios catch edge cases
+- **Documentation** - Screenshots serve as visual documentation of features
+- **Regression prevention** - Golden images catch unintended visual changes

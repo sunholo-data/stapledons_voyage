@@ -5,11 +5,39 @@ Complete reference for Stapledons Voyage game design documents.
 ## Template Overview
 
 Game design docs should cover:
-1. **Game feature** - What gameplay does this enable?
-2. **AILANG implementation** - Types, functions, effects needed
-3. **Engine integration** - How Go/Ebiten renders this
-4. **AILANG constraints** - Known limitations and workarounds
-5. **Testing** - How to verify it works
+1. **Game Vision Alignment** - How does this support the game's core pillars?
+2. **Game feature** - What gameplay does this enable?
+3. **AILANG implementation** - Types, functions, effects needed
+4. **Engine integration** - How Go/Ebiten renders this
+5. **AILANG constraints** - Known limitations and workarounds
+6. **Testing** - How to verify it works
+
+## Game Vision Alignment Section
+
+Every feature should be evaluated against Stapledon's Voyage core pillars:
+
+```markdown
+## Game Vision Alignment
+
+| Pillar | Relevance | Score | Notes |
+|--------|-----------|-------|-------|
+| Time Dilation Consequence | [+/0/−/N/A] | [+1/0/−1] | [Does this reinforce irreversible time choices?] |
+| Civilization Simulation | [+/0/−/N/A] | [+1/0/−1] | [Does it enhance galaxy-scale simulation?] |
+| Philosophical Depth | [+/0/−/N/A] | [+1/0/−1] | [Does it add moral/philosophical decisions?] |
+| Ship & Crew Life | [+/0/−/N/A] | [+1/0/−1] | [Does it connect to finite crew narrative?] |
+| Legacy Impact | [+/0/−/N/A] | [+1/0/−1] | [Does it contribute to Year 1,000,000 report?] |
+| Hard Sci-Fi Authenticity | [+/0/−/N/A] | [+1/0/−1] | [Does it maintain scientific plausibility?] |
+| **Net Score** | | **[Total]** | **Decision: [Move forward / Reject / Redesign]** |
+
+**Feature type:** [Gameplay / Engine / Infrastructure]
+```
+
+**Scoring guidelines:**
+- **Gameplay features**: Should score positively on multiple pillars
+- **Engine/Infrastructure**: N/A is acceptable (enabling tech), but no negative scores
+- **Net score < 0**: Redesign needed - feature conflicts with game vision
+- **Net score = 0**: Acceptable for infrastructure, questionable for gameplay
+- **Net score > 0**: Move forward
 
 ## Header Section
 

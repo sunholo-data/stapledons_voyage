@@ -3,7 +3,7 @@ module sim/step
 -- Import types from protocol and world modules (imports fixed in v0.4.9)
 import sim/protocol (FrameInput, FrameOutput, DrawCmd, Rect, Coord, PlayerAction, ActionNone)
 import sim/world (World, PlanetState, Tile, Selection, SelectionNone, SelectionTile)
-import sim/npc_ai (NPC, PatternStatic, PatternRandomWalk, updateAllNPCs)
+import sim/npc_ai (NPC, PatternStatic, PatternRandomWalk, PatternPatrol, Direction, North, South, East, West, updateAllNPCs)
 
 -- Helper: generate list of n items using function
 pure func generate(n: int, f: int -> Tile) -> [Tile] {
@@ -26,13 +26,12 @@ pure func tilesToDraw(tiles: [Tile], width: int, idx: int) -> [DrawCmd] {
     }
 }
 
--- Helper: build draw commands for NPCs
+-- Helper: build draw commands for NPCs (TVar2 list pattern fix v0.5.0)
 pure func npcsToDraw(npcs: [NPC]) -> [DrawCmd] {
     match npcs {
         [] => [],
         npc :: rest => {
-            let pos = npc.pos;
-            let cmd = Rect(intToFloat(pos.x * 8), intToFloat(pos.y * 8), 8.0, 8.0, 10 + npc.id, 2);
+            let cmd = Rect(intToFloat(npc.pos.x * 8), intToFloat(npc.pos.y * 8), 8.0, 8.0, 10 + npc.id, 2);
             cmd :: npcsToDraw(rest)
         }
     }
@@ -54,14 +53,18 @@ pure func concatDrawCmds(a: [DrawCmd], b: [DrawCmd]) -> [DrawCmd] {
     }
 }
 
--- Process click to update selection (tileSize=8 inlined)
+-- Create patrol NPC (separate function to avoid type inference bug)
+pure func makePatrolNPC() -> NPC {
+    let path = [East, South, West, North];
+    { id: 4, pos: { x: 1, y: 1 }, pattern: PatternPatrol(path), moveCounter: 0, patrolIndex: 0 }
+}
+
+-- Process click to update selection (tileSize=8 inlined, TVar2 fix v0.5.0)
 pure func processSelection(input: FrameInput, world: World) -> Selection {
     if input.clickedThisFrame then {
         let tileX = floatToInt(input.worldMouseX / 8.0);
         let tileY = floatToInt(input.worldMouseY / 8.0);
-        -- Check bounds (break nested access due to AILANG limitation)
-        let planet = world.planet;
-        if tileX >= 0 && tileX < planet.width && tileY >= 0 && tileY < planet.height then
+        if tileX >= 0 && tileX < world.planet.width && tileY >= 0 && tileY < world.planet.height then
             SelectionTile(tileX, tileY)
         else
             SelectionNone
@@ -76,11 +79,11 @@ export func init_world(seed: int) -> World {
     -- Create tiles with varied biomes based on position
     let tiles = generate(w * h, \i. { biome: i % 4 });
     -- Create test NPCs with movement patterns
-    let testNpcs = [
-        { id: 1, pos: { x: 2, y: 2 }, pattern: PatternRandomWalk(30), moveCounter: 30, patrolIndex: 0 },
-        { id: 2, pos: { x: 5, y: 3 }, pattern: PatternRandomWalk(45), moveCounter: 45, patrolIndex: 0 },
-        { id: 3, pos: { x: 4, y: 4 }, pattern: PatternStatic, moveCounter: 0, patrolIndex: 0 }
-    ];
+    let npc1 = { id: 1, pos: { x: 2, y: 2 }, pattern: PatternRandomWalk(30), moveCounter: 30, patrolIndex: 0 };
+    let npc2 = { id: 2, pos: { x: 5, y: 3 }, pattern: PatternRandomWalk(45), moveCounter: 45, patrolIndex: 0 };
+    let npc3 = { id: 3, pos: { x: 4, y: 4 }, pattern: PatternStatic, moveCounter: 0, patrolIndex: 0 };
+    let npc4 = makePatrolNPC();
+    let testNpcs = [npc1, npc2, npc3, npc4];
     {
         tick: 0,
         planet: { width: w, height: h, tiles: tiles },
@@ -89,27 +92,20 @@ export func init_world(seed: int) -> World {
     }
 }
 
--- Step function: update world and produce draw commands
+-- Step function: update world and produce draw commands (TVar2 fix v0.5.0)
 export func step(world: World, input: FrameInput) -> (World, FrameOutput) {
     -- Process selection
     let newSelection = processSelection(input, world);
 
-    -- Update NPCs (break nested access for planet.width/height)
-    let planet = world.planet;
+    -- Update NPCs using direct nested access
     let newTick = world.tick + 1;
-    let updatedNpcs = updateAllNPCs(world.npcs, newTick, planet.width, planet.height);
+    let updatedNpcs = updateAllNPCs(world.npcs, newTick, world.planet.width, world.planet.height);
 
-    -- Update world state with new NPCs and selection
-    let newWorld = {
-        tick: newTick,
-        planet: planet,
-        npcs: updatedNpcs,
-        selection: newSelection
-    };
+    -- Update world state using record update
+    let newWorld = { world | tick: newTick, npcs: updatedNpcs, selection: newSelection };
 
     -- Generate draw commands for tiles, NPCs, and selection
-    let tiles = planet.tiles;
-    let tileCmds = tilesToDraw(tiles, planet.width, 0);
+    let tileCmds = tilesToDraw(world.planet.tiles, world.planet.width, 0);
     let npcCmds = npcsToDraw(updatedNpcs);
     let selCmds = selectionToDraw(newSelection);
     let drawCmds = concatDrawCmds(concatDrawCmds(tileCmds, npcCmds), selCmds);

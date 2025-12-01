@@ -1,0 +1,113 @@
+{
+  "id": "006-isometric-engine",
+  "name": "Isometric Engine Renderer",
+  "status": "completed",
+  "type": "mock-only",
+  "design_doc": "design_docs/planned/v0_5_0/isometric-engine.md",
+  "created": "2025-12-01",
+  "phases": [
+    {
+      "id": "phase-1",
+      "name": "Protocol & Projection",
+      "status": "completed",
+      "tasks": [
+        {
+          "id": "task-1-1",
+          "name": "Add coordinate types to sim_gen/protocol.go",
+          "status": "completed",
+          "description": "Add Coord, IsoTile, IsoEntity, UiElement types"
+        },
+        {
+          "id": "task-1-2",
+          "name": "Add new DrawCmd variants",
+          "status": "completed",
+          "description": "DrawCmdIsoTile, DrawCmdIsoEntity, DrawCmdUi"
+        },
+        {
+          "id": "task-1-3",
+          "name": "Create engine/render/iso.go with projection",
+          "status": "completed",
+          "description": "TileToScreen() and ScreenToTile() functions"
+        },
+        {
+          "id": "task-1-4",
+          "name": "Add projection constants",
+          "status": "completed",
+          "description": "TileWidth, TileHeight, HeightScale"
+        },
+        {
+          "id": "task-1-5",
+          "name": "Write projection unit tests",
+          "status": "completed",
+          "description": "Round-trip accuracy tests in iso_test.go"
+        }
+      ]
+    },
+    {
+      "id": "phase-2",
+      "name": "Iso Renderer",
+      "status": "completed",
+      "tasks": [
+        {
+          "id": "task-2-1",
+          "name": "Implement renderIsoTile()",
+          "status": "completed",
+          "description": "Project tile, draw sprite/rect at position"
+        },
+        {
+          "id": "task-2-2",
+          "name": "Implement renderIsoEntity()",
+          "status": "completed",
+          "description": "Project entity with sub-tile offset"
+        },
+        {
+          "id": "task-2-3",
+          "name": "Update RenderFrame() for new DrawCmd variants",
+          "status": "completed",
+          "description": "Handle DrawIsoTile, DrawIsoEntity in switch"
+        },
+        {
+          "id": "task-2-4",
+          "name": "Implement composite sorting",
+          "status": "completed",
+          "description": "Sort by (layer, screenY, id)"
+        }
+      ]
+    },
+    {
+      "id": "phase-3",
+      "name": "Integration & Test Scene",
+      "status": "completed",
+      "tasks": [
+        {
+          "id": "task-3-1",
+          "name": "Update mock sim_gen to emit DrawIsoTile",
+          "status": "completed",
+          "description": "Generate 5x5 tile grid as test scene"
+        },
+        {
+          "id": "task-3-2",
+          "name": "Add test entity to scene",
+          "status": "completed",
+          "description": "One IsoEntity on the grid"
+        },
+        {
+          "id": "task-3-3",
+          "name": "Verify depth sorting",
+          "status": "completed",
+          "description": "Entity at y=4 renders in front of y=3"
+        },
+        {
+          "id": "task-3-4",
+          "name": "Test camera pan with iso grid",
+          "status": "completed",
+          "description": "Arrow keys move camera, grid stays correct"
+        }
+      ]
+    }
+  ],
+  "workarounds": [],
+  "feedback_sent": [],
+  "notes": "Mock-only sprint - Go/Ebiten engine work, no AILANG",
+  "last_updated": "2025-12-01T13:58:57Z"
+}

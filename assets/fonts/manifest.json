@@ -1,0 +1,6 @@
+{
+  "fonts": {
+    "ui": {"file": "PressStart2P.ttf", "size": 8, "default": true},
+    "ui-large": {"file": "PressStart2P.ttf", "size": 12}
+  }
+}

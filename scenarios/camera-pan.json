@@ -1,0 +1,16 @@
+{
+  "name": "camera-pan",
+  "description": "Test camera movement with WASD keys",
+  "seed": 1234,
+  "test_mode": true,
+  "camera": {"x": 0, "y": 0, "zoom": 1.0},
+  "events": [
+    {"frame": 0, "capture": "initial.png"},
+    {"frame": 1, "key": "S", "action": "down"},
+    {"frame": 30, "key": "S", "action": "up"},
+    {"frame": 30, "capture": "after-down.png"},
+    {"frame": 31, "key": "D", "action": "down"},
+    {"frame": 60, "key": "D", "action": "up"},
+    {"frame": 60, "capture": "after-right.png"}
+  ]
+}
