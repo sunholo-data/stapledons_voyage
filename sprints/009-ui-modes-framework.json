@@ -1,0 +1,134 @@
+{
+  "id": "009-ui-modes-framework",
+  "name": "UI Modes Framework",
+  "status": "completed",
+  "type": "mock-only",
+  "design_doc": "design_docs/planned/v0_5_0/ui-modes.md",
+  "created": "2025-12-01",
+  "completed": "2025-12-01",
+  "phases": [
+    {
+      "id": "phase-1",
+      "name": "WorldMode Type Definition",
+      "status": "completed",
+      "tasks": [
+        {
+          "id": "task-1-1",
+          "name": "Define WorldMode enum in sim_gen/types.go",
+          "status": "completed",
+          "description": "ModeShipExploration, ModeGalaxyMap, ModeDialogue, ModeJourneyPlan, ModeCivDetail, ModeLegacy"
+        },
+        {
+          "id": "task-1-2",
+          "name": "Define mode-specific state types",
+          "status": "completed",
+          "description": "Each mode has its own state struct with relevant fields"
+        },
+        {
+          "id": "task-1-3",
+          "name": "Add Mode field to World struct",
+          "status": "completed",
+          "description": "World.Mode WorldMode with initial ModeShipExploration"
+        }
+      ]
+    },
+    {
+      "id": "phase-2",
+      "name": "Mode Switching Logic",
+      "status": "completed",
+      "tasks": [
+        {
+          "id": "task-2-1",
+          "name": "Implement processMode function in sim_gen/funcs.go",
+          "status": "completed",
+          "description": "Handles mode transitions based on input keys"
+        },
+        {
+          "id": "task-2-2",
+          "name": "Add mode-specific input handling",
+          "status": "completed",
+          "description": "M key toggles galaxy map, ESC returns to previous mode"
+        },
+        {
+          "id": "task-2-3",
+          "name": "Update Step to call processMode",
+          "status": "completed",
+          "description": "Mode is updated before other processing"
+        }
+      ]
+    },
+    {
+      "id": "phase-3",
+      "name": "Mode-Specific Rendering",
+      "status": "completed",
+      "tasks": [
+        {
+          "id": "task-3-1",
+          "name": "Implement renderShipExploration",
+          "status": "completed",
+          "description": "Tiles, NPCs, selection, UI panels with mode indicator"
+        },
+        {
+          "id": "task-3-2",
+          "name": "Implement renderGalaxyMap",
+          "status": "completed",
+          "description": "Starfield, star nodes (circles), network edges (lines), legend"
+        },
+        {
+          "id": "task-3-3",
+          "name": "Dispatch rendering based on mode",
+          "status": "completed",
+          "description": "Step switches on mode to call appropriate render function"
+        }
+      ]
+    },
+    {
+      "id": "phase-4",
+      "name": "Input Routing",
+      "status": "completed",
+      "tasks": [
+        {
+          "id": "task-4-1",
+          "name": "Add mode-aware key handling",
+          "status": "completed",
+          "description": "M key toggles galaxy map, camera only moves in ship mode"
+        },
+        {
+          "id": "task-4-2",
+          "name": "Galaxy map has its own pan/zoom",
+          "status": "completed",
+          "description": "ModeGalaxyMap state tracks CameraX, CameraY, ZoomLevel"
+        }
+      ]
+    },
+    {
+      "id": "phase-5",
+      "name": "Integration Testing",
+      "status": "completed",
+      "tasks": [
+        {
+          "id": "task-5-1",
+          "name": "Update tests for TileMouseX/Y",
+          "status": "completed",
+          "description": "Tests now use TileMouseX/Y instead of WorldMouseX/Y"
+        },
+        {
+          "id": "task-5-2",
+          "name": "Run make game-mock and verify",
+          "status": "completed",
+          "description": "Game builds successfully"
+        },
+        {
+          "id": "task-5-3",
+          "name": "Run go test ./... and verify",
+          "status": "completed",
+          "description": "All tests pass"
+        }
+      ]
+    }
+  ],
+  "workarounds": [],
+  "feedback_sent": [],
+  "notes": "Mock-only sprint - UI Modes framework in Go. Implemented ShipExploration and GalaxyMap modes with M key toggle. Uses DrawCmdCircle and DrawCmdLine from Sprint 008.",
+  "last_updated": "2025-12-01"
+}

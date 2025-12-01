@@ -92,6 +92,12 @@ func (m *Manager) GetDefaultFont() font.Face {
 	return m.fonts.GetDefault()
 }
 
+// GetFontBySize returns a font face at the specified size index.
+// Size: 0=small(10pt), 1=normal(14pt), 2=large(18pt), 3=title(24pt)
+func (m *Manager) GetFontBySize(size int) font.Face {
+	return m.fonts.GetBySize(size)
+}
+
 // SpriteManifest represents the sprites/manifest.json structure.
 type SpriteManifest struct {
 	Sprites map[string]SpriteEntry `json:"sprites"`

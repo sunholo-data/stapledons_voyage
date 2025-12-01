@@ -36,6 +36,8 @@ const (
 	UiKindButton
 	UiKindLabel
 	UiKindPortrait
+	UiKindSlider      // For velocity selection, volume controls
+	UiKindProgressBar // For journey progress, loading bars
 )
 
 // UiRect defines a rectangle in normalized screen coordinates (0.0-1.0)
@@ -106,6 +108,8 @@ type FrameInput struct {
 	ClickedThisFrame bool         // True if left mouse button was just pressed
 	WorldMouseX      float64      // Mouse X in world coordinates (after camera transform)
 	WorldMouseY      float64      // Mouse Y in world coordinates (after camera transform)
+	TileMouseX       int          // Mouse X in tile coordinates (isometric projection inverted)
+	TileMouseY       int          // Mouse Y in tile coordinates (isometric projection inverted)
 	ActionRequested  PlayerAction // Action triggered by keyboard (I=inspect, B=build, X=clear)
 	TestMode         bool         // When true, strip UI for golden file testing
 }

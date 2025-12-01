@@ -1,13 +1,15 @@
 {
   "name": "npc-movement",
-  "description": "Capture NPC movement over time",
+  "description": "Capture NPC continuous smooth movement",
   "seed": 1234,
   "test_mode": true,
-  "camera": {"x": 200, "y": 200, "zoom": 1.0},
+  "camera": {"x": 0, "y": 350, "zoom": 1.0},
   "events": [
     {"frame": 0, "capture": "tick-0.png"},
-    {"frame": 30, "capture": "tick-30.png"},
-    {"frame": 60, "capture": "tick-60.png"},
-    {"frame": 90, "capture": "tick-90.png"}
+    {"frame": 5, "capture": "tick-5.png"},
+    {"frame": 10, "capture": "tick-10.png"},
+    {"frame": 15, "capture": "tick-15.png"},
+    {"frame": 20, "capture": "tick-20.png"},
+    {"frame": 25, "capture": "tick-25.png"}
   ]
 }

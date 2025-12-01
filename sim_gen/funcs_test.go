@@ -9,8 +9,8 @@ func TestInspectAction(t *testing.T) {
 	// Select a tile first
 	input := FrameInput{
 		ClickedThisFrame: true,
-		WorldMouseX:      16, // Tile (2, 0)
-		WorldMouseY:      8,  // Tile (2, 1)
+		TileMouseX:       2, // Tile (2, 1)
+		TileMouseY:       1,
 	}
 	world, _, _ = Step(world, input)
 
@@ -52,8 +52,8 @@ func TestBuildOnEmptyTile(t *testing.T) {
 	// Select tile (5, 5)
 	input := FrameInput{
 		ClickedThisFrame: true,
-		WorldMouseX:      44, // 5 * 8 + 4
-		WorldMouseY:      44,
+		TileMouseX:       5,
+		TileMouseY:       5,
 	}
 	world, _, _ = Step(world, input)
 
@@ -82,8 +82,8 @@ func TestBuildOnOccupiedTile(t *testing.T) {
 	// Select and build first
 	input := FrameInput{
 		ClickedThisFrame: true,
-		WorldMouseX:      44,
-		WorldMouseY:      44,
+		TileMouseX:       5,
+		TileMouseY:       5,
 	}
 	world, _, _ = Step(world, input)
 
@@ -110,8 +110,8 @@ func TestClearStructure(t *testing.T) {
 	// Select, build, then clear
 	input := FrameInput{
 		ClickedThisFrame: true,
-		WorldMouseX:      44,
-		WorldMouseY:      44,
+		TileMouseX:       5,
+		TileMouseY:       5,
 	}
 	world, _, _ = Step(world, input)
 
@@ -144,8 +144,8 @@ func TestClearEmptyTile(t *testing.T) {
 	// Select tile
 	input := FrameInput{
 		ClickedThisFrame: true,
-		WorldMouseX:      44,
-		WorldMouseY:      44,
+		TileMouseX:       5,
+		TileMouseY:       5,
 	}
 	world, _, _ = Step(world, input)
 
@@ -373,6 +373,154 @@ func TestPatrolMovement(t *testing.T) {
 	world, _, _ = Step(world, FrameInput{})
 	if world.NPCs[0].X != 11 || world.NPCs[0].Y != 10 {
 		t.Errorf("After patrol loop: expected (11,10), got (%d,%d)", world.NPCs[0].X, world.NPCs[0].Y)
+	}
+}
+
+// TestModeSwitching verifies M key toggles between Ship and Galaxy modes
+func TestModeSwitching(t *testing.T) {
+	world := InitWorld(1234)
+
+	// Should start in Ship Exploration mode
+	if _, ok := world.Mode.(ModeShipExploration); !ok {
+		t.Fatalf("Expected ModeShipExploration, got %T", world.Mode)
+	}
+
+	// Press M to switch to galaxy map
+	input := FrameInput{
+		Keys:     []KeyEvent{{Key: KeyM, Kind: "pressed"}},
+		TestMode: true,
+	}
+	world, _, _ = Step(world, input)
+
+	if _, ok := world.Mode.(ModeGalaxyMap); !ok {
+		t.Fatalf("Expected ModeGalaxyMap after M press, got %T", world.Mode)
+	}
+
+	// Press M again to return to ship
+	world, _, _ = Step(world, input)
+	if _, ok := world.Mode.(ModeShipExploration); !ok {
+		t.Fatalf("Expected ModeShipExploration after second M press, got %T", world.Mode)
+	}
+
+	// Switch to galaxy, then press ESC to return
+	world, _, _ = Step(world, input) // M -> galaxy
+	input = FrameInput{
+		Keys:     []KeyEvent{{Key: KeyEscape, Kind: "pressed"}},
+		TestMode: true,
+	}
+	world, _, _ = Step(world, input)
+	if _, ok := world.Mode.(ModeShipExploration); !ok {
+		t.Fatalf("Expected ModeShipExploration after ESC, got %T", world.Mode)
+	}
+}
+
+// TestGalaxyMapRendering verifies galaxy map generates correct draw commands
+func TestGalaxyMapRendering(t *testing.T) {
+	world := InitWorld(1234)
+
+	// Switch to galaxy map
+	input := FrameInput{
+		Keys:     []KeyEvent{{Key: KeyM, Kind: "pressed"}},
+		TestMode: true,
+	}
+	world, output, _ := Step(world, input)
+
+	// Should have draw commands
+	if len(output.Draw) == 0 {
+		t.Fatal("Expected draw commands from galaxy map")
+	}
+
+	// Count circles (stars) and lines (connections)
+	circles := 0
+	lines := 0
+	for _, cmd := range output.Draw {
+		switch cmd.(type) {
+		case DrawCmdCircle:
+			circles++
+		case DrawCmdLine:
+			lines++
+		}
+	}
+
+	if circles != 5 {
+		t.Errorf("Expected 5 star circles, got %d", circles)
+	}
+	if lines < 3 {
+		t.Errorf("Expected at least 3 network lines, got %d", lines)
+	}
+}
+
+// TestGalaxyMapStarPositions verifies stars are centered properly
+func TestGalaxyMapStarPositions(t *testing.T) {
+	world := InitWorld(1234)
+
+	// Switch to galaxy map
+	input := FrameInput{
+		Keys:     []KeyEvent{{Key: KeyM, Kind: "pressed"}},
+		TestMode: true,
+	}
+	world, output, _ := Step(world, input)
+
+	// Find the "You Are Here" star (at world 0,0, should be at screen center)
+	screenCenterX := 640.0
+	screenCenterY := 360.0
+
+	for _, cmd := range output.Draw {
+		if c, ok := cmd.(DrawCmdCircle); ok {
+			// The red star (color 10) at 0,0 should be at screen center
+			if c.Color == 10 {
+				if c.X != screenCenterX || c.Y != screenCenterY {
+					t.Errorf("Center star should be at (%.0f,%.0f), got (%.0f,%.0f)",
+						screenCenterX, screenCenterY, c.X, c.Y)
+				}
+				return
+			}
+		}
+	}
+	t.Error("Did not find center star (color 10)")
+}
+
+// TestGalaxyMapLabelsMatchStars verifies labels are positioned next to stars
+func TestGalaxyMapLabelsMatchStars(t *testing.T) {
+	world := InitWorld(1234)
+
+	// Switch to galaxy map
+	input := FrameInput{
+		Keys:     []KeyEvent{{Key: KeyM, Kind: "pressed"}},
+		TestMode: true,
+	}
+	_, output, _ := Step(world, input)
+
+	// Collect star positions and label positions
+	starsByColor := make(map[int]DrawCmdCircle)
+	var labels []DrawCmdText
+
+	for _, cmd := range output.Draw {
+		switch c := cmd.(type) {
+		case DrawCmdCircle:
+			starsByColor[c.Color] = c
+		case DrawCmdText:
+			labels = append(labels, c)
+		}
+	}
+
+	// Each label should be near its star (X + radius + small offset)
+	for _, label := range labels {
+		// Find a star that this label could belong to
+		found := false
+		for _, star := range starsByColor {
+			expectedLabelX := star.X + star.Radius + 5
+			expectedLabelY := star.Y - 5
+			// Allow small tolerance
+			if label.X == expectedLabelX && label.Y == expectedLabelY {
+				found = true
+				break
+			}
+		}
+		if !found {
+			t.Errorf("Label %q at (%.0f,%.0f) doesn't match any star position",
+				label.Text, label.X, label.Y)
+		}
 	}
 }
 

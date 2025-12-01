@@ -30,12 +30,21 @@ func CaptureInputWithCamera(cam sim_gen.Camera, screenW, screenH int) sim_gen.Fr
 	}
 
 	var keys []sim_gen.KeyEvent
+	// Capture "just pressed" events (edge detection for mode switching, etc.)
+	for _, k := range inpututil.AppendJustPressedKeys(nil) {
+		keys = append(keys, sim_gen.KeyEvent{
+			Key:  int(k),
+			Kind: "pressed",
+		})
+	}
+	// Capture held keys
 	for _, k := range inpututil.AppendPressedKeys(nil) {
 		keys = append(keys, sim_gen.KeyEvent{
 			Key:  int(k),
 			Kind: "down",
 		})
 	}
+	// Capture released keys
 	for _, k := range inpututil.AppendJustReleasedKeys(nil) {
 		keys = append(keys, sim_gen.KeyEvent{
 			Key:  int(k),
@@ -46,6 +55,10 @@ func CaptureInputWithCamera(cam sim_gen.Camera, screenW, screenH int) sim_gen.Fr
 	// Convert screen coords to world coords using camera
 	transform := camera.FromOutput(cam, screenW, screenH)
 	worldX, worldY := transform.ScreenToWorld(float64(x), float64(y))
+
+	// Convert screen coords to tile coords using isometric projection
+	tileXf, tileYf := ScreenToTile(float64(x), float64(y), cam, screenW, screenH)
+	tileX, tileY := int(tileXf), int(tileYf)
 
 	// Detect just-pressed (edge detection, not held)
 	clicked := inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft)
@@ -70,6 +83,8 @@ func CaptureInputWithCamera(cam sim_gen.Camera, screenW, screenH int) sim_gen.Fr
 		ClickedThisFrame: clicked,
 		WorldMouseX:      worldX,
 		WorldMouseY:      worldY,
+		TileMouseX:       tileX,
+		TileMouseY:       tileY,
 		ActionRequested:  action,
 	}
 }

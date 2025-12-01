@@ -11,12 +11,25 @@ import (
 	"golang.org/x/image/font/opentype"
 )
 
+// FontSize constants for GetBySize
+const (
+	FontSizeSmall  = 0 // 10pt - labels
+	FontSizeNormal = 1 // 14pt - body text
+	FontSizeLarge  = 2 // 18pt - headers
+	FontSizeTitle  = 3 // 24pt - screen titles
+)
+
+// fontSizePoints maps FontSize index to point size
+var fontSizePoints = []float64{10, 14, 18, 24}
+
 // FontManager handles font loading and caching.
 type FontManager struct {
 	fonts        map[string]font.Face
 	defaultFace  font.Face
 	fallbackFace font.Face // Embedded fallback font
 	basePath     string
+	sizedFaces   [4]font.Face // Cached faces at standard sizes
+	parsedFont   *opentype.Font // Parsed font for creating sized faces
 }
 
 // NewFontManager creates a new font manager with an embedded fallback font.
@@ -27,6 +40,8 @@ func NewFontManager() *FontManager {
 
 	// Create embedded fallback font from Go Regular
 	if tt, err := opentype.Parse(goregular.TTF); err == nil {
+		fm.parsedFont = tt
+		// Create default face at normal size
 		if face, err := opentype.NewFace(tt, &opentype.FaceOptions{
 			Size:    14,
 			DPI:     72,
@@ -35,9 +50,24 @@ func NewFontManager() *FontManager {
 			fm.fallbackFace = face
 			fm.defaultFace = face // Use as default until a custom font is loaded
 		}
+		// Create sized faces for GetBySize
+		fm.initSizedFaces(tt)
 	}
 
 	return fm
+}
+
+// initSizedFaces creates font faces at all standard sizes.
+func (fm *FontManager) initSizedFaces(tt *opentype.Font) {
+	for i, pts := range fontSizePoints {
+		if face, err := opentype.NewFace(tt, &opentype.FaceOptions{
+			Size:    pts,
+			DPI:     72,
+			Hinting: font.HintingFull,
+		}); err == nil {
+			fm.sizedFaces[i] = face
+		}
+	}
 }
 
 // LoadManifest loads fonts defined in the manifest.json file.
@@ -111,6 +141,26 @@ func (fm *FontManager) GetDefault() font.Face {
 		return fm.defaultFace
 	}
 	return fm.fallbackFace
+}
+
+// GetBySize returns a font face at the specified size index.
+// Size: 0=small(10pt), 1=normal(14pt), 2=large(18pt), 3=title(24pt)
+func (fm *FontManager) GetBySize(size int) font.Face {
+	if size < 0 || size >= len(fm.sizedFaces) {
+		size = FontSizeNormal // Default to normal
+	}
+	if face := fm.sizedFaces[size]; face != nil {
+		return face
+	}
+	return fm.fallbackFace
+}
+
+// GetSizePoints returns the point size for a given size index.
+func (fm *FontManager) GetSizePoints(size int) float64 {
+	if size < 0 || size >= len(fontSizePoints) {
+		return fontSizePoints[FontSizeNormal]
+	}
+	return fontSizePoints[size]
 }
 
 // Has returns true if a font with the given name is loaded.

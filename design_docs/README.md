@@ -11,6 +11,7 @@ design_docs/
 │   ├── v0_2_0/           # Engine systems
 │   ├── v0_3_0/           # Rendering & camera
 │   ├── v0_4_0/           # Gameplay features
+│   ├── v0_4_5/           # Engine extensions (prerequisites)
 │   ├── v0_5_0/           # UI modes architecture
 │   ├── v0_5_1/           # Ship exploration
 │   ├── v0_5_2/           # Galaxy map
@@ -56,6 +57,12 @@ design_docs/
 |----------|-------------|----------|
 | [Player Actions](planned/v0_4_0/player-actions.md) | Inspect, build, clear actions on selected tiles | P1 |
 | [NPC Movement](planned/v0_4_0/npc-movement.md) | NPC spawning, movement patterns, AI foundation | P1 |
+
+### v0.4.5 - Engine Extensions (Prerequisites)
+
+| Document | Description | Priority |
+|----------|-------------|----------|
+| [Engine Extensions](planned/v0_4_5/engine-extensions.md) | DrawCmdLine, TextWrapped, Circle, font sizes - required before UI modes | P0 |
 
 ### v0.5.0 - UI Modes Architecture
 

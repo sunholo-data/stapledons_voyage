@@ -1,0 +1,158 @@
+{
+  "id": "008-engine-extensions",
+  "name": "Engine Extensions for UI Modes",
+  "status": "completed",
+  "type": "mock-only",
+  "design_doc": "design_docs/planned/v0_4_5/engine-extensions.md",
+  "created": "2025-12-01",
+  "completed": "2025-12-01",
+  "phases": [
+    {
+      "id": "phase-1",
+      "name": "Line Drawing",
+      "status": "completed",
+      "tasks": [
+        {
+          "id": "task-1-1",
+          "name": "Add DrawCmdLine type to sim_gen/draw_cmd.go",
+          "status": "completed",
+          "description": "X1, Y1, X2, Y2, Color, Width, Z fields"
+        },
+        {
+          "id": "task-1-2",
+          "name": "Implement line rendering in engine/render/draw.go",
+          "status": "completed",
+          "description": "Use vector.StrokeLine from Ebiten"
+        },
+        {
+          "id": "task-1-3",
+          "name": "Test line drawing",
+          "status": "completed",
+          "description": "Draw diagonal line on screen, verify renders"
+        }
+      ]
+    },
+    {
+      "id": "phase-2",
+      "name": "Text Wrapping",
+      "status": "completed",
+      "tasks": [
+        {
+          "id": "task-2-1",
+          "name": "Add DrawCmdTextWrapped type",
+          "status": "completed",
+          "description": "Text, X, Y, MaxWidth, FontSize, Color, Z fields"
+        },
+        {
+          "id": "task-2-2",
+          "name": "Implement word-wrap algorithm in engine/render/draw.go",
+          "status": "completed",
+          "description": "Split text at word boundaries to fit MaxWidth"
+        },
+        {
+          "id": "task-2-3",
+          "name": "Add multiple font sizes to engine/assets/fonts.go",
+          "status": "completed",
+          "description": "Small (10pt), Normal (14pt), Large (18pt), Title (24pt)"
+        },
+        {
+          "id": "task-2-4",
+          "name": "Integrate wrapped text rendering in draw.go",
+          "status": "completed",
+          "description": "Handle DrawCmdTextWrapped in RenderFrame switch"
+        },
+        {
+          "id": "task-2-5",
+          "name": "Test text wrapping",
+          "status": "completed",
+          "description": "Long text wraps at specified width"
+        }
+      ]
+    },
+    {
+      "id": "phase-3",
+      "name": "Circle Drawing",
+      "status": "completed",
+      "tasks": [
+        {
+          "id": "task-3-1",
+          "name": "Add DrawCmdCircle type",
+          "status": "completed",
+          "description": "X, Y, Radius, Color, Filled (bool), Z fields"
+        },
+        {
+          "id": "task-3-2",
+          "name": "Implement circle rendering",
+          "status": "completed",
+          "description": "Use vector.DrawFilledCircle and StrokeCircle"
+        },
+        {
+          "id": "task-3-3",
+          "name": "Test circle drawing",
+          "status": "completed",
+          "description": "Filled and outline circles render correctly"
+        }
+      ]
+    },
+    {
+      "id": "phase-4",
+      "name": "Enhanced Text & UI",
+      "status": "completed",
+      "tasks": [
+        {
+          "id": "task-4-1",
+          "name": "Add FontSize and Color to DrawCmdText",
+          "status": "completed",
+          "description": "Extend existing type with new fields"
+        },
+        {
+          "id": "task-4-2",
+          "name": "Add UiKindSlider and UiKindProgressBar",
+          "status": "completed",
+          "description": "New UiKind constants in protocol.go"
+        },
+        {
+          "id": "task-4-3",
+          "name": "Implement slider rendering in draw.go",
+          "status": "completed",
+          "description": "Draw track + handle for sliders"
+        },
+        {
+          "id": "task-4-4",
+          "name": "Implement progress bar rendering",
+          "status": "completed",
+          "description": "Draw background + fill bar"
+        },
+        {
+          "id": "task-4-5",
+          "name": "Test all new UI elements",
+          "status": "completed",
+          "description": "Verify slider, progress bar, colored text"
+        }
+      ]
+    },
+    {
+      "id": "phase-5",
+      "name": "Integration Testing",
+      "status": "completed",
+      "tasks": [
+        {
+          "id": "task-5-1",
+          "name": "Build game-mock successfully",
+          "status": "completed",
+          "description": "make game-mock builds without errors"
+        },
+        {
+          "id": "task-5-2",
+          "name": "Run go test ./... and verify",
+          "status": "completed",
+          "description": "All tests pass"
+        }
+      ]
+    }
+  ],
+  "workarounds": [],
+  "feedback_sent": [],
+  "notes": "Mock-only sprint - Pure Go/Ebiten engine work. Prerequisites for UI modes (v0.5.0+). No AILANG involved.",
+  "last_updated": "2025-12-01"
+}

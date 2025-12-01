@@ -9,6 +9,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/hajimehoshi/ebiten/v2/vector"
+	"golang.org/x/image/font"
 	"stapledons_voyage/engine/assets"
 	"stapledons_voyage/engine/camera"
 	"stapledons_voyage/sim_gen"
@@ -20,7 +21,7 @@ var biomeColors = []color.RGBA{
 	{34, 139, 34, 255},   // 1: Forest (green)
 	{210, 180, 140, 255}, // 2: Desert (tan)
 	{139, 90, 43, 255},   // 3: Mountain (brown)
-	{255, 255, 0, 128},   // 4: Selection highlight (yellow, semi-transparent)
+	{255, 255, 255, 180}, // 4: Selection highlight (white, semi-transparent)
 	{139, 69, 19, 255},   // 5: House (saddle brown)
 	{50, 205, 50, 255},   // 6: Farm (lime green)
 	{128, 128, 128, 255}, // 7: Road (gray)
@@ -135,9 +136,8 @@ func (r *Renderer) RenderFrame(screen *ebiten.Image, out sim_gen.FrameOutput) {
 			r.drawSprite(screen, c, transform)
 
 		case sim_gen.DrawCmdText:
-			// Transform text position
-			sx, sy := transform.WorldToScreen(c.X, c.Y)
-			ebitenutil.DebugPrintAt(screen, c.Text, int(sx), int(sy))
+			// Screen-space coordinates (no transform)
+			r.drawText(screen, c, int(c.X), int(c.Y))
 
 		case sim_gen.DrawCmdIsoTile:
 			r.drawIsoTile(screen, c, out.Camera, screenW, screenH)
@@ -147,12 +147,22 @@ func (r *Renderer) RenderFrame(screen *ebiten.Image, out sim_gen.FrameOutput) {
 
 		case sim_gen.DrawCmdUi:
 			r.drawUiElement(screen, c, screenW, screenH)
+
+		case sim_gen.DrawCmdLine:
+			r.drawLine(screen, c)
+
+		case sim_gen.DrawCmdTextWrapped:
+			r.drawTextWrapped(screen, c, screenW, screenH)
+
+		case sim_gen.DrawCmdCircle:
+			r.drawCircle(screen, c)
 		}
 	}
 
-	// Render debug messages at top-left of screen (UI layer, not transformed)
+	// Render debug messages below UI panels (UI layer, not transformed)
+	// Start at y=50 to avoid overlapping with camera panel
 	for i, msg := range out.Debug {
-		ebitenutil.DebugPrintAt(screen, msg, 10, 10+i*16)
+		ebitenutil.DebugPrintAt(screen, msg, 10, 50+i*16)
 	}
 }
 
@@ -196,6 +206,12 @@ func getZ(cmd sim_gen.DrawCmd) int {
 	case sim_gen.DrawCmdSprite:
 		return c.Z
 	case sim_gen.DrawCmdText:
+		return c.Z
+	case sim_gen.DrawCmdLine:
+		return c.Z
+	case sim_gen.DrawCmdTextWrapped:
+		return c.Z
+	case sim_gen.DrawCmdCircle:
 		return c.Z
 	case sim_gen.DrawCmdIsoTile:
 		return c.Layer
@@ -374,6 +390,39 @@ func (r *Renderer) drawUiElement(screen *ebiten.Image, c sim_gen.DrawCmdUi, scre
 		}
 		// Fallback: draw placeholder
 		ebitenutil.DrawRect(screen, px, py, pw, ph, color.RGBA{100, 100, 100, 255})
+
+	case sim_gen.UiKindSlider:
+		// Draw slider track (dark background)
+		trackCol := color.RGBA{60, 60, 60, 255}
+		ebitenutil.DrawRect(screen, px, py+ph/3, pw, ph/3, trackCol)
+
+		// Draw slider fill up to value
+		fillWidth := pw * c.Value
+		ebitenutil.DrawRect(screen, px, py+ph/3, fillWidth, ph/3, col)
+
+		// Draw slider handle
+		handleX := px + fillWidth - 4
+		if handleX < px {
+			handleX = px
+		}
+		handleCol := color.RGBA{255, 255, 255, 255}
+		ebitenutil.DrawRect(screen, handleX, py, 8, ph, handleCol)
+
+	case sim_gen.UiKindProgressBar:
+		// Draw progress bar background
+		bgCol := color.RGBA{40, 40, 40, 255}
+		ebitenutil.DrawRect(screen, px, py, pw, ph, bgCol)
+
+		// Draw progress fill
+		fillWidth := pw * c.Value
+		ebitenutil.DrawRect(screen, px, py, fillWidth, ph, col)
+
+		// Draw border
+		borderCol := color.RGBA{100, 100, 100, 255}
+		ebitenutil.DrawRect(screen, px, py, pw, 2, borderCol)        // top
+		ebitenutil.DrawRect(screen, px, py+ph-2, pw, 2, borderCol)   // bottom
+		ebitenutil.DrawRect(screen, px, py, 2, ph, borderCol)        // left
+		ebitenutil.DrawRect(screen, px+pw-2, py, 2, ph, borderCol)   // right
 	}
 
 	// Draw text if present
@@ -390,6 +439,149 @@ func (r *Renderer) drawUiElement(screen *ebiten.Image, c sim_gen.DrawCmdUi, scre
 		// Fallback to debug font
 		ebitenutil.DebugPrintAt(screen, c.Text, int(px)+4, int(py)+4)
 	}
+}
+
+// drawLine draws a line between two points with specified width and color.
+// Coordinates are screen-space pixels (not world coordinates).
+func (r *Renderer) drawLine(screen *ebiten.Image, c sim_gen.DrawCmdLine) {
+	// Get color
+	col := biomeColors[c.Color%len(biomeColors)]
+
+	width := float32(c.Width)
+	if width < 1 {
+		width = 1
+	}
+
+	// Draw line using vector.StrokeLine (screen-space coordinates)
+	vector.StrokeLine(screen, float32(c.X1), float32(c.Y1), float32(c.X2), float32(c.Y2), width, col, true)
+}
+
+// drawTextWrapped draws word-wrapped text with a specified font size and color.
+// Coordinates are screen-space pixels.
+func (r *Renderer) drawTextWrapped(screen *ebiten.Image, c sim_gen.DrawCmdTextWrapped, screenW, screenH int) {
+	// Get color
+	col := biomeColors[c.Color%len(biomeColors)]
+
+	// Get font face for the specified size
+	var face font.Face
+	if r.assets != nil {
+		face = r.assets.GetFontBySize(c.FontSize)
+	}
+
+	// Wrap text and draw (screen-space coordinates)
+	if face != nil {
+		lines := wrapText(c.Text, face, c.MaxWidth)
+		lineHeight := face.Metrics().Height.Ceil()
+		for i, line := range lines {
+			text.Draw(screen, line, face, int(c.X), int(c.Y)+lineHeight*(i+1), col)
+		}
+	} else {
+		// Fallback to debug text (no wrapping)
+		ebitenutil.DebugPrintAt(screen, c.Text, int(c.X), int(c.Y))
+	}
+}
+
+// wrapText splits text into lines that fit within maxWidth.
+func wrapText(s string, face font.Face, maxWidth float64) []string {
+	if maxWidth <= 0 || s == "" {
+		return []string{s}
+	}
+
+	var lines []string
+	var currentLine string
+	words := splitWords(s)
+
+	for _, word := range words {
+		testLine := currentLine
+		if testLine != "" {
+			testLine += " "
+		}
+		testLine += word
+
+		// Measure the test line
+		bounds, _ := font.BoundString(face, testLine)
+		lineWidth := float64((bounds.Max.X - bounds.Min.X).Ceil())
+
+		if lineWidth > maxWidth && currentLine != "" {
+			// Start new line
+			lines = append(lines, currentLine)
+			currentLine = word
+		} else {
+			currentLine = testLine
+		}
+	}
+
+	// Add remaining text
+	if currentLine != "" {
+		lines = append(lines, currentLine)
+	}
+
+	return lines
+}
+
+// splitWords splits a string into words.
+func splitWords(s string) []string {
+	var words []string
+	var current string
+	for _, r := range s {
+		if r == ' ' || r == '\n' || r == '\t' {
+			if current != "" {
+				words = append(words, current)
+				current = ""
+			}
+		} else {
+			current += string(r)
+		}
+	}
+	if current != "" {
+		words = append(words, current)
+	}
+	return words
+}
+
+// drawCircle draws a filled or outline circle.
+// Coordinates are screen-space pixels.
+func (r *Renderer) drawCircle(screen *ebiten.Image, c sim_gen.DrawCmdCircle) {
+	radius := float32(c.Radius)
+	if radius < 1 {
+		radius = 1
+	}
+
+	// Get color
+	col := biomeColors[c.Color%len(biomeColors)]
+
+	if c.Filled {
+		// Draw filled circle (screen-space coordinates)
+		vector.DrawFilledCircle(screen, float32(c.X), float32(c.Y), radius, col, true)
+	} else {
+		// Draw circle outline using StrokeCircle
+		vector.StrokeCircle(screen, float32(c.X), float32(c.Y), radius, 1, col, true)
+	}
+}
+
+// drawText draws text with specified font size and color.
+func (r *Renderer) drawText(screen *ebiten.Image, c sim_gen.DrawCmdText, sx, sy int) {
+	// Get color (0 = white/default)
+	var col color.RGBA
+	if c.Color == 0 {
+		col = color.RGBA{255, 255, 255, 255}
+	} else {
+		col = biomeColors[c.Color%len(biomeColors)]
+	}
+
+	// Get font face for the specified size
+	if r.assets != nil {
+		face := r.assets.GetFontBySize(c.FontSize)
+		if face != nil {
+			// text.Draw uses baseline Y, so offset down
+			lineHeight := face.Metrics().Height.Ceil()
+			text.Draw(screen, c.Text, face, sx, sy+lineHeight, col)
+			return
+		}
+	}
+
+	// Fallback to debug text
+	ebitenutil.DebugPrintAt(screen, c.Text, sx, sy)
 }
 
 // drawIsoDiamond draws a filled diamond shape (isometric tile).
@@ -456,6 +648,16 @@ func getIsoSortKey(cmd sim_gen.DrawCmd, cam sim_gen.Camera, screenW, screenH int
 	case sim_gen.DrawCmdUi:
 		// UI is always on top, sorted by Z within UI layer
 		return IsoDepth(1000+c.Z, 0)
+
+	case sim_gen.DrawCmdLine:
+		// Lines use simple Z for now
+		return float64(c.Z)
+
+	case sim_gen.DrawCmdTextWrapped:
+		return float64(c.Z)
+
+	case sim_gen.DrawCmdCircle:
+		return float64(c.Z)
 
 	default:
 		// Legacy commands use simple Z
