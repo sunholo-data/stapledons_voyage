@@ -7,43 +7,52 @@ import (
 	"path/filepath"
 
 	"golang.org/x/image/font"
-	"golang.org/x/image/font/gofont/goregular"
+	"golang.org/x/image/font/gofont/gomono"
 	"golang.org/x/image/font/opentype"
 )
 
 // FontSize constants for GetBySize
 const (
-	FontSizeSmall  = 0 // 10pt - labels
-	FontSizeNormal = 1 // 14pt - body text
-	FontSizeLarge  = 2 // 18pt - headers
-	FontSizeTitle  = 3 // 24pt - screen titles
+	FontSizeSmall  = 0 // labels
+	FontSizeNormal = 1 // body text
+	FontSizeLarge  = 2 // headers
+	FontSizeTitle  = 3 // screen titles
 )
 
-// fontSizePoints maps FontSize index to point size
-var fontSizePoints = []float64{10, 14, 18, 24}
+// Reference resolution for font scaling (720p baseline)
+const referenceHeight = 720.0
+
+// baseFontSizes are the point sizes at reference resolution (720p)
+// These scale up for higher resolutions
+var baseFontSizes = []float64{16, 22, 28, 38}
+
+// fontSizePoints holds the actual scaled point sizes
+var fontSizePoints = []float64{16, 22, 28, 38}
 
 // FontManager handles font loading and caching.
 type FontManager struct {
 	fonts        map[string]font.Face
 	defaultFace  font.Face
-	fallbackFace font.Face // Embedded fallback font
+	fallbackFace font.Face      // Embedded fallback font
 	basePath     string
-	sizedFaces   [4]font.Face // Cached faces at standard sizes
+	sizedFaces   [4]font.Face   // Cached faces at standard sizes
 	parsedFont   *opentype.Font // Parsed font for creating sized faces
+	scale        float64        // Scale factor based on screen resolution
 }
 
 // NewFontManager creates a new font manager with an embedded fallback font.
 func NewFontManager() *FontManager {
 	fm := &FontManager{
 		fonts: make(map[string]font.Face),
+		scale: 1.0,
 	}
 
-	// Create embedded fallback font from Go Regular
-	if tt, err := opentype.Parse(goregular.TTF); err == nil {
+	// Create embedded fallback font from Go Mono (clean monospace for sci-fi aesthetic)
+	if tt, err := opentype.Parse(gomono.TTF); err == nil {
 		fm.parsedFont = tt
 		// Create default face at normal size
 		if face, err := opentype.NewFace(tt, &opentype.FaceOptions{
-			Size:    14,
+			Size:    baseFontSizes[FontSizeNormal],
 			DPI:     72,
 			Hinting: font.HintingFull,
 		}); err == nil {
@@ -55,6 +64,37 @@ func NewFontManager() *FontManager {
 	}
 
 	return fm
+}
+
+// NewFontManagerWithScale creates a font manager with resolution-based scaling.
+func NewFontManagerWithScale(screenHeight int) *FontManager {
+	fm := NewFontManager()
+	fm.SetScale(screenHeight)
+	return fm
+}
+
+// SetScale adjusts font sizes based on screen height relative to reference resolution.
+func (fm *FontManager) SetScale(screenHeight int) {
+	if screenHeight <= 0 {
+		screenHeight = int(referenceHeight)
+	}
+	fm.scale = float64(screenHeight) / referenceHeight
+	if fm.scale < 0.5 {
+		fm.scale = 0.5
+	}
+	if fm.scale > 3.0 {
+		fm.scale = 3.0
+	}
+
+	// Update fontSizePoints with scaled values
+	for i, base := range baseFontSizes {
+		fontSizePoints[i] = base * fm.scale
+	}
+
+	// Recreate sized faces with new scale
+	if fm.parsedFont != nil {
+		fm.initSizedFaces(fm.parsedFont)
+	}
 }
 
 // initSizedFaces creates font faces at all standard sizes.
@@ -81,6 +121,7 @@ func (fm *FontManager) LoadManifest(fontPath string) error {
 	}
 
 	// Load each font
+	var defaultFontPath string
 	for name, entry := range manifest.Fonts {
 		face, err := fm.loadFont(filepath.Join(fontPath, entry.File), entry.Size)
 		if err != nil {
@@ -89,11 +130,38 @@ func (fm *FontManager) LoadManifest(fontPath string) error {
 		}
 		fm.fonts[name] = face
 
-		// Set default font
+		// Set default font and remember its path for sized faces
 		if entry.Default || fm.defaultFace == nil {
 			fm.defaultFace = face
+			defaultFontPath = filepath.Join(fontPath, entry.File)
 		}
 	}
+
+	// Load the default font for sized faces (replaces embedded font)
+	if defaultFontPath != "" {
+		if err := fm.loadFontForSizes(defaultFontPath); err != nil {
+			fmt.Printf("Warning: using fallback font for sizes: %v\n", err)
+		}
+	}
+
+	return nil
+}
+
+// loadFontForSizes loads a font file and creates sized faces from it.
+func (fm *FontManager) loadFontForSizes(path string) error {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return fmt.Errorf("reading font file: %w", err)
+	}
+
+	tt, err := opentype.Parse(data)
+	if err != nil {
+		return fmt.Errorf("parsing font: %w", err)
+	}
+
+	// Store the parsed font and recreate sized faces
+	fm.parsedFont = tt
+	fm.initSizedFaces(tt)
 
 	return nil
 }

@@ -1,6 +1,7 @@
 {
   "fonts": {
-    "ui": {"file": "PressStart2P.ttf", "size": 8, "default": true},
-    "ui-large": {"file": "PressStart2P.ttf", "size": 12}
+    "main": {"file": "Exo2-Regular.otf", "size": 16, "default": true},
+    "ui": {"file": "Exo2-Regular.otf", "size": 22},
+    "title": {"file": "Exo2-Regular.otf", "size": 32}
   }
 }

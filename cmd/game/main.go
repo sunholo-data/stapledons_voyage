@@ -123,6 +123,22 @@ func main() {
 		log.Printf("Warning: failed to initialize assets: %v", err)
 	}
 
+	// Scale fonts for internal resolution
+	if assetMgr != nil {
+		assetMgr.SetFontScale(display.InternalHeight)
+	}
+
+	// Load star catalog for galaxy map
+	starCatalogPath := "assets/data/starmap/stars.json"
+	if _, err := sim_gen.LoadStarCatalog(starCatalogPath); err != nil {
+		log.Printf("Warning: failed to load star catalog: %v", err)
+	} else {
+		catalog := sim_gen.GetStarCatalog()
+		if catalog != nil {
+			log.Printf("Loaded %d stars from %s", catalog.Count, starCatalogPath)
+		}
+	}
+
 	// Create renderer with asset manager
 	renderer := render.NewRenderer(assetMgr)
 

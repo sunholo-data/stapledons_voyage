@@ -2,6 +2,13 @@
 // This file will be replaced by AILANG-generated code when ailang compile --emit-go ships.
 package sim_gen
 
+// Screen dimensions - must match engine/display/manager.go
+// In AILANG, these would be passed via FrameInput or config
+const (
+	ScreenWidth  = 1280
+	ScreenHeight = 960
+)
+
 // Coord represents a 2D coordinate
 type Coord struct {
 	X int
@@ -132,9 +139,18 @@ func (ModeShipExploration) isWorldMode() {}
 
 // ModeGalaxyMap - viewing the galaxy map
 type ModeGalaxyMap struct {
-	CameraX      float64
-	CameraY      float64
-	ZoomLevel    float64
+	// Plane view (top-down galactic plane)
+	CameraX   float64
+	CameraY   float64
+	ZoomLevel float64
+
+	// Sky view (planetarium from Sol)
+	SkyViewMode bool    // true = sky view, false = plane view
+	ViewLon     float64 // Galactic longitude we're looking at (0-360°)
+	ViewLat     float64 // Galactic latitude we're looking at (-90 to +90°)
+	FOV         float64 // Field of view in degrees (smaller = more zoomed)
+
+	// Common
 	SelectedStar int // -1 = none
 	HoveredStar  int // -1 = none
 	ShowNetwork  bool

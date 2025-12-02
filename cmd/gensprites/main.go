@@ -29,11 +29,23 @@ var entitySprites = map[string]color.RGBA{
 	"iso_entities/player.png":     {255, 215, 0, 255},   // Gold
 }
 
+// Star sprites by spectral type - used for galaxy map
+// Each star sprite is a soft glowing circle with color gradient
+var starSprites = map[string]color.RGBA{
+	"stars/star_blue.png":   {155, 176, 255, 255}, // O/B type - hot blue
+	"stars/star_white.png":  {255, 255, 255, 255}, // A/F type - white
+	"stars/star_yellow.png": {255, 244, 214, 255}, // G type - yellow (like Sun)
+	"stars/star_orange.png": {255, 210, 161, 255}, // K type - orange
+	"stars/star_red.png":    {255, 189, 189, 255}, // M type - red dwarf
+}
+
 const (
 	frameWidth  = 32
 	frameHeight = 48
 	frameCount  = 4 // 4-frame walk cycle
 )
+
+const starSize = 16 // Star sprite size (16x16 pixels)
 
 func main() {
 	outDir := "assets/sprites"
@@ -44,6 +56,7 @@ func main() {
 	// Create subdirectories
 	os.MkdirAll(filepath.Join(outDir, "iso_tiles"), 0755)
 	os.MkdirAll(filepath.Join(outDir, "iso_entities"), 0755)
+	os.MkdirAll(filepath.Join(outDir, "stars"), 0755)
 
 	// Generate 64x32 isometric tile sprites (diamond shape)
 	for name, col := range tileSprites {
@@ -61,6 +74,15 @@ func main() {
 			continue
 		}
 		fmt.Printf("Generated %s (%dx%d sprite sheet, %d frames)\n", name, frameWidth*frameCount, frameHeight, frameCount)
+	}
+
+	// Generate star sprites (glowing circles for galaxy map)
+	for name, col := range starSprites {
+		if err := generateStarSprite(filepath.Join(outDir, name), starSize, col); err != nil {
+			fmt.Printf("Error generating %s: %v\n", name, err)
+			continue
+		}
+		fmt.Printf("Generated %s (%dx%d star)\n", name, starSize, starSize)
 	}
 
 	fmt.Println("Done!")
@@ -267,6 +289,61 @@ func drawEntityFrame(img *image.RGBA, offsetX, bobY int, leanX float64, col colo
 			}
 		}
 	}
+}
+
+// generateStarSprite creates a soft glowing star sprite.
+// Uses radial gradient from bright center to transparent edge.
+func generateStarSprite(path string, size int, col color.RGBA) error {
+	img := image.NewRGBA(image.Rect(0, 0, size, size))
+
+	centerX := float64(size) / 2
+	centerY := float64(size) / 2
+	maxRadius := float64(size) / 2
+
+	// Create radial gradient
+	for y := 0; y < size; y++ {
+		for x := 0; x < size; x++ {
+			dx := float64(x) - centerX + 0.5
+			dy := float64(y) - centerY + 0.5
+			dist := (dx*dx + dy*dy) / (maxRadius * maxRadius)
+
+			if dist > 1.0 {
+				img.Set(x, y, color.Transparent)
+				continue
+			}
+
+			// Smooth falloff using squared cosine for soft glow
+			// intensity = cos²(dist * π/2) gives nice soft edge
+			intensity := 1.0 - dist
+			intensity = intensity * intensity // Quadratic falloff for soft glow
+
+			// Bright core (inner 30% is near full brightness)
+			if dist < 0.09 { // sqrt(0.09) = 0.3
+				intensity = 1.0
+			}
+
+			// Apply intensity to color
+			alpha := uint8(255 * intensity)
+			if alpha < 2 {
+				img.Set(x, y, color.Transparent)
+				continue
+			}
+
+			// Blend towards white in center for "hot" look
+			blendToWhite := 0.0
+			if dist < 0.25 {
+				blendToWhite = (0.25 - dist) / 0.25 * 0.5
+			}
+
+			r := uint8(float64(col.R) + (255-float64(col.R))*blendToWhite)
+			g := uint8(float64(col.G) + (255-float64(col.G))*blendToWhite)
+			b := uint8(float64(col.B) + (255-float64(col.B))*blendToWhite)
+
+			img.Set(x, y, color.RGBA{r, g, b, alpha})
+		}
+	}
+
+	return saveImage(path, img)
 }
 
 func saveImage(path string, img *image.RGBA) error {

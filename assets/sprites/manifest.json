@@ -57,6 +57,11 @@
         "idle": {"startFrame": 0, "frameCount": 1, "fps": 0},
         "walk": {"startFrame": 0, "frameCount": 4, "fps": 8}
       }
-    }
+    },
+    "200": {"file": "stars/star_blue.png", "width": 16, "height": 16, "type": "star"},
+    "201": {"file": "stars/star_white.png", "width": 16, "height": 16, "type": "star"},
+    "202": {"file": "stars/star_yellow.png", "width": 16, "height": 16, "type": "star"},
+    "203": {"file": "stars/star_orange.png", "width": 16, "height": 16, "type": "star"},
+    "204": {"file": "stars/star_red.png", "width": 16, "height": 16, "type": "star"}
   }
 }

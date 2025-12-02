@@ -90,4 +90,24 @@ These are non-negotiable design constraints for Stapledon's Voyage. Every featur
 
 ---
 
+## 6. We Are Not Built For This
+
+**One-liner:** Human frailty is part of the experience, not a problem to solve.
+
+**This means:**
+- Relativistic travel pushes humans past psychological limits
+- Crew can go mad, mutiny, or break down — this is realistic, not failure
+- Victories are achieved *despite* human limitations, not because humans are special
+- The incompatibility between human psychology and cosmic scales is a core theme
+- Some healthy responses to extreme situations include refusing to continue
+
+**This excludes:**
+- Humans as naturally suited to space exploration
+- Crew as infinitely resilient resources
+- Psychology as just another meter to optimize
+- "Heroic" framing that ignores the genuine horror of deep time
+
+---
+
 *Pillars extracted from vision interview, 2025-11-29.*
+*Pillar 6 added from black hole feature interview, 2025-12-02.*

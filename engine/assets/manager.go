@@ -93,9 +93,16 @@ func (m *Manager) GetDefaultFont() font.Face {
 }
 
 // GetFontBySize returns a font face at the specified size index.
-// Size: 0=small(10pt), 1=normal(14pt), 2=large(18pt), 3=title(24pt)
+// Size: 0=small(12pt), 1=normal(16pt), 2=large(22pt), 3=title(30pt)
+// Actual point sizes are scaled based on screen resolution.
 func (m *Manager) GetFontBySize(size int) font.Face {
 	return m.fonts.GetBySize(size)
+}
+
+// SetFontScale adjusts font sizes based on screen height.
+// Call this after creating the manager to scale fonts for the target resolution.
+func (m *Manager) SetFontScale(screenHeight int) {
+	m.fonts.SetScale(screenHeight)
 }
 
 // SpriteManifest represents the sprites/manifest.json structure.

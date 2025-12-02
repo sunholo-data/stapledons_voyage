@@ -98,12 +98,21 @@ func KeyNameToCode(name string) int {
 }
 
 // BuildFrameInput creates a FrameInput from active keys and pending clicks.
-func BuildFrameInput(activeKeys map[int]bool, pendingClick *Click, world sim_gen.World, testMode bool) sim_gen.FrameInput {
+// pressedKeys are keys that were just pressed this frame (for mode switching etc).
+func BuildFrameInput(activeKeys map[int]bool, pressedKeys map[int]bool, pendingClick *Click, world sim_gen.World, testMode bool) sim_gen.FrameInput {
 	var keys []sim_gen.KeyEvent
+	// Add "down" events for all active keys
 	for code := range activeKeys {
 		keys = append(keys, sim_gen.KeyEvent{
 			Key:  code,
 			Kind: "down",
+		})
+	}
+	// Add "pressed" events for keys just pressed this frame
+	for code := range pressedKeys {
+		keys = append(keys, sim_gen.KeyEvent{
+			Key:  code,
+			Kind: "pressed",
 		})
 	}
 

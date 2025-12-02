@@ -133,3 +133,44 @@ type DrawCmdCircle struct {
 }
 
 func (DrawCmdCircle) isDrawCmd() {}
+
+// DrawCmdRectScreen draws a rectangle in screen space (not affected by camera)
+// Used for backgrounds, overlays, etc.
+type DrawCmdRectScreen struct {
+	X     float64 // Screen X in pixels
+	Y     float64 // Screen Y in pixels
+	W     float64 // Width in pixels
+	H     float64 // Height in pixels
+	Color int
+	Z     int
+}
+
+func (DrawCmdRectScreen) isDrawCmd() {}
+
+// DrawCmdGalaxyBg renders the galaxy background image
+// Opacity controls visibility (0.0 = invisible, 1.0 = fully visible)
+// For sky view mode, ViewLon/ViewLat/FOV control which part of the image is shown
+type DrawCmdGalaxyBg struct {
+	Opacity float64 // 0.0 to 1.0
+	Z       int
+	// Sky view parameters (for equirectangular projection scrolling)
+	SkyViewMode bool    // If true, use ViewLon/ViewLat/FOV for scrolling
+	ViewLon     float64 // Galactic longitude we're looking at (0-360°)
+	ViewLat     float64 // Galactic latitude we're looking at (-90 to +90°)
+	FOV         float64 // Field of view in degrees
+}
+
+func (DrawCmdGalaxyBg) isDrawCmd() {}
+
+// DrawCmdStar draws a star using a scaled sprite for efficient GPU batching
+// Sprite IDs: 200=blue(O/B), 201=white(A/F), 202=yellow(G), 203=orange(K), 204=red(M)
+type DrawCmdStar struct {
+	X        float64 // Screen X position
+	Y        float64 // Screen Y position
+	SpriteID int     // Star sprite ID (200-204)
+	Scale    float64 // Scale factor (1.0 = 16x16 pixels)
+	Alpha    float64 // Opacity (0.0-1.0, default 1.0 if 0)
+	Z        int
+}
+
+func (DrawCmdStar) isDrawCmd() {}

@@ -235,3 +235,59 @@ Each archetype has baseline OCEAN values that inform dialogue tone, event reacti
 
 **Rationale:** Pillar 2 (No Judgment): All reactions are equally valid outcomes. Pillar 5 (Grounded Strangeness): Different civ philosophies produce different responses.
 
+
+## [2025-12-02] Black Hole Entry = New Game+ Mechanism
+
+**Decision:** Entering a black hole ends the current playthrough and seeds a new universe with weighted parameters influenced by prior play. This is THE replayability mechanism - like Civ 5 re-rolling for better starts, but earned through completion. Parameters affected include Anthropic Luck, γ cap, and other universal constants. Influence is mysterious but clearly beneficial - players know it helps but not exactly how.
+
+**Rationale:** Serves Pillar 1 (Choices Final): You cannot undo your universe, only leave it. Serves Pillar 3 (Time Weight): The ultimate sacrifice - abandoning everyone and everything. References Asimov's 'The Last Question' - heat death followed by new creation.
+
+
+## [2025-12-02] Game Starts Post-Black-Hole
+
+**Decision:** Every playthrough begins with the player emerging from a black hole or mysterious structure (later revealed to be a BH). The player is already a universe-immigrant carrying archives of a dead cosmos. Earth may or may not be real - it exists in your archives but you have no proof. This reframes the entire game: you are not humanity's first traveler, you are a cycle-continuer.
+
+**Rationale:** Serves Pillar 5 (Grounded Strangeness): Physics-plausible multiverse via Smolin's cosmological natural selection. Creates profound mystery and recontextualizes player's role. To every civilization you meet, YOU are the impossible alien from beyond.
+
+
+## [2025-12-02] Human Incompatibility Theme
+
+**Decision:** Elevate 'humans are not built for relativistic space travel' to a core thematic pillar. Madness, psychological breakdown, and the human condition failing under cosmic scales is intentional. Crew going insane near black holes, mutinies, OCEAN drift toward instability - these are features, not bugs. Victories are DESPITE human frailty, not because humans are special.
+
+**Rationale:** Serves Pillar 3 (Time Weight): The emotional cost is partly that we cannot handle it. Serves Pillar 4 (Ship Is Home): Crew psychology grounds the cosmic horror in human-scale experience. This is honest about the real challenges of relativistic travel.
+
+
+## [2025-12-02] Fermi Answer: Temporal Fragmentation
+
+**Decision:** Time dilation provides a physics-grounded answer to the Fermi Paradox: even if intelligent life is common, relativistic travel makes contact temporally impossible. By the time you reach anyone, they're dead. By the time they reach you, you're dust. The galaxy isn't empty - it's temporally fragmented. This is discoverable in-game as a late realization. Civilizations that understand this might rationally choose to stay home - Fermi silence as grief avoidance, not hostility or indifference.
+
+**Rationale:** Serves Pillar 5 (Grounded Strangeness): Real physics consequence, not hand-waved. Serves Pillar 2 (No Judgment): Neither optimistic nor pessimistic - just the physics playing out.
+
+
+## [2025-12-02] Universe-Hopper Encounter Possibility
+
+**Decision:** Rare possibility exists of meeting another traveler who emerged from a DIFFERENT dead universe. They carry archives of a cosmos with different physics, different histories. This is the ultimate encounter - two archives meeting, two universes' memories intersecting. Rarity undecided but should feel legendary. The player IS this to every civ they meet - they just may not know their own origin story.
+
+**Rationale:** Serves Pillar 5 (Grounded Strangeness): Grounded in multiverse physics. Creates the 'ultimate archive' narrative. The most precious thing in existence: proof that other universes existed.
+
+
+## [2025-12-02] BH Time-Skip Costs
+
+**Decision:** Using a black hole for extreme time dilation (parking near horizon to skip millennia) has natural costs: all civilization relationships reset (they're dead), time-sensitive data becomes worthless, crew may suffer psychological damage or madness, potential mutiny if crew refuse. The cost is emotional severance from the present - everything you knew is gone. Some data survives: BH locations, galactic structure, physical constants, and YOUR ARCHIVES become priceless as the only record of extinct cultures.
+
+**Rationale:** Serves Pillar 3 (Time Weight): Maximum sacrifice for maximum skip. Serves Pillar 4 (Ship Is Home): Crew psychology constrains player choice.
+
+
+## [2025-12-02] BH Approach Can Trigger Mutiny
+
+**Decision:** Crew can mutiny to prevent black hole approach if psychological stress is too high. Skeptic and Medic archetypes likely to resist; Zealot may be dangerously eager. If mutiny succeeds: crew seize ship, change direction, or force compromise (shallower orbit, less extreme skip). This is one of few moments where Pillar 4 (Ship Is Home) directly conflicts with player agency - the human-scale asserts itself against cosmic-scale decisions.
+
+**Rationale:** Serves Pillar 4 (Ship Is Home): Crew are people with limits, not tools. Serves Human Incompatibility Theme: Sometimes the healthy response is to refuse.
+
+
+## [2025-12-02] BH Crossing Causes Memory Loss
+
+**Decision:** Crossing a black hole event horizon causes memory loss - hand-waved as 'causality reversal affecting the brain' or similar physics-adjacent explanation. This justifies the mysterious start: players emerge with archives but no memory of how they got there. Earth exists in records but cannot be confirmed as real. Creates narrative permission for the cycle mystery without breaking physics too badly.
+
+**Rationale:** Serves mystery-discovery design goal. Provides in-universe justification for New Game+ memory reset. Keeps the 'where did I come from?' question open.
+

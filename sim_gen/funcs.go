@@ -69,8 +69,8 @@ func InitWorld(seed int64) World {
 // Step advances the simulation by one frame.
 // Returns new world state and frame output with draw commands.
 func Step(world World, input FrameInput) (World, FrameOutput, error) {
-	// Process mode switching first
-	newMode := processMode(world.Mode, input.Keys)
+	// Process mode switching first (also handles star selection clicks)
+	newMode := processMode(world.Mode, input)
 
 	// Process camera movement (only in ship exploration mode)
 	newCamera := world.Camera

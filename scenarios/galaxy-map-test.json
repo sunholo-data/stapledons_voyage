@@ -1,0 +1,13 @@
+{
+  "name": "Galaxy Map Test",
+  "description": "Test the galaxy map with real star data",
+  "seed": 1234,
+  "camera": {"x": 0, "y": 0, "zoom": 1.0},
+  "test_mode": true,
+  "events": [
+    {"frame": 1, "key": "M", "action": "press"},
+    {"frame": 30, "capture": "galaxy_map_default.png"},
+    {"frame": 31, "key": "E", "action": "down"},
+    {"frame": 60, "capture": "galaxy_map_zoomed.png"}
+  ]
+}

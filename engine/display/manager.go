@@ -7,8 +7,9 @@ import (
 
 const (
 	// Internal resolution (game logic coordinates)
-	InternalWidth  = 640
-	InternalHeight = 480
+	// Higher resolution for sharper rendering on Retina/HiDPI displays
+	InternalWidth  = 1280
+	InternalHeight = 960
 )
 
 // Manager handles display settings and window management.

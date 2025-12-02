@@ -24,6 +24,7 @@ type VisualRunner struct {
 	currentFrame int
 	maxFrame     int
 	activeKeys   map[int]bool
+	pressedKeys  map[int]bool // Keys pressed this frame (for "pressed" events)
 	pendingClick *Click
 	captures     map[int]string // frame -> filename
 	outputDir    string
@@ -52,6 +53,7 @@ func NewVisualRunner(s *Scenario, outputDir string) *VisualRunner {
 		scenario:     s,
 		maxFrame:     maxFrame,
 		activeKeys:   make(map[int]bool),
+		pressedKeys:  make(map[int]bool),
 		captures:     captures,
 		outputDir:    outputDir,
 		capturedImgs: make(map[string]*image.RGBA),
@@ -63,6 +65,9 @@ func (r *VisualRunner) Update() error {
 		r.done = true
 		return errors.New("scenario complete")
 	}
+
+	// Clear pressed keys from previous frame
+	r.pressedKeys = make(map[int]bool)
 
 	// Process events for this frame
 	for _, e := range r.scenario.Events {
@@ -80,8 +85,9 @@ func (r *VisualRunner) Update() error {
 				case "up":
 					delete(r.activeKeys, code)
 				case "press":
-					// Press = down this frame, up next frame
+					// Press = down this frame + "pressed" event, up next frame
 					r.activeKeys[code] = true
+					r.pressedKeys[code] = true
 				}
 			}
 		}
@@ -101,7 +107,7 @@ func (r *VisualRunner) Update() error {
 	}
 
 	// Build input and step simulation
-	input := BuildFrameInput(r.activeKeys, r.pendingClick, r.world, r.scenario.TestMode)
+	input := BuildFrameInput(r.activeKeys, r.pressedKeys, r.pendingClick, r.world, r.scenario.TestMode)
 	r.pendingClick = nil // Clear pending click
 
 	var err error
@@ -157,6 +163,17 @@ func RunVisualScenarioWithOptions(scenarioPath, outputDir string, testMode, test
 	fmt.Printf("Description: %s\n", s.Description)
 	if s.TestMode {
 		fmt.Println("Test mode: UI stripped for golden file comparison")
+	}
+
+	// Load star catalog for galaxy map scenarios
+	starCatalogPath := "assets/data/starmap/stars.json"
+	if _, err := sim_gen.LoadStarCatalog(starCatalogPath); err != nil {
+		fmt.Printf("Warning: failed to load star catalog: %v\n", err)
+	} else {
+		catalog := sim_gen.GetStarCatalog()
+		if catalog != nil {
+			fmt.Printf("Loaded %d stars from %s\n", catalog.Count, starCatalogPath)
+		}
 	}
 
 	// Initialize asset manager
