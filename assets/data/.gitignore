@@ -1,0 +1,9 @@
+# Starmap raw data - too large for git
+# Run .claude/skills/starmap-manager/scripts/download_*.sh to fetch
+raw/
+
+# Keep processed data (committed to repo):
+# - starmap/stars.json
+# - starmap/exoplanets.json
+# - starmap/habitable.json
+# - starmap/background/galaxy_*.jpg
