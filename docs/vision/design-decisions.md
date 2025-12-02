@@ -137,3 +137,101 @@ Each archetype has baseline OCEAN values that inform dialogue tone, event reacti
 - End screen needs "crew evolution" section
 - May want to show key moments that caused drift ("After witnessing the Helix extinction...")
 
+
+## [2025-12-02] Trace Metal Scarcity Model
+
+**Decision:** Trace metals available in every solar system. Only becomes a threat after extended periods without visiting any system.
+
+**Rationale:** Avoids constant micromanagement pressure. Creates consequence for isolation/long journeys rather than routine busywork.
+
+
+## [2025-12-02] Earth Return: Optional but Compelling
+
+**Decision:** Return to Earth is never mechanically required, but should be narratively very interesting.
+
+**Rationale:** Serves Pillar 2 (no judgment) - game doesn't force you. Serves Pillar 3 (time weight) - what has Earth become after millennia?
+
+
+## [2025-12-02] Crew Opinions: Universal System
+
+**Decision:** Crew opinions apply to all major decisions, not just resource harvesting. This is a general system.
+
+**Rationale:** Serves Pillar 4 (Ship Is Home) - crew are opinionated people, not silent resources. Consistency across all decision types.
+
+
+## [2025-12-02] Alien Biosphere: Science Not Tropes
+
+**Decision:** Alien biosphere risks follow real science (biochemical incompatibility, chirality, contamination ethics) rather than sci-fi tropes (instant plagues, adapting viruses). The tension is 'can we use it at all' and 'should we risk contaminating them', not 'will it kill us'.
+
+**Rationale:** Serves Pillar 5 (Grounded Strangeness). Real biology is more interesting than Hollywood scenarios.
+
+
+## [2025-12-02] Anthropic Luck Factor
+
+**Decision:** Galaxy has tunable 'Anthropic Luck' (L) parameter. Higher L = denser civs in player's region. Justified as observer-selection bias: conditional on being a player who CAN meet civs, you're in the rare branch where they exist nearby. Default: L high enough for 5-15 civs within 500-1000 ly.
+
+**Rationale:** Pillar 5 (Grounded Strangeness): Real physics with philosophical justification. Avoids both 'magic dense universe' and 'boring empty universe'. Player can adjust for hardcore vs narrative experience.
+
+
+## [2025-12-02] Detection Model: Epistemic Gap
+
+**Decision:** Players only see old light. Three detection tiers: (1) Astrometric survey - star type, planets, orbits; (2) Spectroscopic - biosignatures, atmosphere; (3) Technosignature search - radio/waste heat. All data labeled with 'last_light_year' showing how stale it is. Arrival reveals how wrong predictions were.
+
+**Rationale:** Pillar 1 (Choices Final): Commit based on uncertain data. Pillar 3 (Time Weight): The gap between 'what you saw' and 'what you find' IS the time dilation made tangible.
+
+
+## [2025-12-02] Gamma Cap: 10-20 Default
+
+**Decision:** Player ship γ (Lorentz factor) capped around 10-20. At γ=20: 300 ly = 15 years subjective / 300 years external. This allows 4-6 major legs in 100 years, with 2-3 revisits to nearby civs. Sweet spot for meaningful sacrifice without making civs unreachable.
+
+**Rationale:** Pillar 3 (Time Weight): Each journey costs centuries external. Not so high that everything is one-way, not so low that time feels cheap.
+
+
+## [2025-12-02] Launch Order = Arrival Order
+
+**Decision:** With Higgs bubble, any ship can achieve arbitrary γ instantly. Therefore arrival order depends ONLY on launch time in galaxy frame, not on technology level. Uplifted civs can reach destinations before you IF they launch earlier (while you detour or delay). They cannot overtake you mid-flight.
+
+**Rationale:** Pillar 5 (Grounded): Clean physics rule with no paradoxes. Creates strategic tension: share tech and they might beat you to Earth.
+
+
+## [2025-12-02] Player Role: Relativistic Perturbation Operator
+
+**Decision:** Player is not an explorer or diplomat - they are a network perturbation operator. Actions: (1) Give civ technology (Higgs, fusion, etc); (2) Give civ maps of others; (3) Share philosophies between civs. Everything else is fallout. The sim is 'how does the contact graph evolve when I poke it?'
+
+**Rationale:** Pillar 2 (No Judgment): You perturb, consequences cascade, game shows results without moral labels. Pillar 1 (Choices Final): Each poke is irreversible and propagates.
+
+
+## [2025-12-02] Three Distance Regimes
+
+**Decision:** Local bubble (≤500 ly): Many biospheres, maybe 1 civ, centuries pass per trip - 'serial saga' territory. Mid-range (1000-3000 ly): Good civ probability, millennia pass, 1-2 visits max - 'two bookends' territory. Deep-galaxy (≥5000 ly): Almost certainly find civs, but tens of thousands of years pass - 'one-shot mythic meeting' territory.
+
+**Rationale:** Pillar 3 (Time Weight): Distance correlates with sacrifice. Pillar 1 (Choices Final): Deeper journeys are more irreversible.
+
+
+## [2025-12-02] Anthropic Luck: World-Gen Only
+
+**Decision:** Anthropic Luck (L) is set once during world generation, fixed for entire playthrough. Player chooses density at start, then lives with that universe.
+
+**Rationale:** Pillar 1 (Choices Final): Even the universe itself is a choice you commit to.
+
+
+## [2025-12-02] No Survey Budget: Auto-Discovery
+
+**Decision:** No telescope time management or survey budget mechanic. Interesting destinations are automatically discovered/revealed. Remove friction that doesn't serve the core experience.
+
+**Rationale:** Avoids tedious micromanagement. The interesting decisions are WHERE to go and WHAT to share, not HOW MUCH to scan.
+
+
+## [2025-12-02] Earth Contact: Emergent Not Scripted
+
+**Decision:** Civilizations reaching Earth before you is a natural emergent consequence of sharing Higgs tech, not a scripted event. If you give them the drive and maps, physics determines they CAN reach Earth. Consequences follow naturally from simulation.
+
+**Rationale:** Pillar 2 (No Judgment): Game doesn't script drama, just simulates physics. Pillar 1 (Choices Final): You chose to share tech, consequences emerge.
+
+
+## [2025-12-02] Wanderer Mythology: One Consequence Among Many
+
+**Decision:** Civilizations forming religions/mythologies around the player is one possible emergent consequence, not special-cased. Could equally get: resentment, cargo cults, scientific study, dismissal as legend, active hunting, worship, etc. No predetermined 'canonical' reaction.
+
+**Rationale:** Pillar 2 (No Judgment): All reactions are equally valid outcomes. Pillar 5 (Grounded Strangeness): Different civ philosophies produce different responses.
+

@@ -1,6 +1,8 @@
 package render
 
 import (
+	"math"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"stapledons_voyage/engine/camera"
@@ -58,7 +60,9 @@ func CaptureInputWithCamera(cam sim_gen.Camera, screenW, screenH int) sim_gen.Fr
 
 	// Convert screen coords to tile coords using isometric projection
 	tileXf, tileYf := ScreenToTile(float64(x), float64(y), cam, screenW, screenH)
-	tileX, tileY := int(tileXf), int(tileYf)
+	// Use Round for isometric grids - tiles are diamond-shaped so Floor gives wrong results
+	// near tile boundaries. Round assigns boundary points to the nearest tile center.
+	tileX, tileY := int(math.Round(tileXf)), int(math.Round(tileYf))
 
 	// Detect just-pressed (edge detection, not held)
 	clicked := inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft)

@@ -181,6 +181,69 @@ func TestTileInView(t *testing.T) {
 	}
 }
 
+// TestClickWithinTileDiamond verifies that clicking within a tile diamond
+// returns that same tile. Note: diamond vertices are shared between tiles,
+// so we test at 50% offset from center (well inside the diamond).
+func TestClickWithinTileDiamond(t *testing.T) {
+	cam := sim_gen.Camera{X: 0, Y: 0, Zoom: 1.0}
+	screenW, screenH := 640, 480
+
+	// Test tile (5, 5)
+	tile := sim_gen.Coord{X: 5, Y: 5}
+	centerX, centerY := TileToScreen(tile, 0, cam, screenW, screenH)
+
+	// The diamond extends TileWidth/2 horizontally and TileHeight/2 vertically
+	halfW := TileWidth / 2 * cam.Zoom // 32
+	halfH := TileHeight / 2 * cam.Zoom // 16
+
+	// Test clicking at center
+	gotX, gotY := ScreenToTile(centerX, centerY, cam, screenW, screenH)
+	if int(math.Round(gotX)) != 5 || int(math.Round(gotY)) != 5 {
+		t.Errorf("Click at tile center: got tile (%d,%d), want (5,5)", int(math.Round(gotX)), int(math.Round(gotY)))
+	}
+
+	// Test clicking 50% toward top of diamond (well inside the tile)
+	gotX, gotY = ScreenToTile(centerX, centerY-halfH*0.5, cam, screenW, screenH)
+	if int(math.Round(gotX)) != 5 || int(math.Round(gotY)) != 5 {
+		t.Errorf("Click toward top of diamond: got tile (%d,%d), want (5,5)", int(math.Round(gotX)), int(math.Round(gotY)))
+	}
+
+	// Test clicking 50% toward bottom of diamond
+	gotX, gotY = ScreenToTile(centerX, centerY+halfH*0.5, cam, screenW, screenH)
+	if int(math.Round(gotX)) != 5 || int(math.Round(gotY)) != 5 {
+		t.Errorf("Click toward bottom of diamond: got tile (%d,%d), want (5,5)", int(math.Round(gotX)), int(math.Round(gotY)))
+	}
+
+	// Test clicking 50% toward left of diamond
+	gotX, gotY = ScreenToTile(centerX-halfW*0.5, centerY, cam, screenW, screenH)
+	if int(math.Round(gotX)) != 5 || int(math.Round(gotY)) != 5 {
+		t.Errorf("Click toward left of diamond: got tile (%d,%d), want (5,5)", int(math.Round(gotX)), int(math.Round(gotY)))
+	}
+
+	// Test clicking 50% toward right of diamond
+	gotX, gotY = ScreenToTile(centerX+halfW*0.5, centerY, cam, screenW, screenH)
+	if int(math.Round(gotX)) != 5 || int(math.Round(gotY)) != 5 {
+		t.Errorf("Click toward right of diamond: got tile (%d,%d), want (5,5)", int(math.Round(gotX)), int(math.Round(gotY)))
+	}
+}
+
+// TestClickWithCameraOffset verifies click detection works with camera offset
+func TestClickWithCameraOffset(t *testing.T) {
+	// Camera looking at world position (320, 160) which is tile (10, 0) + (0, 10) area
+	cam := sim_gen.Camera{X: 320, Y: 160, Zoom: 1.0}
+	screenW, screenH := 640, 480
+
+	// Tile (10, 0) should be visible at screen center
+	tile := sim_gen.Coord{X: 10, Y: 0}
+	centerX, centerY := TileToScreen(tile, 0, cam, screenW, screenH)
+
+	gotX, gotY := ScreenToTile(centerX, centerY, cam, screenW, screenH)
+	if int(math.Round(gotX)) != 10 || int(math.Round(gotY)) != 0 {
+		t.Errorf("Click with camera offset: got tile (%d,%d), want (10,0). Center=(%f,%f)",
+			int(math.Round(gotX)), int(math.Round(gotY)), centerX, centerY)
+	}
+}
+
 func TestTileToWorldWithOffset(t *testing.T) {
 	tile := sim_gen.Coord{X: 0, Y: 0}
 
