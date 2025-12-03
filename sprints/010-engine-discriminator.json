@@ -9,115 +9,23 @@
     {
       "id": "phase-1",
       "name": "Update Type References",
-      "status": "in_progress",
-      "tasks": [
-        {
-          "id": "task-1-1",
-          "name": "Update isoSortable struct to use *DrawCmd",
-          "status": "completed"
-        },
-        {
-          "id": "task-1-2",
-          "name": "Update getZ function for discriminator pattern",
-          "status": "completed"
-        },
-        {
-          "id": "task-1-3",
-          "name": "Update getIsoSortKey for discriminator pattern",
-          "status": "pending"
-        }
-      ]
+      "status": "completed"
     },
     {
       "id": "phase-2",
       "name": "Convert Main Render Switch",
-      "status": "in_progress",
-      "tasks": [
-        {
-          "id": "task-2-1",
-          "name": "Convert RenderFrame type switch to Kind switch",
-          "status": "completed"
-        },
-        {
-          "id": "task-2-2",
-          "name": "Update drawSprite to accept pointer",
-          "status": "completed"
-        },
-        {
-          "id": "task-2-3",
-          "name": "Update drawIsoTile to accept pointer",
-          "status": "completed"
-        },
-        {
-          "id": "task-2-4",
-          "name": "Update drawIsoEntity to accept pointer",
-          "status": "completed"
-        },
-        {
-          "id": "task-2-5",
-          "name": "Update drawAnimatedEntity to accept pointer",
-          "status": "completed"
-        },
-        {
-          "id": "task-2-6",
-          "name": "Update drawUiElement to accept pointer",
-          "status": "pending"
-        },
-        {
-          "id": "task-2-7",
-          "name": "Update drawLine to accept pointer",
-          "status": "pending"
-        },
-        {
-          "id": "task-2-8",
-          "name": "Update drawTextWrapped to accept pointer",
-          "status": "pending"
-        },
-        {
-          "id": "task-2-9",
-          "name": "Update drawCircle to accept pointer",
-          "status": "pending"
-        },
-        {
-          "id": "task-2-10",
-          "name": "Update drawText to accept pointer",
-          "status": "pending"
-        },
-        {
-          "id": "task-2-11",
-          "name": "Update drawStar to accept pointer",
-          "status": "pending"
-        }
-      ]
+      "status": "completed"
     },
     {
       "id": "phase-3",
-      "name": "Fix UiKind Enum Handling",
-      "status": "pending",
-      "tasks": [
-        {
-          "id": "task-3-1",
-          "name": "Update UiKind comparisons to discriminator pattern",
-          "status": "pending"
-        }
-      ]
+      "name": "AILANG Codegen Fixes",
+      "status": "completed",
+      "notes": "M-DX16 through M-DX21 implemented natively by AILANG team"
     },
     {
       "id": "phase-4",
       "name": "Build & Test",
-      "status": "pending",
-      "tasks": [
-        {
-          "id": "task-4-1",
-          "name": "Verify go build passes",
-          "status": "pending"
-        },
-        {
-          "id": "task-4-2",
-          "name": "Run game and verify rendering",
-          "status": "pending"
-        }
-      ]
+      "status": "completed"
     }
   ],
   "notes": "Completed! Engine now accepts AILANG-generated discriminator structs. All codegen bugs were fixed by AILANG team. Updated: draw.go (Kind-based dispatch), input.go (discriminator constructors), screenshot.go, scenario files, main.go. Makefile updated for multi-file compilation.",

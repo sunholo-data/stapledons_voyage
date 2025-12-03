@@ -385,6 +385,30 @@ func ConvertToRecordSlice(v interface{}) []map[string]interface{} {
 	return result
 }
 
+// convertToClickKindSlice converts []interface{} to []*ClickKind.
+// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
+func convertToClickKindSlice(v interface{}) []*ClickKind {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("convertToClickKindSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*ClickKind{}
+	}
+	out := make([]*ClickKind, len(src))
+	for i, e := range src {
+		elem, ok := e.(*ClickKind)
+		if !ok {
+			panic(fmt.Sprintf("convertToClickKindSlice: element %d: expected *ClickKind, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
 // convertToDirectionSlice converts []interface{} to []*Direction.
 // M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
 func convertToDirectionSlice(v interface{}) []*Direction {
@@ -457,6 +481,30 @@ func convertToKeyEventSlice(v interface{}) []*KeyEvent {
 	return out
 }
 
+// convertToMovementPatternSlice converts []interface{} to []*MovementPattern.
+// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
+func convertToMovementPatternSlice(v interface{}) []*MovementPattern {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("convertToMovementPatternSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*MovementPattern{}
+	}
+	out := make([]*MovementPattern, len(src))
+	for i, e := range src {
+		elem, ok := e.(*MovementPattern)
+		if !ok {
+			panic(fmt.Sprintf("convertToMovementPatternSlice: element %d: expected *MovementPattern, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
 // convertToNPCSlice converts []interface{} to []*NPC.
 // M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
 func convertToNPCSlice(v interface{}) []*NPC {
@@ -481,6 +529,78 @@ func convertToNPCSlice(v interface{}) []*NPC {
 	return out
 }
 
+// convertToPlayerActionSlice converts []interface{} to []*PlayerAction.
+// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
+func convertToPlayerActionSlice(v interface{}) []*PlayerAction {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("convertToPlayerActionSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*PlayerAction{}
+	}
+	out := make([]*PlayerAction, len(src))
+	for i, e := range src {
+		elem, ok := e.(*PlayerAction)
+		if !ok {
+			panic(fmt.Sprintf("convertToPlayerActionSlice: element %d: expected *PlayerAction, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// convertToSelectionSlice converts []interface{} to []*Selection.
+// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
+func convertToSelectionSlice(v interface{}) []*Selection {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("convertToSelectionSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*Selection{}
+	}
+	out := make([]*Selection, len(src))
+	for i, e := range src {
+		elem, ok := e.(*Selection)
+		if !ok {
+			panic(fmt.Sprintf("convertToSelectionSlice: element %d: expected *Selection, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// convertToStructureTypeSlice converts []interface{} to []*StructureType.
+// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
+func convertToStructureTypeSlice(v interface{}) []*StructureType {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("convertToStructureTypeSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*StructureType{}
+	}
+	out := make([]*StructureType, len(src))
+	for i, e := range src {
+		elem, ok := e.(*StructureType)
+		if !ok {
+			panic(fmt.Sprintf("convertToStructureTypeSlice: element %d: expected *StructureType, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
 // convertToTileSlice converts []interface{} to []*Tile.
 // M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
 func convertToTileSlice(v interface{}) []*Tile {
@@ -499,6 +619,30 @@ func convertToTileSlice(v interface{}) []*Tile {
 		elem, ok := e.(*Tile)
 		if !ok {
 			panic(fmt.Sprintf("convertToTileSlice: element %d: expected *Tile, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// convertToUiKindSlice converts []interface{} to []*UiKind.
+// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
+func convertToUiKindSlice(v interface{}) []*UiKind {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("convertToUiKindSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*UiKind{}
+	}
+	out := make([]*UiKind, len(src))
+	for i, e := range src {
+		elem, ok := e.(*UiKind)
+		if !ok {
+			panic(fmt.Sprintf("convertToUiKindSlice: element %d: expected *UiKind, got %T", i, e))
 		}
 		out[i] = elem
 	}
