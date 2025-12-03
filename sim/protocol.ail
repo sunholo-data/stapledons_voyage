@@ -1,7 +1,18 @@
 module sim/protocol
 
+-- =============================================================================
+-- Core Types
+-- =============================================================================
+
 -- Core coordinate type
 export type Coord = { x: int, y: int }
+
+-- Camera state for viewport transformation
+export type Camera = { x: float, y: float, zoom: float }
+
+-- =============================================================================
+-- Input Types
+-- =============================================================================
 
 -- Mouse input state
 export type MouseState = {
@@ -19,32 +30,79 @@ export type KeyEvent = {
 -- Structure types for building
 export type StructureType = StructureHouse | StructureFarm | StructureRoad
 
--- Player action types (tagged union matching Go mock)
+-- Player action types (tagged union)
 export type PlayerAction =
     | ActionNone
     | ActionInspect
     | ActionBuild(StructureType)
     | ActionClear
 
--- Frame input from engine (extended for selection/actions)
+-- Click kind for mouse button identification
+export type ClickKind = ClickLeft | ClickRight | ClickMiddle
+
+-- Frame input from engine (extended for isometric tiles)
 export type FrameInput = {
     mouse: MouseState,
     keys: [KeyEvent],
     clickedThisFrame: bool,
     worldMouseX: float,
     worldMouseY: float,
-    actionRequested: PlayerAction
+    tileMouseX: int,
+    tileMouseY: int,
+    actionRequested: PlayerAction,
+    testMode: bool
 }
 
--- Draw commands (tagged union)
+-- =============================================================================
+-- UI Types
+-- =============================================================================
+
+-- UI element kind
+export type UiKind =
+    | UiPanel
+    | UiButton
+    | UiLabel
+    | UiPortrait
+    | UiSlider
+    | UiProgressBar
+
+-- =============================================================================
+-- Draw Commands (tagged union)
+-- All rendering is expressed through DrawCmd variants
+-- =============================================================================
+
 export type DrawCmd =
-    | Sprite(int, float, float, int)
-    | Rect(float, float, float, float, int, int)
-    | Text(string, float, float, int)
+    -- Basic draw commands
+    | Sprite(int, float, float, int)                            -- id, x, y, z
+    | Rect(float, float, float, float, int, int)               -- x, y, w, h, color, z
+    | Text(string, float, float, int, int, int)                -- text, x, y, fontSize, color, z
+
+    -- Isometric draw commands
+    | IsoTile(Coord, int, int, int, int)                       -- tile, height, spriteId, layer, color
+    | IsoEntity(string, Coord, float, float, int, int, int)    -- id, tile, offsetX, offsetY, height, spriteId, layer
+
+    -- UI draw commands (screen space, not affected by camera)
+    | Ui(string, UiKind, float, float, float, float, string, int, int, int, float)
+      -- id, kind, x, y, w, h, text, spriteId, z, color, value
+
+    -- Extended draw commands
+    | Line(float, float, float, float, int, float, int)        -- x1, y1, x2, y2, color, width, z
+    | TextWrapped(string, float, float, float, int, int, int)  -- text, x, y, maxWidth, fontSize, color, z
+    | Circle(float, float, float, int, bool, int)              -- x, y, radius, color, filled, z
+    | RectScreen(float, float, float, float, int, int)         -- x, y, w, h, color, z (screen space)
+
+    -- Starmap draw commands
+    | GalaxyBg(float, int, bool, float, float, float)          -- opacity, z, skyViewMode, viewLon, viewLat, fov
+    | Star(float, float, int, float, float, int)               -- x, y, spriteId, scale, alpha, z
+
+-- =============================================================================
+-- Output Types
+-- =============================================================================
 
 -- Frame output to engine
 export type FrameOutput = {
     draw: [DrawCmd],
     sounds: [int],
-    debug: [string]
+    debug: [string],
+    camera: Camera
 }

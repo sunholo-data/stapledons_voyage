@@ -338,6 +338,61 @@ func FindPath(world sim.World, from, to sim.Coord) sim.Path {
 
 ---
 
+## Verification Status (as of v0.5.1-24)
+
+**Last tested: 2025-12-03**
+
+### ✅ Verified Working
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Go codegen | ✅ Working | `ailang compile --emit-go` produces valid Go |
+| Multi-file compilation | ✅ Working | Compile multiple .ail files in one command |
+| ADT → discriminator structs | ✅ Working | Sum types generate Kind enum + variant structs |
+| Records → Go structs | ✅ Working | Field names converted to PascalCase |
+| List types | ✅ Working | `[T]` → `[]T` (slices) |
+| List cons patterns | ✅ Working | `head :: tail`, `_ :: rest` work correctly |
+| ADT with list payload | ✅ Working | `PatternPatrol([Direction])` works |
+| Export functions | ✅ Working | `export func` → public Go function |
+| Pure functions | ✅ Working | No error return for pure functions |
+| Effect functions | ✅ Working | Effects generate handler interfaces |
+| Rand effect | ✅ Working | `handlers.Rand.RandInt()` generated correctly |
+| Debug effect | ✅ Working | `handlers.Debug.Log()` with location injection |
+| Runtime helpers | ✅ Working | ListCons, ListHead, Show, etc. generated |
+
+### ⚠️ Engine Adaptation Required
+
+The generated code uses **discriminator structs** (as specified in contract), but the current engine expects interface-based types. To use AILANG codegen:
+
+1. Update `engine/render/draw.go` to use switch on `DrawCmd.Kind` instead of type assertions
+2. Access variant data via `cmd.Rect.X` instead of `cmd.(DrawCmdRect).X`
+
+Example adaptation:
+```go
+// OLD (mock interface-based)
+switch c := cmd.(type) {
+case DrawCmdRect:
+    draw.Rect(c.X, c.Y, c.W, c.H, c.Color)
+}
+
+// NEW (discriminator struct)
+switch cmd.Kind {
+case DrawCmdKindRect:
+    c := cmd.Rect
+    draw.Rect(c.X, c.Y, c.W, c.H, c.Color)
+}
+```
+
+### 🔄 Not Yet Tested
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| `extern func` | Untested | v0.5.2+ feature |
+| AI effect | Untested | Handler interface generated, not tested |
+| Release mode (`-tags release`) | Untested | Debug stripping |
+
+---
+
 ## Integration Test Contract
 
 To verify AILANG fulfills this contract, we expect:

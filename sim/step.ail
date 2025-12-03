@@ -1,9 +1,13 @@
 module sim/step
 
 -- Import types from protocol and world modules (imports fixed in v0.4.9)
-import sim/protocol (FrameInput, FrameOutput, DrawCmd, Rect, Coord, PlayerAction, ActionNone)
+import sim/protocol (FrameInput, FrameOutput, DrawCmd, Rect, Coord, PlayerAction, ActionNone, Camera)
 import sim/world (World, PlanetState, Tile, Selection, SelectionNone, SelectionTile)
 import sim/npc_ai (NPC, PatternStatic, PatternRandomWalk, PatternPatrol, Direction, North, South, East, West, updateAllNPCs)
+
+-- Import effects (v0.5.0)
+import std/debug as Debug
+import std/rand (rand_int)
 
 -- Helper: generate list of n items using function
 pure func generate(n: int, f: int -> Tile) -> [Tile] {
@@ -88,14 +92,17 @@ export func init_world(seed: int) -> World {
     }
 }
 
--- Step function: update world and produce draw commands (TVar2 fix v0.5.0)
-export func step(world: World, input: FrameInput) -> (World, FrameOutput) {
+-- Step function: update world and produce draw commands
+-- Uses Rand for NPC movement, Debug for tracing (v0.5.0)
+export func step(world: World, input: FrameInput) -> (World, FrameOutput) ! {Rand, Debug} {
+    Debug.log("tick " ++ show(world.tick));
+
     -- Process selection
     let newSelection = processSelection(input, world);
 
-    -- Update NPCs using direct nested access
+    -- Update NPCs (Rand effect propagates from updateAllNPCs)
     let newTick = world.tick + 1;
-    let updatedNpcs = updateAllNPCs(world.npcs, newTick, world.planet.width, world.planet.height);
+    let updatedNpcs = updateAllNPCs(world.npcs, world.planet.width, world.planet.height);
 
     -- Update world state using record update
     let newWorld = { world | tick: newTick, npcs: updatedNpcs, selection: newSelection };
@@ -106,6 +113,7 @@ export func step(world: World, input: FrameInput) -> (World, FrameOutput) {
     let selCmds = selectionToDraw(newSelection);
     let drawCmds = concatDrawCmds(concatDrawCmds(tileCmds, npcCmds), selCmds);
 
-    let output = { draw: drawCmds, sounds: [], debug: [] };
+    let cam = { x: 0.0, y: 0.0, zoom: 1.0 };
+    let output = { draw: drawCmds, sounds: [], debug: [], camera: cam };
     (newWorld, output)
 }

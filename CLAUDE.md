@@ -115,28 +115,43 @@ The `sim_gen` package exports `InitWorld`, `Step`, and all ADT types. It can be:
 - **Generated** - From AILANG via `make sim` (when `ailc` is available)
 - **Mock** - Hand-written Go types matching AILANG protocol (for development without `ailc`)
 
-## Mock sim_gen Development (IMPORTANT)
+## sim_gen Development
 
-Until AILANG's Go codegen ships (`ailang compile --emit-go` in v0.5.0), we use **mock sim_gen** - hand-written Go that mimics what AILANG would generate.
+AILANG v0.5.0 Go codegen is now available. The workflow is:
+
+```bash
+# Generate Go code from AILANG
+ailang compile --emit-go --package-name sim_gen --out sim_gen sim/*.ail
+
+# Or use Makefile
+make sim    # Compile AILANG → Go
+make game   # Build with generated code
+```
+
+**Fallback:** If codegen fails, mock sim_gen (hand-written Go) is still available via `make game-mock`.
 
 ### Layer Boundaries
 
-| Layer | Location | Contains | Permanent? |
-|-------|----------|----------|------------|
-| **AILANG Source** | `sim/*.ail` | Game logic (future) | Yes |
-| **Simulation Mock** | `sim_gen/*.go` | Game logic (temporary) | **No - replaced when AILANG ships** |
-| **Engine** | `engine/*.go` | IO bridge only | Yes |
-| **Entry** | `cmd/*.go` | Wiring | Yes |
+| Layer | Location | Contains | Edit? |
+|-------|----------|----------|-------|
+| **AILANG Source** | `sim/*.ail` | Game logic | ✅ Edit here |
+| **Generated Code** | `sim_gen/*.go` | Auto-generated from AILANG | ❌ Never edit |
+| **Engine** | `engine/*.go` | IO bridge only | ✅ Edit here |
+| **Entry** | `cmd/*.go` | Wiring | ✅ Edit here |
 
 ### What Goes Where
 
-**sim_gen/ (MOCK - temporary):**
-- World state types and Step function
+**sim/*.ail (AILANG source):**
+- World state types and step function
 - Game logic (actions, building, NPC behavior)
 - DrawCmd generation
-- This is SIMULATION LAYER code, just written in Go until AILANG works
+- All simulation logic
 
-**engine/ (PERMANENT):**
+**sim_gen/*.go (generated):**
+- Auto-generated Go code from `ailang compile --emit-go`
+- Never edit manually - changes will be overwritten
+
+**engine/ (permanent):**
 - Input capture (keyboard, mouse → FrameInput)
 - Rendering (FrameOutput → pixels)
 - Asset management (sprites, sounds)
@@ -145,13 +160,7 @@ Until AILANG's Go codegen ships (`ailang compile --emit-go` in v0.5.0), we use *
 
 ### Key Principle
 
-The engine layer should be "dumb" - it captures input, passes it to sim_gen, and renders whatever sim_gen outputs. All decisions about game behavior belong in sim_gen (mock) or sim/*.ail (AILANG).
-
-When AILANG compiler ships:
-1. Write game logic in `sim/*.ail`
-2. Run `ailang compile --emit-go`
-3. Generated code replaces mock `sim_gen/*.go`
-4. Engine layer stays unchanged
+The engine layer should be "dumb" - it captures input, passes it to sim_gen, and renders whatever sim_gen outputs. All game logic lives in `sim/*.ail`.
 
 ## Key Types (defined in protocol.ail)
 
@@ -175,13 +184,20 @@ When working on this project, follow this iterative process:
 6. **Check inbox for responses** - `ailang agent inbox stapledons_voyage`
 7. **Iterate** - Incorporate feedback, fix issues, continue development
 
-### Known Limitations (as of current testing)
+### Available in v0.5.0 (Current)
 
-- **RNG effect coming in v0.5.1** - `rand_float()` (0-1), `rand_int(max)` (0-max), `AILANG_SEED` for determinism
-- **Array type coming in v0.5.0** - Currently only lists (O(n) access)
+- **Go codegen** - `ailang compile --emit-go --package-name sim_gen --out sim_gen sim/*.ail`
+- **Arrays** - `#[1, 2, 3]` with O(1) access via `std/array`
+- **Rand effect** - `std/rand` with `rand_int(min, max)`, `rand_float(min, max)`, `rand_bool()`, `rand_seed(n)`
+- **Debug effect** - `std/debug` with `Debug.log(msg)`, `Debug.check(cond, msg)`
+- **AI effect** - `std/ai` with `ai_call(input)` for LLM integration
+- **Game clock** - `std/game` with `delta_time()`, `frame_count()`, `total_time()`
+
+### Syntax Notes
+
 - **No tuple destructuring in let** - Use `match pair { (x, y) => ... }` instead of `let (x, y) = pair`
 
-### Fixed in v0.5.0 (Dec 2025)
+### Fixed in v0.5.0
 
 - **Nested field access** - `npc.pos.x` now works through function params, match bindings, list patterns
 - **Record update with nested values** - `{ npc | pos: { x: newX, y: newY } }` works correctly
@@ -226,18 +242,16 @@ This project targets **AILANG v0.5.x**. See [ailang_resources/consumer-contract-
 
 - **Go codegen** - `ailang compile --emit-go` produces valid, deterministic Go code
 - **ADT → discriminator structs** - Sum types become struct-based (not interface-based)
-- **Effects** - RNG (v0.5.1+), Debug (v0.5.1+), AI (v0.5.1+)
-- **Extern functions** - Performance kernels implemented in Go (v0.5.2+)
+- **Effects** - Rand, Debug, AI all available in v0.5.0
+- **Extern functions** - Performance kernels implemented in Go
 
-### Version Roadmap
+### Version Status
 
-| Version | Features |
-|---------|----------|
-| v0.4.9 | Bug fixes: record update inference, match recursion depth |
-| v0.5.0 | Go codegen, ADT structs, Array type |
-| v0.5.1 | RNG effect, Debug effect, AI effect |
-| v0.5.2 | Extern functions, CLI flags |
-| v0.5.3 | ABI "stable preview" |
+| Version | Status | Features |
+|---------|--------|----------|
+| v0.5.0 | **Current** | Go codegen, Arrays, Rand/Debug/AI effects |
+| v0.5.1 | Planned | Extern functions, additional CLI flags |
+| v0.5.2 | Planned | ABI "stable preview" |
 
 ## Integration Testing & Feedback Loop
 

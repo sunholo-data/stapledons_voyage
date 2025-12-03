@@ -1,8 +1,8 @@
 SIM_SRC = ./sim/*.ail
 
-# AILANG compilation (requires ailc)
+# AILANG compilation (v0.5.0+)
 sim:
-	ailc --emit-go --package-name sim_gen --out ./sim_gen $(SIM_SRC)
+	ailang compile --emit-go --package-name sim_gen --out . sim/step.ail
 
 # Build targets (depend on sim when ailc is available)
 game: sim
