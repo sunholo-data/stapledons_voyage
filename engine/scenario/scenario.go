@@ -99,19 +99,19 @@ func KeyNameToCode(name string) int {
 
 // BuildFrameInput creates a FrameInput from active keys and pending clicks.
 // pressedKeys are keys that were just pressed this frame (for mode switching etc).
-func BuildFrameInput(activeKeys map[int]bool, pressedKeys map[int]bool, pendingClick *Click, world sim_gen.World, testMode bool) sim_gen.FrameInput {
-	var keys []sim_gen.KeyEvent
+func BuildFrameInput(activeKeys map[int]bool, pressedKeys map[int]bool, pendingClick *Click, testMode bool) sim_gen.FrameInput {
+	var keys []*sim_gen.KeyEvent
 	// Add "down" events for all active keys
 	for code := range activeKeys {
-		keys = append(keys, sim_gen.KeyEvent{
-			Key:  code,
+		keys = append(keys, &sim_gen.KeyEvent{
+			Key:  int64(code),
 			Kind: "down",
 		})
 	}
 	// Add "pressed" events for keys just pressed this frame
 	for code := range pressedKeys {
-		keys = append(keys, sim_gen.KeyEvent{
-			Key:  code,
+		keys = append(keys, &sim_gen.KeyEvent{
+			Key:  int64(code),
 			Kind: "pressed",
 		})
 	}
@@ -127,14 +127,15 @@ func BuildFrameInput(activeKeys map[int]bool, pressedKeys map[int]bool, pendingC
 		worldY = float64(pendingClick.Y)
 	}
 
-	var action sim_gen.PlayerAction = sim_gen.ActionNone{}
+	// Use discriminator struct constructors for PlayerAction
+	action := *sim_gen.NewPlayerActionActionNone()
 	// Check for action keys
 	if activeKeys[8] { // I key
-		action = sim_gen.ActionInspect{}
+		action = *sim_gen.NewPlayerActionActionInspect()
 	} else if activeKeys[1] { // B key
-		action = sim_gen.ActionBuild{StructureType: sim_gen.StructureHouse}
+		action = *sim_gen.NewPlayerActionActionBuild(*sim_gen.NewStructureTypeStructureHouse())
 	} else if activeKeys[23] { // X key
-		action = sim_gen.ActionClear{}
+		action = *sim_gen.NewPlayerActionActionClear()
 	}
 
 	return sim_gen.FrameInput{

@@ -1,8 +1,9 @@
 SIM_SRC = ./sim/*.ail
 
 # AILANG compilation (v0.5.0+)
+# Compile all .ail files together for multi-module support
 sim:
-	ailang compile --emit-go --package-name sim_gen --out . sim/step.ail
+	ailang compile --emit-go --package-name sim_gen --out . sim/protocol.ail sim/world.ail sim/npc_ai.ail sim/step.ail
 
 # Build targets (depend on sim when ailc is available)
 game: sim

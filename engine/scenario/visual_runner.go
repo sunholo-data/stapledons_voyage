@@ -18,7 +18,7 @@ import (
 // VisualRunner executes a visual test scenario with screenshots.
 type VisualRunner struct {
 	scenario     *Scenario
-	world        sim_gen.World
+	world        *sim_gen.World // Typed world (M-DX16: RecordUpdate preserves struct types)
 	out          sim_gen.FrameOutput
 	renderer     *render.Renderer
 	currentFrame int
@@ -107,14 +107,21 @@ func (r *VisualRunner) Update() error {
 	}
 
 	// Build input and step simulation
-	input := BuildFrameInput(r.activeKeys, r.pressedKeys, r.pendingClick, r.world, r.scenario.TestMode)
+	input := BuildFrameInput(r.activeKeys, r.pressedKeys, r.pendingClick, r.scenario.TestMode)
 	r.pendingClick = nil // Clear pending click
 
-	var err error
-	r.world, r.out, err = sim_gen.Step(r.world, input)
-	if err != nil {
-		r.err = fmt.Errorf("simulation error at frame %d: %w", r.currentFrame, err)
+	// Step returns []interface{}{newWorld, output} - RecordUpdate preserves *World type
+	result := sim_gen.Step(r.world, input)
+	tuple, ok := result.([]interface{})
+	if !ok || len(tuple) != 2 {
+		r.err = fmt.Errorf("simulation error at frame %d: unexpected Step result", r.currentFrame)
 		return r.err
+	}
+	if w, ok := tuple[0].(*sim_gen.World); ok {
+		r.world = w
+	}
+	if out, ok := tuple[1].(*sim_gen.FrameOutput); ok {
+		r.out = *out
 	}
 
 	r.currentFrame++
@@ -165,27 +172,17 @@ func RunVisualScenarioWithOptions(scenarioPath, outputDir string, testMode, test
 		fmt.Println("Test mode: UI stripped for golden file comparison")
 	}
 
-	// Load star catalog for galaxy map scenarios
-	starCatalogPath := "assets/data/starmap/stars.json"
-	if _, err := sim_gen.LoadStarCatalog(starCatalogPath); err != nil {
-		fmt.Printf("Warning: failed to load star catalog: %v\n", err)
-	} else {
-		catalog := sim_gen.GetStarCatalog()
-		if catalog != nil {
-			fmt.Printf("Loaded %d stars from %s\n", catalog.Count, starCatalogPath)
-		}
-	}
+	// Note: Star catalog loading removed - not available in AILANG codegen yet
 
 	// Initialize asset manager
 	assetMgr, _ := assets.NewManager("assets")
 	renderer := render.NewRenderer(assetMgr)
 
-	// Initialize world
-	world := sim_gen.InitWorld(s.Seed)
-	world.Camera = sim_gen.Camera{
-		X:    s.Camera.X,
-		Y:    s.Camera.Y,
-		Zoom: s.Camera.Zoom,
+	// Initialize world - type assert to *World (M-DX16: struct types preserved)
+	worldIface := sim_gen.InitWorld(s.Seed)
+	world, ok := worldIface.(*sim_gen.World)
+	if !ok {
+		return fmt.Errorf("InitWorld did not return *World")
 	}
 
 	runner := NewVisualRunner(s, outputDir)

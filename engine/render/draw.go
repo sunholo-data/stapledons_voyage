@@ -117,10 +117,12 @@ func (r *Renderer) RenderFrame(screen *ebiten.Image, out sim_gen.FrameOutput) {
 		return sortables[i].sortKey < sortables[j].sortKey
 	})
 
-	// Render each command
+	// Render each command using Kind-based dispatch (discriminator struct pattern)
 	for _, s := range sortables {
-		switch c := s.cmd.(type) {
-		case sim_gen.DrawCmdRect:
+		cmd := s.cmd
+		switch cmd.Kind {
+		case sim_gen.DrawCmdKindRect:
+			c := cmd.Rect
 			// Cull if outside viewport
 			if !viewport.ContainsRect(c.X, c.Y, c.W, c.H) {
 				continue
@@ -129,48 +131,52 @@ func (r *Renderer) RenderFrame(screen *ebiten.Image, out sim_gen.FrameOutput) {
 			sx, sy := transform.WorldToScreen(c.X, c.Y)
 			sw := c.W * transform.Scale
 			sh := c.H * transform.Scale
-			col := biomeColors[c.Color%len(biomeColors)]
+			col := biomeColors[int(c.Color)%len(biomeColors)]
 			ebitenutil.DrawRect(screen, sx, sy, sw, sh, col)
 
-		case sim_gen.DrawCmdSprite:
+		case sim_gen.DrawCmdKindSprite:
+			c := cmd.Sprite
 			// Cull if outside viewport (assuming 16x16 sprite)
 			if !viewport.ContainsRect(c.X, c.Y, 16, 16) {
 				continue
 			}
 			r.drawSprite(screen, c, transform)
 
-		case sim_gen.DrawCmdText:
+		case sim_gen.DrawCmdKindText:
+			c := cmd.Text
 			// Screen-space coordinates (no transform)
 			r.drawText(screen, c, int(c.X), int(c.Y))
 
-		case sim_gen.DrawCmdIsoTile:
-			r.drawIsoTile(screen, c, out.Camera, screenW, screenH)
+		case sim_gen.DrawCmdKindIsoTile:
+			r.drawIsoTile(screen, cmd.IsoTile, out.Camera, screenW, screenH)
 
-		case sim_gen.DrawCmdIsoEntity:
-			r.drawIsoEntity(screen, c, out.Camera, screenW, screenH)
+		case sim_gen.DrawCmdKindIsoEntity:
+			r.drawIsoEntity(screen, cmd.IsoEntity, out.Camera, screenW, screenH)
 
-		case sim_gen.DrawCmdUi:
-			r.drawUiElement(screen, c, screenW, screenH)
+		case sim_gen.DrawCmdKindUi:
+			r.drawUiElement(screen, cmd.Ui, screenW, screenH)
 
-		case sim_gen.DrawCmdLine:
-			r.drawLine(screen, c)
+		case sim_gen.DrawCmdKindLine:
+			r.drawLine(screen, cmd.Line)
 
-		case sim_gen.DrawCmdTextWrapped:
-			r.drawTextWrapped(screen, c, screenW, screenH)
+		case sim_gen.DrawCmdKindTextWrapped:
+			r.drawTextWrapped(screen, cmd.TextWrapped, screenW, screenH)
 
-		case sim_gen.DrawCmdCircle:
-			r.drawCircle(screen, c)
+		case sim_gen.DrawCmdKindCircle:
+			r.drawCircle(screen, cmd.Circle)
 
-		case sim_gen.DrawCmdRectScreen:
+		case sim_gen.DrawCmdKindRectScreen:
+			c := cmd.RectScreen
 			// Screen-space rectangle (no camera transform)
-			col := biomeColors[c.Color%len(biomeColors)]
+			col := biomeColors[int(c.Color)%len(biomeColors)]
 			ebitenutil.DrawRect(screen, c.X, c.Y, c.W, c.H, col)
 
-		case sim_gen.DrawCmdGalaxyBg:
-			r.drawGalaxyBackground(screen, c.Opacity, screenW, screenH, c.SkyViewMode, c.ViewLon, c.ViewLat, c.FOV)
+		case sim_gen.DrawCmdKindGalaxyBg:
+			c := cmd.GalaxyBg
+			r.drawGalaxyBackground(screen, c.Opacity, screenW, screenH, c.SkyViewMode, c.ViewLon, c.ViewLat, c.Fov)
 
-		case sim_gen.DrawCmdStar:
-			r.drawStar(screen, c)
+		case sim_gen.DrawCmdKindStar:
+			r.drawStar(screen, cmd.Star)
 		}
 	}
 
@@ -182,7 +188,7 @@ func (r *Renderer) RenderFrame(screen *ebiten.Image, out sim_gen.FrameOutput) {
 }
 
 // drawSprite draws a sprite using the asset manager with camera transform.
-func (r *Renderer) drawSprite(screen *ebiten.Image, c sim_gen.DrawCmdSprite, transform camera.Transform) {
+func (r *Renderer) drawSprite(screen *ebiten.Image, c *sim_gen.DrawCmdSprite, transform camera.Transform) {
 	sx, sy := transform.WorldToScreen(c.X, c.Y)
 
 	if r.assets == nil {
@@ -193,7 +199,7 @@ func (r *Renderer) drawSprite(screen *ebiten.Image, c sim_gen.DrawCmdSprite, tra
 		return
 	}
 
-	sprite := r.assets.GetSprite(c.ID)
+	sprite := r.assets.GetSprite(int(c.Id))
 	if sprite == nil {
 		sw := 16.0 * transform.Scale
 		sh := 16.0 * transform.Scale
@@ -214,32 +220,32 @@ func RenderFrame(screen *ebiten.Image, out sim_gen.FrameOutput) {
 	r.RenderFrame(screen, out)
 }
 
-func getZ(cmd sim_gen.DrawCmd) int {
-	switch c := cmd.(type) {
-	case sim_gen.DrawCmdRect:
-		return c.Z
-	case sim_gen.DrawCmdSprite:
-		return c.Z
-	case sim_gen.DrawCmdText:
-		return c.Z
-	case sim_gen.DrawCmdLine:
-		return c.Z
-	case sim_gen.DrawCmdTextWrapped:
-		return c.Z
-	case sim_gen.DrawCmdCircle:
-		return c.Z
-	case sim_gen.DrawCmdRectScreen:
-		return c.Z
-	case sim_gen.DrawCmdGalaxyBg:
-		return c.Z
-	case sim_gen.DrawCmdStar:
-		return c.Z
-	case sim_gen.DrawCmdIsoTile:
-		return c.Layer
-	case sim_gen.DrawCmdIsoEntity:
-		return c.Layer
-	case sim_gen.DrawCmdUi:
-		return c.Z + 10000 // UI always on top
+func getZ(cmd *sim_gen.DrawCmd) int {
+	switch cmd.Kind {
+	case sim_gen.DrawCmdKindRect:
+		return int(cmd.Rect.Z)
+	case sim_gen.DrawCmdKindSprite:
+		return int(cmd.Sprite.Z)
+	case sim_gen.DrawCmdKindText:
+		return int(cmd.Text.Z)
+	case sim_gen.DrawCmdKindLine:
+		return int(cmd.Line.Z)
+	case sim_gen.DrawCmdKindTextWrapped:
+		return int(cmd.TextWrapped.Z)
+	case sim_gen.DrawCmdKindCircle:
+		return int(cmd.Circle.Z)
+	case sim_gen.DrawCmdKindRectScreen:
+		return int(cmd.RectScreen.Z)
+	case sim_gen.DrawCmdKindGalaxyBg:
+		return int(cmd.GalaxyBg.Z)
+	case sim_gen.DrawCmdKindStar:
+		return int(cmd.Star.Z)
+	case sim_gen.DrawCmdKindIsoTile:
+		return int(cmd.IsoTile.Layer)
+	case sim_gen.DrawCmdKindIsoEntity:
+		return int(cmd.IsoEntity.Layer)
+	case sim_gen.DrawCmdKindUi:
+		return int(cmd.Ui.Z) + 10000 // UI always on top
 	}
 	return 0
 }
@@ -249,22 +255,22 @@ func getZ(cmd sim_gen.DrawCmd) int {
 // =============================================================================
 
 // drawIsoTile renders an isometric tile.
-func (r *Renderer) drawIsoTile(screen *ebiten.Image, c sim_gen.DrawCmdIsoTile, cam sim_gen.Camera, screenW, screenH int) {
+func (r *Renderer) drawIsoTile(screen *ebiten.Image, c *sim_gen.DrawCmdIsoTile, cam sim_gen.Camera, screenW, screenH int) {
 	// Check if tile is in view
-	if !TileInView(c.Tile, c.Height, cam, screenW, screenH) {
+	if !TileInView(c.Tile, int(c.Height), cam, screenW, screenH) {
 		return
 	}
 
 	// Convert tile to screen coordinates
-	sx, sy := TileToScreen(c.Tile, c.Height, cam, screenW, screenH)
+	sx, sy := TileToScreen(c.Tile, int(c.Height), cam, screenW, screenH)
 
 	// Calculate tile size in screen space
 	tileW := TileWidth * cam.Zoom
 	tileH := TileHeight * cam.Zoom
 
 	// Draw sprite if available, otherwise colored diamond
-	if r.assets != nil && c.SpriteID > 0 {
-		sprite := r.assets.GetSprite(c.SpriteID)
+	if r.assets != nil && c.SpriteId > 0 {
+		sprite := r.assets.GetSprite(int(c.SpriteId))
 		if sprite != nil {
 			op := &ebiten.DrawImageOptions{}
 			op.GeoM.Scale(cam.Zoom, cam.Zoom)
@@ -276,21 +282,21 @@ func (r *Renderer) drawIsoTile(screen *ebiten.Image, c sim_gen.DrawCmdIsoTile, c
 	}
 
 	// Fallback: draw colored diamond (isometric tile shape)
-	col := biomeColors[c.Color%len(biomeColors)]
+	col := biomeColors[int(c.Color)%len(biomeColors)]
 	drawIsoDiamond(screen, sx, sy, tileW, tileH, col)
 }
 
 // drawIsoEntity renders an isometric entity with sub-tile positioning.
-func (r *Renderer) drawIsoEntity(screen *ebiten.Image, c sim_gen.DrawCmdIsoEntity, cam sim_gen.Camera, screenW, screenH int) {
+func (r *Renderer) drawIsoEntity(screen *ebiten.Image, c *sim_gen.DrawCmdIsoEntity, cam sim_gen.Camera, screenW, screenH int) {
 	// Convert tile + offset to screen coordinates
-	sx, sy := TileToScreenWithOffset(c.Tile, c.OffsetX, c.OffsetY, c.Height, cam, screenW, screenH)
+	sx, sy := TileToScreenWithOffset(c.Tile, c.OffsetX, c.OffsetY, int(c.Height), cam, screenW, screenH)
 
 	// Draw sprite if available
-	if r.assets != nil && c.SpriteID > 0 {
-		sprite := r.assets.GetSprite(c.SpriteID)
+	if r.assets != nil && c.SpriteId > 0 {
+		sprite := r.assets.GetSprite(int(c.SpriteId))
 		if sprite != nil {
 			// Check if this sprite is animated
-			if r.anims != nil && r.anims.HasAnimations(c.SpriteID) {
+			if r.anims != nil && r.anims.HasAnimations(int(c.SpriteId)) {
 				r.drawAnimatedEntity(screen, sprite, c, sx, sy, cam, screenW, screenH)
 				return
 			}
@@ -324,7 +330,7 @@ func (r *Renderer) drawIsoEntity(screen *ebiten.Image, c sim_gen.DrawCmdIsoEntit
 }
 
 // drawAnimatedEntity renders an animated entity using the current animation frame.
-func (r *Renderer) drawAnimatedEntity(screen *ebiten.Image, sprite *ebiten.Image, c sim_gen.DrawCmdIsoEntity, sx, sy float64, cam sim_gen.Camera, screenW, screenH int) {
+func (r *Renderer) drawAnimatedEntity(screen *ebiten.Image, sprite *ebiten.Image, c *sim_gen.DrawCmdIsoEntity, sx, sy float64, cam sim_gen.Camera, screenW, screenH int) {
 	// Get animation name from entity (default to "walk" for moving entities, "idle" otherwise)
 	animName := "idle"
 	if c.OffsetX != 0 || c.OffsetY != 0 {
@@ -332,11 +338,11 @@ func (r *Renderer) drawAnimatedEntity(screen *ebiten.Image, sprite *ebiten.Image
 	}
 
 	// Get current frame index
-	entityID := c.ID
-	frameIdx := r.anims.GetFrame(entityID, c.SpriteID, animName)
+	entityID := c.Id
+	frameIdx := r.anims.GetFrame(entityID, int(c.SpriteId), animName)
 
 	// Get frame dimensions
-	frameW, frameH := r.anims.GetFrameDimensions(c.SpriteID)
+	frameW, frameH := r.anims.GetFrameDimensions(int(c.SpriteId))
 	if frameW == 0 || frameH == 0 {
 		frameW, frameH = 32, 48 // Default frame size
 	}
@@ -364,7 +370,7 @@ func (r *Renderer) drawAnimatedEntity(screen *ebiten.Image, sprite *ebiten.Image
 }
 
 // drawUiElement renders a UI element in screen space (not affected by camera).
-func (r *Renderer) drawUiElement(screen *ebiten.Image, c sim_gen.DrawCmdUi, screenW, screenH int) {
+func (r *Renderer) drawUiElement(screen *ebiten.Image, c *sim_gen.DrawCmdUi, screenW, screenH int) {
 	// Convert normalized coordinates to screen pixels
 	px := c.X * float64(screenW)
 	py := c.Y * float64(screenH)
@@ -372,14 +378,15 @@ func (r *Renderer) drawUiElement(screen *ebiten.Image, c sim_gen.DrawCmdUi, scre
 	ph := c.H * float64(screenH)
 
 	// Get color
-	col := biomeColors[c.Color%len(biomeColors)]
+	col := biomeColors[int(c.Color)%len(biomeColors)]
 
-	switch c.Kind {
-	case sim_gen.UiKindPanel:
+	// UiKind is a discriminator struct - switch on Kind.Kind
+	switch c.Kind.Kind {
+	case sim_gen.UiKindKindUiPanel:
 		// Draw panel background
 		ebitenutil.DrawRect(screen, px, py, pw, ph, col)
 
-	case sim_gen.UiKindButton:
+	case sim_gen.UiKindKindUiButton:
 		// Draw button with border
 		ebitenutil.DrawRect(screen, px, py, pw, ph, col)
 		// Simple border effect
@@ -389,16 +396,16 @@ func (r *Renderer) drawUiElement(screen *ebiten.Image, c sim_gen.DrawCmdUi, scre
 		ebitenutil.DrawRect(screen, px, py, 2, ph, borderCol)       // left
 		ebitenutil.DrawRect(screen, px+pw-2, py, 2, ph, borderCol)  // right
 
-	case sim_gen.UiKindLabel:
+	case sim_gen.UiKindKindUiLabel:
 		// Just draw text (background optional)
 		if c.Color > 0 {
 			ebitenutil.DrawRect(screen, px, py, pw, ph, col)
 		}
 
-	case sim_gen.UiKindPortrait:
+	case sim_gen.UiKindKindUiPortrait:
 		// Draw sprite or placeholder
-		if r.assets != nil && c.SpriteID > 0 {
-			sprite := r.assets.GetSprite(c.SpriteID)
+		if r.assets != nil && c.SpriteId > 0 {
+			sprite := r.assets.GetSprite(int(c.SpriteId))
 			if sprite != nil {
 				op := &ebiten.DrawImageOptions{}
 				// Scale sprite to fit rect
@@ -412,7 +419,7 @@ func (r *Renderer) drawUiElement(screen *ebiten.Image, c sim_gen.DrawCmdUi, scre
 		// Fallback: draw placeholder
 		ebitenutil.DrawRect(screen, px, py, pw, ph, color.RGBA{100, 100, 100, 255})
 
-	case sim_gen.UiKindSlider:
+	case sim_gen.UiKindKindUiSlider:
 		// Draw slider track (dark background)
 		trackCol := color.RGBA{60, 60, 60, 255}
 		ebitenutil.DrawRect(screen, px, py+ph/3, pw, ph/3, trackCol)
@@ -429,7 +436,7 @@ func (r *Renderer) drawUiElement(screen *ebiten.Image, c sim_gen.DrawCmdUi, scre
 		handleCol := color.RGBA{255, 255, 255, 255}
 		ebitenutil.DrawRect(screen, handleX, py, 8, ph, handleCol)
 
-	case sim_gen.UiKindProgressBar:
+	case sim_gen.UiKindKindUiProgressBar:
 		// Draw progress bar background
 		bgCol := color.RGBA{40, 40, 40, 255}
 		ebitenutil.DrawRect(screen, px, py, pw, ph, bgCol)
@@ -464,9 +471,9 @@ func (r *Renderer) drawUiElement(screen *ebiten.Image, c sim_gen.DrawCmdUi, scre
 
 // drawLine draws a line between two points with specified width and color.
 // Coordinates are screen-space pixels (not world coordinates).
-func (r *Renderer) drawLine(screen *ebiten.Image, c sim_gen.DrawCmdLine) {
+func (r *Renderer) drawLine(screen *ebiten.Image, c *sim_gen.DrawCmdLine) {
 	// Get color
-	col := biomeColors[c.Color%len(biomeColors)]
+	col := biomeColors[int(c.Color)%len(biomeColors)]
 
 	width := float32(c.Width)
 	if width < 1 {
@@ -479,14 +486,14 @@ func (r *Renderer) drawLine(screen *ebiten.Image, c sim_gen.DrawCmdLine) {
 
 // drawTextWrapped draws word-wrapped text with a specified font size and color.
 // Coordinates are screen-space pixels.
-func (r *Renderer) drawTextWrapped(screen *ebiten.Image, c sim_gen.DrawCmdTextWrapped, screenW, screenH int) {
+func (r *Renderer) drawTextWrapped(screen *ebiten.Image, c *sim_gen.DrawCmdTextWrapped, screenW, screenH int) {
 	// Get color
-	col := biomeColors[c.Color%len(biomeColors)]
+	col := biomeColors[int(c.Color)%len(biomeColors)]
 
 	// Get font face for the specified size
 	var face font.Face
 	if r.assets != nil {
-		face = r.assets.GetFontBySize(c.FontSize)
+		face = r.assets.GetFontBySize(int(c.FontSize))
 	}
 
 	// Wrap text and draw (screen-space coordinates)
@@ -562,14 +569,14 @@ func splitWords(s string) []string {
 
 // drawCircle draws a filled or outline circle.
 // Coordinates are screen-space pixels.
-func (r *Renderer) drawCircle(screen *ebiten.Image, c sim_gen.DrawCmdCircle) {
+func (r *Renderer) drawCircle(screen *ebiten.Image, c *sim_gen.DrawCmdCircle) {
 	radius := float32(c.Radius)
 	if radius < 1 {
 		radius = 1
 	}
 
 	// Get color
-	col := biomeColors[c.Color%len(biomeColors)]
+	col := biomeColors[int(c.Color)%len(biomeColors)]
 
 	if c.Filled {
 		// Draw filled circle (screen-space coordinates)
@@ -582,7 +589,7 @@ func (r *Renderer) drawCircle(screen *ebiten.Image, c sim_gen.DrawCmdCircle) {
 
 // drawStar draws a star sprite with scaling for efficient GPU batching.
 // Falls back to colored circle if sprite not available.
-func (r *Renderer) drawStar(screen *ebiten.Image, c sim_gen.DrawCmdStar) {
+func (r *Renderer) drawStar(screen *ebiten.Image, c *sim_gen.DrawCmdStar) {
 	// Default alpha to 1.0 if not set
 	alpha := c.Alpha
 	if alpha <= 0 {
@@ -595,7 +602,7 @@ func (r *Renderer) drawStar(screen *ebiten.Image, c sim_gen.DrawCmdStar) {
 		return
 	}
 
-	sprite := r.assets.GetSprite(c.SpriteID)
+	sprite := r.assets.GetSprite(int(c.SpriteId))
 	if sprite == nil {
 		r.drawStarFallback(screen, c, alpha)
 		return
@@ -621,10 +628,10 @@ func (r *Renderer) drawStar(screen *ebiten.Image, c sim_gen.DrawCmdStar) {
 }
 
 // drawStarFallback draws a colored circle when sprite not available
-func (r *Renderer) drawStarFallback(screen *ebiten.Image, c sim_gen.DrawCmdStar, alpha float64) {
+func (r *Renderer) drawStarFallback(screen *ebiten.Image, c *sim_gen.DrawCmdStar, alpha float64) {
 	// Map sprite ID to color
 	var col color.RGBA
-	switch c.SpriteID {
+	switch c.SpriteId {
 	case 200: // Blue (O/B)
 		col = color.RGBA{155, 176, 255, 255}
 	case 201: // White (A/F)
@@ -652,18 +659,18 @@ func (r *Renderer) drawStarFallback(screen *ebiten.Image, c sim_gen.DrawCmdStar,
 }
 
 // drawText draws text with specified font size and color.
-func (r *Renderer) drawText(screen *ebiten.Image, c sim_gen.DrawCmdText, sx, sy int) {
+func (r *Renderer) drawText(screen *ebiten.Image, c *sim_gen.DrawCmdText, sx, sy int) {
 	// Get color (0 = white/default)
 	var col color.RGBA
 	if c.Color == 0 {
 		col = color.RGBA{255, 255, 255, 255}
 	} else {
-		col = biomeColors[c.Color%len(biomeColors)]
+		col = biomeColors[int(c.Color)%len(biomeColors)]
 	}
 
 	// Get font face for the specified size
 	if r.assets != nil {
-		face := r.assets.GetFontBySize(c.FontSize)
+		face := r.assets.GetFontBySize(int(c.FontSize))
 		if face != nil {
 			// text.Draw uses baseline Y, so offset down
 			lineHeight := face.Metrics().Height.Ceil()
@@ -723,33 +730,36 @@ var whitePixel = func() *ebiten.Image {
 // isoSortKey returns a sort key for isometric draw commands.
 // Uses (layer, screenY) for proper depth sorting.
 type isoSortable struct {
-	cmd     sim_gen.DrawCmd
+	cmd     *sim_gen.DrawCmd
 	sortKey float64
 }
 
-func getIsoSortKey(cmd sim_gen.DrawCmd, cam sim_gen.Camera, screenW, screenH int) float64 {
-	switch c := cmd.(type) {
-	case sim_gen.DrawCmdIsoTile:
-		_, sy := TileToScreen(c.Tile, c.Height, cam, screenW, screenH)
-		return IsoDepth(c.Layer, sy)
+func getIsoSortKey(cmd *sim_gen.DrawCmd, cam sim_gen.Camera, screenW, screenH int) float64 {
+	switch cmd.Kind {
+	case sim_gen.DrawCmdKindIsoTile:
+		c := cmd.IsoTile
+		_, sy := TileToScreen(c.Tile, int(c.Height), cam, screenW, screenH)
+		return IsoDepth(int(c.Layer), sy)
 
-	case sim_gen.DrawCmdIsoEntity:
-		_, sy := TileToScreenWithOffset(c.Tile, c.OffsetX, c.OffsetY, c.Height, cam, screenW, screenH)
-		return IsoDepth(c.Layer, sy)
+	case sim_gen.DrawCmdKindIsoEntity:
+		c := cmd.IsoEntity
+		_, sy := TileToScreenWithOffset(c.Tile, c.OffsetX, c.OffsetY, int(c.Height), cam, screenW, screenH)
+		return IsoDepth(int(c.Layer), sy)
 
-	case sim_gen.DrawCmdUi:
+	case sim_gen.DrawCmdKindUi:
+		c := cmd.Ui
 		// UI is always on top, sorted by Z within UI layer
-		return IsoDepth(1000+c.Z, 0)
+		return IsoDepth(1000+int(c.Z), 0)
 
-	case sim_gen.DrawCmdLine:
+	case sim_gen.DrawCmdKindLine:
 		// Lines use simple Z for now
-		return float64(c.Z)
+		return float64(cmd.Line.Z)
 
-	case sim_gen.DrawCmdTextWrapped:
-		return float64(c.Z)
+	case sim_gen.DrawCmdKindTextWrapped:
+		return float64(cmd.TextWrapped.Z)
 
-	case sim_gen.DrawCmdCircle:
-		return float64(c.Z)
+	case sim_gen.DrawCmdKindCircle:
+		return float64(cmd.Circle.Z)
 
 	default:
 		// Legacy commands use simple Z

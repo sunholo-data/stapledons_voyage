@@ -291,3 +291,39 @@ Each archetype has baseline OCEAN values that inform dialogue tone, event reacti
 
 **Rationale:** Serves mystery-discovery design goal. Provides in-universe justification for New Game+ memory reset. Keeps the 'where did I come from?' question open.
 
+
+## [2025-12-03] Special Relativity Visual Effects: Hard SF Made Visible
+
+**Context:** Relativistic travel is central to the game, but players need to SEE it, not just read numbers. The question was how to make SR tangible without resorting to fake "warp streaks."
+
+**Decision:** Implement three physically accurate SR effects at high γ (10-20):
+
+1. **Aberration (Headlight Effect):** Stars pile into a forward cone as speed increases. At high γ, almost everything is visible in a narrow tunnel ahead; behind is blackness. The universe "rushes toward" your velocity vector.
+
+2. **Doppler Shift:** Light from ahead blue-shifts (stars become blue/white). Light from behind red-shifts (fades to infrared and disappears). Nebulae get blue tint ahead, red smear behind.
+
+3. **Relativistic Beaming:** Intensity scales as I' ∝ D³ where D is Doppler factor. Forward directions become much brighter (blow out into "star wind" halo). Rear directions dim to near-black.
+
+Additionally: External clocks (remote beacons, planet rotations) run "too fast" as you approach high speed. HUD shows "galaxy time" vs "ship time" advancing at different rates.
+
+**Implementation boundary:**
+- **AILANG outputs:** camera_pos, camera_vel (β vector), gamma, starfield in galaxy frame
+- **Engine implements:** Aberration via direction transform, Doppler via D = γ(1 − β·n), beaming via I' ∝ D³
+
+The sim says "how fast am I going"; the renderer bends the light.
+
+**Core math (engine-side):**
+- Direction transform: Split into parallel/perpendicular components to β
+- Doppler factor: D = γ(1 − β·n) for each star direction n
+- Beaming: brightness_factor = clamp(D³, min, max)
+- Implementation: CPU transform for discrete stars, shader for background cubemap
+
+**Rationale:** Serves Pillar 3 (Time Weight): Visual distortion makes time dilation visceral, not abstract. Serves Pillar 5 (Grounded Strangeness): Real physics that's actually visible. Serves Pillar 6 (Human Incompatibility): Disorienting visuals emphasize cosmic alienation—this isn't how humans evolved to see.
+
+**Alternatives rejected:**
+- Fake "warp streaks" (not physically accurate)
+- Abstract representations (loses visceral impact)
+- Ignoring SR effects (misses the core experience)
+
+**Implications:** Need to define visual exaggeration curves (map physical β → visual "wow"). May want to add lens flare, motion blur as aesthetic overlays. GR lensing near black holes is a separate effect.
+

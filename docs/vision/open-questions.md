@@ -91,3 +91,64 @@ Unresolved design questions that need exploration.
 - Decision on meta-save system (what persists across BH cycles?)
 - Whether to show any "inheritance" at new game start
 - Balance testing across multiple playthroughs
+
+---
+
+## How much should SR visual effects be exaggerated?
+
+**Why it matters:** Real SR effects at γ=20 are dramatic, but may need adjustment for readability, aesthetic appeal, or to avoid disorientation that breaks gameplay.
+
+**Current thinking:** Some exaggeration for readability is fine, but grounded in real physics. The question is where to draw the line between "accurate" and "playable."
+
+**Options:**
+1. **Pure physics:** D³ beaming, exact aberration angles — may be too extreme
+2. **Clamped physics:** Apply formulas but clamp outputs to comfortable ranges
+3. **Aesthetic mapping:** Map physical β → visual "wow factor" via custom curves
+4. **Mode toggle:** "Hard mode" uses real physics, "cinematic mode" softens effects
+
+**Sub-questions:**
+- Should rear-view ever go completely black, or maintain some faint visibility?
+- How aggressive should Doppler colour shifting be? (Full spectrum shift vs. tinting)
+- Should beaming brightness be tied to actual display HDR capabilities?
+- Motion blur: add as aesthetic overlay or derive from relativistic effects?
+
+**Needs:**
+- Prototyping to see what feels right
+- Player testing for disorientation tolerance
+- Decision on whether different camera modes (docked vs cruise) have different effects
+
+---
+
+## What visual mode for docked/orbital vs cruise?
+
+**Why it matters:** SR effects only make sense during relativistic cruise. Need to define when effects activate and deactivate.
+
+**Current thinking:** AILANG outputs a "camera mode" flag. Docked/orbital uses normal rendering; cruise enables SR shader pipeline.
+
+**Options:**
+1. **Binary switch:** Effects on above threshold γ, off below
+2. **Smooth transition:** Effects fade in/out as γ increases/decreases
+3. **Mode-based:** Docked=normal, cruise=SR, near-BH=GR overlay
+
+**Needs:**
+- Definition of γ threshold for effect activation
+- Transition duration/smoothness
+- Whether effects should be slightly visible even at low speeds (subtle educational element)
+
+---
+
+## How should GR lensing near black holes interact with SR effects?
+
+**Why it matters:** At high speed near a black hole, both SR and GR effects apply. Need to decide if/how they combine or if one dominates.
+
+**Current thinking:** GR lensing is a separate effect, applied additively or as a post-process. Near-BH is already a special state (potential mutiny, time-skip decisions).
+
+**Options:**
+1. **Separate effects:** SR pipeline → GR post-process
+2. **Unified physics:** Single shader that handles both (complex)
+3. **Mutually exclusive:** Near-BH disables cruise mode, uses GR-only rendering
+4. **Aesthetic priority:** Let visual impact guide which dominates
+
+**Needs:**
+- Research on how SR+GR combine in practice
+- Decision on BH approach being a separate "scene" or continuous with cruise

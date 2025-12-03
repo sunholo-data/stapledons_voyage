@@ -20,7 +20,7 @@ func CaptureInput() sim_gen.FrameInput {
 func CaptureInputWithCamera(cam sim_gen.Camera, screenW, screenH int) sim_gen.FrameInput {
 	x, y := ebiten.CursorPosition()
 
-	var buttons []int
+	var buttons []int64
 	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
 		buttons = append(buttons, 0)
 	}
@@ -31,25 +31,25 @@ func CaptureInputWithCamera(cam sim_gen.Camera, screenW, screenH int) sim_gen.Fr
 		buttons = append(buttons, 2)
 	}
 
-	var keys []sim_gen.KeyEvent
+	var keys []*sim_gen.KeyEvent
 	// Capture "just pressed" events (edge detection for mode switching, etc.)
 	for _, k := range inpututil.AppendJustPressedKeys(nil) {
-		keys = append(keys, sim_gen.KeyEvent{
-			Key:  int(k),
+		keys = append(keys, &sim_gen.KeyEvent{
+			Key:  int64(k),
 			Kind: "pressed",
 		})
 	}
 	// Capture held keys
 	for _, k := range inpututil.AppendPressedKeys(nil) {
-		keys = append(keys, sim_gen.KeyEvent{
-			Key:  int(k),
+		keys = append(keys, &sim_gen.KeyEvent{
+			Key:  int64(k),
 			Kind: "down",
 		})
 	}
 	// Capture released keys
 	for _, k := range inpututil.AppendJustReleasedKeys(nil) {
-		keys = append(keys, sim_gen.KeyEvent{
-			Key:  int(k),
+		keys = append(keys, &sim_gen.KeyEvent{
+			Key:  int64(k),
 			Kind: "up",
 		})
 	}
@@ -62,19 +62,20 @@ func CaptureInputWithCamera(cam sim_gen.Camera, screenW, screenH int) sim_gen.Fr
 	tileXf, tileYf := ScreenToTile(float64(x), float64(y), cam, screenW, screenH)
 	// Use Round for isometric grids - tiles are diamond-shaped so Floor gives wrong results
 	// near tile boundaries. Round assigns boundary points to the nearest tile center.
-	tileX, tileY := int(math.Round(tileXf)), int(math.Round(tileYf))
+	tileX, tileY := int64(math.Round(tileXf)), int64(math.Round(tileYf))
 
 	// Detect just-pressed (edge detection, not held)
 	clicked := inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft)
 
 	// Detect action keys (I=inspect, B=build, X=clear)
-	var action sim_gen.PlayerAction = sim_gen.ActionNone{}
+	// PlayerAction is a discriminator struct - use constructor functions
+	action := *sim_gen.NewPlayerActionActionNone()
 	if inpututil.IsKeyJustPressed(ebiten.KeyI) {
-		action = sim_gen.ActionInspect{}
+		action = *sim_gen.NewPlayerActionActionInspect()
 	} else if inpututil.IsKeyJustPressed(ebiten.KeyB) {
-		action = sim_gen.ActionBuild{StructureType: sim_gen.StructureHouse}
+		action = *sim_gen.NewPlayerActionActionBuild(*sim_gen.NewStructureTypeStructureHouse())
 	} else if inpututil.IsKeyJustPressed(ebiten.KeyX) {
-		action = sim_gen.ActionClear{}
+		action = *sim_gen.NewPlayerActionActionClear()
 	}
 
 	return sim_gen.FrameInput{

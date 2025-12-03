@@ -19,7 +19,7 @@ import (
 )
 
 type Game struct {
-	world    sim_gen.World
+	world    *sim_gen.World // Typed world (M-DX16: RecordUpdate preserves struct types)
 	out      sim_gen.FrameOutput
 	renderer *render.Renderer
 	display  *display.Manager
@@ -33,16 +33,28 @@ func (g *Game) Update() error {
 	// Capture game input with camera for screen-to-world conversion
 	// Uses internal resolution (640x480) for coordinate conversion
 	input := render.CaptureInputWithCamera(g.out.Camera, display.InternalWidth, display.InternalHeight)
-	w2, out, err := sim_gen.Step(g.world, input)
-	if err != nil {
-		return err
+
+	// Step returns []interface{}{newWorld, output} - RecordUpdate preserves *World type
+	result := sim_gen.Step(g.world, input)
+	tuple, ok := result.([]interface{})
+	if !ok || len(tuple) != 2 {
+		return fmt.Errorf("unexpected Step result")
 	}
-	g.world = w2
-	g.out = out
+	if w, ok := tuple[0].(*sim_gen.World); ok {
+		g.world = w
+	}
+	if out, ok := tuple[1].(*sim_gen.FrameOutput); ok {
+		g.out = *out
+	}
 
 	// Play any sounds requested by the simulation
-	if g.assets != nil && len(out.Sounds) > 0 {
-		g.assets.PlaySounds(out.Sounds)
+	if g.assets != nil && len(g.out.Sounds) > 0 {
+		// Convert []int64 to []int for PlaySounds
+		sounds := make([]int, len(g.out.Sounds))
+		for i, s := range g.out.Sounds {
+			sounds[i] = int(s)
+		}
+		g.assets.PlaySounds(sounds)
 	}
 
 	return nil
@@ -128,22 +140,18 @@ func main() {
 		assetMgr.SetFontScale(display.InternalHeight)
 	}
 
-	// Load star catalog for galaxy map
-	starCatalogPath := "assets/data/starmap/stars.json"
-	if _, err := sim_gen.LoadStarCatalog(starCatalogPath); err != nil {
-		log.Printf("Warning: failed to load star catalog: %v", err)
-	} else {
-		catalog := sim_gen.GetStarCatalog()
-		if catalog != nil {
-			log.Printf("Loaded %d stars from %s", catalog.Count, starCatalogPath)
-		}
-	}
+	// Note: Star catalog loading removed - not available in AILANG codegen yet
+	// TODO: Add star catalog support when available
 
 	// Create renderer with asset manager
 	renderer := render.NewRenderer(assetMgr)
 
-	// Initialize world
-	world := sim_gen.InitWorld(*seed)
+	// Initialize world - type assert to *World (M-DX16: struct types preserved)
+	worldIface := sim_gen.InitWorld(*seed)
+	world, ok := worldIface.(*sim_gen.World)
+	if !ok {
+		log.Fatal("InitWorld did not return *World")
+	}
 
 	game := &Game{
 		world:    world,

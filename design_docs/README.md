@@ -93,6 +93,8 @@ design_docs/
 | Document | Description | Priority |
 |----------|-------------|----------|
 | [Journey System](planned/v0_6_0/journey-system.md) | Journey planning, time dilation calculator, crew projection, journey events, arrival sequence | P0 |
+| [SR Rendering](planned/sr-rendering.md) | Special relativity visual effects: aberration, Doppler, beaming | P1 |
+| [SR Rendering Go](planned/sr-rendering-go.md) | Go implementation: relativity package, Kage shader, renderer integration | P1 |
 
 ### v0.6.1 - Civilization & Trade
 

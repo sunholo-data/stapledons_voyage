@@ -73,27 +73,26 @@ export type UiKind =
 
 export type DrawCmd =
     -- Basic draw commands
-    | Sprite(int, float, float, int)                            -- id, x, y, z
-    | Rect(float, float, float, float, int, int)               -- x, y, w, h, color, z
-    | Text(string, float, float, int, int, int)                -- text, x, y, fontSize, color, z
+    | Sprite(id: int, x: float, y: float, z: int)
+    | Rect(x: float, y: float, w: float, h: float, color: int, z: int)
+    | Text(text: string, x: float, y: float, fontSize: int, color: int, z: int)
 
     -- Isometric draw commands
-    | IsoTile(Coord, int, int, int, int)                       -- tile, height, spriteId, layer, color
-    | IsoEntity(string, Coord, float, float, int, int, int)    -- id, tile, offsetX, offsetY, height, spriteId, layer
+    | IsoTile(tile: Coord, height: int, spriteId: int, layer: int, color: int)
+    | IsoEntity(id: string, tile: Coord, offsetX: float, offsetY: float, height: int, spriteId: int, layer: int)
 
     -- UI draw commands (screen space, not affected by camera)
-    | Ui(string, UiKind, float, float, float, float, string, int, int, int, float)
-      -- id, kind, x, y, w, h, text, spriteId, z, color, value
+    | Ui(id: string, kind: UiKind, x: float, y: float, w: float, h: float, text: string, spriteId: int, z: int, color: int, value: float)
 
     -- Extended draw commands
-    | Line(float, float, float, float, int, float, int)        -- x1, y1, x2, y2, color, width, z
-    | TextWrapped(string, float, float, float, int, int, int)  -- text, x, y, maxWidth, fontSize, color, z
-    | Circle(float, float, float, int, bool, int)              -- x, y, radius, color, filled, z
-    | RectScreen(float, float, float, float, int, int)         -- x, y, w, h, color, z (screen space)
+    | Line(x1: float, y1: float, x2: float, y2: float, color: int, width: float, z: int)
+    | TextWrapped(text: string, x: float, y: float, maxWidth: float, fontSize: int, color: int, z: int)
+    | Circle(x: float, y: float, radius: float, color: int, filled: bool, z: int)
+    | RectScreen(x: float, y: float, w: float, h: float, color: int, z: int)
 
     -- Starmap draw commands
-    | GalaxyBg(float, int, bool, float, float, float)          -- opacity, z, skyViewMode, viewLon, viewLat, fov
-    | Star(float, float, int, float, float, int)               -- x, y, spriteId, scale, alpha, z
+    | GalaxyBg(opacity: float, z: int, skyViewMode: bool, viewLon: float, viewLat: float, fov: float)
+    | Star(x: float, y: float, spriteId: int, scale: float, alpha: float, z: int)
 
 -- =============================================================================
 -- Output Types

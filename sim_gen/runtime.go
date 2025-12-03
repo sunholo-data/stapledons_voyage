@@ -2,23 +2,116 @@
 // Runtime helpers for AILANG generated code.
 package sim_gen
 
-import "fmt"
+import (
+	"fmt"
+	"reflect"
+	"strings"
+)
 
 // RecordUpdate creates a new record with specified fields updated.
 // AILANG: { base | field1: val1, field2: val2 }
+// M-DX16: Preserves typed structs using reflection.
 func RecordUpdate(base interface{}, updates map[string]interface{}) interface{} {
-	baseMap, ok := base.(map[string]interface{})
-	if !ok {
-		return updates
+	// Handle map[string]interface{} (original behavior)
+	if baseMap, ok := base.(map[string]interface{}); ok {
+		result := make(map[string]interface{}, len(baseMap)+len(updates))
+		for k, v := range baseMap {
+			result[k] = v
+		}
+		for k, v := range updates {
+			result[k] = v
+		}
+		return result
 	}
-	result := make(map[string]interface{}, len(baseMap)+len(updates))
-	for k, v := range baseMap {
-		result[k] = v
+
+	// Handle typed structs using reflection
+	baseVal := reflect.ValueOf(base)
+	if baseVal.Kind() == reflect.Ptr && baseVal.Elem().Kind() == reflect.Struct {
+		// Create a new instance and copy all fields
+		newPtr := reflect.New(baseVal.Elem().Type())
+		newVal := newPtr.Elem()
+		oldVal := baseVal.Elem()
+
+		// Copy all fields from base
+		for i := 0; i < oldVal.NumField(); i++ {
+			if newVal.Field(i).CanSet() {
+				newVal.Field(i).Set(oldVal.Field(i))
+			}
+		}
+
+		// Apply updates (field names are lowercase in AILANG, PascalCase in Go)
+		for fieldName, val := range updates {
+			// Convert field name to PascalCase
+			goFieldName := strings.ToUpper(fieldName[:1]) + fieldName[1:]
+			field := newVal.FieldByName(goFieldName)
+			if field.IsValid() && field.CanSet() {
+				// Handle type conversion
+				valReflect := reflect.ValueOf(val)
+				if valReflect.Type().AssignableTo(field.Type()) {
+					field.Set(valReflect)
+				} else if valReflect.Kind() == reflect.Ptr && field.Kind() != reflect.Ptr {
+					// M-DX20: Dereference pointer if field expects value type
+					if valReflect.Elem().Type().AssignableTo(field.Type()) {
+						field.Set(valReflect.Elem())
+					}
+				} else if valReflect.Kind() == reflect.Slice && field.Kind() == reflect.Slice {
+					// M-DX19: Convert []interface{} to typed slice via reflection
+					elemType := field.Type().Elem()
+					newSlice := reflect.MakeSlice(field.Type(), valReflect.Len(), valReflect.Len())
+					for i := 0; i < valReflect.Len(); i++ {
+						elem := valReflect.Index(i)
+						// Handle interface{} elements
+						if elem.Kind() == reflect.Interface {
+							elem = elem.Elem()
+						}
+						if elem.Type().AssignableTo(elemType) {
+							newSlice.Index(i).Set(elem)
+						} else if elem.Type().ConvertibleTo(elemType) {
+							newSlice.Index(i).Set(elem.Convert(elemType))
+						}
+					}
+					field.Set(newSlice)
+				} else if valReflect.Type().ConvertibleTo(field.Type()) {
+					field.Set(valReflect.Convert(field.Type()))
+				} else {
+					// Try to set directly for interface{} values
+					field.Set(valReflect)
+				}
+			}
+		}
+		return newPtr.Interface()
 	}
-	for k, v := range updates {
-		result[k] = v
+
+	// Fallback: create map from updates
+	return updates
+}
+
+// FieldGet retrieves a field from a record (map or typed struct).
+// M-DX18: Handles both map[string]interface{} and typed structs.
+func FieldGet(record interface{}, field string) interface{} {
+	// Handle map[string]interface{}
+	if m, ok := record.(map[string]interface{}); ok {
+		return m[field]
 	}
-	return result
+
+	// Handle typed struct using reflection
+	val := reflect.ValueOf(record)
+	if val.Kind() == reflect.Ptr {
+		val = val.Elem()
+	}
+	if val.Kind() == reflect.Struct {
+		// Convert field name to PascalCase (AILANG lowercase -> Go PascalCase)
+		goField := strings.ToUpper(field[:1]) + field[1:]
+		f := val.FieldByName(goField)
+		if f.IsValid() {
+			// M-DX21: Return pointer for struct-typed fields (AILANG expects *Struct)
+			if f.Kind() == reflect.Struct && f.CanAddr() {
+				return f.Addr().Interface()
+			}
+			return f.Interface()
+		}
+	}
+	return nil
 }
 
 // Cons prepends an element to a list (cons operator).
@@ -290,4 +383,124 @@ func ConvertToRecordSlice(v interface{}) []map[string]interface{} {
 		}
 	}
 	return result
+}
+
+// convertToDirectionSlice converts []interface{} to []*Direction.
+// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
+func convertToDirectionSlice(v interface{}) []*Direction {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("convertToDirectionSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*Direction{}
+	}
+	out := make([]*Direction, len(src))
+	for i, e := range src {
+		elem, ok := e.(*Direction)
+		if !ok {
+			panic(fmt.Sprintf("convertToDirectionSlice: element %d: expected *Direction, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// convertToDrawCmdSlice converts []interface{} to []*DrawCmd.
+// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
+func convertToDrawCmdSlice(v interface{}) []*DrawCmd {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("convertToDrawCmdSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*DrawCmd{}
+	}
+	out := make([]*DrawCmd, len(src))
+	for i, e := range src {
+		elem, ok := e.(*DrawCmd)
+		if !ok {
+			panic(fmt.Sprintf("convertToDrawCmdSlice: element %d: expected *DrawCmd, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// convertToKeyEventSlice converts []interface{} to []*KeyEvent.
+// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
+func convertToKeyEventSlice(v interface{}) []*KeyEvent {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("convertToKeyEventSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*KeyEvent{}
+	}
+	out := make([]*KeyEvent, len(src))
+	for i, e := range src {
+		elem, ok := e.(*KeyEvent)
+		if !ok {
+			panic(fmt.Sprintf("convertToKeyEventSlice: element %d: expected *KeyEvent, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// convertToNPCSlice converts []interface{} to []*NPC.
+// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
+func convertToNPCSlice(v interface{}) []*NPC {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("convertToNPCSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*NPC{}
+	}
+	out := make([]*NPC, len(src))
+	for i, e := range src {
+		elem, ok := e.(*NPC)
+		if !ok {
+			panic(fmt.Sprintf("convertToNPCSlice: element %d: expected *NPC, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// convertToTileSlice converts []interface{} to []*Tile.
+// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
+func convertToTileSlice(v interface{}) []*Tile {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("convertToTileSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*Tile{}
+	}
+	out := make([]*Tile, len(src))
+	for i, e := range src {
+		elem, ok := e.(*Tile)
+		if !ok {
+			panic(fmt.Sprintf("convertToTileSlice: element %d: expected *Tile, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
 }

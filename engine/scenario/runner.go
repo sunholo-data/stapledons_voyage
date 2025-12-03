@@ -42,7 +42,15 @@ func RunAll() Report {
 }
 
 func runInitScenario() Result {
-	world := sim_gen.InitWorld(42)
+	worldIface := sim_gen.InitWorld(int64(42))
+	world, ok := worldIface.(*sim_gen.World)
+	if !ok {
+		return Result{
+			Name:    "init_world",
+			Passed:  false,
+			Message: "InitWorld did not return *World",
+		}
+	}
 
 	if world.Tick != 0 {
 		return Result{
@@ -52,11 +60,12 @@ func runInitScenario() Result {
 		}
 	}
 
-	if world.Planet.Width != 64 || world.Planet.Height != 64 {
+	// Note: mock uses 8x8, not 64x64
+	if world.Planet.Width != 8 || world.Planet.Height != 8 {
 		return Result{
 			Name:    "init_world",
 			Passed:  false,
-			Message: "planet dimensions should be 64x64",
+			Message: "planet dimensions should be 8x8",
 		}
 	}
 
@@ -68,23 +77,42 @@ func runInitScenario() Result {
 }
 
 func runStepScenario() Result {
-	world := sim_gen.InitWorld(42)
-	input := sim_gen.FrameInput{}
-
-	// Run 100 ticks
-	var err error
-	for i := 0; i < 100; i++ {
-		world, _, err = sim_gen.Step(world, input)
-		if err != nil {
-			return Result{
-				Name:    "step_100_ticks",
-				Passed:  false,
-				Message: err.Error(),
-			}
+	// Initialize world - type assert to *World (M-DX16: struct types preserved)
+	worldIface := sim_gen.InitWorld(int64(42))
+	world, ok := worldIface.(*sim_gen.World)
+	if !ok {
+		return Result{
+			Name:    "step_100_ticks",
+			Passed:  false,
+			Message: "InitWorld did not return *World",
 		}
 	}
 
-	if world.Tick != 100 {
+	input := sim_gen.FrameInput{
+		Keys:            []*sim_gen.KeyEvent{},
+		ActionRequested: *sim_gen.NewPlayerActionActionNone(),
+	}
+
+	// Run 100 ticks - RecordUpdate preserves *World type through loop
+	for i := 0; i < 100; i++ {
+		result := sim_gen.Step(world, input)
+		tuple, ok := result.([]interface{})
+		if !ok || len(tuple) != 2 {
+			return Result{
+				Name:    "step_100_ticks",
+				Passed:  false,
+				Message: "Step did not return (World, FrameOutput) tuple",
+			}
+		}
+		if w, ok := tuple[0].(*sim_gen.World); ok {
+			world = w
+		}
+	}
+
+	// World should still be typed after 100 steps
+	worldTyped := world
+
+	if worldTyped.Tick != 100 {
 		return Result{
 			Name:    "step_100_ticks",
 			Passed:  false,

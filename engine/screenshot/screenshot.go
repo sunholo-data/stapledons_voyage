@@ -42,7 +42,7 @@ func DefaultConfig() Config {
 // screenshotGame implements ebiten.Game for screenshot capture
 type screenshotGame struct {
 	config       Config
-	world        sim_gen.World
+	world        *sim_gen.World // Typed world (M-DX16: RecordUpdate preserves struct types)
 	out          sim_gen.FrameOutput
 	renderer     *render.Renderer
 	currentFrame int
@@ -60,17 +60,24 @@ func (g *screenshotGame) Update() error {
 	// Empty input (no keys, no clicks)
 	input := sim_gen.FrameInput{
 		Mouse:            sim_gen.MouseState{},
-		Keys:             []sim_gen.KeyEvent{},
+		Keys:             []*sim_gen.KeyEvent{},
 		ClickedThisFrame: false,
-		ActionRequested:  sim_gen.ActionNone{},
+		ActionRequested:  *sim_gen.NewPlayerActionActionNone(),
 		TestMode:         g.config.TestMode,
 	}
 
-	var err error
-	g.world, g.out, err = sim_gen.Step(g.world, input)
-	if err != nil {
-		g.err = fmt.Errorf("simulation error at frame %d: %w", g.currentFrame, err)
+	// Step returns []interface{}{newWorld, output} - RecordUpdate preserves *World type
+	result := sim_gen.Step(g.world, input)
+	tuple, ok := result.([]interface{})
+	if !ok || len(tuple) != 2 {
+		g.err = fmt.Errorf("simulation error at frame %d: unexpected Step result", g.currentFrame)
 		return g.err
+	}
+	if w, ok := tuple[0].(*sim_gen.World); ok {
+		g.world = w
+	}
+	if out, ok := tuple[1].(*sim_gen.FrameOutput); ok {
+		g.out = *out
 	}
 
 	g.currentFrame++
@@ -103,16 +110,11 @@ func Capture(cfg Config) error {
 	// Create renderer
 	renderer := render.NewRenderer(assetMgr)
 
-	// Initialize world with seed
-	world := sim_gen.InitWorld(cfg.Seed)
-
-	// Override camera if specified
-	if cfg.CameraX != 0 || cfg.CameraY != 0 || cfg.CameraZoom != 1.0 {
-		world.Camera = sim_gen.Camera{
-			X:    cfg.CameraX,
-			Y:    cfg.CameraY,
-			Zoom: cfg.CameraZoom,
-		}
+	// Initialize world with seed - type assert to *World (M-DX16: struct types preserved)
+	worldIface := sim_gen.InitWorld(cfg.Seed)
+	world, ok := worldIface.(*sim_gen.World)
+	if !ok {
+		return fmt.Errorf("InitWorld did not return *World")
 	}
 
 	game := &screenshotGame{
