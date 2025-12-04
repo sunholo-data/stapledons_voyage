@@ -76,8 +76,8 @@ export func init_world(seed: int) -> World {
     let h = 8;
     -- Create tiles with varied biomes based on position
     let tiles = generate(w * h, \i. { biome: i % 4 });
-    -- Create test NPCs with movement patterns (type inference fix v0.5.0)
-    let patrolPath = [East, East, South, South, West, West, North, North];
+    -- Create test NPCs with movement patterns (using O(1) array)
+    let patrolPath = #[East, East, South, South, West, West, North, North];
     let testNpcs = [
         { id: 1, pos: { x: 2, y: 2 }, pattern: PatternRandomWalk(30), moveCounter: 30, patrolIndex: 0 },
         { id: 2, pos: { x: 5, y: 3 }, pattern: PatternRandomWalk(45), moveCounter: 45, patrolIndex: 0 },

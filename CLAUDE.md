@@ -162,6 +162,70 @@ make game   # Build with generated code
 
 The engine layer should be "dumb" - it captures input, passes it to sim_gen, and renders whatever sim_gen outputs. All game logic lives in `sim/*.ail`.
 
+## Engine Feature Status (Updated 2025-12-04)
+
+The Go/Ebiten engine layer is largely complete. Reference this when planning features.
+
+### Working Features
+
+| Component | Location | Capabilities |
+|-----------|----------|--------------|
+| Game loop | `cmd/game/main.go` | Ebiten Update/Draw cycle |
+| Render bridge | `engine/render/draw.go` | All DrawCmd types: Rect, Sprite, Text, IsoTile, IsoEntity, Ui, Line, Circle, TextWrapped, GalaxyBg, Star |
+| Camera | `engine/camera/` | WorldToScreen/ScreenToWorld transforms, viewport culling |
+| Input | `engine/input/` | Mouse position, clicks, keyboard events |
+| Sprites | `engine/assets/sprites.go` | Atlas loading, animation frames, manifest support |
+| Audio | `engine/assets/audio.go` | OGG/WAV loading, PlaySound, volume control, manifest |
+| Fonts | `engine/assets/fonts.go` | TTF loading, size scaling |
+| UI | `engine/render/draw.go` | Panel, Button, Label, Portrait, Slider, ProgressBar |
+| Display | `engine/display/` | Resolution config, F11 fullscreen toggle |
+| Screenshot | `engine/screenshot/` | Headless capture for testing |
+| Scenarios | `engine/scenario/` | Automated visual test runner |
+
+### Effect Handlers (MUST BE INITIALIZED BY HOST)
+
+**CRITICAL:** Effect handlers are NOT auto-initialized. The host (Go engine) MUST call `sim_gen.Init(handlers)` before any AILANG code that uses effects runs. Calling methods on uninitialized handlers will panic.
+
+```go
+// In cmd/game/main.go - BEFORE calling InitWorld or Step:
+sim_gen.Init(sim_gen.Handlers{
+    Debug: sim_gen.NewDebugContext(),
+    Rand:  &DefaultRandHandler{},
+    Clock: &EbitenClockHandler{},
+    AI:    handlers.NewStubAIHandler(),
+    // FS, Net, Env: only if needed
+})
+```
+
+| Effect | Interface | Implementation | Status |
+|--------|-----------|----------------|--------|
+| Debug | `DebugHandler` | `sim_gen.NewDebugContext()` | ✅ Built-in |
+| Rand | `RandHandler` | `engine/handlers/rand.go` | ✅ Working |
+| Clock | `ClockHandler` | `engine/handlers/clock.go` | ✅ Working |
+| AI | `AIHandler` | `engine/handlers/ai.go` | ✅ Stub exists |
+| FS | `FSHandler` | Not needed (see design note) | - |
+| Net | `NetHandler` | Not needed yet | - |
+| Env | `EnvHandler` | Not needed yet | - |
+
+**Runtime Fix (2025-12-04):** Fixed `ListLen`, `ListHead`, `ListTail`, `Length`, `Get`, `GetOpt` in `sim_gen/runtime.go` to handle typed slices (like `[]*NPC`, `[]*Direction`) using reflection, not just `[]interface{}`. Also fixed `makeOptionSome`/`makeOptionNone` to use typed `*Option` constructors. This was needed because AILANG generates typed slices but the original runtime only handled `[]interface{}`.
+
+### Design Note: Single Save File (No Save Slots)
+
+Per **Pillar 1 (Choices Are Final)**, players cannot maintain multiple save files:
+- **Single save file** - overwrites on each save
+- Player can save and load normally
+- **No save slots** - can't keep backups to try different paths
+- This prevents branching timelines while allowing normal session management
+
+### Remaining Engine Work
+
+| Gap | Priority | Effort | Blocks |
+|-----|----------|--------|--------|
+| ~~Clock handler~~ | ✅ Done | - | - |
+| ~~AI handler stub~~ | ✅ Done | - | - |
+| Save system | P2 | 2 days | Single-file save/load (no slots) |
+| AI handler real impl | P3 | 2 days | NPC dialogue with LLM |
+
 ## Key Types (defined in protocol.ail)
 
 DrawCmd is a tagged union:

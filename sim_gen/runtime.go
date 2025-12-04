@@ -270,25 +270,48 @@ func CallFunc(f interface{}, args ...interface{}) interface{} {
 }
 
 // ListHead returns the first element of a list.
+// Handles both []interface{} and typed slices like []*NPC.
 func ListHead(list interface{}) interface{} {
 	if l, ok := list.([]interface{}); ok && len(l) > 0 {
 		return l[0]
+	}
+	// Handle typed slices using reflection
+	v := reflect.ValueOf(list)
+	if v.Kind() == reflect.Slice && v.Len() > 0 {
+		return v.Index(0).Interface()
 	}
 	return nil
 }
 
 // ListTail returns all but the first element of a list.
+// Handles both []interface{} and typed slices like []*NPC.
 func ListTail(list interface{}) interface{} {
 	if l, ok := list.([]interface{}); ok && len(l) > 0 {
 		return l[1:]
+	}
+	// Handle typed slices using reflection
+	v := reflect.ValueOf(list)
+	if v.Kind() == reflect.Slice && v.Len() > 0 {
+		// Return as []interface{} for compatibility with Cons
+		result := make([]interface{}, v.Len()-1)
+		for i := 1; i < v.Len(); i++ {
+			result[i-1] = v.Index(i).Interface()
+		}
+		return result
 	}
 	return []interface{}{}
 }
 
 // ListLen returns the length of a list.
+// Handles both []interface{} and typed slices like []*NPC.
 func ListLen(list interface{}) int {
 	if l, ok := list.([]interface{}); ok {
 		return len(l)
+	}
+	// Handle typed slices using reflection
+	v := reflect.ValueOf(list)
+	if v.Kind() == reflect.Slice {
+		return v.Len()
 	}
 	return 0
 }
@@ -381,6 +404,151 @@ func ConvertToRecordSlice(v interface{}) []map[string]interface{} {
 		if m, ok := elem.(map[string]interface{}); ok {
 			result[i] = m
 		}
+	}
+	return result
+}
+
+// FromList creates an array from a list.
+// In Go, both arrays and lists are []interface{}.
+func FromList(xs interface{}) interface{} {
+	if xs == nil {
+		return []interface{}{}
+	}
+	if list, ok := xs.([]interface{}); ok {
+		// Return a copy to preserve immutability
+		result := make([]interface{}, len(list))
+		copy(result, list)
+		return result
+	}
+	return []interface{}{}
+}
+
+// ToList converts an array to a list.
+// In Go, both are []interface{}, so this is essentially identity.
+func ToList(arr interface{}) interface{} {
+	if arr == nil {
+		return []interface{}{}
+	}
+	if slice, ok := arr.([]interface{}); ok {
+		result := make([]interface{}, len(slice))
+		copy(result, slice)
+		return result
+	}
+	return []interface{}{}
+}
+
+// Length returns the length of an array.
+// Handles both []interface{} and typed slices like []*Direction.
+func Length(arr interface{}) interface{} {
+	if arr == nil {
+		return int64(0)
+	}
+	if slice, ok := arr.([]interface{}); ok {
+		return int64(len(slice))
+	}
+	// Handle typed slices using reflection
+	v := reflect.ValueOf(arr)
+	if v.Kind() == reflect.Slice {
+		return int64(v.Len())
+	}
+	return int64(0)
+}
+
+// Get returns the element at the given index.
+// Panics if index is out of bounds.
+// Handles both []interface{} and typed slices like []*Direction.
+func Get(arr interface{}, idx interface{}) interface{} {
+	i := toInt64(idx)
+	if slice, ok := arr.([]interface{}); ok {
+		if i < 0 || i >= int64(len(slice)) {
+			panic(fmt.Sprintf("array index out of bounds: %d (length %d)", i, len(slice)))
+		}
+		return slice[i]
+	}
+	// Handle typed slices using reflection
+	v := reflect.ValueOf(arr)
+	if v.Kind() == reflect.Slice {
+		if i < 0 || i >= int64(v.Len()) {
+			panic(fmt.Sprintf("array index out of bounds: %d (length %d)", i, v.Len()))
+		}
+		return v.Index(int(i)).Interface()
+	}
+	panic("Get: not an array")
+}
+
+// GetOpt safely returns the element at index, or None if out of bounds.
+// Returns Some(element) or None. Uses makeOptionSome/makeOptionNone helpers
+// which delegate to typed constructors if Option ADT is present.
+// Handles both []interface{} and typed slices like []*Direction.
+func GetOpt(arr interface{}, idx interface{}) interface{} {
+	i := toInt64(idx)
+	if i < 0 {
+		return makeOptionNone()
+	}
+	if slice, ok := arr.([]interface{}); ok {
+		if i >= int64(len(slice)) {
+			return makeOptionNone()
+		}
+		return makeOptionSome(slice[i])
+	}
+	// Handle typed slices using reflection
+	v := reflect.ValueOf(arr)
+	if v.Kind() == reflect.Slice {
+		if i >= int64(v.Len()) {
+			return makeOptionNone()
+		}
+		return makeOptionSome(v.Index(int(i)).Interface())
+	}
+	return makeOptionNone()
+}
+
+// makeOptionSome creates a Some value.
+// Uses the typed Option constructor for compatibility with generated code.
+func makeOptionSome(v interface{}) interface{} {
+	return NewOptionSome(v)
+}
+
+// makeOptionNone creates a None value.
+// Uses the typed Option constructor for compatibility with generated code.
+func makeOptionNone() interface{} {
+	return NewOptionNone()
+}
+
+// UnsafeGet returns element at index without bounds checking.
+// Caller must ensure index is valid.
+func UnsafeGet(arr interface{}, idx interface{}) interface{} {
+	i := toInt64(idx)
+	if slice, ok := arr.([]interface{}); ok {
+		return slice[i]
+	}
+	panic("UnsafeGet: not an array")
+}
+
+// Set returns a new array with the element at index updated.
+// Preserves immutability by creating a copy.
+func Set(arr interface{}, idx interface{}, val interface{}) interface{} {
+	i := toInt64(idx)
+	if slice, ok := arr.([]interface{}); ok {
+		if i < 0 || i >= int64(len(slice)) {
+			panic(fmt.Sprintf("array index out of bounds: %d (length %d)", i, len(slice)))
+		}
+		result := make([]interface{}, len(slice))
+		copy(result, slice)
+		result[i] = val
+		return result
+	}
+	panic("Set: not an array")
+}
+
+// Make creates an array of given size with all elements set to default.
+func Make(size interface{}, defaultVal interface{}) interface{} {
+	n := toInt64(size)
+	if n < 0 {
+		n = 0
+	}
+	result := make([]interface{}, n)
+	for i := range result {
+		result[i] = defaultVal
 	}
 	return result
 }
@@ -523,6 +691,30 @@ func convertToNPCSlice(v interface{}) []*NPC {
 		elem, ok := e.(*NPC)
 		if !ok {
 			panic(fmt.Sprintf("convertToNPCSlice: element %d: expected *NPC, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// convertToOptionSlice converts []interface{} to []*Option.
+// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
+func convertToOptionSlice(v interface{}) []*Option {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("convertToOptionSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*Option{}
+	}
+	out := make([]*Option, len(src))
+	for i, e := range src {
+		elem, ok := e.(*Option)
+		if !ok {
+			panic(fmt.Sprintf("convertToOptionSlice: element %d: expected *Option, got %T", i, e))
 		}
 		out[i] = elem
 	}

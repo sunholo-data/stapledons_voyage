@@ -1,18 +1,23 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"strconv"
 	"strings"
+	"syscall"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"stapledons_voyage/engine/assets"
 	"stapledons_voyage/engine/display"
+	"stapledons_voyage/engine/handlers"
 	"stapledons_voyage/engine/render"
+	"stapledons_voyage/engine/save"
 	"stapledons_voyage/engine/scenario"
 	"stapledons_voyage/engine/screenshot"
 	"stapledons_voyage/sim_gen"
@@ -24,9 +29,20 @@ type Game struct {
 	renderer *render.Renderer
 	display  *display.Manager
 	assets   *assets.Manager
+	clock    *handlers.EbitenClockHandler // For frame timing
+	save     *save.Manager                // Auto-save manager (Pillar 1: single save file)
 }
 
 func (g *Game) Update() error {
+	// Update clock handler (1/60 second per frame at 60 FPS)
+	dt := 1.0 / 60.0
+	g.clock.Update(dt)
+
+	// Track play time for save file
+	if g.save != nil {
+		g.save.UpdatePlayTime(dt)
+	}
+
 	// Handle display input (F11 for fullscreen)
 	g.display.HandleInput()
 
@@ -55,6 +71,13 @@ func (g *Game) Update() error {
 			sounds[i] = int(s)
 		}
 		g.assets.PlaySounds(sounds)
+	}
+
+	// Auto-save check (Pillar 1: automatic, not player-controlled)
+	if g.save != nil && g.save.ShouldAutoSave() {
+		if err := g.save.SaveGame(g.world); err != nil {
+			log.Printf("Auto-save failed: %v", err)
+		}
 	}
 
 	return nil
@@ -146,11 +169,48 @@ func main() {
 	// Create renderer with asset manager
 	renderer := render.NewRenderer(assetMgr)
 
-	// Initialize world - type assert to *World (M-DX16: struct types preserved)
-	worldIface := sim_gen.InitWorld(*seed)
-	world, ok := worldIface.(*sim_gen.World)
-	if !ok {
-		log.Fatal("InitWorld did not return *World")
+	// Initialize effect handlers BEFORE any sim_gen calls
+	// CRITICAL: Handlers must be set up before InitWorld or Step
+	clockHandler := handlers.NewEbitenClockHandler()
+
+	// Initialize AI handler - auto-detects provider from env vars
+	// Set AI_PROVIDER=claude, AI_PROVIDER=gemini, or let it auto-detect
+	ctx := context.Background()
+	aiHandler, err := handlers.NewAIHandlerFromEnv(ctx)
+	if err != nil {
+		log.Printf("Warning: AI handler init failed: %v, using stub", err)
+		aiHandler = handlers.NewStubAIHandler()
+	}
+
+	sim_gen.Init(sim_gen.Handlers{
+		Debug: sim_gen.NewDebugContext(),
+		Rand:  handlers.NewSeededRandHandler(*seed),
+		Clock: clockHandler,
+		AI:    aiHandler,
+	})
+
+	// Initialize save manager (Pillar 1: single save file, auto-save only)
+	saveMgr := save.NewManager()
+
+	// Try to load existing save
+	var world *sim_gen.World
+	savedWorld, err := saveMgr.LoadGame()
+	if err != nil {
+		log.Printf("Warning: failed to load save: %v", err)
+	}
+
+	if savedWorld != nil {
+		// Continue from saved game
+		world = savedWorld
+		log.Printf("Loaded save with %.1f minutes play time", saveMgr.PlayTime()/60)
+	} else {
+		// New game - initialize fresh world
+		worldIface := sim_gen.InitWorld(*seed)
+		var ok bool
+		world, ok = worldIface.(*sim_gen.World)
+		if !ok {
+			log.Fatal("InitWorld did not return *World")
+		}
 	}
 
 	game := &Game{
@@ -158,11 +218,34 @@ func main() {
 		renderer: renderer,
 		display:  displayMgr,
 		assets:   assetMgr,
+		clock:    clockHandler,
+		save:     saveMgr,
 	}
+
+	// Set up graceful shutdown handler to save on exit
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+	go func() {
+		<-sigChan
+		log.Println("Saving game before exit...")
+		if err := saveMgr.SaveGame(game.world); err != nil {
+			log.Printf("Failed to save on exit: %v", err)
+		}
+		os.Exit(0)
+	}()
 
 	ebiten.SetWindowTitle("Stapledons Voyage")
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	if err := ebiten.RunGame(game); err != nil {
+		// Save on error exit too
+		if saveErr := saveMgr.SaveGame(game.world); saveErr != nil {
+			log.Printf("Failed to save on exit: %v", saveErr)
+		}
 		log.Fatal(err)
+	}
+
+	// Save on normal exit
+	if err := saveMgr.SaveGame(game.world); err != nil {
+		log.Printf("Failed to save on exit: %v", err)
 	}
 }

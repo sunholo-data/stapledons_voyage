@@ -1,9 +1,7 @@
-SIM_SRC = ./sim/*.ail
-
-# AILANG compilation (v0.5.0+)
-# Compile all .ail files together for multi-module support
+# AILANG compilation (v0.5.5+)
+# Just pass the directory - AILANG discovers .ail files automatically
 sim:
-	ailang compile --emit-go --package-name sim_gen --out . sim/protocol.ail sim/world.ail sim/npc_ai.ail sim/step.ail
+	ailang compile --emit-go --package-name sim_gen --out . sim/
 
 # Build targets (depend on sim when ailc is available)
 game: sim
@@ -16,6 +14,13 @@ eval: sim
 
 run: sim
 	go run ./cmd/game
+
+# CLI tool
+cli:
+	go build -o bin/voyage ./cmd/cli
+
+cli-mock:
+	go build -o bin/voyage ./cmd/cli
 
 # Mock targets (use existing sim_gen, no AILANG compiler needed)
 game-mock:
@@ -88,4 +93,4 @@ clean:
 clean-all:
 	rm -rf sim_gen bin out/*
 
-.PHONY: sim game eval run game-mock eval-mock run-mock sprites test test-all test-visual test-golden update-golden lint clean clean-all screenshot screenshot-zoomed screenshot-panned screenshots scenario-pan scenario-zoom scenario-npc scenarios
+.PHONY: sim game eval run cli cli-mock game-mock eval-mock run-mock sprites test test-all test-visual test-golden update-golden lint clean clean-all screenshot screenshot-zoomed screenshot-panned screenshots scenario-pan scenario-zoom scenario-npc scenarios

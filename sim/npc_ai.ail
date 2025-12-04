@@ -6,6 +6,10 @@ import sim/protocol (Coord)
 -- Import Rand for true randomness (v0.5.0)
 import std/rand (rand_int)
 
+-- Array for O(1) access (v0.5.0)
+import std/array as A
+import std/option (Some, None)
+
 -- Direction type for movement
 export type Direction = North | South | East | West
 
@@ -13,7 +17,7 @@ export type Direction = North | South | East | West
 export type MovementPattern =
     | PatternStatic                  -- NPC stays in place
     | PatternRandomWalk(int)         -- move every N ticks
-    | PatternPatrol([Direction])     -- follow path of directions
+    | PatternPatrol(Array[Direction]) -- follow path with O(1) access
 
 -- NPC entity with movement state
 export type NPC = {
@@ -68,19 +72,16 @@ pure func indexToDirection(idx: int) -> Direction {
     }
 }
 
--- Get length of a direction list (for patrol path cycling)
-pure func pathLength(path: [Direction]) -> int {
-    match path {
-        [] => 0,
-        _ :: rest => 1 + pathLength(rest)
-    }
+-- Get length of patrol path (O(1) with arrays)
+pure func pathLength(path: Array[Direction]) -> int {
+    A.length(path)
 }
 
--- Get direction at index from path (0-indexed, returns North if out of bounds)
-pure func pathGet(path: [Direction], idx: int) -> Direction {
-    match path {
-        [] => North,
-        dir :: rest => if idx <= 0 then dir else pathGet(rest, idx - 1)
+-- Get direction at index from path (O(1) with arrays, returns North if out of bounds)
+pure func pathGet(path: Array[Direction], idx: int) -> Direction {
+    match A.getOpt(path, idx) {
+        Some(dir) => dir,
+        None => North
     }
 }
 
@@ -122,7 +123,7 @@ func updateRandomWalk(npc: NPC, interval: int, width: int, height: int) -> NPC !
 }
 
 -- Update patrol NPC for one tick (moves every 20 ticks along path)
-pure func updatePatrol(npc: NPC, path: [Direction], width: int, height: int) -> NPC {
+pure func updatePatrol(npc: NPC, path: Array[Direction], width: int, height: int) -> NPC {
     let len = pathLength(path);
     if len <= 0 then
         npc  -- Empty path, stay put

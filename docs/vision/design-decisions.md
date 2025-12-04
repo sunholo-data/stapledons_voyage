@@ -327,3 +327,17 @@ The sim says "how fast am I going"; the renderer bends the light.
 
 **Implications:** Need to define visual exaggeration curves (map physical β → visual "wow"). May want to add lens flare, motion blur as aesthetic overlays. GR lensing near black holes is a separate effect.
 
+
+## [2025-12-04] Save/Load Excluded by Design
+
+**Decision:** Save/load system will NOT be implemented as a player-facing feature. Pillar 1 (Choices Are Final) explicitly excludes save/load mechanics.
+
+**Rationale:** The core vision requires that decisions have weight because they cannot be optimized away. Save/load undermines this by allowing players to undo consequences. Internal state persistence (e.g., for crash recovery) may be considered separately but must not enable player-controlled reloading.
+
+
+## [2025-12-04] Auto-Save for Session Persistence
+
+**Decision:** Save/load WILL be implemented for automatic session persistence (crash recovery, closing/reopening game). Player cannot choose when to save or load - it happens automatically. No save slots, no manual load.
+
+**Rationale:** This preserves Pillar 1 (Choices Are Final) by preventing save scumming while allowing practical session management. The game saves automatically at key points. When you relaunch, you continue from last auto-save. You cannot reload to undo decisions.
+
