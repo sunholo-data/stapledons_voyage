@@ -1,10 +1,11 @@
 # Audio System
 
 **Version:** 0.2.0
-**Status:** Planned
+**Status:** Implemented
+**Implemented:** 2025-12-04
 **Priority:** P1 (Medium)
 **Complexity:** Medium
-**Package:** `engine/audio`
+**Package:** `engine/assets` (AudioManager)
 
 ## Related Documents
 
@@ -179,17 +180,53 @@ func TestMusicSwitch(t *testing.T)
 ## Success Criteria
 
 ### Core Functionality
-- [ ] Sound effects play on command
-- [ ] Background music loops correctly
-- [ ] Volume control works (0.0-1.0)
-- [ ] Multiple SFX can overlap
+- [x] Sound effects play on command
+- [x] Background music loops correctly
+- [x] Volume control works (0.0-1.0)
+- [x] Multiple SFX can overlap
 
 ### AILANG Integration
-- [ ] SoundCmd type compiles
-- [ ] FrameOutput.Sounds populated by step()
-- [ ] Engine processes sound commands each frame
+- [x] FrameOutput.Sounds populated by step() (uses []int64 IDs)
+- [x] Engine processes sound commands each frame
+- [ ] SoundCmd ADT with volume/stop (future enhancement)
 
 ### Performance
-- [ ] No audio lag/delay perceptible
-- [ ] Sound loading doesn't block gameplay
-- [ ] Memory usage reasonable for loaded sounds
+- [x] No audio lag/delay perceptible
+- [x] Sound loading doesn't block gameplay
+- [x] Memory usage reasonable for loaded sounds
+
+## Implementation Notes
+
+**Actual Implementation:**
+- AudioManager in `engine/assets/audio.go`
+- Manager facade in `engine/assets/manager.go`
+- Game loop integration in `cmd/game/main.go:66-74`
+
+**API Surface:**
+```go
+// Sound effects
+PlaySound(id int)
+PlaySoundWithVolume(id int, volume float64)
+PlaySounds(soundIDs []int)
+StopSound(id int)
+PlayLoopingSound(id int)
+
+// Music
+PlayMusic(id int)
+PlayMusicWithVolume(id int, volume float64)
+StopMusic()
+SetMusicVolume(volume float64)
+IsMusicPlaying() bool
+
+// Global
+SetVolume(vol float64)
+GetVolume() float64
+SetMuted(muted bool)
+IsMuted() bool
+```
+
+**Test Sounds Available:**
+- ID 1: click.wav
+- ID 2: build.wav
+- ID 3: error.wav
+- ID 4: select.wav

@@ -167,6 +167,144 @@ func (am *AudioManager) PlaySounds(soundIDs []int) {
 	}
 }
 
+// PlaySoundWithVolume plays a sound effect with custom volume (0.0 - 1.0).
+func (am *AudioManager) PlaySoundWithVolume(id int, volume float64) {
+	if am.muted {
+		return
+	}
+
+	data, ok := am.sounds[id]
+	if !ok {
+		return
+	}
+
+	player := audio.NewPlayerFromBytes(am.context, data)
+
+	// Apply custom volume scaled by master volume
+	if volume < 0 {
+		volume = 0
+	}
+	if volume > 1 {
+		volume = 1
+	}
+	player.SetVolume(volume * am.volume)
+
+	player.Play()
+}
+
+// StopSound stops a looping sound by ID.
+func (am *AudioManager) StopSound(id int) {
+	if player, ok := am.players[id]; ok {
+		player.Pause()
+		delete(am.players, id)
+	}
+}
+
+// PlayLoopingSound plays a sound in a loop until stopped.
+func (am *AudioManager) PlayLoopingSound(id int) {
+	if am.muted {
+		return
+	}
+
+	// Stop existing loop for this ID
+	am.StopSound(id)
+
+	data, ok := am.sounds[id]
+	if !ok {
+		return
+	}
+
+	// Create infinite loop stream
+	stream := audio.NewInfiniteLoop(bytes.NewReader(data), int64(len(data)))
+	player, err := am.context.NewPlayer(stream)
+	if err != nil {
+		fmt.Printf("Warning: failed to create looping player for sound %d: %v\n", id, err)
+		return
+	}
+
+	vol := am.volumes[id] * am.volume
+	player.SetVolume(vol)
+	player.Play()
+
+	am.players[id] = player
+}
+
+// PlayMusic starts background music by ID (from BGM manifest entries).
+// Music loops automatically and only one music track plays at a time.
+func (am *AudioManager) PlayMusic(id int) {
+	if am.muted {
+		return
+	}
+
+	// Stop current music
+	am.StopMusic()
+
+	data, ok := am.sounds[id]
+	if !ok {
+		// Try loading as music if not in sounds map
+		fmt.Printf("Warning: music ID %d not found\n", id)
+		return
+	}
+
+	// Create infinite loop for music
+	stream := audio.NewInfiniteLoop(bytes.NewReader(data), int64(len(data)))
+	player, err := am.context.NewPlayer(stream)
+	if err != nil {
+		fmt.Printf("Warning: failed to create music player: %v\n", err)
+		return
+	}
+
+	vol := am.volumes[id] * am.volume
+	if vol == 0 {
+		vol = am.volume // Default if no volume set
+	}
+	player.SetVolume(vol)
+	player.Play()
+
+	am.bgmPlayer = player
+}
+
+// PlayMusicWithVolume starts background music with custom volume.
+func (am *AudioManager) PlayMusicWithVolume(id int, volume float64) {
+	if volume < 0 {
+		volume = 0
+	}
+	if volume > 1 {
+		volume = 1
+	}
+
+	// Store volume for this ID temporarily
+	am.volumes[id] = volume
+	am.PlayMusic(id)
+}
+
+// StopMusic stops the current background music.
+func (am *AudioManager) StopMusic() {
+	if am.bgmPlayer != nil {
+		am.bgmPlayer.Pause()
+		am.bgmPlayer = nil
+	}
+}
+
+// SetMusicVolume adjusts the volume of currently playing music.
+func (am *AudioManager) SetMusicVolume(volume float64) {
+	if am.bgmPlayer == nil {
+		return
+	}
+	if volume < 0 {
+		volume = 0
+	}
+	if volume > 1 {
+		volume = 1
+	}
+	am.bgmPlayer.SetVolume(volume * am.volume)
+}
+
+// IsMusicPlaying returns true if background music is currently playing.
+func (am *AudioManager) IsMusicPlaying() bool {
+	return am.bgmPlayer != nil && am.bgmPlayer.IsPlaying()
+}
+
 // SetVolume sets the master volume (0.0 - 1.0).
 func (am *AudioManager) SetVolume(vol float64) {
 	if vol < 0 {

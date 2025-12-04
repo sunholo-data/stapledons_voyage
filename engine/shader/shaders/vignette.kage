@@ -1,0 +1,29 @@
+//kage:unit pixels
+package main
+
+// Vignette shader - darkens screen edges
+// Uniforms:
+//   Intensity: darkness amount (0.0-1.0)
+//   Softness: falloff softness (0.2-0.8)
+
+var Intensity float
+var Softness float
+
+func Fragment(dstPos vec4, srcPos vec2, color vec4) vec4 {
+	size := imageDstSize()
+	c := imageSrc0At(srcPos)
+
+	// Normalized coords centered at screen middle
+	uv := srcPos / size - vec2(0.5, 0.5)
+
+	// Distance from center - scale so corners are ~1.0
+	dist := length(uv) * 2.0
+
+	// Vignette darkening: dist^2 gives smooth falloff
+	darkening := clamp(dist * dist * Intensity, 0.0, 1.0)
+
+	// Apply darkening
+	c.rgb *= 1.0 - darkening
+
+	return c
+}

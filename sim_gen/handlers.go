@@ -123,3 +123,59 @@ func Init(h Handlers) {
 
 // handlers is the global handler registry.
 var handlers Handlers
+
+// requireDebug returns the Debug handler or panics with a helpful message.
+func requireDebug() DebugHandler {
+	if handlers.Debug == nil {
+		panic("Debug effect handler not initialized. Call Init() with a DebugHandler before using debug_* functions.")
+	}
+	return handlers.Debug
+}
+
+// requireRand returns the Rand handler or panics with a helpful message.
+func requireRand() RandHandler {
+	if handlers.Rand == nil {
+		panic("Rand effect handler not initialized. Call Init() with a RandHandler before using rand_* functions.")
+	}
+	return handlers.Rand
+}
+
+// requireClock returns the Clock handler or panics with a helpful message.
+func requireClock() ClockHandler {
+	if handlers.Clock == nil {
+		panic("Clock effect handler not initialized. Call Init() with a ClockHandler before using clock_* functions.")
+	}
+	return handlers.Clock
+}
+
+// requireFS returns the FS handler or panics with a helpful message.
+func requireFS() FSHandler {
+	if handlers.FS == nil {
+		panic("FS effect handler not initialized. Call Init() with a FSHandler before using fs_* functions.")
+	}
+	return handlers.FS
+}
+
+// requireNet returns the Net handler or panics with a helpful message.
+func requireNet() NetHandler {
+	if handlers.Net == nil {
+		panic("Net effect handler not initialized. Call Init() with a NetHandler before using net_* functions.")
+	}
+	return handlers.Net
+}
+
+// requireEnv returns the Env handler or panics with a helpful message.
+func requireEnv() EnvHandler {
+	if handlers.Env == nil {
+		panic("Env effect handler not initialized. Call Init() with a EnvHandler before using env_* functions.")
+	}
+	return handlers.Env
+}
+
+// requireAI returns the AI handler or panics with a helpful message.
+func requireAI() AIHandler {
+	if handlers.AI == nil {
+		panic("AI effect handler not initialized. Call Init() with a AIHandler before using ai_* functions.")
+	}
+	return handlers.AI
+}

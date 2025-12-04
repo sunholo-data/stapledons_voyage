@@ -1,0 +1,27 @@
+//kage:unit pixels
+package main
+
+// Chromatic aberration shader - RGB channel separation
+// Uniforms:
+//   Amount: pixel offset amount (2-10)
+
+var Amount float
+
+func Fragment(dstPos vec4, srcPos vec2, color vec4) vec4 {
+	size := imageDstSize()
+
+	// Direction from center
+	center := size / 2.0
+	dir := normalize(srcPos - center)
+
+	// Distance from center affects strength
+	dist := length(srcPos-center) / length(center)
+	offset := dir * Amount * dist
+
+	// Sample RGB channels with offset
+	r := imageSrc0At(srcPos + offset).r
+	g := imageSrc0At(srcPos).g
+	b := imageSrc0At(srcPos - offset).b
+
+	return vec4(r, g, b, 1.0)
+}

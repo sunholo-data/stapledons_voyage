@@ -1,0 +1,60 @@
+//kage:unit pixels
+package main
+
+// CRT effect shader - scanlines, curvature, and vignette
+// Uniforms:
+//   ScanlineIntensity: scanline darkness (0.0-1.0)
+//   Curvature: barrel distortion amount (0.0-0.2)
+//   VignetteAmount: edge darkening (0.0-1.0)
+
+var ScanlineIntensity float
+var Curvature float
+var VignetteAmount float
+
+func Fragment(dstPos vec4, srcPos vec2, color vec4) vec4 {
+	size := imageDstSize()
+
+	// Normalize coordinates to -1..1
+	uv := srcPos / size
+	uv = uv*2.0 - 1.0
+
+	// Apply barrel distortion (CRT curvature)
+	r2 := dot(uv, uv)
+	uv *= 1.0 + Curvature*r2
+
+	// Back to 0..1
+	uv = (uv + 1.0) / 2.0
+
+	// Check bounds - black outside screen
+	if uv.x < 0 || uv.x > 1 || uv.y < 0 || uv.y > 1 {
+		return vec4(0, 0, 0, 1)
+	}
+
+	// Sample with distorted coords
+	samplePos := uv * size
+	c := imageSrc0At(samplePos)
+
+	// Scanlines - darker on even rows
+	scanline := sin(srcPos.y*3.14159*2.0)*0.5 + 0.5
+	c.rgb *= 1.0 - ScanlineIntensity*(1.0-scanline)
+
+	// RGB phosphor effect (subtle)
+	pixelX := mod(srcPos.x, 3.0)
+	if pixelX < 1.0 {
+		c.g *= 0.95
+		c.b *= 0.95
+	} else if pixelX < 2.0 {
+		c.r *= 0.95
+		c.b *= 0.95
+	} else {
+		c.r *= 0.95
+		c.g *= 0.95
+	}
+
+	// Vignette
+	dist := length(uv - 0.5) * 2.0
+	vignette := 1.0 - dist*dist*VignetteAmount
+	c.rgb *= clamp(vignette, 0.0, 1.0)
+
+	return c
+}

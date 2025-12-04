@@ -22,6 +22,15 @@ cli:
 cli-mock:
 	go build -o bin/voyage ./cmd/cli
 
+# Performance testing with threshold checks
+perf: cli
+	@mkdir -p out
+	./bin/voyage perf -o out/perf.json
+
+perf-ci: cli
+	@mkdir -p out
+	./bin/voyage perf -o out/perf.json -fail=true
+
 # Mock targets (use existing sim_gen, no AILANG compiler needed)
 game-mock:
 	go build -o bin/game ./cmd/game

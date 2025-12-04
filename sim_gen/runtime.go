@@ -270,48 +270,25 @@ func CallFunc(f interface{}, args ...interface{}) interface{} {
 }
 
 // ListHead returns the first element of a list.
-// Handles both []interface{} and typed slices like []*NPC.
 func ListHead(list interface{}) interface{} {
 	if l, ok := list.([]interface{}); ok && len(l) > 0 {
 		return l[0]
-	}
-	// Handle typed slices using reflection
-	v := reflect.ValueOf(list)
-	if v.Kind() == reflect.Slice && v.Len() > 0 {
-		return v.Index(0).Interface()
 	}
 	return nil
 }
 
 // ListTail returns all but the first element of a list.
-// Handles both []interface{} and typed slices like []*NPC.
 func ListTail(list interface{}) interface{} {
 	if l, ok := list.([]interface{}); ok && len(l) > 0 {
 		return l[1:]
-	}
-	// Handle typed slices using reflection
-	v := reflect.ValueOf(list)
-	if v.Kind() == reflect.Slice && v.Len() > 0 {
-		// Return as []interface{} for compatibility with Cons
-		result := make([]interface{}, v.Len()-1)
-		for i := 1; i < v.Len(); i++ {
-			result[i-1] = v.Index(i).Interface()
-		}
-		return result
 	}
 	return []interface{}{}
 }
 
 // ListLen returns the length of a list.
-// Handles both []interface{} and typed slices like []*NPC.
 func ListLen(list interface{}) int {
 	if l, ok := list.([]interface{}); ok {
 		return len(l)
-	}
-	// Handle typed slices using reflection
-	v := reflect.ValueOf(list)
-	if v.Kind() == reflect.Slice {
-		return v.Len()
 	}
 	return 0
 }
@@ -438,7 +415,6 @@ func ToList(arr interface{}) interface{} {
 }
 
 // Length returns the length of an array.
-// Handles both []interface{} and typed slices like []*Direction.
 func Length(arr interface{}) interface{} {
 	if arr == nil {
 		return int64(0)
@@ -446,17 +422,11 @@ func Length(arr interface{}) interface{} {
 	if slice, ok := arr.([]interface{}); ok {
 		return int64(len(slice))
 	}
-	// Handle typed slices using reflection
-	v := reflect.ValueOf(arr)
-	if v.Kind() == reflect.Slice {
-		return int64(v.Len())
-	}
 	return int64(0)
 }
 
 // Get returns the element at the given index.
 // Panics if index is out of bounds.
-// Handles both []interface{} and typed slices like []*Direction.
 func Get(arr interface{}, idx interface{}) interface{} {
 	i := toInt64(idx)
 	if slice, ok := arr.([]interface{}); ok {
@@ -465,21 +435,12 @@ func Get(arr interface{}, idx interface{}) interface{} {
 		}
 		return slice[i]
 	}
-	// Handle typed slices using reflection
-	v := reflect.ValueOf(arr)
-	if v.Kind() == reflect.Slice {
-		if i < 0 || i >= int64(v.Len()) {
-			panic(fmt.Sprintf("array index out of bounds: %d (length %d)", i, v.Len()))
-		}
-		return v.Index(int(i)).Interface()
-	}
 	panic("Get: not an array")
 }
 
 // GetOpt safely returns the element at index, or None if out of bounds.
 // Returns Some(element) or None. Uses makeOptionSome/makeOptionNone helpers
 // which delegate to typed constructors if Option ADT is present.
-// Handles both []interface{} and typed slices like []*Direction.
 func GetOpt(arr interface{}, idx interface{}) interface{} {
 	i := toInt64(idx)
 	if i < 0 {
@@ -491,27 +452,19 @@ func GetOpt(arr interface{}, idx interface{}) interface{} {
 		}
 		return makeOptionSome(slice[i])
 	}
-	// Handle typed slices using reflection
-	v := reflect.ValueOf(arr)
-	if v.Kind() == reflect.Slice {
-		if i >= int64(v.Len()) {
-			return makeOptionNone()
-		}
-		return makeOptionSome(v.Index(int(i)).Interface())
-	}
 	return makeOptionNone()
 }
 
 // makeOptionSome creates a Some value.
-// Uses the typed Option constructor for compatibility with generated code.
+// Uses map representation for runtime compatibility.
 func makeOptionSome(v interface{}) interface{} {
-	return NewOptionSome(v)
+	return map[string]interface{}{"tag": "Some", "value": v}
 }
 
 // makeOptionNone creates a None value.
-// Uses the typed Option constructor for compatibility with generated code.
+// Uses map representation for runtime compatibility.
 func makeOptionNone() interface{} {
-	return NewOptionNone()
+	return map[string]interface{}{"tag": "None"}
 }
 
 // UnsafeGet returns element at index without bounds checking.

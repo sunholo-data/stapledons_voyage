@@ -8,7 +8,7 @@ import (
 
 func BenchmarkInitWorld(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_ = sim_gen.InitWorld(int64(i))
+		_ = sim_gen.InitWorld(i)
 	}
 }
 
@@ -18,11 +18,12 @@ func BenchmarkStep(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		var err error
-		world, _, err = sim_gen.Step(world, input)
-		if err != nil {
-			b.Fatal(err)
+		result := sim_gen.Step(world, input)
+		tuple, ok := result.([]interface{})
+		if !ok || len(tuple) != 2 {
+			b.Fatal("unexpected Step result")
 		}
+		world = tuple[0]
 	}
 }
 
@@ -32,11 +33,12 @@ func BenchmarkStep100(b *testing.B) {
 		input := sim_gen.FrameInput{}
 
 		for j := 0; j < 100; j++ {
-			var err error
-			world, _, err = sim_gen.Step(world, input)
-			if err != nil {
-				b.Fatal(err)
+			result := sim_gen.Step(world, input)
+			tuple, ok := result.([]interface{})
+			if !ok || len(tuple) != 2 {
+				b.Fatal("unexpected Step result")
 			}
+			world = tuple[0]
 		}
 	}
 }

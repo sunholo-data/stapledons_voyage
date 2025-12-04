@@ -8,11 +8,13 @@ import (
 	"image/png"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"stapledons_voyage/engine/assets"
 	"stapledons_voyage/engine/display"
 	"stapledons_voyage/engine/render"
+	"stapledons_voyage/engine/shader"
 	"stapledons_voyage/sim_gen"
 )
 
@@ -25,6 +27,7 @@ type Config struct {
 	CameraY    float64 // Initial camera Y
 	CameraZoom float64 // Initial camera zoom
 	TestMode   bool    // Strip UI for golden file testing
+	Effects    string  // Comma-separated effects: "bloom,vignette,crt,aberration,all"
 }
 
 // DefaultConfig returns a config with sensible defaults.
@@ -45,6 +48,8 @@ type screenshotGame struct {
 	world        *sim_gen.World // Typed world (M-DX16: RecordUpdate preserves struct types)
 	out          sim_gen.FrameOutput
 	renderer     *render.Renderer
+	effects      *shader.Effects
+	renderBuffer *ebiten.Image
 	currentFrame int
 	captured     bool
 	capturedImg  *image.RGBA
@@ -85,7 +90,22 @@ func (g *screenshotGame) Update() error {
 }
 
 func (g *screenshotGame) Draw(screen *ebiten.Image) {
-	g.renderer.RenderFrame(screen, g.out)
+	// Check if we need to apply effects
+	if g.effects != nil && g.hasEnabledEffects() {
+		// Render to buffer first
+		w, h := screen.Bounds().Dx(), screen.Bounds().Dy()
+		if g.renderBuffer == nil || g.renderBuffer.Bounds().Dx() != w {
+			g.renderBuffer = ebiten.NewImage(w, h)
+		}
+		g.renderBuffer.Clear()
+		g.renderer.RenderFrame(g.renderBuffer, g.out)
+
+		// Apply effects
+		g.effects.Apply(screen, g.renderBuffer)
+	} else {
+		// Direct render without effects
+		g.renderer.RenderFrame(screen, g.out)
+	}
 
 	// Capture on final frame
 	if g.currentFrame >= g.config.Frames && !g.captured {
@@ -95,6 +115,18 @@ func (g *screenshotGame) Draw(screen *ebiten.Image) {
 		g.capturedImg = image.NewRGBA(bounds)
 		screen.ReadPixels(g.capturedImg.Pix)
 	}
+}
+
+func (g *screenshotGame) hasEnabledEffects() bool {
+	if g.effects == nil {
+		return false
+	}
+	bloomEnabled := g.effects.Bloom().IsEnabled()
+	pipelineEffects := g.effects.Pipeline().EnabledEffects()
+	if bloomEnabled {
+		return true
+	}
+	return len(pipelineEffects) > 0
 }
 
 func (g *screenshotGame) Layout(outsideWidth, outsideHeight int) (int, int) {
@@ -117,10 +149,21 @@ func Capture(cfg Config) error {
 		return fmt.Errorf("InitWorld did not return *World")
 	}
 
+	// Initialize shader effects if requested
+	var effects *shader.Effects
+	if cfg.Effects != "" {
+		effects = shader.NewEffects()
+		if err := effects.Preload(); err != nil {
+			return fmt.Errorf("failed to preload shaders: %w", err)
+		}
+		enableEffects(effects, cfg.Effects)
+	}
+
 	game := &screenshotGame{
 		config:   cfg,
 		world:    world,
 		renderer: renderer,
+		effects:  effects,
 	}
 
 	// Run with hidden window
@@ -160,6 +203,27 @@ func Capture(cfg Config) error {
 		return fmt.Errorf("failed to encode PNG: %w", err)
 	}
 
-	fmt.Printf("Screenshot saved: %s (%d frames, seed %d)\n", cfg.OutputPath, cfg.Frames, cfg.Seed)
 	return nil
+}
+
+// enableEffects parses the effects string and enables the specified effects.
+// Supports: "bloom", "vignette", "crt", "aberration", "all"
+func enableEffects(effects *shader.Effects, effectStr string) {
+	parts := strings.Split(strings.ToLower(effectStr), ",")
+	for _, part := range parts {
+		effect := strings.TrimSpace(part)
+		switch effect {
+		case "all":
+			effects.EnableAll()
+			return
+		case "bloom":
+			effects.Bloom().SetEnabled(true)
+		case "vignette":
+			effects.Pipeline().SetEnabled("vignette", true)
+		case "crt":
+			effects.Pipeline().SetEnabled("crt", true)
+		case "aberration":
+			effects.Pipeline().SetEnabled("aberration", true)
+		}
+	}
 }

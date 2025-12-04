@@ -1,0 +1,25 @@
+//kage:unit pixels
+package main
+
+// Bloom combine shader - adds bloom to original image
+// Uniforms:
+//   Intensity: bloom intensity (0.5-2.0)
+// Images:
+//   Image0: original scene
+//   Image1: blurred bloom
+
+var Intensity float
+
+func Fragment(dstPos vec4, srcPos vec2, color vec4) vec4 {
+	original := imageSrc0At(srcPos)
+	bloom := imageSrc1At(srcPos)
+
+	// Additive blend with intensity control
+	result := original + bloom*Intensity
+
+	// Soft clamp to prevent harsh clipping
+	result.rgb = result.rgb / (result.rgb + vec3(1.0))
+	result.a = original.a
+
+	return result
+}

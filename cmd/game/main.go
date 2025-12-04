@@ -13,6 +13,7 @@ import (
 	"syscall"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"stapledons_voyage/engine/assets"
 	"stapledons_voyage/engine/display"
 	"stapledons_voyage/engine/handlers"
@@ -20,23 +21,36 @@ import (
 	"stapledons_voyage/engine/save"
 	"stapledons_voyage/engine/scenario"
 	"stapledons_voyage/engine/screenshot"
+	"stapledons_voyage/engine/shader"
 	"stapledons_voyage/sim_gen"
 )
 
 type Game struct {
-	world    *sim_gen.World // Typed world (M-DX16: RecordUpdate preserves struct types)
-	out      sim_gen.FrameOutput
-	renderer *render.Renderer
-	display  *display.Manager
-	assets   *assets.Manager
-	clock    *handlers.EbitenClockHandler // For frame timing
-	save     *save.Manager                // Auto-save manager (Pillar 1: single save file)
+	world        *sim_gen.World               // Typed world (M-DX16: RecordUpdate preserves struct types)
+	out          sim_gen.FrameOutput
+	renderer     *render.Renderer
+	display      *display.Manager
+	assets       *assets.Manager
+	clock        *handlers.EbitenClockHandler // For frame timing
+	save         *save.Manager                // Auto-save manager (Pillar 1: single save file)
+	effects      *shader.Effects              // Post-processing effects
+	renderBuffer *ebiten.Image                // Buffer for effects processing
+	statusMsg    string                       // Temporary status message
+	statusTimer  float64                      // Status message timer
 }
 
 func (g *Game) Update() error {
 	// Update clock handler (1/60 second per frame at 60 FPS)
 	dt := 1.0 / 60.0
 	g.clock.Update(dt)
+
+	// Update status message timer
+	if g.statusTimer > 0 {
+		g.statusTimer -= dt
+		if g.statusTimer <= 0 {
+			g.statusMsg = ""
+		}
+	}
 
 	// Track play time for save file
 	if g.save != nil {
@@ -45,6 +59,14 @@ func (g *Game) Update() error {
 
 	// Handle display input (F11 for fullscreen)
 	g.display.HandleInput()
+
+	// Handle effects demo input (F5-F9)
+	if g.effects != nil {
+		if msgs := g.effects.HandleInput(); len(msgs) > 0 {
+			g.statusMsg = msgs[len(msgs)-1]
+			g.statusTimer = 2.0
+		}
+	}
 
 	// Capture game input with camera for screen-to-world conversion
 	// Uses internal resolution (640x480) for coordinate conversion
@@ -84,7 +106,92 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	g.renderer.RenderFrame(screen, g.out)
+	// Check if we need to apply effects
+	if g.effects != nil && g.effects.Bloom().IsEnabled() || g.effects.Pipeline().EnabledEffects() != nil && len(g.effects.Pipeline().EnabledEffects()) > 0 {
+		// Render to buffer first
+		w, h := screen.Bounds().Dx(), screen.Bounds().Dy()
+		if g.renderBuffer == nil || g.renderBuffer.Bounds().Dx() != w {
+			g.renderBuffer = ebiten.NewImage(w, h)
+		}
+		g.renderBuffer.Clear()
+		g.renderer.RenderFrame(g.renderBuffer, g.out)
+
+		// Apply effects
+		g.effects.Apply(screen, g.renderBuffer)
+	} else {
+		// Direct render without effects
+		g.renderer.RenderFrame(screen, g.out)
+	}
+
+	// Draw effects overlay if enabled
+	if g.effects != nil && g.effects.ShowOverlay() {
+		g.drawEffectsOverlay(screen)
+	}
+
+	// Draw status message
+	if g.statusMsg != "" {
+		g.drawStatusMessage(screen)
+	}
+}
+
+func (g *Game) drawEffectsOverlay(screen *ebiten.Image) {
+	lines := g.effects.OverlayText()
+	if len(lines) == 0 {
+		return
+	}
+
+	// Draw semi-transparent background
+	w := screen.Bounds().Dx()
+	overlayW, overlayH := 280, 200
+	x, y := w-overlayW-10, 10
+
+	// Draw background
+	for dy := 0; dy < overlayH; dy++ {
+		for dx := 0; dx < overlayW; dx++ {
+			screen.Set(x+dx, y+dy, colorWithAlpha(0, 0, 0, 180))
+		}
+	}
+
+	// Draw text using ebitenutil debug print
+	text := ""
+	for _, line := range lines {
+		text += line + "\n"
+	}
+	ebitenutil.DebugPrintAt(screen, text, x+10, y+10)
+}
+
+func (g *Game) drawStatusMessage(screen *ebiten.Image) {
+	w := screen.Bounds().Dx()
+
+	// Center at top
+	textW := len(g.statusMsg) * 6
+	x := (w - textW) / 2
+	y := 30
+
+	// Draw background
+	for dy := -2; dy < 14; dy++ {
+		for dx := -5; dx < textW+5; dx++ {
+			screen.Set(x+dx, y+dy, colorWithAlpha(0, 0, 0, 200))
+		}
+	}
+
+	ebitenutil.DebugPrintAt(screen, g.statusMsg, x, y)
+}
+
+func colorWithAlpha(r, g, b, a uint8) colorRGBA {
+	return colorRGBA{r, g, b, a}
+}
+
+type colorRGBA struct {
+	R, G, B, A uint8
+}
+
+func (c colorRGBA) RGBA() (r, g, b, a uint32) {
+	r = uint32(c.R) * 0x101
+	g = uint32(c.G) * 0x101
+	b = uint32(c.B) * 0x101
+	a = uint32(c.A) * 0x101
+	return
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
@@ -99,6 +206,8 @@ func main() {
 	cameraStr := flag.String("camera", "", "Initial camera position: x,y,zoom")
 	scenarioName := flag.String("scenario", "", "Run a test scenario by name")
 	testMode := flag.Bool("test-mode", false, "Strip UI for golden file testing")
+	demoMode := flag.Bool("demo", false, "Enable shader effects demo mode (F5-F9 keys)")
+	effectsStr := flag.String("effects", "", "Enable effects for screenshot: bloom,vignette,crt,aberration,all")
 	flag.Parse()
 
 	// Handle scenario mode
@@ -124,6 +233,7 @@ func main() {
 		cfg.OutputPath = *screenshotOutput
 		cfg.Seed = *seed
 		cfg.TestMode = *testMode
+		cfg.Effects = *effectsStr
 
 		// Parse camera position if provided
 		if *cameraStr != "" {
@@ -213,6 +323,18 @@ func main() {
 		}
 	}
 
+	// Initialize shader effects
+	effects := shader.NewEffects()
+	if err := effects.Preload(); err != nil {
+		log.Printf("Warning: shader preload failed: %v", err)
+	}
+	effects.SetDemoMode(*demoMode)
+
+	// Show demo mode hint if enabled
+	if *demoMode {
+		log.Println("Demo mode enabled: F5=Bloom, F6=Vignette, F7=CRT, F8=Aberration, F9=Overlay")
+	}
+
 	game := &Game{
 		world:    world,
 		renderer: renderer,
@@ -220,6 +342,7 @@ func main() {
 		assets:   assetMgr,
 		clock:    clockHandler,
 		save:     saveMgr,
+		effects:  effects,
 	}
 
 	// Set up graceful shutdown handler to save on exit

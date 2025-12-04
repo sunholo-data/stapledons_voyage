@@ -67,6 +67,41 @@ func (m *Manager) PlaySounds(soundIDs []int) {
 	m.audio.PlaySounds(soundIDs)
 }
 
+// PlaySoundWithVolume plays a sound effect with custom volume (0.0 - 1.0).
+func (m *Manager) PlaySoundWithVolume(id int, volume float64) {
+	m.audio.PlaySoundWithVolume(id, volume)
+}
+
+// StopSound stops a looping sound by ID.
+func (m *Manager) StopSound(id int) {
+	m.audio.StopSound(id)
+}
+
+// PlayMusic starts background music by ID (loops automatically).
+func (m *Manager) PlayMusic(id int) {
+	m.audio.PlayMusic(id)
+}
+
+// PlayMusicWithVolume starts background music with custom volume.
+func (m *Manager) PlayMusicWithVolume(id int, volume float64) {
+	m.audio.PlayMusicWithVolume(id, volume)
+}
+
+// StopMusic stops the current background music.
+func (m *Manager) StopMusic() {
+	m.audio.StopMusic()
+}
+
+// SetMusicVolume adjusts the volume of currently playing music.
+func (m *Manager) SetMusicVolume(volume float64) {
+	m.audio.SetMusicVolume(volume)
+}
+
+// IsMusicPlaying returns true if background music is currently playing.
+func (m *Manager) IsMusicPlaying() bool {
+	return m.audio.IsMusicPlaying()
+}
+
 // Audio returns the audio manager for advanced audio control.
 func (m *Manager) Audio() *AudioManager {
 	return m.audio

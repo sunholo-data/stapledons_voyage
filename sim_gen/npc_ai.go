@@ -234,7 +234,7 @@ func updateRandomWalk_impl(npc interface{}, interval interface{}, width interfac
 			return func() interface{} {
 				if tmp16.(bool) {
 					return func() interface{} {
-						var dirIndex interface{} = handlers.Rand.RandInt(int64(0), int64(3))
+						var dirIndex interface{} = requireRand().RandInt(int64(0), int64(3))
 						_ = dirIndex // suppress unused
 						return func() interface{} {
 							var dir interface{} = indexToDirection_impl(dirIndex)
@@ -305,7 +305,7 @@ func updatePatrol_impl(npc interface{}, path interface{}, width interface{}, hei
 												}()
 											}()
 											_ = nextIndex // suppress unused
-											return RecordUpdate(movedNpc, map[string]interface{}{"moveCounter": int64(20), "patrolIndex": nextIndex})
+											return RecordUpdate(movedNpc, map[string]interface{}{"patrolIndex": nextIndex, "moveCounter": int64(20)})
 										}()
 									}()
 								}()

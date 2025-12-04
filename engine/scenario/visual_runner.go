@@ -7,6 +7,7 @@ import (
 	"image/png"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"stapledons_voyage/engine/assets"
@@ -31,6 +32,12 @@ type VisualRunner struct {
 	capturedImgs map[string]*image.RGBA
 	done         bool
 	err          error
+
+	// Frame timing for performance analysis
+	frameStart  time.Time
+	frameTimes  []time.Duration
+	stepTimes   []time.Duration
+	renderTimes []time.Duration
 }
 
 // NewVisualRunner creates a visual scenario runner.
@@ -65,6 +72,9 @@ func (r *VisualRunner) Update() error {
 		r.done = true
 		return errors.New("scenario complete")
 	}
+
+	// Start frame timing
+	r.frameStart = time.Now()
 
 	// Clear pressed keys from previous frame
 	r.pressedKeys = make(map[int]bool)
@@ -111,7 +121,10 @@ func (r *VisualRunner) Update() error {
 	r.pendingClick = nil // Clear pending click
 
 	// Step returns []interface{}{newWorld, output} - RecordUpdate preserves *World type
+	stepStart := time.Now()
 	result := sim_gen.Step(r.world, input)
+	r.stepTimes = append(r.stepTimes, time.Since(stepStart))
+
 	tuple, ok := result.([]interface{})
 	if !ok || len(tuple) != 2 {
 		r.err = fmt.Errorf("simulation error at frame %d: unexpected Step result", r.currentFrame)
@@ -129,7 +142,14 @@ func (r *VisualRunner) Update() error {
 }
 
 func (r *VisualRunner) Draw(screen *ebiten.Image) {
+	renderStart := time.Now()
 	r.renderer.RenderFrame(screen, r.out)
+	r.renderTimes = append(r.renderTimes, time.Since(renderStart))
+
+	// Record total frame time (Update + Draw)
+	if !r.frameStart.IsZero() {
+		r.frameTimes = append(r.frameTimes, time.Since(r.frameStart))
+	}
 
 	// Check if we should capture this frame
 	// Note: currentFrame was already incremented in Update(), so check currentFrame-1
@@ -142,6 +162,21 @@ func (r *VisualRunner) Draw(screen *ebiten.Image) {
 			r.capturedImgs[filename] = img
 		}
 	}
+}
+
+// FrameTimes returns collected frame timing data.
+func (r *VisualRunner) FrameTimes() []time.Duration {
+	return r.frameTimes
+}
+
+// StepTimes returns collected simulation step timing data.
+func (r *VisualRunner) StepTimes() []time.Duration {
+	return r.stepTimes
+}
+
+// RenderTimes returns collected render timing data.
+func (r *VisualRunner) RenderTimes() []time.Duration {
+	return r.renderTimes
 }
 
 func (r *VisualRunner) Layout(outsideWidth, outsideHeight int) (int, int) {
