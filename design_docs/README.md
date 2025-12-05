@@ -21,9 +21,36 @@ design_docs/
 │   ├── v0_7_0/           # Exploration modes
 │   ├── v0_8_0/           # Endgame
 │   └── v0_9_0/           # Supporting UIs
-├── implemented/          # Completed features (empty for now)
+├── implemented/          # Completed features
+│   ├── v0_2_0/           # Audio system
+│   ├── v0_4_5/           # Shader system
+│   └── v0_5_0/           # SR effects, screenshot mode, test scenarios
 └── README.md             # This index
 ```
+
+## Implemented Features
+
+### v0.2.0 - Audio System
+
+| Document | Description | Status |
+|----------|-------------|--------|
+| [Audio System](implemented/v0_2_0/audio-system.md) | Sound effects and music playback | Implemented |
+
+### v0.4.5 - Shader System
+
+| Document | Description | Status |
+|----------|-------------|--------|
+| [Shader System](implemented/v0_4_5/shader-system.md) | Kage shaders, post-processing pipeline, bloom, vignette, CRT | Implemented |
+
+### v0.5.0 - Visual Effects & Testing
+
+| Document | Description | Status |
+|----------|-------------|--------|
+| [SR Effects](implemented/v0_5_0/sr-effects.md) | Special relativity visuals: aberration, Doppler, beaming (engine-side) | Implemented |
+| [Screenshot Mode](implemented/v0_5_0/screenshot-mode.md) | Headless screenshot capture for testing | Implemented |
+| [Test Scenarios](implemented/v0_5_0/test-scenarios.md) | Visual test scenarios for golden file comparison | Implemented |
+
+---
 
 ## Planned Features
 
@@ -93,8 +120,10 @@ design_docs/
 | Document | Description | Priority |
 |----------|-------------|----------|
 | [Journey System](planned/v0_6_0/journey-system.md) | Journey planning, time dilation calculator, crew projection, journey events, arrival sequence | P0 |
-| [SR Rendering](planned/sr-rendering.md) | Special relativity visual effects: aberration, Doppler, beaming | P1 |
-| [SR Rendering Go](planned/sr-rendering-go.md) | Go implementation: relativity package, Kage shader, renderer integration | P1 |
+| [Black Holes](planned/black-holes.md) | Black hole mechanics, time dilation nodes, New Game+ mechanism, crew psychology | P1 |
+| [GR Visual Mechanics](planned/gr-visual-mechanics.md) | General relativity visuals: gravitational lensing, redshift near BH/NS/WD | P1 |
+
+**Note:** SR rendering is implemented - see [implemented/v0_5_0/sr-effects.md](implemented/v0_5_0/sr-effects.md). Pending: AILANG CameraState integration.
 
 ### v0.6.1 - Civilization & Trade
 

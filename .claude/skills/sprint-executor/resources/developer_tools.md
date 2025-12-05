@@ -35,16 +35,28 @@ ailang repl
 ailang prompt
 ```
 
-## Agent Messaging
+## AILANG Messages
 
 ```bash
-# Check inbox for AILANG team messages
-ailang agent inbox stapledons_voyage
+# List all messages
+ailang messages list
 
-# Acknowledge message
-ailang agent ack <msg-id>
+# List unread messages only
+ailang messages list --unread
 
-# Send feedback
+# Read a specific message
+ailang messages read <msg-id>
+
+# Acknowledge/mark as read
+ailang messages ack <msg-id>
+
+# Send a message
+ailang messages send <inbox> "<message>"
+
+# Watch for new messages
+ailang messages watch
+
+# Send feedback via skill
 ~/.claude/skills/ailang-feedback/scripts/send_feedback.sh <type> "<title>" "<desc>" "stapledons_voyage"
 ```
 

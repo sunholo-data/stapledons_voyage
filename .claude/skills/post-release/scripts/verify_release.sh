@@ -55,9 +55,9 @@ else
 fi
 echo
 
-# 4. Check AILANG inbox
-echo "4/4 Checking AILANG inbox..."
-if ailang agent inbox stapledons_voyage 2>&1 | grep -q "message"; then
+# 4. Check AILANG messages
+echo "4/4 Checking AILANG messages..."
+if ailang messages list --unread 2>&1 | grep -q "message"; then
     echo "  ⚠ Pending messages - review before release"
     WARNINGS=$((WARNINGS + 1))
 else

@@ -43,17 +43,17 @@ else
 fi
 echo
 
-# 3. Check for AILANG inbox messages
-echo "3/5 Checking AILANG inbox..."
-INBOX_OUTPUT=$(ailang agent inbox stapledons_voyage 2>&1 || echo "No inbox")
+# 3. Check for AILANG messages
+echo "3/5 Checking AILANG messages..."
+INBOX_OUTPUT=$(ailang messages list --unread 2>&1 || echo "No messages")
 if echo "$INBOX_OUTPUT" | grep -q "0 message"; then
     echo "  ✓ No pending messages"
 elif echo "$INBOX_OUTPUT" | grep -q "message"; then
     MSG_COUNT=$(echo "$INBOX_OUTPUT" | grep -oP '\d+ message' | grep -oP '\d+' || echo "some")
-    echo "  ⚠ $MSG_COUNT message(s) in inbox - check before starting"
+    echo "  ⚠ $MSG_COUNT message(s) pending - check before starting"
     WARNINGS=$((WARNINGS + 1))
 else
-    echo "  ✓ Inbox checked"
+    echo "  ✓ Messages checked"
 fi
 echo
 

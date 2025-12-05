@@ -55,7 +55,7 @@ Before planning, check CLAUDE.md for:
 for f in sim/*.ail; do ailang check "$f"; done
 
 # Check for messages from AILANG team
-ailang agent inbox stapledons_voyage
+ailang messages list --unread
 ```
 
 ### 2. Identify Work Scope
@@ -120,11 +120,12 @@ Every sprint should include:
 After sprint plan is approved:
 
 ```bash
-# Acknowledge any pending messages
-ailang agent inbox stapledons_voyage
+# Check and acknowledge any pending messages
+ailang messages list --unread
+ailang messages ack <msg-id>
 
 # Send plan ready notification (optional)
-ailang agent send sprint-executor '{
+ailang messages send sprint-executor '{
   "type": "plan_ready",
   "sprint_id": "npc-movement",
   "days": 3,

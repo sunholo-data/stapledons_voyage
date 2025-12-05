@@ -18,9 +18,9 @@ for f in sim/*.ail; do ailang check "$f"; done
 - [ ] All modules compile
 - [ ] Known limitations reviewed in CLAUDE.md
 
-### Inbox Check
+### Messages Check
 ```bash
-ailang agent inbox stapledons_voyage
+ailang messages list --unread
 ```
 - [ ] Messages checked
 - [ ] Relevant responses incorporated

@@ -447,7 +447,7 @@ To verify AILANG fulfills this contract, we expect:
 ## Contact
 
 - **AILANG Issues**: https://github.com/sunholo-data/ailang/issues
-- **Agent Messaging**: `ailang agent send ailang-core '{"type": "feedback", ...}'`
+- **Messaging**: `ailang messages send ailang-core '{"type": "feedback", ...}'`
 - **Sprint Plan**: See `design_docs/planned/v0_4_8/M-GAME-ENGINE-sprint-plan.md`
 
 ---

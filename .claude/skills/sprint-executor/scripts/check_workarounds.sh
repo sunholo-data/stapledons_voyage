@@ -10,10 +10,10 @@ echo "=== AILANG Workaround Status Check ==="
 echo ""
 
 # 1. Check inbox for fix notifications
-echo "📬 Checking AILANG inbox..."
+echo "📬 Checking AILANG messages..."
 echo ""
 if command -v ailang &> /dev/null; then
-    ailang agent inbox stapledons_voyage 2>/dev/null || echo "  (No messages or inbox empty)"
+    ailang messages list --unread 2>/dev/null || echo "  (No unread messages)"
 else
     echo "  ⚠ ailang not installed"
 fi

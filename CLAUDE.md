@@ -62,12 +62,14 @@ ailang run --entry func file.ail       # Custom entrypoint
 ailang run --trace file.ail            # Enable execution tracing
 ```
 
-Agent messaging (for coordination between Claude and AILANG):
+Messages (for coordination between Claude and AILANG):
 ```bash
-ailang agent top                       # Show agent queue status
-ailang agent inbox <agent-id>          # Check messages for an agent
-ailang agent send <agent> <json>       # Send message to an agent
-ailang agent ack <msg-id>              # Acknowledge message
+ailang messages list                   # List all messages
+ailang messages list --unread          # List unread messages only
+ailang messages send <inbox> <msg>     # Send message to inbox
+ailang messages ack <msg-id>           # Mark message as read
+ailang messages read <msg-id>          # Show message content
+ailang messages watch                  # Watch for new messages
 ```
 
 ## Architecture
@@ -245,7 +247,7 @@ When working on this project, follow this iterative process:
 3. **Type-check with `ailang check`** - Fix any syntax/type errors
 4. **Test with `ailang run`** - Verify runtime behavior
 5. **Report issues via `ailang-feedback`** - Send bugs, unclear docs, feature requests
-6. **Check inbox for responses** - `ailang agent inbox stapledons_voyage`
+6. **Check inbox for responses** - `ailang messages list --unread`
 7. **Iterate** - Incorporate feedback, fix issues, continue development
 
 ### Available in v0.5.0 (Current)
@@ -323,7 +325,7 @@ This repo serves as the primary integration test for AILANG. The development pro
 
 1. Write/modify AILANG code in `sim/*.ail`
 2. Use `ailang` CLI to run, check, and evaluate
-3. Use `ailang agent` messaging to coordinate with Claude
+3. Use `ailang messages` to coordinate with AILANG team
 4. Evaluation output (`out/report.json`) feeds back into AILANG improvements
 
 If AILANG breaks, the game breaks - making this an effective stress test for the language.
@@ -351,8 +353,9 @@ If AILANG breaks, the game breaks - making this an effective stress test for the
 ### Checking for Responses
 
 ```bash
-ailang agent inbox stapledons_voyage    # Check for messages
-ailang agent ack <msg-id>               # Acknowledge after reading
+ailang messages list --unread           # Check for unread messages
+ailang messages read <msg-id>           # Read message content
+ailang messages ack <msg-id>            # Mark as read
 ```
 
 This feedback loop helps improve AILANG based on real-world usage in this integration test project.

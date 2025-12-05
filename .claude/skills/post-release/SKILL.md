@@ -51,10 +51,13 @@ make run
 
 ```bash
 # Check inbox for any responses
-ailang agent inbox stapledons_voyage
+ailang messages list --unread
 
-# Note: No automated way to list sent messages
-# Keep track of issues reported during sprints
+# List all messages
+ailang messages list
+
+# Read a specific message
+ailang messages read <msg-id>
 ```
 
 **Create feedback summary:**

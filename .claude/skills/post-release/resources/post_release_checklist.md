@@ -23,9 +23,10 @@ done
 
 ## 2. AILANG Feedback Summary
 
-Check inbox:
+Check messages:
 ```bash
-ailang agent inbox stapledons_voyage
+ailang messages list --unread
+ailang messages read <msg-id>
 ```
 
 Summarize issues reported during development:

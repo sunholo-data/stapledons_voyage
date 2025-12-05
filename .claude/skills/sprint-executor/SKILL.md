@@ -95,7 +95,7 @@ Focus on Go implementation and standard Go testing.
    ```bash
    # For AILANG sprints:
    for f in sim/*.ail; do ailang check "$f"; done
-   ailang agent inbox stapledons_voyage
+   ailang messages list --unread
 
    # For mock-only sprints:
    go test ./...
@@ -286,11 +286,11 @@ Quick reference for known issues and their solutions:
 2. Report via `ailang-feedback` with detailed repro steps
 
 **When AILANG fixes an issue:**
-1. Check inbox: `ailang agent inbox stapledons_voyage`
+1. Check inbox: `ailang messages list --unread`
 2. Verify fix: `ailang check sim/*.ail`
 3. Run `mark_fixed.sh "<keyword>" "<version>"`
 4. Remove workarounds from code where practical
-5. Acknowledge: `ailang agent ack <msg-id>`
+5. Acknowledge: `ailang messages ack <msg-id>`
 
 **At sprint start:**
 ```bash
@@ -350,7 +350,9 @@ make game
 - `ailang prompt` - Syntax reference
 
 ### Feedback Commands
-- `ailang agent inbox stapledons_voyage` - Check messages
+- `ailang messages list --unread` - Check unread messages
+- `ailang messages ack <msg-id>` - Acknowledge message
+- `ailang messages send <inbox> <msg>` - Send message
 - `~/.claude/skills/ailang-feedback/scripts/send_feedback.sh` - Report issues
 
 ## Milestone Checklist Template
