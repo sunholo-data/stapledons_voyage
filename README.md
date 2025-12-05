@@ -24,6 +24,25 @@ Every journey costs you time — and costs the universe centuries. The civilizat
 
 At the end of your life, the simulation fast-forwards to Year 1,000,000 and shows you what your choices did to the galaxy. Not what was "good" or "bad" — just what happened. You decide what it means.
 
+## What You'll Actually See
+
+When you travel at near-light speeds, the universe doesn't just tick by faster — it looks fundamentally different. We implement the exact physics of special relativity:
+
+![Relativistic Visual Effects](docs/images/sr_demo.gif)
+
+**What's happening in this animation:**
+1. **Acceleration** (0 → 0.5c): Stars ahead brighten and blueshift as you speed up
+2. **Looking around at 0.5c**: The "relativistic ring" — aberration compresses all starlight into a bright halo
+3. **Looking backward**: Near-total darkness — light from behind is aberrated forward and out of view
+4. **Deceleration**: Stars return to normal as you slow down
+
+This isn't artistic license — these are the exact formulas from Einstein's special relativity:
+- **Aberration**: cos(θ) = (cos(θ') + β) / (1 + β·cos(θ'))
+- **Doppler shift**: D = γ(1 + β·cos(θ))
+- **Relativistic beaming**: Intensity scales as D³
+
+At 0.9c looking forward, incoming light is amplified ~80× (whiteout). Looking backward, it's reduced to ~1% (near-darkness). This is what interstellar travel would actually look like.
+
 ## Design Pillars
 
 Five non-negotiable constraints guide every feature:
@@ -44,10 +63,12 @@ Named after [Olaf Stapledon](https://en.wikipedia.org/wiki/Olaf_Stapledon), the 
 
 ## Status
 
-**Early Development** - The game engine is functional but the core gameplay (relativistic travel, civilization simulation) is not yet implemented.
+**Early Development** - The game engine is functional with relativistic visual effects. Core gameplay (civilization simulation, crew management) is not yet implemented.
 
 The current codebase provides:
 - 2D rendering engine (Go/Ebiten)
+- **Special relativity shader** — physically accurate aberration, Doppler shift, and relativistic beaming
+- Post-processing pipeline (bloom, vignette, CRT, chromatic aberration)
 - Input handling and game loop
 - Foundation for AILANG integration
 

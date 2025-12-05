@@ -27,7 +27,10 @@ type Config struct {
 	CameraY    float64 // Initial camera Y
 	CameraZoom float64 // Initial camera zoom
 	TestMode   bool    // Strip UI for golden file testing
-	Effects    string  // Comma-separated effects: "bloom,vignette,crt,aberration,all"
+	Effects    string  // Comma-separated effects: "bloom,vignette,crt,aberration,sr_warp,all"
+	DemoScene  bool    // Use shader demo scene instead of simulation
+	Velocity   float64 // Ship velocity as fraction of c (0.0-0.99) for SR effects
+	ViewAngle  float64 // View direction: 0=front, 1.57=side, 3.14=back (radians)
 }
 
 // DefaultConfig returns a config with sensible defaults.
@@ -136,6 +139,11 @@ func (g *screenshotGame) Layout(outsideWidth, outsideHeight int) (int, int) {
 // Capture runs the game for N frames and saves a screenshot.
 // Uses Ebiten's game loop for proper GPU command flushing.
 func Capture(cfg Config) error {
+	// Use demo scene for shader effects testing
+	if cfg.DemoScene {
+		return CaptureDemo(cfg)
+	}
+
 	// Initialize asset manager (may fail, that's ok)
 	assetMgr, _ := assets.NewManager("assets")
 
@@ -151,12 +159,17 @@ func Capture(cfg Config) error {
 
 	// Initialize shader effects if requested
 	var effects *shader.Effects
-	if cfg.Effects != "" {
+	if cfg.Effects != "" || cfg.Velocity > 0 {
 		effects = shader.NewEffects()
 		if err := effects.Preload(); err != nil {
 			return fmt.Errorf("failed to preload shaders: %w", err)
 		}
-		enableEffects(effects, cfg.Effects)
+		if cfg.Effects != "" {
+			enableEffects(effects, cfg.Effects)
+		}
+		if cfg.Velocity > 0 {
+			enableSRWarpWithVelocity(effects, cfg.Velocity, cfg.ViewAngle)
+		}
 	}
 
 	game := &screenshotGame{
@@ -207,7 +220,7 @@ func Capture(cfg Config) error {
 }
 
 // enableEffects parses the effects string and enables the specified effects.
-// Supports: "bloom", "vignette", "crt", "aberration", "all"
+// Supports: "bloom", "vignette", "crt", "aberration", "sr_warp", "all"
 func enableEffects(effects *shader.Effects, effectStr string) {
 	parts := strings.Split(strings.ToLower(effectStr), ",")
 	for _, part := range parts {
@@ -224,6 +237,17 @@ func enableEffects(effects *shader.Effects, effectStr string) {
 			effects.Pipeline().SetEnabled("crt", true)
 		case "aberration":
 			effects.Pipeline().SetEnabled("aberration", true)
+		case "sr_warp", "sr", "relativity":
+			effects.SRWarp().SetEnabled(true)
 		}
+	}
+}
+
+// enableSRWarpWithVelocity enables SR warp with a specific velocity and view angle.
+func enableSRWarpWithVelocity(effects *shader.Effects, velocity, viewAngle float64) {
+	if velocity > 0 {
+		effects.SRWarp().SetForwardVelocity(velocity)
+		effects.SRWarp().SetViewAngle(viewAngle)
+		effects.SRWarp().SetEnabled(true)
 	}
 }

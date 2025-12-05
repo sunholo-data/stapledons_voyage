@@ -1,0 +1,91 @@
+{
+  "sprint_id": "sr-visual-demo",
+  "name": "Relativistic Visual Effects Demo",
+  "status": "in_progress",
+  "type": "mock-only",
+  "started": "2025-12-05",
+  "phases": [
+    {
+      "id": "phase1",
+      "name": "SR Math Package",
+      "status": "completed",
+      "tasks": [
+        {
+          "id": "1.1",
+          "name": "Create Vec3 type and operations",
+          "status": "pending"
+        },
+        {
+          "id": "1.2",
+          "name": "Implement Gamma function",
+          "status": "pending"
+        },
+        {
+          "id": "1.3",
+          "name": "Implement DopplerFactor function",
+          "status": "pending"
+        },
+        {
+          "id": "1.4",
+          "name": "Implement TransformDirection (aberration)",
+          "status": "pending"
+        },
+        {
+          "id": "1.5",
+          "name": "Implement color shift functions",
+          "status": "pending"
+        },
+        {
+          "id": "1.6",
+          "name": "Unit tests",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": "phase2",
+      "name": "SR Shader",
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "2.1",
+          "name": "Create sr_warp.kage shader",
+          "status": "pending"
+        },
+        {
+          "id": "2.2",
+          "name": "Register shader in manager",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": "phase3",
+      "name": "Integration & Demo",
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "3.1",
+          "name": "Add SR effect to pipeline",
+          "status": "pending"
+        },
+        {
+          "id": "3.2",
+          "name": "Add --velocity CLI flag",
+          "status": "pending"
+        },
+        {
+          "id": "3.3",
+          "name": "Generate demo screenshots",
+          "status": "pending"
+        },
+        {
+          "id": "3.4",
+          "name": "Visual validation",
+          "status": "pending"
+        }
+      ]
+    }
+  ],
+  "notes": []
+}

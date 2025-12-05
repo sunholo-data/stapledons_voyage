@@ -12,6 +12,7 @@ type Effects struct {
 	manager      *Manager
 	pipeline     *Pipeline
 	bloom        *Bloom
+	srWarp       *SRWarp
 	renderBuffer *ebiten.Image
 	screenW      int
 	screenH      int
@@ -27,6 +28,7 @@ func NewEffects() *Effects {
 		manager:  manager,
 		pipeline: NewPipeline(manager),
 		bloom:    NewBloom(manager),
+		srWarp:   NewSRWarp(manager),
 	}
 
 	// Setup default effects (all disabled initially)
@@ -67,6 +69,11 @@ func (e *Effects) Bloom() *Bloom {
 	return e.bloom
 }
 
+// SRWarp returns the special relativity warp effect.
+func (e *Effects) SRWarp() *SRWarp {
+	return e.srWarp
+}
+
 // Preload compiles all shaders at startup.
 func (e *Effects) Preload() error {
 	return e.manager.Preload()
@@ -104,6 +111,32 @@ func (e *Effects) HandleInput() []string {
 	}
 
 	var messages []string
+
+	// F4 = Toggle SR Warp
+	if inpututil.IsKeyJustPressed(ebiten.KeyF4) {
+		state := e.srWarp.Toggle()
+		messages = append(messages, fmt.Sprintf("SR Warp: %v", boolToOnOff(state)))
+	}
+
+	// Shift+F4 = Cycle SR velocity
+	if ebiten.IsKeyPressed(ebiten.KeyShift) && inpututil.IsKeyJustPressed(ebiten.KeyF4) {
+		beta := e.srWarp.GetBeta()
+		// Cycle through 0.5, 0.9, 0.95, 0.99, 0.5...
+		switch {
+		case beta < 0.6:
+			e.srWarp.SetForwardVelocity(0.9)
+			messages = append(messages, "SR Velocity: 0.9c")
+		case beta < 0.92:
+			e.srWarp.SetForwardVelocity(0.95)
+			messages = append(messages, "SR Velocity: 0.95c")
+		case beta < 0.97:
+			e.srWarp.SetForwardVelocity(0.99)
+			messages = append(messages, "SR Velocity: 0.99c")
+		default:
+			e.srWarp.SetForwardVelocity(0.5)
+			messages = append(messages, "SR Velocity: 0.5c")
+		}
+	}
 
 	// F5 = Toggle Bloom
 	if inpututil.IsKeyJustPressed(ebiten.KeyF5) {
@@ -157,11 +190,27 @@ func (e *Effects) Apply(screen *ebiten.Image, input *ebiten.Image) {
 	// Start with input
 	current := input
 
-	// Apply bloom first (if enabled)
-	if e.bloom.IsEnabled() {
+	// Apply SR warp first (if enabled) - this is the "view from the ship"
+	if e.srWarp.IsEnabled() {
 		e.renderBuffer.Clear()
-		if e.bloom.Apply(e.renderBuffer, current) {
+		if e.srWarp.Apply(e.renderBuffer, current) {
 			current = e.renderBuffer
+		}
+	}
+
+	// Apply bloom (if enabled)
+	if e.bloom.IsEnabled() {
+		// Need a second buffer if SR warp used the first
+		if current == e.renderBuffer {
+			buf := ebiten.NewImage(w, h)
+			if e.bloom.Apply(buf, current) {
+				current = buf
+			}
+		} else {
+			e.renderBuffer.Clear()
+			if e.bloom.Apply(e.renderBuffer, current) {
+				current = e.renderBuffer
+			}
 		}
 	}
 
@@ -178,13 +227,19 @@ func (e *Effects) OverlayText() []string {
 	lines := []string{
 		"=== Shader Effects Demo ===",
 		"",
+		fmt.Sprintf("F4: SR Warp       [%s]", boolToOnOff(e.srWarp.IsEnabled())),
 		fmt.Sprintf("F5: Bloom         [%s]", boolToOnOff(e.bloom.IsEnabled())),
 		fmt.Sprintf("F6: Vignette      [%s]", boolToOnOff(e.pipeline.IsEnabled("vignette"))),
 		fmt.Sprintf("F7: CRT           [%s]", boolToOnOff(e.pipeline.IsEnabled("crt"))),
 		fmt.Sprintf("F8: Aberration    [%s]", boolToOnOff(e.pipeline.IsEnabled("aberration"))),
 		"",
 		"F9: Toggle this overlay",
+		"Shift+F4: Cycle SR velocity",
 		"Shift+F5: Cycle bloom intensity",
+	}
+
+	if e.srWarp.IsEnabled() {
+		lines = append(lines, fmt.Sprintf("  SR: v=%.2fc gamma=%.2f", e.srWarp.GetBeta(), e.srWarp.GetGamma()))
 	}
 
 	if e.bloom.IsEnabled() {

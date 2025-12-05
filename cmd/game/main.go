@@ -107,7 +107,8 @@ func (g *Game) Update() error {
 
 func (g *Game) Draw(screen *ebiten.Image) {
 	// Check if we need to apply effects
-	if g.effects != nil && g.effects.Bloom().IsEnabled() || g.effects.Pipeline().EnabledEffects() != nil && len(g.effects.Pipeline().EnabledEffects()) > 0 {
+	hasEffects := g.effects != nil && (g.effects.SRWarp().IsEnabled() || g.effects.Bloom().IsEnabled() || len(g.effects.Pipeline().EnabledEffects()) > 0)
+	if hasEffects {
 		// Render to buffer first
 		w, h := screen.Bounds().Dx(), screen.Bounds().Dy()
 		if g.renderBuffer == nil || g.renderBuffer.Bounds().Dx() != w {
@@ -206,8 +207,11 @@ func main() {
 	cameraStr := flag.String("camera", "", "Initial camera position: x,y,zoom")
 	scenarioName := flag.String("scenario", "", "Run a test scenario by name")
 	testMode := flag.Bool("test-mode", false, "Strip UI for golden file testing")
-	demoMode := flag.Bool("demo", false, "Enable shader effects demo mode (F5-F9 keys)")
-	effectsStr := flag.String("effects", "", "Enable effects for screenshot: bloom,vignette,crt,aberration,all")
+	demoMode := flag.Bool("demo", false, "Enable shader effects demo mode (F4-F9 keys)")
+	effectsStr := flag.String("effects", "", "Enable effects for screenshot: bloom,vignette,crt,aberration,sr_warp,all")
+	demoScene := flag.Bool("demo-scene", false, "Use shader demo scene (dark bg, stars, etc) for effects screenshots")
+	velocity := flag.Float64("velocity", 0.0, "Ship velocity as fraction of c (0.0-0.99) for SR visual effects")
+	viewAngle := flag.Float64("view-angle", 0.0, "View direction: 0=front, 1.57=side, 3.14=back (radians)")
 	flag.Parse()
 
 	// Handle scenario mode
@@ -234,6 +238,9 @@ func main() {
 		cfg.Seed = *seed
 		cfg.TestMode = *testMode
 		cfg.Effects = *effectsStr
+		cfg.DemoScene = *demoScene
+		cfg.Velocity = *velocity
+		cfg.ViewAngle = *viewAngle
 
 		// Parse camera position if provided
 		if *cameraStr != "" {
@@ -332,7 +339,7 @@ func main() {
 
 	// Show demo mode hint if enabled
 	if *demoMode {
-		log.Println("Demo mode enabled: F5=Bloom, F6=Vignette, F7=CRT, F8=Aberration, F9=Overlay")
+		log.Println("Demo mode enabled: F4=SR Warp, F5=Bloom, F6=Vignette, F7=CRT, F8=Aberration, F9=Overlay")
 	}
 
 	game := &Game{

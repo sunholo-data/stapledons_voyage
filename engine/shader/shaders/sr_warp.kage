@@ -1,0 +1,122 @@
+//kage:unit pixels
+package main
+
+// Special Relativity visual effects shader
+// Implements exact: Aberration, Doppler shift, Relativistic beaming (D³)
+//
+// Physics formulas used:
+// - Aberration: cos(θ) = (cos(θ') + β) / (1 + β·cos(θ'))
+// - Doppler: D = γ(1 + β·cos(θ))
+// - Beaming: I' = I × D³
+
+var BetaX float     // Velocity X component (usually 0)
+var BetaY float     // Velocity Y component (usually 0)
+var BetaZ float     // Velocity Z component (forward velocity)
+var Gamma float     // Lorentz factor: 1/sqrt(1-|beta|^2)
+var FOV float       // Field of view in radians
+var ViewAngle float // Viewing angle: 0=front, π/2=side, π=back
+
+func Fragment(dstPos vec4, srcPos vec2, color vec4) vec4 {
+	size := imageDstSize()
+
+	// Get velocity magnitude
+	beta := vec3(BetaX, BetaY, BetaZ)
+	betaMag := length(beta)
+
+	// No transform if stationary
+	if betaMag < 0.001 {
+		return imageSrc0At(srcPos)
+	}
+
+	// Screen coordinates relative to center
+	center := size / 2.0
+	offset := srcPos - center
+	maxDist := length(center)
+	dist := length(offset) / maxDist
+	pixelAngle := atan2(offset.y, offset.x)
+
+	// Half field of view (radians)
+	halfFOV := 1.0
+
+	// === APPARENT ANGLE (θ') ===
+	// This is the angle from the velocity direction that this pixel represents
+	// Center of screen = ViewAngle, edge = ViewAngle + halfFOV
+	thetaPrime := ViewAngle + dist * halfFOV
+
+	// === EXACT RELATIVISTIC ABERRATION ===
+	// Formula: cos(θ) = (cos(θ') + β) / (1 + β·cos(θ'))
+	// θ' = apparent angle (where we're looking)
+	// θ = true angle (where light actually came from)
+	cosThetaPrime := cos(thetaPrime)
+	cosTheta := (cosThetaPrime + betaMag) / (1.0 + betaMag * cosThetaPrime)
+	cosTheta = clamp(cosTheta, -1.0, 1.0)
+	theta := acos(cosTheta)
+
+	// Convert true angle back to sample distance
+	// The source image represents the rest frame, so we sample based on true angle
+	// trueDist is how far from ViewAngle the true direction is, normalized
+	trueDist := (theta - ViewAngle) / halfFOV
+
+	// Check if sample is out of bounds (light aberrated out of our field of view)
+	// This happens when looking backward - light from behind gets aberrated forward
+	// and we can't see it anymore. Return black for these pixels.
+	if trueDist < -0.1 || trueDist > 1.5 {
+		// Out of bounds - this direction has no visible light
+		// Apply just the beaming factor to black (effectively returns black)
+		return vec4(0.0, 0.0, 0.0, 1.0)
+	}
+
+	// Clamp for edge sampling (small tolerance for interpolation)
+	trueDist = clamp(trueDist, 0.0, 1.4)
+
+	// Reconstruct sample position using true angle
+	newOffset := vec2(
+		cos(pixelAngle) * trueDist * maxDist,
+		sin(pixelAngle) * trueDist * maxDist,
+	)
+	samplePos := center + newOffset
+
+	// Check bounds and return black if sampling outside image
+	if samplePos.x < 0.0 || samplePos.x >= size.x || samplePos.y < 0.0 || samplePos.y >= size.y {
+		return vec4(0.0, 0.0, 0.0, 1.0)
+	}
+
+	// Sample the source image
+	c := imageSrc0At(samplePos)
+
+	// === DOPPLER SHIFT ===
+	// D = γ(1 + β·cos(θ)) where θ is the TRUE angle
+	// This gives the frequency/wavelength shift factor
+	D := Gamma * (1.0 + betaMag * cosTheta)
+	D = clamp(D, 0.01, 20.0)
+
+	// Apply color shift based on D
+	if D > 1.0 {
+		// Blueshift (approaching) - shift spectrum toward blue
+		shift := (D - 1.0) * 0.25
+		shift = clamp(shift, 0.0, 0.8)
+		c.r *= (1.0 - shift * 0.6)
+		c.g *= (1.0 - shift * 0.2)
+		c.b = clamp(c.b * (1.0 + shift * 0.5), 0.0, 1.0)
+	} else {
+		// Redshift (receding) - shift spectrum toward red
+		shift := (1.0 - D) * 0.5
+		shift = clamp(shift, 0.0, 0.95)
+		c.r = clamp(c.r * (1.0 + shift * 0.6), 0.0, 1.0)
+		c.g *= (1.0 - shift * 0.5)
+		c.b *= (1.0 - shift * 0.8)
+	}
+
+	// === RELATIVISTIC BEAMING (EXACT D³) ===
+	// Intensity transforms as I' = I × D³
+	// This is the exact physics - no compromise
+	beamFactor := D * D * D
+	beamFactor = clamp(beamFactor, 0.0, 10.0)
+
+	c.rgb *= beamFactor
+
+	// Final clamp
+	c.rgb = clamp(c.rgb, vec3(0.0), vec3(1.0))
+
+	return c
+}

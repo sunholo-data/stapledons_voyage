@@ -66,6 +66,7 @@ func (m *Manager) Preload() error {
 		"vignette",
 		"crt",
 		"aberration",
+		"sr_warp",
 	}
 
 	for _, name := range names {
@@ -92,5 +93,6 @@ func (m *Manager) ShaderNames() []string {
 		"vignette",
 		"crt",
 		"aberration",
+		"sr_warp",
 	}
 }
