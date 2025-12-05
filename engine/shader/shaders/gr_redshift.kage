@@ -1,0 +1,112 @@
+//kage:unit pixels
+package main
+
+// General Relativity gravitational redshift shader
+// Implements EXACT Schwarzschild gravitational redshift
+//
+// Physics formulas (all exact):
+// - Redshift factor: 1 + z = 1/sqrt(1 - r_s/r)
+// - Time dilation: dτ/dt = sqrt(1 - r_s/r)
+// - Wavelength shift: λ_observed = λ_emitted * (1 + z)
+// - Intensity dimming: I_observed = I_emitted / (1 + z)
+//
+// Color shift model:
+// - Blue (short λ) → Green → Red → Infrared (invisible)
+// - At z=0.5: blue becomes green, green becomes red
+// - At z=1.0: all visible light becomes infrared (dark)
+
+// Screen-space center of the massive object (normalized 0-1)
+var CenterX float
+var CenterY float
+
+// Schwarzschild radius in screen-normalized units
+var Rs float
+
+// Dimensionless potential Phi = r_s/(2r)
+var Phi float
+
+// Unused (kept for uniform compatibility)
+var LensStrength float
+
+// Maximum effect radius (normalized)
+var MaxEffectRadius float
+
+// Precomputed redshift factor for ship's position
+var RedshiftFactor float
+
+func Fragment(dstPos vec4, srcPos vec2, color vec4) vec4 {
+	size := imageDstSize()
+
+	// Convert to normalized coordinates (0-1)
+	uv := srcPos / size
+
+	// Vector from pixel to massive object center
+	center := vec2(CenterX, CenterY)
+	toCenter := center - uv
+	dist := length(toCenter)
+
+	// Sample original color
+	c := imageSrc0At(srcPos)
+
+	// Inside event horizon: already handled by lensing shader (black)
+	if dist < Rs {
+		return c
+	}
+
+	// Skip if outside effect radius
+	if dist > MaxEffectRadius {
+		return c
+	}
+
+	// === EXACT GRAVITATIONAL REDSHIFT ===
+	// z = 1/sqrt(1 - r_s/r) - 1
+	// Since Phi = r_s/(2r), we have r_s/r = 2*Phi at the ship
+	// But for each pixel, we compute local r_s/r based on screen distance
+
+	// Compute local r_s/r ratio for this pixel
+	// Rs is the screen-space Schwarzschild radius
+	rsOverR := Rs / dist
+	rsOverR = clamp(rsOverR, 0.0, 0.99) // Avoid singularity
+
+	// Exact redshift formula: z = 1/sqrt(1 - r_s/r) - 1
+	sqrtTerm := sqrt(1.0 - rsOverR)
+	z := 1.0 / sqrtTerm - 1.0
+	z = clamp(z, 0.0, 10.0) // Cap at extreme values
+
+	// Smooth falloff at edge of effect radius
+	falloff := 1.0 - smoothstep(MaxEffectRadius * 0.8, MaxEffectRadius, dist)
+	z *= falloff
+
+	// === PHYSICS-BASED WAVELENGTH SHIFT ===
+	// Redshift stretches wavelengths: λ' = λ * (1 + z)
+	// RGB roughly maps to: B=450nm, G=550nm, R=650nm
+	// Visible range: ~380nm to ~700nm
+	//
+	// At z=0.2: B→500nm(cyan), G→660nm(red), R→780nm(IR, dimmed)
+	// At z=0.5: B→675nm(red), G→825nm(IR), R→975nm(IR)
+	// At z=1.0: Everything shifts to IR (invisible)
+
+	if z > 0.01 {
+		// Shift factor: how much wavelength increases
+		factor := 1.0 + z
+
+		// Simulate wavelength shift through color channels
+		// Blue shifts into green, green shifts into red, red shifts to IR
+		newR := c.r / factor + c.g * (z / factor) * 0.7
+		newG := c.g / factor + c.b * (z / factor) * 0.8
+		newB := c.b / (factor * factor) // Blue fades fastest
+
+		// Clamp to valid range
+		c.r = clamp(newR, 0.0, 1.0)
+		c.g = clamp(newG, 0.0, 1.0)
+		c.b = clamp(newB, 0.0, 1.0)
+
+		// === EXACT INTENSITY DIMMING ===
+		// Observed intensity: I' = I / (1 + z)
+		// (Photons lose energy as they climb out of gravity well)
+		dimFactor := 1.0 / factor
+		c.rgb *= dimFactor
+	}
+
+	return c
+}

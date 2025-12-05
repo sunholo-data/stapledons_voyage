@@ -43,6 +43,26 @@ This isn't artistic license — these are the exact formulas from Einstein's spe
 
 At 0.9c looking forward, incoming light is amplified ~80× (whiteout). Looking backward, it's reduced to ~1% (near-darkness). This is what interstellar travel would actually look like.
 
+### Near Black Holes: General Relativity
+
+When you approach massive objects like black holes, spacetime itself warps. We implement gravitational lensing based on the Schwarzschild metric:
+
+![Black Hole Journey](docs/images/gr_journey.gif)
+
+**What's happening in this animation:**
+1. **Approach**: As you get closer, the gravitational potential (φ) increases and spacetime curvature becomes visible
+2. **Einstein ring**: Light from behind the black hole is bent around it, creating a bright ring at the photon sphere (r = 1.5 × Schwarzschild radius)
+3. **Event horizon**: The central darkness where not even light can escape
+4. **Retreat**: The lensing effect diminishes as you move away
+
+The shader implements:
+- **Gravitational lensing**: Light rays bend toward the mass, distorting the view of stars behind
+- **Photon sphere glow**: At r = 1.5rs, photons orbit the black hole, creating a bright accretion ring
+- **Schwarzschild radius (rs)**: The event horizon boundary — anything closer is lost forever
+- **Gravitational potential (φ)**: Controls the intensity of spacetime curvature effects
+
+This is what approaching a stellar-mass black hole would actually look like — beautiful, terrifying, and scientifically accurate.
+
 ## Design Pillars
 
 Five non-negotiable constraints guide every feature:
@@ -68,6 +88,7 @@ Named after [Olaf Stapledon](https://en.wikipedia.org/wiki/Olaf_Stapledon), the 
 The current codebase provides:
 - 2D rendering engine (Go/Ebiten)
 - **Special relativity shader** — physically accurate aberration, Doppler shift, and relativistic beaming
+- **General relativity shader** — gravitational lensing, Einstein rings, and photon sphere effects near black holes
 - Post-processing pipeline (bloom, vignette, CRT, chromatic aberration)
 - Input handling and game loop
 - Foundation for AILANG integration

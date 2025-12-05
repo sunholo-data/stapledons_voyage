@@ -67,6 +67,8 @@ func (m *Manager) Preload() error {
 		"crt",
 		"aberration",
 		"sr_warp",
+		"gr_lensing",
+		"gr_redshift",
 	}
 
 	for _, name := range names {
@@ -94,5 +96,7 @@ func (m *Manager) ShaderNames() []string {
 		"crt",
 		"aberration",
 		"sr_warp",
+		"gr_lensing",
+		"gr_redshift",
 	}
 }

@@ -34,6 +34,7 @@ Invoke this skill when:
 3. **Pause Points**: Stop after each milestone for review
 4. **Track Progress**: Use TodoWrite AND update sprint JSON
 5. **Document Workarounds**: Record how you navigated limitations
+6. **Physics Accuracy First**: When implementing physics simulations, use exact formulas unless there's a compelling computational reason not to. Document any approximations with citations. Poetic license is not acceptable for physics - the game's educational value depends on accuracy.
 
 ## JSON Progress Tracking (IMPORTANT)
 

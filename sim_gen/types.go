@@ -167,56 +167,6 @@ type NPC struct {
 	PatrolIndex int64
 }
 
-// OptionKind discriminates between variants of Option
-type OptionKind int
-
-const (
-	OptionKindSome OptionKind = iota
-	OptionKindNone
-)
-
-// OptionSome holds data for the Some variant
-type OptionSome struct {
-	Value0 interface{}
-}
-
-// OptionNone holds data for the None variant
-type OptionNone struct {
-}
-
-// Option is a sum type (discriminated union)
-type Option struct {
-	Kind OptionKind
-	Some *OptionSome
-	None *OptionNone
-}
-
-// NewOptionSome creates a new Some variant
-func NewOptionSome(v0 interface{}) *Option {
-	return &Option{
-		Kind: OptionKindSome,
-		Some: &OptionSome{Value0: v0},
-	}
-}
-
-// NewOptionNone creates a new None variant
-func NewOptionNone() *Option {
-	return &Option{
-		Kind: OptionKindNone,
-		None: &OptionNone{},
-	}
-}
-
-// IsSome returns true if this is a Some variant
-func (v *Option) IsSome() bool {
-	return v.Kind == OptionKindSome
-}
-
-// IsNone returns true if this is a None variant
-func (v *Option) IsNone() bool {
-	return v.Kind == OptionKindNone
-}
-
 // Coord is a record type
 type Coord struct {
 	X int64
@@ -927,6 +877,56 @@ type FrameOutput struct {
 	Sounds []int64
 	Debug  []string
 	Camera Camera
+}
+
+// OptionKind discriminates between variants of Option
+type OptionKind int
+
+const (
+	OptionKindSome OptionKind = iota
+	OptionKindNone
+)
+
+// OptionSome holds data for the Some variant
+type OptionSome struct {
+	Value0 interface{}
+}
+
+// OptionNone holds data for the None variant
+type OptionNone struct {
+}
+
+// Option is a sum type (discriminated union)
+type Option struct {
+	Kind OptionKind
+	Some *OptionSome
+	None *OptionNone
+}
+
+// NewOptionSome creates a new Some variant
+func NewOptionSome(v0 interface{}) *Option {
+	return &Option{
+		Kind: OptionKindSome,
+		Some: &OptionSome{Value0: v0},
+	}
+}
+
+// NewOptionNone creates a new None variant
+func NewOptionNone() *Option {
+	return &Option{
+		Kind: OptionKindNone,
+		None: &OptionNone{},
+	}
+}
+
+// IsSome returns true if this is a Some variant
+func (v *Option) IsSome() bool {
+	return v.Kind == OptionKindSome
+}
+
+// IsNone returns true if this is a None variant
+func (v *Option) IsNone() bool {
+	return v.Kind == OptionKindNone
 }
 
 // Tile is a record type

@@ -6,7 +6,6 @@ import sim/world (World, PlanetState, Tile, Selection, SelectionNone, SelectionT
 import sim/npc_ai (NPC, PatternStatic, PatternRandomWalk, PatternPatrol, Direction, North, South, East, West, updateAllNPCs)
 
 -- Import effects (v0.5.0)
-import std/debug as Debug
 import std/rand (rand_int)
 
 -- Helper: generate list of n items using function
@@ -93,10 +92,8 @@ export func init_world(seed: int) -> World {
 }
 
 -- Step function: update world and produce draw commands
--- Uses Rand for NPC movement, Debug for tracing (v0.5.0)
-export func step(world: World, input: FrameInput) -> (World, FrameOutput) ! {Rand, Debug} {
-    Debug.log("tick " ++ show(world.tick));
-
+-- Uses Rand for NPC movement (v0.5.0)
+export func step(world: World, input: FrameInput) -> (World, FrameOutput) ! {Rand} {
     -- Process selection
     let newSelection = processSelection(input, world);
 

@@ -67,6 +67,11 @@ func (g *demoGame) Layout(outsideWidth, outsideHeight int) (int, int) {
 	return display.InternalWidth, display.InternalHeight
 }
 
+// DrawDemoScenePublic is the exported version of drawDemoScene for external use.
+func DrawDemoScenePublic(screen *ebiten.Image, w, h int) {
+	drawDemoScene(screen, w, h)
+}
+
 // drawDemoScene renders content designed to showcase shader effects
 func drawDemoScene(screen *ebiten.Image, w, h int) {
 	// Dark space background (essential for bloom visibility)
@@ -251,6 +256,9 @@ func drawTextAt(screen *ebiten.Image, s string, x, y float64, face font.Face, co
 }
 
 func hasAnyEffect(effects *shader.Effects) bool {
+	if effects.GRWarp().IsEnabled() {
+		return true
+	}
 	if effects.SRWarp().IsEnabled() {
 		return true
 	}

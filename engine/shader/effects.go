@@ -13,7 +13,9 @@ type Effects struct {
 	pipeline     *Pipeline
 	bloom        *Bloom
 	srWarp       *SRWarp
+	grWarp       *GRWarp
 	renderBuffer *ebiten.Image
+	grBuffer     *ebiten.Image // Secondary buffer for GR effects
 	screenW      int
 	screenH      int
 	demoMode     bool
@@ -29,6 +31,7 @@ func NewEffects() *Effects {
 		pipeline: NewPipeline(manager),
 		bloom:    NewBloom(manager),
 		srWarp:   NewSRWarp(manager),
+		grWarp:   NewGRWarp(manager),
 	}
 
 	// Setup default effects (all disabled initially)
@@ -74,6 +77,11 @@ func (e *Effects) SRWarp() *SRWarp {
 	return e.srWarp
 }
 
+// GRWarp returns the general relativity warp effect.
+func (e *Effects) GRWarp() *GRWarp {
+	return e.grWarp
+}
+
 // Preload compiles all shaders at startup.
 func (e *Effects) Preload() error {
 	return e.manager.Preload()
@@ -89,8 +97,10 @@ func (e *Effects) SetSize(w, h int) {
 	e.screenH = h
 
 	e.renderBuffer = ebiten.NewImage(w, h)
+	e.grBuffer = ebiten.NewImage(w, h)
 	e.pipeline.SetSize(w, h)
 	e.bloom.SetSize(w, h)
+	e.grWarp.SetSize(w, h)
 }
 
 // SetDemoMode enables or disables demo mode (F-key controls).
@@ -111,6 +121,23 @@ func (e *Effects) HandleInput() []string {
 	}
 
 	var messages []string
+
+	// F3 = Toggle GR Warp (gravitational lensing near massive objects)
+	if inpututil.IsKeyJustPressed(ebiten.KeyF3) {
+		if ebiten.IsKeyPressed(ebiten.KeyShift) {
+			// Shift+F3 = Cycle GR intensity in demo mode
+			e.grWarp.SetDemoMode(0.5, 0.5, 0.05, 0.05) // Ensure demo mode is on
+			level := e.grWarp.CycleDemoIntensity()
+			messages = append(messages, fmt.Sprintf("GR Intensity: %s", level))
+		} else {
+			state := e.grWarp.Toggle()
+			if state && !e.grWarp.IsDemoMode() {
+				// Enable demo mode when toggling on without sim context
+				e.grWarp.SetDemoMode(0.5, 0.5, 0.05, 0.005)
+			}
+			messages = append(messages, fmt.Sprintf("GR Warp: %v", boolToOnOff(state)))
+		}
+	}
 
 	// F4 = Toggle SR Warp
 	if inpututil.IsKeyJustPressed(ebiten.KeyF4) {
@@ -190,27 +217,43 @@ func (e *Effects) Apply(screen *ebiten.Image, input *ebiten.Image) {
 	// Start with input
 	current := input
 
-	// Apply SR warp first (if enabled) - this is the "view from the ship"
+	// Apply GR effects first (if enabled) - gravitational lensing near massive objects
+	// GR happens "in the world" before SR velocity effects
+	if e.grWarp.IsEnabled() {
+		e.grBuffer.Clear()
+		// Apply lensing
+		if e.grWarp.Apply(e.grBuffer, current) {
+			// Apply redshift on top of lensing
+			e.renderBuffer.Clear()
+			if e.grWarp.ApplyRedshift(e.renderBuffer, e.grBuffer) {
+				current = e.renderBuffer
+			} else {
+				current = e.grBuffer
+			}
+		}
+	}
+
+	// Apply SR warp (if enabled) - this is the "view from the ship"
+	// SR happens after GR (ship's velocity adds to gravitational effects)
 	if e.srWarp.IsEnabled() {
-		e.renderBuffer.Clear()
-		if e.srWarp.Apply(e.renderBuffer, current) {
-			current = e.renderBuffer
+		if current == e.renderBuffer {
+			e.grBuffer.Clear()
+			if e.srWarp.Apply(e.grBuffer, current) {
+				current = e.grBuffer
+			}
+		} else {
+			e.renderBuffer.Clear()
+			if e.srWarp.Apply(e.renderBuffer, current) {
+				current = e.renderBuffer
+			}
 		}
 	}
 
 	// Apply bloom (if enabled)
 	if e.bloom.IsEnabled() {
-		// Need a second buffer if SR warp used the first
-		if current == e.renderBuffer {
-			buf := ebiten.NewImage(w, h)
-			if e.bloom.Apply(buf, current) {
-				current = buf
-			}
-		} else {
-			e.renderBuffer.Clear()
-			if e.bloom.Apply(e.renderBuffer, current) {
-				current = e.renderBuffer
-			}
+		buf := ebiten.NewImage(w, h)
+		if e.bloom.Apply(buf, current) {
+			current = buf
 		}
 	}
 
@@ -227,6 +270,7 @@ func (e *Effects) OverlayText() []string {
 	lines := []string{
 		"=== Shader Effects Demo ===",
 		"",
+		fmt.Sprintf("F3: GR Warp       [%s]", boolToOnOff(e.grWarp.IsEnabled())),
 		fmt.Sprintf("F4: SR Warp       [%s]", boolToOnOff(e.srWarp.IsEnabled())),
 		fmt.Sprintf("F5: Bloom         [%s]", boolToOnOff(e.bloom.IsEnabled())),
 		fmt.Sprintf("F6: Vignette      [%s]", boolToOnOff(e.pipeline.IsEnabled("vignette"))),
@@ -234,8 +278,13 @@ func (e *Effects) OverlayText() []string {
 		fmt.Sprintf("F8: Aberration    [%s]", boolToOnOff(e.pipeline.IsEnabled("aberration"))),
 		"",
 		"F9: Toggle this overlay",
+		"Shift+F3: Cycle GR intensity",
 		"Shift+F4: Cycle SR velocity",
 		"Shift+F5: Cycle bloom intensity",
+	}
+
+	if e.grWarp.IsEnabled() {
+		lines = append(lines, fmt.Sprintf("  GR: %s (demo mode)", e.grWarp.GetDemoIntensity()))
 	}
 
 	if e.srWarp.IsEnabled() {

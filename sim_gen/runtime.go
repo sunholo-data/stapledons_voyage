@@ -270,25 +270,46 @@ func CallFunc(f interface{}, args ...interface{}) interface{} {
 }
 
 // ListHead returns the first element of a list.
+// Handles both []interface{} and typed slices via reflection.
 func ListHead(list interface{}) interface{} {
+	// Fast path for []interface{}
 	if l, ok := list.([]interface{}); ok && len(l) > 0 {
 		return l[0]
+	}
+	// Reflection path for typed slices (e.g., []*Tile)
+	v := reflect.ValueOf(list)
+	if v.Kind() == reflect.Slice && v.Len() > 0 {
+		return v.Index(0).Interface()
 	}
 	return nil
 }
 
 // ListTail returns all but the first element of a list.
+// Handles both []interface{} and typed slices via reflection.
 func ListTail(list interface{}) interface{} {
+	// Fast path for []interface{}
 	if l, ok := list.([]interface{}); ok && len(l) > 0 {
 		return l[1:]
+	}
+	// Reflection path for typed slices (e.g., []*Tile)
+	v := reflect.ValueOf(list)
+	if v.Kind() == reflect.Slice && v.Len() > 0 {
+		return v.Slice(1, v.Len()).Interface()
 	}
 	return []interface{}{}
 }
 
 // ListLen returns the length of a list.
+// Handles both []interface{} and typed slices via reflection.
 func ListLen(list interface{}) int {
+	// Fast path for []interface{}
 	if l, ok := list.([]interface{}); ok {
 		return len(l)
+	}
+	// Reflection path for typed slices (e.g., []*Tile)
+	v := reflect.ValueOf(list)
+	if v.Kind() == reflect.Slice {
+		return v.Len()
 	}
 	return 0
 }

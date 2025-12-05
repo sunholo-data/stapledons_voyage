@@ -13,6 +13,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"stapledons_voyage/engine/assets"
 	"stapledons_voyage/engine/display"
+	"stapledons_voyage/engine/handlers"
 	"stapledons_voyage/engine/render"
 	"stapledons_voyage/engine/shader"
 	"stapledons_voyage/sim_gen"
@@ -150,6 +151,14 @@ func Capture(cfg Config) error {
 	// Create renderer
 	renderer := render.NewRenderer(assetMgr)
 
+	// Initialize effect handlers BEFORE any sim_gen calls
+	sim_gen.Init(sim_gen.Handlers{
+		Debug: sim_gen.NewDebugContext(),
+		Rand:  handlers.NewSeededRandHandler(cfg.Seed),
+		Clock: handlers.NewEbitenClockHandler(),
+		AI:    handlers.NewStubAIHandler(),
+	})
+
 	// Initialize world with seed - type assert to *World (M-DX16: struct types preserved)
 	worldIface := sim_gen.InitWorld(cfg.Seed)
 	world, ok := worldIface.(*sim_gen.World)
@@ -220,7 +229,7 @@ func Capture(cfg Config) error {
 }
 
 // enableEffects parses the effects string and enables the specified effects.
-// Supports: "bloom", "vignette", "crt", "aberration", "sr_warp", "all"
+// Supports: "bloom", "vignette", "crt", "aberration", "sr_warp", "gr_warp", "all"
 func enableEffects(effects *shader.Effects, effectStr string) {
 	parts := strings.Split(strings.ToLower(effectStr), ",")
 	for _, part := range parts {
@@ -239,6 +248,19 @@ func enableEffects(effects *shader.Effects, effectStr string) {
 			effects.Pipeline().SetEnabled("aberration", true)
 		case "sr_warp", "sr", "relativity":
 			effects.SRWarp().SetEnabled(true)
+		case "gr_warp", "gr", "gravity", "lensing":
+			// Enable GR warp with demo mode (centered black hole)
+			effects.GRWarp().SetDemoMode(0.5, 0.5, 0.05, 0.01)
+			effects.GRWarp().SetEnabled(true)
+		case "gr_subtle":
+			effects.GRWarp().SetDemoMode(0.5, 0.5, 0.03, 0.0005)
+			effects.GRWarp().SetEnabled(true)
+		case "gr_strong":
+			effects.GRWarp().SetDemoMode(0.5, 0.5, 0.05, 0.005)
+			effects.GRWarp().SetEnabled(true)
+		case "gr_extreme":
+			effects.GRWarp().SetDemoMode(0.5, 0.5, 0.08, 0.05)
+			effects.GRWarp().SetEnabled(true)
 		}
 	}
 }

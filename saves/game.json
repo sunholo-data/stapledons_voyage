@@ -1,9 +1,9 @@
 {
   "version": "0.1.0",
-  "timestamp": 1764860397,
-  "play_time": 201.51666666671917,
+  "timestamp": 1764966903,
+  "play_time": 383.88333333331286,
   "world": {
-    "Tick": 12091,
+    "Tick": 23033,
     "Planet": {
       "Width": 8,
       "Height": 8,
@@ -202,135 +202,14 @@
         }
       ]
     },
-    "Npcs": [
-      {
-        "Id": 1,
-        "Pos": {
-          "X": 0,
-          "Y": 1
-        },
-        "Pattern": {
-          "Kind": 1,
-          "PatternStatic": null,
-          "PatternRandomWalk": {
-            "Value0": 30
-          },
-          "PatternPatrol": null
-        },
-        "MoveCounter": 29,
-        "PatrolIndex": 0
-      },
-      {
-        "Id": 2,
-        "Pos": {
-          "X": 6,
-          "Y": 0
-        },
-        "Pattern": {
-          "Kind": 1,
-          "PatternStatic": null,
-          "PatternRandomWalk": {
-            "Value0": 45
-          },
-          "PatternPatrol": null
-        },
-        "MoveCounter": 6,
-        "PatrolIndex": 0
-      },
-      {
-        "Id": 3,
-        "Pos": {
-          "X": 4,
-          "Y": 4
-        },
-        "Pattern": {
-          "Kind": 0,
-          "PatternStatic": {},
-          "PatternRandomWalk": null,
-          "PatternPatrol": null
-        },
-        "MoveCounter": 0,
-        "PatrolIndex": 0
-      },
-      {
-        "Id": 4,
-        "Pos": {
-          "X": 1,
-          "Y": 1
-        },
-        "Pattern": {
-          "Kind": 2,
-          "PatternStatic": null,
-          "PatternRandomWalk": null,
-          "PatternPatrol": {
-            "Value0": [
-              {
-                "Kind": 2,
-                "North": null,
-                "South": null,
-                "East": {},
-                "West": null
-              },
-              {
-                "Kind": 2,
-                "North": null,
-                "South": null,
-                "East": {},
-                "West": null
-              },
-              {
-                "Kind": 1,
-                "North": null,
-                "South": {},
-                "East": null,
-                "West": null
-              },
-              {
-                "Kind": 1,
-                "North": null,
-                "South": {},
-                "East": null,
-                "West": null
-              },
-              {
-                "Kind": 3,
-                "North": null,
-                "South": null,
-                "East": null,
-                "West": {}
-              },
-              {
-                "Kind": 3,
-                "North": null,
-                "South": null,
-                "East": null,
-                "West": {}
-              },
-              {
-                "Kind": 0,
-                "North": {},
-                "South": null,
-                "East": null,
-                "West": null
-              },
-              {
-                "Kind": 0,
-                "North": {},
-                "South": null,
-                "East": null,
-                "West": null
-              }
-            ]
-          }
-        },
-        "MoveCounter": 5,
-        "PatrolIndex": 0
-      }
-    ],
+    "Npcs": [],
     "Selection": {
-      "Kind": 0,
-      "SelectionNone": {},
-      "SelectionTile": null
+      "Kind": 1,
+      "SelectionNone": null,
+      "SelectionTile": {
+        "Value0": 5,
+        "Value1": 4
+      }
     }
   }
 }
