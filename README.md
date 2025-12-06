@@ -83,15 +83,25 @@ Named after [Olaf Stapledon](https://en.wikipedia.org/wiki/Olaf_Stapledon), the 
 
 ## Status
 
-**Early Development** - The game engine is functional with relativistic visual effects. Core gameplay (civilization simulation, crew management) is not yet implemented.
+**Early Development** (v0.1.0) - Engine with relativistic visual effects is functional. Core gameplay (civilization simulation, crew management) is not yet implemented.
 
-The current codebase provides:
+### Implemented
+
 - 2D rendering engine (Go/Ebiten)
-- **Special relativity shader** — physically accurate aberration, Doppler shift, and relativistic beaming
-- **General relativity shader** — gravitational lensing, Einstein rings, and photon sphere effects near black holes
+- **Special relativity shader** — aberration, Doppler shift, relativistic beaming
+- **General relativity shader** — gravitational lensing, Einstein rings near black holes
 - Post-processing pipeline (bloom, vignette, CRT, chromatic aberration)
-- Input handling and game loop
-- Foundation for AILANG integration
+- Audio system, input handling, game loop
+- Visual test framework with golden file comparison
+
+### Roadmap
+
+See [CHANGELOG.md](CHANGELOG.md) for release history and [design_docs/](design_docs/) for feature planning.
+
+Next milestones:
+- **v0.5.x** - Ship exploration, galaxy map, dialogue system
+- **v0.6.x** - Journey system with time dilation, civilizations
+- **v0.7.x+** - Exploration modes, endgame
 
 See [docs/game-vision.md](docs/game-vision.md) for the complete game design.
 
@@ -108,7 +118,7 @@ See [CLAUDE.md](CLAUDE.md) and [DEVELOPMENT.md](DEVELOPMENT.md) for technical de
 
 ## Releases
 
-See [Releases](https://github.com/sunholo/stapledons_voyage/releases) for downloadable binaries.
+See [Releases](https://github.com/sunholo-data/stapledons_voyage/releases) for downloadable binaries and [CHANGELOG.md](CHANGELOG.md) for version history.
 
 Current version: **v0.1.0**
 

@@ -1,6 +1,6 @@
 # Screenshot Mode for Headless Testing
 
-**Status**: Planned
+**Status**: Implemented
 **Target**: v0.5.0 (Engine-side, independent of AILANG)
 **Priority**: P1 - Enables AI self-testing
 **Estimated**: 1 implementation session

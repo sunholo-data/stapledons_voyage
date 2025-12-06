@@ -1,5 +1,6 @@
 # Sprint: Relativistic Visual Effects Demo
 
+**Status**: Implemented
 **Sprint ID**: `sr-visual-demo`
 **Duration**: 2 days (focused engine work)
 **Goal**: Demonstrate SR optical effects (aberration, Doppler, beaming) at various velocities

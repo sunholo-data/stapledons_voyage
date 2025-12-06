@@ -85,28 +85,49 @@ ailang messages read <msg-id>
 - (List issues still preventing game features)
 ```
 
-### 3. Update Design Docs
+### 3. Validate & Update Design Docs
+
+**First, validate current state:**
+```bash
+# Run validation script
+./scripts/validate_design_docs.sh
+
+# Check for:
+# - Misplaced docs (implemented status but in planned/)
+# - Orphan docs (not in version folders)
+# - Missing metadata
+```
 
 **Move completed docs:**
 ```bash
-# Move from planned/ to implemented/
+# Use the design-doc-creator script
+.claude/skills/design-doc-creator/scripts/move_to_implemented.sh feature-name v0_1_0
+
+# Or manually:
 mv design_docs/planned/feature.md design_docs/implemented/v0_1_0/
 
 # Update status in doc header
 # Status: Planned → Implemented
 ```
 
-**Update README.md:**
-```markdown
-## Implemented Features
+### 4. Update CHANGELOG.md
 
-### v0.1.0 (Date)
-- Basic world rendering
-- 2x2 tile grid
-- Frame update loop
+**Add version entry:**
+```markdown
+## [X.Y.Z] - YYYY-MM-DD
+
+### Added
+- Feature from implemented design doc
+  - Design doc: [link to implemented doc]
+
+### Changed
+- What was modified
+
+### Fixed
+- Bugs resolved
 ```
 
-### 4. Update CLAUDE.md
+### 5. Update CLAUDE.md
 
 **Update Known Limitations:**
 - Remove fixed limitations
@@ -121,7 +142,7 @@ mv design_docs/planned/feature.md design_docs/implemented/v0_1_0/
 - **NEW: Large grids cause stack overflow** - Keep to 8x8 max for now
 ```
 
-### 5. Create Release Notes
+### 6. Create Release Notes
 
 ```markdown
 # Stapledons Voyage v0.1.0
@@ -151,7 +172,7 @@ Reported 6 issues to AILANG core:
 - Plan v0.2.0 features (NPC movement)
 ```
 
-### 6. Git Operations
+### 7. Git Operations
 
 ```bash
 # Tag the release
@@ -164,12 +185,13 @@ git push origin v0.1.0
 ## Post-Release Checklist
 
 ```markdown
-## v0.1.0 Post-Release Checklist
+## vX.Y.Z Post-Release Checklist
 
 ### Verification
 - [ ] All sim/*.ail files compile with `ailang check`
 - [ ] Game builds with `make game`
 - [ ] Game runs with `make run`
+- [ ] Design docs validated (`./scripts/validate_design_docs.sh`)
 
 ### AILANG Feedback
 - [ ] Reviewed all feedback sent during development
@@ -178,8 +200,9 @@ git push origin v0.1.0
 
 ### Documentation
 - [ ] Design docs moved to implemented/
+- [ ] CHANGELOG.md updated with version entry
 - [ ] CLAUDE.md updated with new limitations
-- [ ] Release notes created
+- [ ] Release notes created (optional)
 
 ### Git
 - [ ] All changes committed
@@ -188,7 +211,7 @@ git push origin v0.1.0
 
 ### Next Sprint
 - [ ] Identified blocking AILANG issues
-- [ ] Planned workarounds for v0.2.0
+- [ ] Planned workarounds for next version
 ```
 
 ## Available Scripts
@@ -202,10 +225,30 @@ Verify game is ready for release.
 ```
 
 **What it checks:**
-- All AILANG modules compile
-- Entry functions run
-- Game builds
-- AILANG inbox status
+1. All AILANG modules compile
+2. Entry functions run
+3. Game builds
+4. AILANG inbox status
+5. Design docs organization (no misplaced/orphan docs)
+6. CHANGELOG.md has version entry
+
+### `scripts/validate_design_docs.sh [--fix] [--json]`
+Validate design document organization.
+
+**Usage:**
+```bash
+# Check current state
+./scripts/validate_design_docs.sh
+
+# Output JSON for other tools
+./scripts/validate_design_docs.sh --json
+```
+
+**What it checks:**
+- Implemented docs are in `implemented/` directory
+- Planned docs are in `planned/` directory
+- Docs in version folders (e.g., `v0_5_0/`)
+- Required metadata (Status, Version, Priority)
 
 ## Best Practices
 

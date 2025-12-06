@@ -1,164 +1,163 @@
-# Stapledons Voyage Design Documents
+# Stapledon's Voyage Design Documents
 
-This directory contains design documentation for game features and systems.
+This directory is the **source of truth** for feature planning and implementation status.
+
+## Quick Reference
+
+| Category | Count | Location | Purpose |
+|----------|-------|----------|---------|
+| Implemented | 6 | [implemented/](implemented/) | Completed features |
+| Planned | 34 | [planned/](planned/) | Features in roadmap |
+| Reference | 12 | [reference/](reference/) | Architecture & system docs |
+| Input | 4 | [input/](input/) | Research & concept notes |
+
+See [CHANGELOG.md](../CHANGELOG.md) for release history with dates.
 
 ## Directory Structure
 
 ```
 design_docs/
-├── planned/              # Features not yet implemented
-│   ├── v0_1_0/           # Core architecture
-│   ├── v0_2_0/           # Engine systems
-│   ├── v0_3_0/           # Rendering & camera
-│   ├── v0_4_0/           # Gameplay features
-│   ├── v0_4_5/           # Engine extensions (prerequisites)
-│   ├── v0_5_0/           # UI modes architecture
-│   ├── v0_5_1/           # Ship exploration
-│   ├── v0_5_2/           # Galaxy map
-│   ├── v0_5_3/           # Dialogue system
-│   ├── v0_6_0/           # Journey system
-│   ├── v0_6_1/           # Civilization & trade
-│   ├── v0_7_0/           # Exploration modes
-│   ├── v0_8_0/           # Endgame
-│   └── v0_9_0/           # Supporting UIs
 ├── implemented/          # Completed features
-│   ├── v0_2_0/           # Audio system
-│   ├── v0_4_5/           # Shader system
-│   └── v0_5_0/           # SR effects, screenshot mode, test scenarios
+│   └── v0_X_Y/           # Organized by release version
+├── planned/              # Features not yet implemented
+│   └── v0_X_Y/           # Organized by target version
+├── reference/            # Architecture, system design docs
+│   └── *.md              # Not versioned, always current
+├── input/                # Research notes, concept docs
+│   └── *.md              # User-created reference material
 └── README.md             # This index
 ```
 
+## Validation
+
+Run the validation script to check doc organization:
+
+```bash
+./scripts/validate_design_docs.sh
+```
+
+This checks for:
+- Misplaced docs (status doesn't match location)
+- Orphan docs (not in version folders)
+- Missing metadata (Status, Version, Priority)
+
+Use `--json` for machine-readable output.
+
+---
+
 ## Implemented Features
 
-### v0.2.0 - Audio System
+### v0.1.0 - Initial Release (Current)
 
-| Document | Description | Status |
-|----------|-------------|--------|
-| [Audio System](implemented/v0_2_0/audio-system.md) | Sound effects and music playback | Implemented |
+All features in this release. See [CHANGELOG.md](../CHANGELOG.md) for details.
 
-### v0.4.5 - Shader System
-
-| Document | Description | Status |
-|----------|-------------|--------|
-| [Shader System](implemented/v0_4_5/shader-system.md) | Kage shaders, post-processing pipeline, bloom, vignette, CRT | Implemented |
-
-### v0.5.0 - Visual Effects & Testing
-
-| Document | Description | Status |
-|----------|-------------|--------|
-| [SR Effects](implemented/v0_5_0/sr-effects.md) | Special relativity visuals: aberration, Doppler, beaming (engine-side) | Implemented |
-| [Screenshot Mode](implemented/v0_5_0/screenshot-mode.md) | Headless screenshot capture for testing | Implemented |
-| [Test Scenarios](implemented/v0_5_0/test-scenarios.md) | Visual test scenarios for golden file comparison | Implemented |
+| Feature | Description | Doc |
+|---------|-------------|-----|
+| **SR Effects** | Special relativity: aberration, Doppler, beaming | [sr-effects.md](implemented/v0_1_0/sr-effects.md) |
+| **GR Effects** | Gravitational lensing near black holes | [sprint-relativistic-effects.md](implemented/v0_1_0/sprint-relativistic-effects.md) |
+| **Shader Pipeline** | Bloom, vignette, CRT, chromatic aberration | [shader-system.md](implemented/v0_1_0/shader-system.md) |
+| **Audio System** | OGG/WAV loading, PlaySound API | [audio-system.md](implemented/v0_1_0/audio-system.md) |
+| **Screenshot Mode** | Headless capture for visual testing | [screenshot-mode.md](implemented/v0_1_0/screenshot-mode.md) |
+| **Test Scenarios** | Golden file comparison for regressions | [test-scenarios.md](implemented/v0_1_0/test-scenarios.md) |
 
 ---
 
 ## Planned Features
 
-### v0.1.0 - Core Architecture (First Milestone)
+### Near Term (v0.2.0 - v0.3.0)
 
-| Document | Description | Priority |
-|----------|-------------|----------|
-| [Architecture](planned/v0_1_0/architecture.md) | Three-layer design, data flow, build pipeline | P0 |
-| [Engine Layer](planned/v0_1_0/engine-layer.md) | Go/Ebiten input capture and rendering | P0 |
-| [Evaluation System](planned/v0_1_0/eval-system.md) | Benchmarks, scenarios, report generation | P1 |
+| Version | Feature | Priority | Doc |
+|---------|---------|----------|-----|
+| v0.2.0 | Asset Management | P0 | [asset-management.md](planned/v0_2_0/asset-management.md) |
+| v0.2.0 | Display Config | P1 | [display-config.md](planned/v0_2_0/display-config.md) |
+| v0.2.0 | Player Interaction | P1 | [player-interaction.md](planned/v0_2_0/player-interaction.md) |
+| v0.3.0 | Camera & Viewport | P0 | [camera-viewport.md](planned/v0_3_0/camera-viewport.md) |
+| v0.3.0 | Tilemap Rendering | P1 | [tilemap-rendering.md](planned/v0_3_0/tilemap-rendering.md) |
+| v0.3.0 | World Gen Settings | P1 | [world-gen-settings.md](planned/v0_3_0/world-gen-settings.md) |
+| v0.3.0 | Starmap Data Model | P1 | [starmap-data-model.md](planned/v0_3_0/starmap-data-model.md) |
 
-### v0.2.0 - Core Engine Systems
+### Gameplay Foundation (v0.4.0 - v0.5.0)
 
-| Document | Description | Priority |
-|----------|-------------|----------|
-| [Asset Management](planned/v0_2_0/asset-management.md) | Sprite, font, and sound loading | P0 |
-| [Audio System](planned/v0_2_0/audio-system.md) | Sound effects and music playback | P1 |
-| [Display Configuration](planned/v0_2_0/display-config.md) | Resolution, fullscreen, settings persistence | P1 |
-| [Player Interaction](planned/v0_2_0/player-interaction.md) | Click-to-select, tile highlighting, input handling | P1 |
+| Version | Feature | Priority | Doc |
+|---------|---------|----------|-----|
+| v0.4.0 | Player Actions | P1 | [player-actions.md](planned/v0_4_0/player-actions.md) |
+| v0.4.0 | NPC Movement | P1 | [npc-movement.md](planned/v0_4_0/npc-movement.md) |
+| v0.4.0 | Planet State Transitions | P1 | [planet-state-transitions.md](planned/v0_4_0/planet-state-transitions.md) |
+| v0.4.5 | Engine Extensions | P0 | [engine-extensions.md](planned/v0_4_5/engine-extensions.md) |
+| v0.4.5 | UI Layout Engine | P1 | [ui-layout-engine.md](planned/v0_4_5/ui-layout-engine.md) |
+| v0.5.0 | UI Modes | P0 | [ui-modes.md](planned/v0_5_0/ui-modes.md) |
+| v0.5.0 | Animation System | P1 | [animation-system.md](planned/v0_5_0/animation-system.md) |
+| v0.5.0 | Save/Load System | P1 | [save-load-system.md](planned/v0_5_0/save-load-system.md) |
+| v0.5.0 | Isometric Engine | P1 | [isometric-engine.md](planned/v0_5_0/isometric-engine.md) |
 
-### v0.3.0 - Rendering & Camera
+### Core Game Systems (v0.5.1 - v0.6.1)
 
-| Document | Description | Priority |
-|----------|-------------|----------|
-| [Camera & Viewport](planned/v0_3_0/camera-viewport.md) | Scrolling, zoom, viewport culling | P0 |
-| [Tilemap Rendering](planned/v0_3_0/tilemap-rendering.md) | Batching, atlases, performance optimization | P1 |
+| Version | Feature | Priority | Doc |
+|---------|---------|----------|-----|
+| v0.5.1 | Ship Exploration | P0 | [ship-exploration.md](planned/v0_5_1/ship-exploration.md) |
+| v0.5.2 | Galaxy Map | P0 | [galaxy-map.md](planned/v0_5_2/galaxy-map.md) |
+| v0.5.3 | Dialogue System | P0 | [dialogue-system.md](planned/v0_5_3/dialogue-system.md) |
+| v0.6.0 | Journey System | P0 | [journey-system.md](planned/v0_6_0/journey-system.md) |
+| v0.6.0 | Black Holes | P1 | [black-holes.md](planned/v0_6_0/black-holes.md) |
+| v0.6.0 | Crew Psychology | P1 | [crew-psychology.md](planned/v0_6_0/crew-psychology.md) |
+| v0.6.0 | Journey Planning UI | P1 | [journey-planning-ui.md](planned/v0_6_0/journey-planning-ui.md) |
+| v0.6.1 | Civilization & Trade | P1 | [civilization-trade.md](planned/v0_6_1/civilization-trade.md) |
+| v0.6.1 | GR Visual Mechanics | P1 | [gr-visual-mechanics.md](planned/v0_6_1/gr-visual-mechanics.md) |
 
-### v0.4.0 - Gameplay Features
+### Endgame & Polish (v0.7.0 - v0.9.0)
 
-| Document | Description | Priority |
-|----------|-------------|----------|
-| [Player Actions](planned/v0_4_0/player-actions.md) | Inspect, build, clear actions on selected tiles | P1 |
-| [NPC Movement](planned/v0_4_0/npc-movement.md) | NPC spawning, movement patterns, AI foundation | P1 |
+| Version | Feature | Priority | Doc |
+|---------|---------|----------|-----|
+| v0.7.0 | Exploration Modes | P1 | [exploration-modes.md](planned/v0_7_0/exploration-modes.md) |
+| v0.8.0 | Endgame Legacy | P0 | [endgame-legacy.md](planned/v0_8_0/endgame-legacy.md) |
+| v0.9.0 | Supporting UIs | P2 | [supporting-uis.md](planned/v0_9_0/supporting-uis.md) |
 
-### v0.4.5 - Engine Extensions (Prerequisites)
+---
 
-| Document | Description | Priority |
-|----------|-------------|----------|
-| [Engine Extensions](planned/v0_4_5/engine-extensions.md) | DrawCmdLine, TextWrapped, Circle, font sizes - required before UI modes | P0 |
+## Reference Documents
 
-### v0.5.0 - UI Modes Architecture
+Architecture and system design documentation (not tied to versions):
 
-| Document | Description | Priority |
-|----------|-------------|----------|
-| [UI Modes](planned/v0_5_0/ui-modes.md) | WorldMode state machine, all 10+ UI surfaces, mode transitions | P0 |
+| Document | Description |
+|----------|-------------|
+| [architecture.md](reference/architecture.md) | Overall system architecture |
+| [engine-layer.md](reference/engine-layer.md) | Go/Ebiten engine design |
+| [eval-system.md](reference/eval-system.md) | Benchmark and evaluation system |
+| [ailang-integration.md](reference/ailang-integration.md) | AILANG language integration |
+| [ailang-testing-matrix.md](reference/ailang-testing-matrix.md) | AILANG test coverage |
+| [rng-determinism.md](reference/rng-determinism.md) | Reproducible randomness |
+| [ai-effect-npcs.md](reference/ai-effect-npcs.md) | AI effect for NPC behavior |
+| [debug-eval-system.md](reference/debug-eval-system.md) | Debug and evaluation tools |
+| [performance-externs.md](reference/performance-externs.md) | Performance-critical externals |
+| [engine-integration-gaps.md](reference/engine-integration-gaps.md) | Known integration gaps |
+| [engine-discriminator-adaptation.md](reference/engine-discriminator-adaptation.md) | ADT discriminator handling |
+| [sprint-engine-discriminator.md](reference/sprint-engine-discriminator.md) | Sprint for discriminator work |
 
-### v0.5.1 - Ship Exploration
+---
 
-| Document | Description | Priority |
-|----------|-------------|----------|
-| [Ship Exploration](planned/v0_5_1/ship-exploration.md) | Multi-deck ship interior, player movement, crew interaction, room system | P0 |
+## Input Documents
 
-### v0.5.2 - Galaxy Map
+Research notes, concept documents, and reference material:
 
-| Document | Description | Priority |
-|----------|-------------|----------|
-| [Galaxy Map](planned/v0_5_2/galaxy-map.md) | Pan/zoom starfield, civilization nodes, contact network, time dilation preview | P0 |
+| Document | Description |
+|----------|-------------|
+| [game_loop_origin.md](input/game_loop_origin.md) | Original game loop concept |
+| [bubble-ship-design.md](input/bubble-ship-design.md) | Ship design inspiration |
+| [startmaps.md](input/startmaps.md) | Starmap data sources |
+| [resources.md](input/resources.md) | External resources and references |
 
-### v0.5.3 - Dialogue System
+---
 
-| Document | Description | Priority |
-|----------|-------------|----------|
-| [Dialogue System](planned/v0_5_3/dialogue-system.md) | Branching conversations, portrait system, choice effects, crew dialogues | P0 |
+## Creating Design Documents
 
-### v0.6.0 - Journey System
-
-| Document | Description | Priority |
-|----------|-------------|----------|
-| [Journey System](planned/v0_6_0/journey-system.md) | Journey planning, time dilation calculator, crew projection, journey events, arrival sequence | P0 |
-| [Black Holes](planned/black-holes.md) | Black hole mechanics, time dilation nodes, New Game+ mechanism, crew psychology | P1 |
-| [GR Visual Mechanics](planned/gr-visual-mechanics.md) | General relativity visuals: gravitational lensing, redshift near BH/NS/WD | P1 |
-
-**Note:** SR rendering is implemented - see [implemented/v0_5_0/sr-effects.md](implemented/v0_5_0/sr-effects.md). Pending: AILANG CameraState integration.
-
-### v0.6.1 - Civilization & Trade
-
-| Document | Description | Priority |
-|----------|-------------|----------|
-| [Civilization & Trade](planned/v0_6_1/civilization-trade.md) | Civilization detail screen, philosophy system, trade UI, impact preview | P1 |
-
-### v0.7.0 - Exploration Modes
-
-| Document | Description | Priority |
-|----------|-------------|----------|
-| [Exploration Modes](planned/v0_7_0/exploration-modes.md) | Planet surface mode, ruins/archaeology, artifacts, ancient logs | P1 |
-
-### v0.8.0 - Endgame
-
-| Document | Description | Priority |
-|----------|-------------|----------|
-| [Endgame Legacy](planned/v0_8_0/endgame-legacy.md) | Fast-forward to Year 1,000,000, network comparison, victory scoring, counterfactuals, epilogue | P0 |
-
-### v0.9.0 - Supporting UIs
-
-| Document | Description | Priority |
-|----------|-------------|----------|
-| [Supporting UIs](planned/v0_9_0/supporting-uis.md) | Logbook, crew sociogram, tech inventory, philosophy browser, time comparison | P2 |
-
-## Creating New Design Documents
-
-Use the design-doc-creator skill:
+### Using the Skill
 
 ```bash
-# In Claude Code, invoke the skill when asked to plan a feature
+# In Claude Code, invoke the design-doc-creator skill
 # The skill will create docs in design_docs/planned/
 ```
 
-Or use the provided scripts:
+### Using Scripts
 
 ```bash
 # Create a new planned document
@@ -166,28 +165,42 @@ Or use the provided scripts:
 
 # Move to implemented after completion
 .claude/skills/design-doc-creator/scripts/move_to_implemented.sh <doc-name> <version>
+
+# Validate all docs
+./scripts/validate_design_docs.sh
 ```
 
-## Document Template
+## Document Requirements
 
-See [.claude/skills/design-doc-creator/resources/design_doc_structure.md](../.claude/skills/design-doc-creator/resources/design_doc_structure.md) for the full template.
+Every design doc should have these metadata fields at the top:
 
-**Required sections for game design docs:**
-1. Header (Status, Priority, Complexity, AILANG Workarounds)
-2. Related Documents
-3. Overview / Problem Statement
-4. AILANG Implementation (types, functions)
-5. Engine Integration (if applicable)
-6. AILANG Constraints (limitations and workarounds)
-7. Success Criteria (checklists)
+```markdown
+**Version:** 0.X.Y
+**Status:** Planned | Implemented
+**Priority:** P0 | P1 | P2
+**AILANG Workarounds:** Description of any language limitations
+```
+
+### Required Sections
+
+1. **Header** - Status, Priority, Complexity, AILANG Workarounds
+2. **Related Documents** - Links to dependencies
+3. **Overview** - Problem statement
+4. **AILANG Implementation** - Types, functions
+5. **Engine Integration** - Go/Ebiten code if applicable
+6. **Success Criteria** - Checklist for completion
+
+See [design_doc_structure.md](../.claude/skills/design-doc-creator/resources/design_doc_structure.md) for the full template.
+
+---
 
 ## AILANG Integration Notes
 
-This project is primarily an **AILANG integration test**. Design documents should:
+This project is the primary **integration test for AILANG**. Design docs should:
 
 - Document AILANG limitations encountered
 - Describe workarounds used
-- Track feedback sent to AILANG core
+- Track feedback sent to AILANG core (via `ailang-feedback` skill)
 - Note version dependencies (e.g., "requires v0.5.1 for RNG")
 
 See [CLAUDE.md](../CLAUDE.md) for current known limitations.
