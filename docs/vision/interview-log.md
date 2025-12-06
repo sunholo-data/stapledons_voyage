@@ -250,3 +250,75 @@ Reviewed design_docs/input/bubble-ship-design.md which details:
 - [ ] Draft Bubble Ship Layout design document
 - [ ] Define mass budget mechanics
 - [ ] Design spire mystery / tech tree revelations
+
+---
+
+## 2025-12-06 Session: AI Integration (Archive & Orchestrator)
+
+**Focus:** Integrating ai-the-archive.md concepts - unreliable AI NPC and behind-the-scenes narrative orchestrator
+
+### Source Document
+
+Reviewed design_docs/input/ai-the-archive.md which describes:
+- Archive as lossy compression engine with Memory Health 0-100
+- Degradation causes: GR zones, long voyages, data overload
+- Consequences: misremembered events, hallucinations, compression artifacts
+- Narrative Orchestrator (M-NARRATOR) as behind-the-scenes DM
+- Event taxonomy with 7 families
+
+### Q: How do Archive and spire interact?
+
+**A:** The Archive can be the way we interact with the spire. Perhaps its weird unknown property of being multicausal is what is confusing the AI. We could reveal what is exactly wrong with fresh alien perspectives.
+
+### Q: Does Archive trust change over generations?
+
+**A:** Yes, the reputation of the Archive may go up and down over time as benevolent dictator vs micromanager etc.
+
+### Q: Is Archive mistrust a mutiny factor?
+
+**A:** The Archive is authority and tightly linked to the authority of the captain.
+
+### Q: How visible should the Orchestrator be?
+
+**A:** The orchestrator is pure behind the scenes, but we can monitor in logs so we can tweak its performance.
+
+### Q: Should Archive have an OCEAN personality?
+
+**A:** Yes, let's use OCEAN for AI and all personality systems.
+
+### Q: How should Archive repair work?
+
+**A:** Could be nice to make decisions about how the Archive is upgraded and fixed.
+
+### Q: What about Orchestrator arc selection?
+
+**A:** The Orchestrator's arc selection has not yet been decided on the exact arc types - TBC.
+
+### Q: Can individual crew have their own Archive trust levels?
+
+**A:** Yes, Archive should be an NPC just like others, so individual trust levels to each other including that NPC.
+
+### Q: Should Memory Health be visible to player?
+
+**A:** Memory health shouldn't be a metric a user sees but we track it and use it to surface weird unreliable narrator clues.
+
+### Q: What about event family prioritization?
+
+**A:** The event families are not decided yet but those are good starting points.
+
+### Insights
+
+- Archive confusion about spire = clue mechanism for recursion mystery
+- Captain-Archive authority coupling creates political stakes for AI maintenance
+- Archive is a full NPC with OCEAN personality and individual trust relationships
+- Memory degradation surfaces as narrative, not numbers
+- Orchestrator is invisible infrastructure for emergent storytelling
+- Alien perspectives unlock Archive reinterpretation
+
+### Actions
+
+- [x] Log 8 design decisions from this interview
+- [ ] Draft Archive Design Document (personality, memory health, repair mechanics)
+- [ ] Draft Narrative Orchestrator Design Document (arc types TBC)
+- [ ] Define event taxonomy priorities for MVP
+- [ ] Design Archive-crew trust dynamics

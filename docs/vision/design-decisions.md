@@ -515,3 +515,65 @@ Emotionally: "sad but happy" - bittersweet remembrance.
 
 **Rationale:** Provides emotional anchor for the bubble society. Contrasts cosmic exile with planetary nostalgia. A place for the human element.
 
+
+## [2025-12-06] Archive as Spire Interface
+
+**Context:** The spire is the source of bubble tech and may be constant across universes. The Archive is the AI that interfaces with all ship systems.
+
+**Decision:** The Archive is the only interface to the spire. The spire's multicausal nature (constant across universes) produces readings that confuse the Archive - it interprets them as errors/corruption when they're actually clues. Fresh alien philosophical frameworks can help recontextualize Archive's "confusion" as revelation.
+
+**Rationale:** Creates a mystery that deepens through gameplay. Archive's confusion is the clue mechanism. Alien perspectives become valuable not just for tech but for understanding.
+
+
+## [2025-12-06] Captain-Archive Authority Coupling
+
+**Decision:** The captain's authority is tightly linked to the Archive's authority. If crew loses faith in Archive, they may lose faith in the captain who relies on it. Defending the Archive = defending your leadership. Questioning the Archive = questioning the captain.
+
+**Rationale:** Creates internal faction dynamics around Archive trust. Links the AI's reliability to your political position. Makes Archive maintenance a leadership issue, not just a technical one.
+
+
+## [2025-12-06] Archive Reputation Dynamics
+
+**Decision:** Trust in the Archive rises and falls over time. It can be perceived as "benevolent dictator" or "micromanager" depending on how it's been used and how accurate its predictions have been.
+
+**Rationale:** Creates emergent faction dynamics. Later generations may have very different Archive relationships than founders. Archive trust becomes a living part of bubble society culture.
+
+
+## [2025-12-06] Narrative Orchestrator: Behind the Scenes
+
+**Decision:** The Narrative Orchestrator (M-NARRATOR) is pure backend. Player never sees it or knows it exists. It shapes tension, pacing, and thematic arcs invisibly. Developers can monitor via logs to tune performance.
+
+**Rationale:** Maintains immersion. Player experiences emergent-feeling narrative without seeing the machinery. Allows AI-assisted storytelling without breaking the "no railroading" principle.
+
+
+## [2025-12-06] Archive Uses OCEAN Personality
+
+**Decision:** Archive has an OCEAN personality profile like crew members. Its personality can drift over time due to memory degradation, creating emergent character changes. Player notices shifts in dialogue tone over decades.
+
+**Rationale:** Unified personality system across all characters including AI. Archive becomes a true NPC with evolving character. Memory degradation has visible personality effects.
+
+
+## [2025-12-06] Archive Repair as Player Choice
+
+**Decision:** Archive repair/upgrade is not automatic. Player makes decisions about how to fix or upgrade the Archive, with tradeoffs. Options may include: repair sector A (lose quirk X) or sector B (lose data Y), or accept alien repair (changes Archive's worldview).
+
+**Rationale:** Creates meaningful choices about AI maintenance. Not busywork - each repair decision has consequences for Archive's personality, reliability, and crew trust.
+
+
+## [2025-12-06] Archive as NPC with Individual Trust
+
+**Decision:** Archive is an NPC like crew members. Individual crew have their own trust levels with Archive, just as they have trust with each other. Some crew love Archive, some distrust it. Creates factions around Archive relationship.
+
+**Rationale:** Integrates Archive into the social simulation. Archive skeptics vs Archive loyalists becomes a real faction dynamic. Player navigates these relationships like any crew dynamic.
+
+
+## [2025-12-06] Memory Health Hidden
+
+**Decision:** Archive Memory Health is tracked internally but not shown to player as a visible metric. Instead, memory degradation surfaces as "weird unreliable narrator clues" through:
+- Contradictory statements
+- Dialogue shifts
+- Crew comments about Archive behavior
+- Predictions that later prove wrong
+
+**Rationale:** Serves Pillar 2 (Game Doesn't Judge). Player experiences the unreliability, doesn't optimize around a number. Discovery is organic, not mechanical.
+
