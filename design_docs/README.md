@@ -6,7 +6,7 @@ This directory is the **source of truth** for feature planning and implementatio
 
 | Category | Count | Location | Purpose |
 |----------|-------|----------|---------|
-| Implemented | 13 | [implemented/](implemented/) | Completed features |
+| Implemented | 14 | [implemented/](implemented/) | Completed features |
 | Planned (Next) | 4 | [planned/next/](planned/next/) | Active development |
 | Planned (Future) | 23 | [planned/future/](planned/future/) | Backlog |
 | Reference | 12 | [reference/](reference/) | Architecture & system docs |
@@ -55,6 +55,7 @@ Run the validation script to check doc organization:
 | **Display Config** | Resolution, fullscreen, persistence | [display-config.md](implemented/v0_1_0/display-config.md) |
 | **Asset Management** | Sprites, audio, fonts with manifests | [asset-management.md](implemented/v0_1_0/asset-management.md) |
 | **Player Input** | Mouse handling, keyboard events | [player-interaction.md](implemented/v0_1_0/player-interaction.md) |
+| **AI Handler System** | Claude, Gemini, multimodal (text/image/TTS) | [ai-handler-system.md](implemented/v0_1_0/ai-handler-system.md) |
 
 ---
 
