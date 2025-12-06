@@ -93,10 +93,11 @@ get_doc_location() {
     fi
 }
 
-# Check if doc is in a version subfolder
-is_in_version_folder() {
+# Check if doc is in a valid subfolder (version, next, or future)
+is_in_valid_folder() {
     local file="$1"
-    if [[ "$file" =~ v[0-9]+_[0-9]+_[0-9]+ ]]; then
+    # Accept version folders (v0_1_0) or next/ or future/
+    if [[ "$file" =~ v[0-9]+_[0-9]+_[0-9]+ ]] || [[ "$file" =~ /next/ ]] || [[ "$file" =~ /future/ ]]; then
         return 0
     else
         return 1
@@ -165,9 +166,9 @@ scan_docs() {
             fi
         fi
 
-        # Check if orphan (not in version folder) - only for planned/
-        if [ "$location" == "planned" ] && ! is_in_version_folder "$doc"; then
-            # Only flag if it's directly in planned/ (not a versioned sub-doc)
+        # Check if orphan (not in valid folder) - only for planned/
+        if [ "$location" == "planned" ] && ! is_in_valid_folder "$doc"; then
+            # Only flag if it's directly in planned/ (not in next/, future/, or version folder)
             if [[ "$rel_path" == "planned/"*.md ]]; then
                 ORPHAN_DOCS+=("$rel_path|$version|$priority")
             fi

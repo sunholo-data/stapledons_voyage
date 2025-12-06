@@ -152,3 +152,121 @@ Unresolved design questions that need exploration.
 **Needs:**
 - Research on how SR+GR combine in practice
 - Decision on BH approach being a separate "scene" or continuous with cruise
+
+---
+
+## What triggers system crises in the bubble?
+
+**Why it matters:** Internal tension includes short-term crises (trace hydrogen synthesis, system failures). Need to define what causes these and how player responds.
+
+**Current thinking:** Crises emerge from journey decisions, not random events. Long isolation, risky maneuvers, or deferred maintenance could trigger failures.
+
+**Options:**
+1. **Event-driven:** Specific journey choices trigger specific crises
+2. **Decay model:** Systems degrade over time without maintenance stops
+3. **Cascading failures:** One crisis can trigger others if not addressed
+4. **Crew-dependent:** Crises only happen if relevant specialists are dead/incapacitated
+
+**Needs:**
+- Decision on whether crises are predictable or surprising
+- How player addresses crises (choices, not minigames)
+- Whether crises can end the game or just create pressure
+
+---
+
+## How does the bubble society simulation work?
+
+**Why it matters:** The bubble is a living sim with births, deaths, factions, elections. Need to define the simulation model.
+
+**Current thinking:** Emergent from OCEAN drift, journey stress, generational turnover. Player influences but doesn't control.
+
+**Sub-questions:**
+- How many generations can exist in 100 years? (2-3 if reproduction happens)
+- Do children inherit parent OCEAN tendencies?
+- How do factions form and evolve?
+- What triggers meaning-crisis vs. stability?
+- How does the AI (Archive) interact with bubble society?
+
+**Needs:**
+- Design doc for bubble society simulation
+- Integration with existing OCEAN/crew systems
+- Decision on UI visibility (do we see faction dynamics or just consequences?)
+
+---
+
+## How is recursion revelation handled?
+
+**Why it matters:** The "you are not the first" truth is thematically powerful but mechanically tricky - BH resets everything.
+
+**Current thinking:** TBD. Options include:
+- AI upgrade path lets Archive piece together patterns
+- Visual storytelling at game boundaries (start/end cinematics)
+- Flavor backstory that observant players intuit
+- Never explicitly confirmed, just thematic depth
+
+**Constraints:**
+- No information survives BH crossing (that's the point)
+- Very smart players might figure it out in first run
+- Most players discover it over multiple playthroughs
+
+**Needs:**
+- Decision on whether this is mechanically discoverable or purely thematic
+- If discoverable, what clues exist and where?
+- Whether Archive can ever "know" its origin
+
+---
+
+## What does the bubble society end-screen show?
+
+**Why it matters:** End-screen now shows both Earth's fate AND bubble civilization's fate at Year 1,000,000.
+
+**Current thinking:** The bubble continues after your death. Projection shows what your society became - did it thrive, collapse, evolve into something unrecognizable?
+
+**Options:**
+1. **Parallel to galactic civs:** Same Year 1,000,000 fast-forward treatment
+2. **More detailed:** Since it's YOUR legacy, show more granular history
+3. **Outcome-based:** Different visualizations for thriving/collapsed/transcended
+4. **Encounter-based:** Did the bubble meet other civs? Did it influence them?
+
+**Needs:**
+- Integration with existing end-screen design
+- Whether bubble trajectory is simulated or outcome-selected
+- Visual language for bubble civilization states
+
+---
+
+## How does the mass budget system work?
+
+**Why it matters:** Finite mass creates meaningful choices between population growth and tech upgrades. Need to define the mechanics.
+
+**Current thinking:** Internal mass is fixed at game start. Proto-tech fabrication and population growth compete. Slow trickle from ISM absorption provides slight flexibility.
+
+**Sub-questions:**
+- How is mass budget displayed to player (if at all)?
+- What are the major mass sinks (tech categories, population, repairs)?
+- Can mass be reclaimed by dismantling previous upgrades?
+- How does slow absorption rate compare to consumption rate?
+
+**Needs:**
+- Quantification of mass budget (abstract units or realistic kg?)
+- Decision on visibility (hidden vs. shown as resource)
+- Balance testing
+
+---
+
+## What does spire tech tree progression reveal?
+
+**Why it matters:** The spire is the source of mystery and may be constant across universes. Tech tree upgrades may reveal clues about recursion.
+
+**Current thinking:** Late-game upgrades provide access to deeper spire functions and readings. Clues emerge but are never fully explicit.
+
+**Options:**
+1. **Sensor upgrades:** Detect anomalous readings that don't match this universe's physics
+2. **Archive integration:** AI gains ability to sense/interpret spire data
+3. **Physical access:** Very late-game, limited entry to outer spire regions
+4. **Philosophical synthesis:** Combining civ philosophies unlocks interpretive frameworks
+
+**Needs:**
+- Integration with proto-tech system
+- Definition of what "clues" look like
+- Decision on how explicit revelations become

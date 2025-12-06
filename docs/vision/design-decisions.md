@@ -341,3 +341,177 @@ The sim says "how fast am I going"; the renderer bends the light.
 
 **Rationale:** This preserves Pillar 1 (Choices Are Final) by preventing save scumming while allowing practical session management. The game saves automatically at key points. When you relaunch, you continue from last auto-save. You cannot reload to undo decisions.
 
+
+## [2025-12-06] Earth Salvation as Optional Goal
+
+**Context:** The game_loop_origin concept introduces a rogue black hole heading for Earth as existential motivation. Question: does this create an implicit win/lose?
+
+**Decision:** Earth's doom is A goal, not THE goal. Valid endings include:
+- Save Earth (traditional victory)
+- Abandon Earth because galactic life matters more (philosophical choice)
+- Fail to save Earth but seed human diaspora elsewhere
+- Return to find Earth solved the problem without you
+
+**Rationale:** Serves Pillar 2 (Game Doesn't Judge). The game presents stakes; player decides what matters. Abandoning Earth is a valid philosophical position, not a failure state.
+
+
+## [2025-12-06] Earth Fate Always Shown in End-Screen
+
+**Decision:** Every playthrough reveals what happened to Earth in the end-screen, regardless of whether the player prioritized it.
+
+**Rationale:** You start from Earth, so you always learn its fate. Even abandonment has consequences you must witness. This creates accountability without judgment.
+
+
+## [2025-12-06] Bubble Society as Living Sim
+
+**Context:** The Higgs-bubble traps crew permanently. Only information crosses the boundary. The bubble becomes a micro-civilization over 100 years.
+
+**Decision:** The bubble society is autonomous. Player has authority and influence but cannot micromanage. Society has births, deaths, factions, classes, disputes. It reacts to journey decisions but runs itself.
+
+**Rationale:** Serves Pillar 4 (Ship Is Home) - crew are people, not resources. Avoids tedious micromanagement while creating emergent drama. The captain influences; the society lives.
+
+
+## [2025-12-06] Internal Tension Model
+
+**Decision:** Two layers of internal pressure:
+- **Long-term threat:** Civilization collapse (factions, despair, meaning-crisis, generational drift)
+- **Short-term crises:** System failures requiring trace hydrogen synthesis, emergency repairs
+
+NOT constant food/air meters. Tension emerges from decisions and events, not routine survival.
+
+**Rationale:** Serves Pillar 6 (We Are Not Built For This). The bubble can break down psychologically even when physically sustainable. Avoids survival-game busywork.
+
+
+## [2025-12-06] Game End Conditions: Death or Mutiny
+
+**Decision:** Game ends when:
+1. **Natural death** (~100 years subjective) - You completed your journey
+2. **Mutiny** - Crew deposes you, game over
+
+Mutiny is not a setback to recover from. It ends your story.
+
+**Rationale:** Creates meaningful internal pressure. External goals (save Earth) must be balanced against internal stability (keep your people). The captain who saves Earth might be deposed one journey before victory.
+
+
+## [2025-12-06] Mutiny Warnings Visible
+
+**Decision:** Mutiny doesn't come without warning. Player sees tension building (unrest indicators, crew dissent). But sometimes the right choice for Earth conflicts with crew stability, creating genuine dilemmas.
+
+**Rationale:** Fair but tragic. You know you're pushing too hard. You might push anyway because the mission demands it. Choices have weight because you SEE the cost.
+
+
+## [2025-12-06] Bubble Ship Continues After Your Death
+
+**Decision:** The bubble ship and its civilization continue after your death. Your legacy shapes their future trajectory. End-screen shows both Earth's fate AND the bubble civilization's fate (including Year 1,000,000 projection).
+
+**Rationale:** You're not just affecting external civilizations - you're founding one. The bubble is humanity's second branch. Both legacies matter.
+
+
+## [2025-12-06] Captain Succession Exists
+
+**Decision:** When the captain dies naturally, the bubble society elects a new captain. Gameplay ends at your death, but the society's future is shaped by who you prepared, what culture you built, what trajectory you set.
+
+**Rationale:** Reinforces that the bubble is a real civilization, not just a vehicle. Leadership transitions happen. Your legacy includes who comes after you.
+
+
+## [2025-12-06] Population Dynamics
+
+**Context:** The bubble-ship-design document specifies ~100 people in a 100m radius bubble. But we want a multi-generational society.
+
+**Decision:** Start with ~100 people. Population can grow or shrink based on circumstances:
+- Growth possible if resources and morale allow
+- Decline risk during crises, despair, or resource pressure
+- Population pressure creates faction risk and mutiny risk
+- Difficult decisions: limit births, prioritize resources, accept decline
+
+**Rationale:** Creates meaningful tension. Population isn't just a number - it's a source of drama and difficult choices.
+
+
+## [2025-12-06] The Spire as Universal Constant
+
+**Context:** The Higgs Generator Spire is the core of the bubble ship - the reason it works.
+
+**Decision:** The spire may be the same across all universes in the recursion loop. This explains:
+- Why the bubble tech cannot be replicated (it's not from this universe)
+- Why it's the source of mystery and clues
+- Why it's a "forbidden zone" crew cannot fully access
+
+Tech tree progression may reveal more about the spire. It's the source of subtle clues about the recursion truth.
+
+**Rationale:** Provides a physics-consistent explanation for uniqueness. Creates a mystery that deepens over multiple playthroughs.
+
+
+## [2025-12-06] Finite Mass Budget
+
+**Decision:** The bubble has finite internal mass. Proto-tech upgrades and population growth compete for the same mass budget. Player must make choices about what to fabricate at the sacrifice of other possibilities.
+
+**Rationale:** Creates meaningful resource tension without survival-game busywork. You can't have everything - must choose what matters.
+
+
+## [2025-12-06] Slow Mass Absorption
+
+**Decision:** The bubble can absorb very small mass (ISM, stellar wind, trace hydrogen) through the boundary, but at a very slow rate. This is a trickle, not a solution - it won't rescue poor planning.
+
+**Rationale:** Provides slight flexibility over long journeys. Maintains mass scarcity as a meaningful constraint. Hardish-sci plausible.
+
+
+## [2025-12-06] Proto-Tech via Information Only
+
+**Decision:** Alien technology modules are built by absorbing intelligence (blueprints, equations, knowledge) and fabricating internally using existing mass. No physical objects cross the bubble boundary except:
+- Light / EM signals
+- Very small mass (femtogram nanostructures as seeds)
+
+**Rationale:** Maintains bubble constraint integrity. Creates the "memetic traveler" identity - you carry ideas, not cargo.
+
+
+## [2025-12-06] Radiation Shielding Automatic
+
+**Decision:** Radiation shielding is automatic and part of game lore. The bubble has energy-dependent transparency (visible light passes, high-energy filtered). Player doesn't manage this directly.
+
+May be upgradeable via proto-tech for closer approaches to extreme phenomena, but not a constant decision point.
+
+**Rationale:** Avoids micromanagement. Focus on meaningful choices, not survival meters.
+
+
+## [2025-12-06] Observation Deck as Decision Hub
+
+**Decision:** The observation deck / bridge at the top of the ship is the primary location for major decisions. Captain makes choices with cosmic backdrop - starfields, SR/GR effects visible.
+
+**Rationale:** Creates visual drama for key moments. Reinforces the cosmic scale of decisions.
+
+
+## [2025-12-06] Player Location Freedom
+
+**Decision:** Player chooses where to spend time on the ship. The ship is large enough. No micromanagement of food, sleep, toilet, etc.
+
+**Rationale:** Focus on meaningful choices. The ship is home, not a survival puzzle.
+
+
+## [2025-12-06] Archive: Distributed and Localized
+
+**Decision:** The Archive (AI) is both:
+- Distributed: Accessible from any terminal, speaks throughout the ship
+- Localized: Has a special "core room" / shrine with significance for upgrades, revelations, key dialogues
+
+**Rationale:** Practical accessibility plus narrative weight. The core room feels special without limiting basic interaction.
+
+
+## [2025-12-06] Engineering Deck: Background Access
+
+**Decision:** Engineering deck is always accessible but mostly background. Player visits during crises or for upgrades, not as a primary gameplay space. It's "necessary but boring most of the time."
+
+**Rationale:** Realistic ship structure without tedious mechanical focus. Engineering matters when it matters.
+
+
+## [2025-12-06] Garden Cathedral
+
+**Decision:** The "garden cathedral" in the outer shell is a gameplay-significant location. It's where:
+- Crew remember Earth and what it meant to live on a planet
+- Cultural rituals develop over generations
+- Philosophical conversations and processing happen
+- The bubble society's culture crystallizes
+
+Emotionally: "sad but happy" - bittersweet remembrance.
+
+**Rationale:** Provides emotional anchor for the bubble society. Contrasts cosmic exile with planetary nostalgia. A place for the human element.
+

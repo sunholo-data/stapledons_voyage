@@ -109,3 +109,144 @@ The conversation revealed that every playthrough should begin with the player EM
 - [x] Add Pillar 6: "We Are Not Built For This"
 - [ ] Draft Black Hole Design Document
 - [ ] Design opening sequence (emergence from mysterious structure)
+
+---
+
+## 2025-12-06 Session: Game Loop Origin & Bubble Constraint
+
+**Focus:** Exploring the new game_loop_origin concept - Earth salvation goal, Higgs-bubble constraint, internal pressure model
+
+### Source Document
+
+Reviewed design_docs/planned/game_loop_origin.md which proposed:
+- Rogue black hole heading for Earth as existential motivation
+- Higgs-bubble traps crew (only information crosses boundary)
+- Multiple Earth salvation paths (move sun, evacuate, orbit BH, etc.)
+- Recursion twist ("you are not the first")
+- Bubble society as micro-civilization
+
+### Q: Does Earth's doom create an implicit win/lose that conflicts with "The Game Doesn't Judge"?
+
+**A:** Earth salvation is optional. You can choose not to save Earth if you decide galactic life is more important. Not a choice I would make, but the game allows it. Provides a more traditional goal for players who want one, while preserving philosophical freedom.
+
+### Q: The bubble recycles everything internally. Does this remove survival pressure?
+
+**A:** We could have internal tension so long as it's interesting. The biggest threat is civilization collapse. Short-term crises on food or air only if systems collapse and we need to synthesize from trace hydrogen. Not constant meters, but emergent crises.
+
+### Q: How should the "you are not the first" recursion be revealed?
+
+**A:** Only discovered if you piece together clues from many playthroughs. If you're very smart you might figure it out by end of first run. But clues can't survive the BH reset - that's the point. Maybe if the AI is upgraded enough it starts piecing things together. TBD - might never be explicit, just flavor backstory revealed by visual clues at start and end of game.
+
+### Q: Should Earth's fate always be shown, even if player abandons it?
+
+**A:** Yes. Every playthrough starts at Earth's origin, so you always learn what happened to it.
+
+### Q: Should the player have direct control over bubble society governance?
+
+**A:** No. We will try to make a living sim that seems alive. You can influence as a person with authority but not micromanage.
+
+### Q: When does gameplay end?
+
+**A:** Either you die as the captain or get mutinied off. So you have to manage both internal and external pressures.
+
+### Q: Is there warning before mutiny, or is it sudden?
+
+**A:** You get plenty of warnings. But there will be tension between doing what you know is needed for saving Earth vs. crew being close to deposing you. Tough decisions.
+
+### Q: What happens to the bubble ship after your death?
+
+**A:** The 100 years is our character's lifespan, so the bubble ship could go on - but that future is heavily influenced by our legacy. Yes, we want a real mini-civ with births and deaths, and we will perhaps elect a new captain.
+
+### Q: What does the end-screen show?
+
+**A:** The fate of the bubble ship is also in the end-screen. Both Earth's fate AND what the bubble civilization became.
+
+### Insights
+
+- Earth goal provides structure without mandating it - "a goal, not THE goal"
+- The bubble is humanity's second branch - you're founding a civilization while trying to save one
+- Internal pressure (mutiny risk) balances external pressure (save Earth)
+- The captain who saves Earth might be deposed one journey before victory
+- Mutiny is game-over, not a setback - your story ends
+- Multi-generational bubble society with succession
+- Recursion revelation is deliberately elusive - might be thematic rather than mechanical
+
+### Actions
+
+- [x] Log 9 design decisions from this interview
+- [x] Add 4 open questions (system crises, bubble society sim, recursion revelation, end-screen bubble)
+- [ ] Draft Bubble Society design document
+- [ ] Draft Bubble Constraint design document (what can/can't cross boundary)
+- [ ] Integrate with existing crew/OCEAN systems
+
+---
+
+## 2025-12-06 Session: Bubble Ship Design Integration
+
+**Focus:** Integrating bubble-ship-design.md technical details with game loop decisions
+
+### Source Document
+
+Reviewed design_docs/input/bubble-ship-design.md which details:
+- 100m radius bubble structure (nested cores from center to edge)
+- Power systems (fission, fusion, radiative harvest)
+- Mass balance and trace hydrogen absorption
+- Internal layout (spire, decks, shells)
+- Bubble transparency physics
+- Radiation shielding via energy-dependent filtering
+
+### Q: Does the population stay at 100, or can it grow?
+
+**A:** We start with 100 people but that can and will grow. But we may need to make difficult decisions to keep within our resources or try to keep population up.
+
+### Q: Should the spire be explorable late-game?
+
+**A:** The spire could be a source of mystery and may be the one place that is the same in every universe - perhaps that's why it's difficult to replicate? Tech tree possibilities may reveal more on it.
+
+### Q: How do alien tech modules get "bolted on" if only information crosses?
+
+**A:** Alien tech modules will only be bolted on by us absorbing the intelligence and making it ourselves. It won't violate the boundary except light and very very small mass.
+
+### Q: Does mass budget create meaningful tension?
+
+**A:** Yes, we should definitely need to make choices about what we use our mass to create at the sacrifice of others. We may be able to absorb very very small mass via the bubble but at a very low rate.
+
+### Q: Should radiation shielding be a decision point?
+
+**A:** Radiation shielding should be automatic, just something in game lore. Perhaps we upgrade it later.
+
+### Q: Where do major decisions happen?
+
+**A:** Most decisions on the bridge/observation deck.
+
+### Q: How much should we track player location on ship?
+
+**A:** Give options for where they want to spend time. Ship will be big enough. Won't worry too much about micro managing food, sleep, toilet etc.
+
+### Q: Is the Archive distributed or localized?
+
+**A:** The AI can have both - accessible everywhere but also has a special core room.
+
+### Q: Is engineering deck a primary gameplay space?
+
+**A:** Engineering can be visited, just a bit boring most of the time as background necessary.
+
+### Q: Should the garden cathedral be gameplay-significant?
+
+**A:** Yes, let's have the garden cathedral as a place we remember Earth and living on a planet for real. Sad but happy.
+
+### Insights
+
+- The spire as universal constant is a profound mystery hook
+- Mass budget creates meaningful choices without survival busywork
+- "Memetic traveler" identity - you carry ideas, not cargo
+- Garden cathedral as bittersweet emotional anchor
+- Focus on meaningful choices, not micromanagement
+- Ship locations serve different emotional/functional purposes
+
+### Actions
+
+- [x] Log 12 design decisions from this interview
+- [ ] Draft Bubble Ship Layout design document
+- [ ] Define mass budget mechanics
+- [ ] Design spire mystery / tech tree revelations

@@ -1,7 +1,7 @@
 # Camera and Viewport System
 
 **Version:** 0.3.0
-**Status:** Planned
+**Status:** Implemented
 **Priority:** P0 (High)
 **Complexity:** Medium
 **Package:** `engine/camera`

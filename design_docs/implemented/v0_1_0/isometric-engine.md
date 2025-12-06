@@ -1,6 +1,6 @@
 # Isometric Engine Renderer
 
-**Status**: Planned
+**Status**: Implemented
 **Target**: v0.5.0 (Engine-side, independent of AILANG codegen)
 **Priority**: P1 - Required for ship interior view
 **Estimated**: 3-4 implementation sessions
