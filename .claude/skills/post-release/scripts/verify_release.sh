@@ -16,7 +16,7 @@ FAILURES=0
 WARNINGS=0
 
 # 1. Check AILANG modules compile
-echo "1/6 Checking AILANG modules..."
+echo "1/7 Checking AILANG modules..."
 AILANG_FAILURES=0
 for f in sim/*.ail; do
     if [[ -f "$f" ]]; then
@@ -35,7 +35,7 @@ fi
 echo
 
 # 2. Test AILANG entry function
-echo "2/6 Testing AILANG runtime..."
+echo "2/7 Testing AILANG runtime..."
 if ailang run --entry init_world sim/step.ail > /tmp/ailang_run.log 2>&1; then
     echo "  ✓ init_world runs"
 else
@@ -45,7 +45,7 @@ fi
 echo
 
 # 3. Check game build
-echo "3/6 Checking game build..."
+echo "3/7 Checking game build..."
 if [[ -f "Makefile" ]]; then
     if make game > /tmp/game_build.log 2>&1; then
         echo "  ✓ Game builds"
@@ -59,7 +59,7 @@ fi
 echo
 
 # 4. Check AILANG messages
-echo "4/6 Checking AILANG messages..."
+echo "4/7 Checking AILANG messages..."
 if ailang messages list --unread 2>&1 | grep -q "message"; then
     echo "  ⚠ Pending messages - review before release"
     WARNINGS=$((WARNINGS + 1))
@@ -69,7 +69,7 @@ fi
 echo
 
 # 5. Check design docs organization
-echo "5/6 Checking design docs..."
+echo "5/7 Checking design docs..."
 if [[ -f "$PROJECT_ROOT/scripts/validate_design_docs.sh" ]]; then
     # Run validation and capture output
     MISPLACED=$(bash "$PROJECT_ROOT/scripts/validate_design_docs.sh" 2>&1 | grep -c "should be in" || true)
@@ -92,7 +92,7 @@ fi
 echo
 
 # 6. Check CHANGELOG
-echo "6/6 Checking CHANGELOG..."
+echo "6/7 Checking CHANGELOG..."
 if [[ -f "$PROJECT_ROOT/CHANGELOG.md" ]]; then
     if [[ -n "$VERSION" ]]; then
         if grep -q "\[$VERSION\]" "$PROJECT_ROOT/CHANGELOG.md"; then
@@ -107,6 +107,24 @@ if [[ -f "$PROJECT_ROOT/CHANGELOG.md" ]]; then
 else
     echo "  ⚠ CHANGELOG.md not found"
     WARNINGS=$((WARNINGS + 1))
+fi
+echo
+
+# 7. Check GitHub account for push access
+echo "7/7 Checking GitHub CLI auth..."
+if command -v gh &> /dev/null; then
+    ACTIVE_ACCOUNT=$(gh auth status 2>&1 | grep "Active account: true" -B3 | grep "Logged in to github.com account" | sed 's/.*account //' | sed 's/ .*//')
+    REQUIRED_ACCOUNT="MarkEdmondson1234"
+
+    if [[ "$ACTIVE_ACCOUNT" == "$REQUIRED_ACCOUNT" ]]; then
+        echo "  ✓ GitHub CLI using $REQUIRED_ACCOUNT"
+    else
+        echo "  ⚠ GitHub CLI using '$ACTIVE_ACCOUNT' - switch to $REQUIRED_ACCOUNT for push access"
+        echo "    Run: gh auth switch --user $REQUIRED_ACCOUNT"
+        WARNINGS=$((WARNINGS + 1))
+    fi
+else
+    echo "  - GitHub CLI not installed"
 fi
 echo
 
