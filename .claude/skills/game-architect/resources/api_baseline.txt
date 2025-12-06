@@ -1,0 +1,171 @@
+# Types
+type AIHandler interface {
+type AssertionResult
+type Camera
+type ClickKind
+type ClickKindClickLeft
+type ClickKindClickMiddle
+type ClickKindClickRight
+type ClickKindKind int
+type ClockHandler interface {
+type Coord
+type DebugContext
+type DebugHandler interface {
+type DebugOutput
+type Direction
+type DirectionEast
+type DirectionKind int
+type DirectionNorth
+type DirectionSouth
+type DirectionWest
+type DrawCmd
+type DrawCmdCircle
+type DrawCmdGalaxyBg
+type DrawCmdIsoEntity
+type DrawCmdIsoTile
+type DrawCmdKind int
+type DrawCmdLine
+type DrawCmdRect
+type DrawCmdRectScreen
+type DrawCmdSprite
+type DrawCmdStar
+type DrawCmdText
+type DrawCmdTextWrapped
+type DrawCmdUi
+type EnvHandler interface {
+type FSHandler interface {
+type FrameInput
+type FrameOutput
+type Handlers
+type KeyEvent
+type LogEntry
+type MouseState
+type MovementPattern
+type MovementPatternKind int
+type MovementPatternPatternPatrol
+type MovementPatternPatternRandomWalk
+type MovementPatternPatternStatic
+type NPC
+type NetHandler interface {
+type Option
+type OptionKind int
+type OptionNone
+type OptionSome
+type PlanetState
+type PlayerAction
+type PlayerActionActionBuild
+type PlayerActionActionClear
+type PlayerActionActionInspect
+type PlayerActionActionNone
+type PlayerActionKind int
+type RandHandler interface {
+type Selection
+type SelectionKind int
+type SelectionNone
+type SelectionTile
+type StructureType
+type StructureTypeKind int
+type StructureTypeStructureFarm
+type StructureTypeStructureHouse
+type StructureTypeStructureRoad
+type Tile
+type UiKind
+type UiKindKind int
+type UiKindUiButton
+type UiKindUiLabel
+type UiKindUiPanel
+type UiKindUiPortrait
+type UiKindUiProgressBar
+type UiKindUiSlider
+type World
+
+# Functions
+func AddFloat
+func AddInt
+func CallFunc
+func ConcatString
+func Cons
+func ConvertToInt64Slice
+func ConvertToRecordSlice
+func ConvertToStringSlice
+func Debug
+func DivFloat
+func DivInt
+func EqInt
+func FieldGet
+func FloatToInt
+func FromList
+func GeInt
+func Get
+func GetOpt
+func GtInt
+func Init
+func InitWorld
+func IntToFloat
+func IsInBounds
+func LeInt
+func Length
+func ListHead
+func ListLen
+func ListTail
+func Log
+func LtInt
+func Make
+func ModInt
+func MulFloat
+func MulInt
+func NegFloat
+func NegInt
+func NewClickKindClickLeft
+func NewClickKindClickMiddle
+func NewClickKindClickRight
+func NewDebugContext
+func NewDirectionEast
+func NewDirectionNorth
+func NewDirectionSouth
+func NewDirectionWest
+func NewDrawCmdCircle
+func NewDrawCmdGalaxyBg
+func NewDrawCmdIsoEntity
+func NewDrawCmdIsoTile
+func NewDrawCmdLine
+func NewDrawCmdRect
+func NewDrawCmdRectScreen
+func NewDrawCmdSprite
+func NewDrawCmdStar
+func NewDrawCmdText
+func NewDrawCmdTextWrapped
+func NewDrawCmdUi
+func NewMovementPatternPatternPatrol
+func NewMovementPatternPatternRandomWalk
+func NewMovementPatternPatternStatic
+func NewOptionNone
+func NewOptionSome
+func NewPlayerActionActionBuild
+func NewPlayerActionActionClear
+func NewPlayerActionActionInspect
+func NewPlayerActionActionNone
+func NewSelectionNone
+func NewSelectionTile
+func NewStructureTypeStructureFarm
+func NewStructureTypeStructureHouse
+func NewStructureTypeStructureRoad
+func NewUiKindUiButton
+func NewUiKindUiLabel
+func NewUiKindUiPanel
+func NewUiKindUiPortrait
+func NewUiKindUiProgressBar
+func NewUiKindUiSlider
+func RecordUpdate
+func Set
+func Show
+func Step
+func SubFloat
+func SubInt
+func ToList
+func TryMoveDirection
+func UnsafeGet
+func UpdateAllNPCs
+func UpdateNPC
+
+# Constants
