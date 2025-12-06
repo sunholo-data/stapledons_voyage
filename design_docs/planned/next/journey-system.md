@@ -4,7 +4,7 @@
 **Status:** Planned
 **Priority:** P0 (Core Gameplay Identity)
 **Complexity:** Very High
-**AILANG Workarounds:** Float math precision, crew projection recursion
+**AILANG Workarounds:** Float precision (use years not seconds), deep recursion (chunk processing)
 **Depends On:** v0.5.2 Galaxy Map, v0.5.3 Dialogue System
 
 ## Related Documents
@@ -919,12 +919,17 @@ func TestArrivalSequence(t *testing.T)
 
 ## AILANG Constraints
 
-| Limitation | Impact | Workaround |
-|------------|--------|------------|
-| Float precision | Large time values | Keep years, not seconds |
-| No RNG | Events deterministic | Seed from world state |
-| Recursion depth | Long event lists | Process in chunks |
-| No mutable state | Event accumulation | Fold pattern |
+**Updated for v0.5.2** - Rand effect and Arrays now available.
+
+| Limitation | Impact | Workaround | Status |
+|------------|--------|------------|--------|
+| Float precision | Large time values | Keep years, not seconds | Still relevant |
+| ~~No RNG~~ | ~~Events deterministic~~ | ~~Seed from world state~~ | Fixed: `Rand` effect available (v0.5.0+) |
+| Recursion depth | Long event lists | Process in chunks | Still needed |
+| No mutable state | Event accumulation | Fold pattern | By design |
+| Crew list operations | O(n) lookups for crew by ID | Use `Array[CrewMember]` | Improved with Arrays |
+
+**Note:** The `Rand` effect (`std/rand`) is now available for stochastic events. Use `rand_int(max)`, `rand_float()`, `rand_bool()` with deterministic seeds for reproducibility.
 
 ---
 

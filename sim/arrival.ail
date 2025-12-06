@@ -1,0 +1,193 @@
+module sim/arrival
+
+-- Arrival Sequence: First playable experience
+-- Player emerges spinning in solar system, gains control, tours planets
+
+-- =============================================================================
+-- Types
+-- =============================================================================
+
+-- Arrival sequence phases
+export type ArrivalPhase =
+    | PhaseEmergence      -- Tumbling, high velocity, chaotic
+    | PhaseStabilizing    -- Player gaining control
+    | PhaseSaturn         -- Approaching Saturn
+    | PhaseJupiter        -- Approaching Jupiter
+    | PhaseMars           -- Approaching Mars
+    | PhaseEarth          -- Approaching Earth
+    | PhaseBridge         -- Bridge view established
+    | PhaseComplete       -- Sequence finished
+
+-- Planet being approached
+export type CurrentPlanet =
+    | NoPlanet
+    | Saturn
+    | Jupiter
+    | Mars
+    | Earth
+
+-- Minimal arrival state (8 fields to avoid effect checker hang)
+export type ArrivalState = {
+    phase: ArrivalPhase,
+    phaseTime: float,
+    totalTime: float,
+    velocity: float,
+    currentPlanet: CurrentPlanet,
+    showHUD: bool,
+    shipTimeYears: float,
+    galaxyYear: int
+}
+
+-- Input for arrival sequence
+export type ArrivalInput = {
+    dt: float
+}
+
+-- =============================================================================
+-- Initialization
+-- =============================================================================
+
+-- Create initial arrival state
+export pure func initArrival() -> ArrivalState {
+    {
+        phase: PhaseEmergence,
+        phaseTime: 0.0,
+        totalTime: 0.0,
+        velocity: 0.99,
+        currentPlanet: NoPlanet,
+        showHUD: false,
+        shipTimeYears: 47.3,
+        galaxyYear: 2157
+    }
+}
+
+-- =============================================================================
+-- Helpers
+-- =============================================================================
+
+-- Get target velocity for current phase
+pure func phaseTargetVelocity(phase: ArrivalPhase) -> float {
+    match phase {
+        PhaseEmergence => 0.99,
+        PhaseStabilizing => 0.95,
+        PhaseSaturn => 0.9,
+        PhaseJupiter => 0.8,
+        PhaseMars => 0.5,
+        PhaseEarth => 0.0,
+        PhaseBridge => 0.0,
+        PhaseComplete => 0.0
+    }
+}
+
+-- Get planet for current phase
+pure func phasePlanet(phase: ArrivalPhase) -> CurrentPlanet {
+    match phase {
+        PhaseSaturn => Saturn,
+        PhaseJupiter => Jupiter,
+        PhaseMars => Mars,
+        PhaseEarth => Earth,
+        PhaseBridge => Earth,
+        _ => NoPlanet
+    }
+}
+
+-- Get next phase
+pure func nextPhase(phase: ArrivalPhase) -> ArrivalPhase {
+    match phase {
+        PhaseEmergence => PhaseStabilizing,
+        PhaseStabilizing => PhaseSaturn,
+        PhaseSaturn => PhaseJupiter,
+        PhaseJupiter => PhaseMars,
+        PhaseMars => PhaseEarth,
+        PhaseEarth => PhaseBridge,
+        PhaseBridge => PhaseComplete,
+        PhaseComplete => PhaseComplete
+    }
+}
+
+-- Check if phase should transition based on time
+pure func shouldTransition(phase: ArrivalPhase, phaseTime: float) -> bool {
+    match phase {
+        PhaseEmergence => phaseTime > 5.0,
+        PhaseStabilizing => phaseTime > 3.0,
+        PhaseSaturn => phaseTime > 5.0,
+        PhaseJupiter => phaseTime > 5.0,
+        PhaseMars => phaseTime > 5.0,
+        PhaseEarth => phaseTime > 5.0,
+        PhaseBridge => phaseTime > 3.0,
+        PhaseComplete => false
+    }
+}
+
+-- =============================================================================
+-- Accessors
+-- =============================================================================
+
+-- Check if arrival is complete
+export pure func isArrivalComplete(state: ArrivalState) -> bool {
+    match state.phase {
+        PhaseComplete => true,
+        _ => false
+    }
+}
+
+-- Get SR velocity for shader (0.0 to 0.99)
+export pure func getArrivalVelocity(state: ArrivalState) -> float {
+    state.velocity
+}
+
+-- Get current planet name for rendering
+export pure func getArrivalPlanetName(state: ArrivalState) -> string {
+    match state.currentPlanet {
+        NoPlanet => "",
+        Saturn => "saturn",
+        Jupiter => "jupiter",
+        Mars => "mars",
+        Earth => "earth"
+    }
+}
+
+-- Get phase name for debugging
+export pure func getArrivalPhaseName(state: ArrivalState) -> string {
+    match state.phase {
+        PhaseEmergence => "emergence",
+        PhaseStabilizing => "stabilizing",
+        PhaseSaturn => "saturn",
+        PhaseJupiter => "jupiter",
+        PhaseMars => "mars",
+        PhaseEarth => "earth",
+        PhaseBridge => "bridge",
+        PhaseComplete => "complete"
+    }
+}
+
+-- =============================================================================
+-- Step Function
+-- =============================================================================
+
+-- Update arrival state for one frame
+export pure func stepArrival(state: ArrivalState, input: ArrivalInput) -> ArrivalState {
+    let dt = input.dt;
+    let newPhaseTime = state.phaseTime + dt;
+    let newTotalTime = state.totalTime + dt;
+
+    let transition = shouldTransition(state.phase, newPhaseTime);
+
+    if transition then {
+        let nextPh = nextPhase(state.phase);
+        let nextVel = phaseTargetVelocity(nextPh);
+        let nextPlanet = phasePlanet(nextPh);
+        {
+            phase: nextPh,
+            phaseTime: 0.0,
+            totalTime: newTotalTime,
+            velocity: nextVel,
+            currentPlanet: nextPlanet,
+            showHUD: true,
+            shipTimeYears: state.shipTimeYears,
+            galaxyYear: state.galaxyYear
+        }
+    } else {
+        { state | phaseTime: newPhaseTime, totalTime: newTotalTime }
+    }
+}

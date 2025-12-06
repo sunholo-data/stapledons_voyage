@@ -209,11 +209,27 @@ let nearest = minBy(\s. distance(currentPos, s.pos), candidates)
 
 ## Risks & Mitigations
 
-| Risk | Impact | Mitigation |
-|------|--------|-----------|
-| Gaia data too large | Med | Pre-filter to relevant subset (~50k stars) |
-| AILANG recursion limits on octree | High | Implement octree in Go, expose query API |
-| Procedural/real boundary visible | Low | Smooth blending function over 100 ly transition |
+**Updated for v0.5.2** - `extern func` now available for Go implementations.
+
+| Risk | Impact | Mitigation | Status |
+|------|--------|-----------|--------|
+| Gaia data too large | Med | Pre-filter to relevant subset (~50k stars) | Still relevant |
+| AILANG recursion limits on octree | High | Use `extern func` for Go octree implementation | Improved: `extern func` available (v0.5.2+) |
+| Procedural/real boundary visible | Low | Smooth blending function over 100 ly transition | Still relevant |
+
+**Octree via extern func pattern:**
+```ailang
+-- Declare in AILANG
+extern func octreeQuery(stars: Array[Star], center: Vec3, radius: float) -> [Star]
+extern func octreeBuild(stars: [Star]) -> OctreeHandle
+```
+
+```go
+// Implement in Go (internal/spatial/octree.go)
+func OctreeQuery(stars []sim_gen.Star, center sim_gen.Vec3, radius float64) []sim_gen.Star {
+    // Efficient Go implementation with loops
+}
+```
 
 ## References
 

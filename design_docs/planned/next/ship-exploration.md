@@ -4,7 +4,7 @@
 **Status:** Planned
 **Priority:** P0 (Core Gameplay Loop)
 **Complexity:** High
-**AILANG Workarounds:** Recursive room traversal, entity lookup by position
+**AILANG Workarounds:** Recursion depth (chunk processing), entity lookup (use Arrays)
 **Depends On:** v0.5.0 UI Modes Framework, v0.4.0 NPC Movement
 
 ## Related Documents
@@ -528,12 +528,30 @@ scenario := Scenario{
 
 ## AILANG Constraints
 
-| Limitation | Impact | Workaround |
-|------------|--------|------------|
-| No mutable state | Can't update player position in place | Functional state update |
-| Recursion depth | Large ship (100+ tiles per deck) | Chunk-based processing |
-| List O(n) | Finding crew by position | Maintain sorted position list |
-| No RNG | Crew behavior predictable | Deterministic schedule + tick seed |
+**Updated for v0.5.2** - Rand effect and Arrays now available.
+
+| Limitation | Impact | Workaround | Status |
+|------------|--------|------------|--------|
+| No mutable state | Can't update player position in place | Functional state update | By design |
+| Recursion depth | Large ship (100+ tiles per deck) | Chunk-based processing | Still needed |
+| List O(n) | Finding crew by position | Use `Array[Tile]` for O(1) grid access | Improved with Arrays |
+| ~~No RNG~~ | ~~Crew behavior predictable~~ | ~~Deterministic schedule + tick seed~~ | Fixed: `Rand` effect available (v0.5.0+) |
+
+**Grid Storage Pattern:**
+```ailang
+import std/array as A
+
+-- Use flat array for O(1) tile access
+type ShipDeck = {
+    width: int,
+    height: int,
+    tiles: Array[Tile]  -- Access with y * width + x
+}
+
+pure func getTile(deck: ShipDeck, x: int, y: int) -> Option[Tile] {
+    A.getOpt(deck.tiles, y * deck.width + x)
+}
+```
 
 ---
 

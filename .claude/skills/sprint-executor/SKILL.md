@@ -1,23 +1,37 @@
 ---
-name: Game Sprint Executor
-description: Execute approved sprint plans for Stapledons Voyage with continuous testing, AILANG feedback, and progress tracking. Use when user says "execute sprint", "start implementation", or wants to begin an approved sprint plan.
+name: Game Sprint Executor (AILANG)
+description: Execute approved sprint plans for Stapledons Voyage using AILANG. ALL game logic must be AILANG - engine is rendering only. Use when user says "execute sprint", "start implementation", or wants to begin an approved sprint plan.
 ---
 
-# Game Sprint Executor
+# Game Sprint Executor (AILANG-Only)
 
-Execute an approved sprint plan with continuous AILANG testing, feedback reporting, and progress tracking.
+Execute an approved sprint plan with **AILANG as the primary implementation language**. All game logic, state machines, and gameplay code goes in `sim/*.ail` - the Go engine only renders DrawCmd output.
+
+## CRITICAL: AILANG-First Architecture
+
+**This project is ALL-IN on AILANG.** The architecture is:
+
+| Layer | Language | Responsibility | Edit? |
+|-------|----------|----------------|-------|
+| `sim/*.ail` | AILANG | ALL game logic | ✅ Primary work |
+| `sim_gen/*.go` | Generated | AILANG → Go output | ❌ Never edit |
+| `engine/*.go` | Go | Rendering DrawCmd only | ⚠️ Rare, rendering only |
+
+**If you're writing game logic in Go, STOP. Write it in AILANG.**
+
+Mock-only mode was for early prototyping. We are past that phase.
 
 ## Quick Start
 
 **Most common usage:**
 ```bash
-# User says: "Execute the NPC movement sprint"
+# User says: "Execute the arrival sequence sprint"
 # This skill will:
 # 1. Check AILANG modules compile
-# 2. Create TodoWrite tasks for milestones
-# 3. Implement each milestone with ailang check
-# 4. Report AILANG issues as encountered
-# 5. Pause after each milestone for review
+# 2. Write new AILANG types and functions
+# 3. Run ailang check after every change
+# 4. Report AILANG issues immediately
+# 5. Compile to Go and test in engine
 ```
 
 ## When to Use This Skill
@@ -25,16 +39,20 @@ Execute an approved sprint plan with continuous AILANG testing, feedback reporti
 Invoke this skill when:
 - User says "execute sprint", "start sprint", "begin implementation"
 - User has an approved sprint plan ready
-- User wants guided game development with AILANG testing
+- Implementing ANY game feature (it MUST be AILANG)
+
+**Do NOT use this skill for:**
+- Pure engine rendering changes (use dev-tools or direct edits)
+- Asset pipeline work (use asset-manager skill)
 
 ## Core Principles
 
-1. **Test-Driven**: Run `ailang check` after every change (or `go test` for mock-only sprints)
-2. **Feedback-First**: Report AILANG issues immediately
-3. **Pause Points**: Stop after each milestone for review
+1. **AILANG-First**: ALL game logic in `sim/*.ail` - no exceptions
+2. **Test-Driven**: Run `ailang check` after every change
+3. **Feedback-First**: Report AILANG issues immediately
 4. **Track Progress**: Use TodoWrite AND update sprint JSON
 5. **Document Workarounds**: Record how you navigated limitations
-6. **Physics Accuracy First**: When implementing physics simulations, use exact formulas unless there's a compelling computational reason not to. Document any approximations with citations. Poetic license is not acceptable for physics - the game's educational value depends on accuracy.
+6. **Physics Accuracy First**: Use exact formulas, document any approximations
 
 ## JSON Progress Tracking (IMPORTANT)
 
@@ -68,25 +86,20 @@ Invoke this skill when:
 - Mark phase `completed` after all its tasks are done
 - Mark sprint `completed` at the end
 
-## Mock-Only Sprints (No AILANG)
+## Engine-Only Changes (Rare)
 
-When AILANG compiler isn't ready or the sprint is pure engine work, use mock sprints:
+Most work should be AILANG. Engine changes are only needed for:
+- Adding new DrawCmd rendering (e.g., planet textures)
+- Shader modifications
+- Asset loading
 
+For engine-only work:
 ```bash
-# Use -mock targets
-make game-mock    # Build without AILANG
-make run-mock     # Run without AILANG
-make eval-mock    # Test without AILANG
-go test ./...     # Run Go tests
+go build ./...    # Verify Go compiles
+make run          # Test rendering
 ```
 
-**For mock sprints, skip these AILANG-specific steps:**
-- `ailang check` → use `go build ./...` instead
-- `ailang run` → use `make run-mock` instead
-- AILANG feedback messages → **do not send** (no AILANG issues to report)
-- DX feedback → **skip** (feedback skill is for AILANG, not Go)
-
-Focus on Go implementation and standard Go testing.
+**Remember:** Engine code should be "dumb" - it only renders what AILANG tells it via DrawCmd.
 
 ## Execution Flow
 
@@ -339,6 +352,26 @@ make game
 ```
 
 ## Resources
+
+### Engine & Physics Reference
+
+**IMPORTANT:** Before implementing features, review these reference documents:
+
+| Document | Contents | When to Use |
+|----------|----------|-------------|
+| [engine-capabilities.md](../../../design_docs/reference/engine-capabilities.md) | All DrawCmd types, effect handlers, assets, shaders, physics | Any sprint involving rendering or engine features |
+| [gr-effects.md](../../../design_docs/implemented/v0_1_0/gr-effects.md) | GR physics formulas, shader uniforms, danger levels | Black hole/neutron star features |
+| [ai-handler-system.md](../../../design_docs/implemented/v0_1_0/ai-handler-system.md) | AI effect, multimodal APIs, provider config | NPC dialogue, AI-driven decisions |
+
+**Key Engine Capabilities:**
+
+| Category | What's Available |
+|----------|------------------|
+| **DrawCmd** | Sprite, Rect, Text, IsoTile, IsoEntity, GalaxyBg, Star, Ui, Line, Circle, TextWrapped |
+| **Effects** | Debug, Rand, Clock, AI (with Claude/Gemini/stub backends) |
+| **Assets** | Sprites (animated), Audio (OGG/WAV), Fonts (TTF with scaling) |
+| **Shaders** | SR warp (Doppler, aberration), GR warp (lensing, redshift), bloom, vignette, CRT |
+| **Physics** | Lorentz factor, time dilation, gravitational redshift, Schwarzschild radius |
 
 ### Project Commands
 - `make sim` - Compile AILANG to Go

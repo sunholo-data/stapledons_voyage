@@ -4,7 +4,7 @@
 **Status:** Planned
 **Priority:** P0 (Core Navigation)
 **Complexity:** High
-**AILANG Workarounds:** Graph traversal recursion, star lookup optimization
+**AILANG Workarounds:** Recursion depth (use viewport culling), lookup by ID (use Arrays + extern)
 **Depends On:** v0.5.0 UI Modes Framework, v0.5.1 Ship Exploration (for transition)
 
 ## Related Documents
@@ -602,27 +602,39 @@ scenario := Scenario{
 
 ## AILANG Constraints
 
-| Limitation | Impact | Workaround |
-|------------|--------|------------|
-| Recursion depth | Can't iterate 1000+ stars | Viewport culling, only process visible |
-| List O(n) | Finding star by ID slow | Pre-sort by region, spatial hash |
-| No mutable state | Camera position updates | Functional state passing |
-| Float precision | Large galaxy coordinates | Normalize to manageable range |
+**Updated for v0.5.2** - Arrays and extern functions now available.
 
-### Optimization: Spatial Regions
+| Limitation | Impact | Workaround | Status |
+|------------|--------|------------|--------|
+| Recursion depth | Can't iterate 1000+ stars | Viewport culling, only process visible | Still needed |
+| List O(n) lookup | Finding star by ID slow | Use `Array[Star]` with O(1) `get` | Improved with Arrays |
+| Array O(n) update | Modifying star data expensive | Batch updates, rebuild once | Still relevant |
+| No mutable state | Camera position updates | Functional state passing | By design |
+| Float precision | Large galaxy coordinates | Normalize to manageable range | Still relevant |
+| Complex queries | Octree/spatial queries slow in pure AILANG | Use `extern func` for Go impl | New option in v0.5.2+ |
+
+### Optimization: Spatial Regions with Arrays
 
 ```ailang
--- Divide galaxy into regions for efficient lookup
-type GalaxyRegion = {
-    bounds: Rect,
-    stars: [StarID]
+import std/array as A
+
+-- Use Arrays for O(1) star lookup by index
+type GalaxyData = {
+    stars: Array[Star],           -- O(1) access by StarID (if ID = index)
+    regions: [GalaxyRegion]       -- Spatial partitioning
 }
 
-pure func findVisibleStars(regions: [GalaxyRegion], viewport: Rect) -> [StarID] {
-    let overlapping = filter(\r. rectsOverlap(r.bounds, viewport), regions);
-    concatAll(map(\r. r.stars, overlapping))
-}
+-- For complex spatial queries, delegate to Go via extern
+extern func queryStarsInRect(stars: Array[Star], rect: Rect) -> [Star]
 ```
+
+### When to Use extern func (v0.5.2+)
+
+Use Go implementations via `extern func` for:
+- Octree/spatial data structures
+- Pathfinding algorithms (A*, Dijkstra)
+- Large-scale iteration (1000+ items)
+- Performance-critical loops
 
 ---
 

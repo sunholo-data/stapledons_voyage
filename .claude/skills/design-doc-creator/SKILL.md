@@ -66,7 +66,24 @@ Ask user:
 
 **Reference:** [docs/game-vision.md](../../../docs/game-vision.md)
 
-### 3. Consider AILANG Constraints
+### 3. Engine Capabilities Reference
+
+**Before designing, know what's already available:**
+
+| Reference | Contents |
+|-----------|----------|
+| [engine-capabilities.md](../../../design_docs/reference/engine-capabilities.md) | Complete engine reference |
+| [gr-effects.md](../../../design_docs/implemented/v0_1_0/gr-effects.md) | GR physics & shaders |
+| [ai-handler-system.md](../../../design_docs/implemented/v0_1_0/ai-handler-system.md) | AI effect & providers |
+
+**Available Engine Features:**
+- **DrawCmd**: Sprite, Rect, Text, IsoTile, IsoEntity, GalaxyBg, Star, Ui, Line, Circle, TextWrapped
+- **Effects**: Debug, Rand, Clock, AI (Claude/Gemini/stub backends)
+- **Assets**: Animated sprites, Audio (OGG/WAV), Fonts (TTF)
+- **Shaders**: SR warp (Doppler, aberration), GR warp (lensing, redshift), bloom, vignette
+- **Physics**: Lorentz factor (γ), time dilation, gravitational redshift, Schwarzschild radius
+
+### 4. Consider AILANG Constraints
 
 **Important for this project:** All game logic is written in AILANG. Consider:
 - No mutable state - must use functional updates
@@ -74,7 +91,7 @@ Ask user:
 - Limited data structures - lists only, no arrays
 - Known issues - check CLAUDE.md for current limitations
 
-### 4. Design Doc Structure
+### 5. Design Doc Structure
 
 **Game-specific sections:**
 - **Game Vision Alignment**: Score against core pillars
@@ -84,7 +101,7 @@ Ask user:
 - **Performance**: Recursion depth, list operations needed
 - **Testing**: How to verify the feature works
 
-### 5. Example: NPC Movement Design Doc
+### 6. Example: NPC Movement Design Doc
 
 ```markdown
 # NPC Movement System

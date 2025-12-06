@@ -7,6 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - [docs/game-vision.md](docs/game-vision.md) - Full game design document
 - [DEVELOPMENT.md](DEVELOPMENT.md) - Technical reference, data flow, types
 - [design_docs/](design_docs/) - Feature design documentation
+- [design_docs/reference/engine-capabilities.md](design_docs/reference/engine-capabilities.md) - Complete engine reference (DrawCmd, effects, shaders, physics)
 
 ## Project Overview
 
@@ -25,16 +26,17 @@ make run      # Run game directly with go run
 make eval     # Run benchmarks + scenarios, output to out/report.json
 ```
 
-### Without AILANG Compiler (mock mode)
+### Legacy Mock Mode (deprecated)
 
-Use these targets while AILANG compiler is in development:
+Mock mode was used during early prototyping. **We are now ALL-IN on AILANG.**
 
 ```bash
-make game-mock   # Build using mock sim_gen (no ailc needed)
+# These still work but should rarely be needed:
+make game-mock   # Build using mock sim_gen
 make run-mock    # Run game using mock sim_gen
-make eval-mock   # Run benchmarks + scenarios using mock sim_gen
-make sprites     # Generate test sprite PNGs
 ```
+
+**For all new game features, write AILANG code in `sim/*.ail`.**
 
 ### Cleanup
 
@@ -73,6 +75,21 @@ ailang messages watch                  # Watch for new messages
 ```
 
 ## Architecture
+
+### AILANG-First Development (CRITICAL)
+
+**ALL game logic MUST be written in AILANG.** The Go engine is "dumb" - it only:
+- Captures input → passes to AILANG
+- Renders DrawCmd output from AILANG
+- Loads assets and applies shaders
+
+**If you're about to write game logic in Go, STOP. Write it in AILANG instead.**
+
+| What | Where | Language |
+|------|-------|----------|
+| Game state, logic, AI | `sim/*.ail` | AILANG ✅ |
+| Rendering, shaders, assets | `engine/*.go` | Go (rare edits) |
+| Generated bridge code | `sim_gen/*.go` | Never edit ❌ |
 
 **Three-layer design:**
 

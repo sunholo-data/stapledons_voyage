@@ -527,6 +527,30 @@ func Make(size interface{}, defaultVal interface{}) interface{} {
 	return result
 }
 
+// convertToArrivalPhaseSlice converts []interface{} to []*ArrivalPhase.
+// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
+func convertToArrivalPhaseSlice(v interface{}) []*ArrivalPhase {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("convertToArrivalPhaseSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*ArrivalPhase{}
+	}
+	out := make([]*ArrivalPhase, len(src))
+	for i, e := range src {
+		elem, ok := e.(*ArrivalPhase)
+		if !ok {
+			panic(fmt.Sprintf("convertToArrivalPhaseSlice: element %d: expected *ArrivalPhase, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
 // convertToClickKindSlice converts []interface{} to []*ClickKind.
 // M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
 func convertToClickKindSlice(v interface{}) []*ClickKind {
@@ -545,6 +569,30 @@ func convertToClickKindSlice(v interface{}) []*ClickKind {
 		elem, ok := e.(*ClickKind)
 		if !ok {
 			panic(fmt.Sprintf("convertToClickKindSlice: element %d: expected *ClickKind, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// convertToCurrentPlanetSlice converts []interface{} to []*CurrentPlanet.
+// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
+func convertToCurrentPlanetSlice(v interface{}) []*CurrentPlanet {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("convertToCurrentPlanetSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*CurrentPlanet{}
+	}
+	out := make([]*CurrentPlanet, len(src))
+	for i, e := range src {
+		elem, ok := e.(*CurrentPlanet)
+		if !ok {
+			panic(fmt.Sprintf("convertToCurrentPlanetSlice: element %d: expected *CurrentPlanet, got %T", i, e))
 		}
 		out[i] = elem
 	}

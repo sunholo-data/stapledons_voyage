@@ -38,6 +38,23 @@ engine/*.go      → Go/Ebiten rendering
 cmd/game/main.go → Game loop
 ```
 
+### Engine Capabilities Reference
+
+**IMPORTANT:** Before estimating effort, review what's already built:
+
+| Reference | Contents |
+|-----------|----------|
+| [engine-capabilities.md](../../../design_docs/reference/engine-capabilities.md) | Complete engine reference (DrawCmd types, effects, shaders, physics) |
+| [gr-effects.md](../../../design_docs/implemented/v0_1_0/gr-effects.md) | GR physics, shader uniforms, danger levels |
+| [ai-handler-system.md](../../../design_docs/implemented/v0_1_0/ai-handler-system.md) | AI effect, multimodal APIs |
+
+**Key Available Capabilities:**
+- **DrawCmd**: Sprite, Rect, Text, IsoTile, IsoEntity, GalaxyBg, Star, Ui (Panel/Button/Label/Portrait/Slider/ProgressBar), Line, Circle, TextWrapped
+- **Effects**: Debug, Rand, Clock, AI (Claude/Gemini/stub)
+- **Assets**: Animated sprites, Audio (OGG/WAV), Fonts (TTF with scaling)
+- **Shaders**: SR warp, GR warp, bloom, vignette, CRT
+- **Physics**: Lorentz factor, time dilation, gravitational redshift
+
 ### Current AILANG Limitations
 Before planning, check CLAUDE.md for:
 - Module imports not working
