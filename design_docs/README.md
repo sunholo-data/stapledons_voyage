@@ -8,7 +8,8 @@ This directory is the **source of truth** for feature planning and implementatio
 |----------|-------|----------|---------|
 | Implemented | 16 | [implemented/](implemented/) | Completed features |
 | Planned (Next) | 4 | [planned/next/](planned/next/) | Active development |
-| Planned (Future) | 23 | [planned/future/](planned/future/) | Backlog |
+| Planned (Future) | 33 | [planned/future/](planned/future/) | Backlog |
+| Planned (Sprint) | 1 | [planned/](planned/) | Sprint plan |
 | Reference | 12 | [reference/](reference/) | Architecture & system docs |
 | Input | 4 | [input/](input/) | Research & concept notes |
 
@@ -72,6 +73,17 @@ Run the validation script to check doc organization:
 | **Ship Exploration** | Interior navigation, crew interaction | [ship-exploration.md](planned/next/ship-exploration.md) |
 | **Journey System** | Time dilation, travel mechanics | [journey-system.md](planned/next/journey-system.md) |
 
+### Vision Integration Sprint
+
+Core game mechanics from 2025-12-06 vision interviews. See [sprint-vision-integration.md](planned/sprint-vision-integration.md).
+
+| Sprint | Focus | Docs |
+|--------|-------|------|
+| **Sprint 1** | Core Narrative | [black-hole-mechanics](planned/future/black-hole-mechanics.md), [opening-sequence](planned/future/opening-sequence.md) |
+| **Sprint 2** | Ship Foundation | [bubble-constraint](planned/future/bubble-constraint.md), [bubble-ship-layout](planned/future/bubble-ship-layout.md), [mass-budget](planned/future/mass-budget.md) |
+| **Sprint 3** | Society Sim | [bubble-society](planned/future/bubble-society.md), [archive-crew-trust](planned/future/archive-crew-trust.md) |
+| **Sprint 4** | AI Systems | [archive-system](planned/future/archive-system.md), [narrative-orchestrator](planned/future/narrative-orchestrator.md), [spire-mystery](planned/future/spire-mystery.md) |
+
 ### Future (Backlog)
 
 See [planned/future/](planned/future/) for all backlog items including:
@@ -104,6 +116,7 @@ Research notes and concept documents (feed into planned docs):
 |----------|-------------|
 | [game_loop_origin.md](input/game_loop_origin.md) | Original game loop concept |
 | [bubble-ship-design.md](input/bubble-ship-design.md) | Ship design inspiration |
+| [ai-the-archive.md](input/ai-the-archive.md) | Archive AI and orchestrator concepts |
 
 ---
 

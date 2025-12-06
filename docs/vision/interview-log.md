@@ -107,8 +107,8 @@ The conversation revealed that every playthrough should begin with the player EM
 - [x] Log 7 design decisions from this interview
 - [x] Add 3 open questions (BH origin explicit/implicit, universe-hopper rarity, influence transparency)
 - [x] Add Pillar 6: "We Are Not Built For This"
-- [ ] Draft Black Hole Design Document
-- [ ] Design opening sequence (emergence from mysterious structure)
+- [x] Draft Black Hole Design Document → [black-hole-mechanics.md](../../design_docs/planned/future/black-hole-mechanics.md)
+- [x] Design opening sequence → [opening-sequence.md](../../design_docs/planned/future/opening-sequence.md)
 
 ---
 
@@ -175,9 +175,9 @@ Reviewed design_docs/planned/game_loop_origin.md which proposed:
 
 - [x] Log 9 design decisions from this interview
 - [x] Add 4 open questions (system crises, bubble society sim, recursion revelation, end-screen bubble)
-- [ ] Draft Bubble Society design document
-- [ ] Draft Bubble Constraint design document (what can/can't cross boundary)
-- [ ] Integrate with existing crew/OCEAN systems
+- [x] Draft Bubble Society design document → [bubble-society.md](../../design_docs/planned/future/bubble-society.md)
+- [x] Draft Bubble Constraint design document → [bubble-constraint.md](../../design_docs/planned/future/bubble-constraint.md)
+- [ ] Integrate with existing crew/OCEAN systems (deferred to implementation)
 
 ---
 
@@ -247,9 +247,9 @@ Reviewed design_docs/input/bubble-ship-design.md which details:
 ### Actions
 
 - [x] Log 12 design decisions from this interview
-- [ ] Draft Bubble Ship Layout design document
-- [ ] Define mass budget mechanics
-- [ ] Design spire mystery / tech tree revelations
+- [x] Draft Bubble Ship Layout design document → [bubble-ship-layout.md](../../design_docs/planned/future/bubble-ship-layout.md)
+- [x] Define mass budget mechanics → [mass-budget.md](../../design_docs/planned/future/mass-budget.md)
+- [x] Design spire mystery / tech tree revelations → [spire-mystery.md](../../design_docs/planned/future/spire-mystery.md)
 
 ---
 
@@ -318,7 +318,7 @@ Reviewed design_docs/input/ai-the-archive.md which describes:
 ### Actions
 
 - [x] Log 8 design decisions from this interview
-- [ ] Draft Archive Design Document (personality, memory health, repair mechanics)
-- [ ] Draft Narrative Orchestrator Design Document (arc types TBC)
-- [ ] Define event taxonomy priorities for MVP
-- [ ] Design Archive-crew trust dynamics
+- [x] Draft Archive Design Document → [archive-system.md](../../design_docs/planned/future/archive-system.md)
+- [x] Draft Narrative Orchestrator Design Document → [narrative-orchestrator.md](../../design_docs/planned/future/narrative-orchestrator.md)
+- [ ] Define event taxonomy priorities for MVP (deferred - arc types TBC per interview)
+- [x] Design Archive-crew trust dynamics → [archive-crew-trust.md](../../design_docs/planned/future/archive-crew-trust.md)
