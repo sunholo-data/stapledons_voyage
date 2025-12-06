@@ -88,6 +88,8 @@ func runAICommand(args []string) {
 	system := fs.String("system", "", "System prompt")
 	imagePath := fs.String("image", "", "Path to image file to include (Gemini only)")
 	generateImage := fs.Bool("generate-image", false, "Generate an image from prompt (Gemini only)")
+	editImage := fs.Bool("edit-image", false, "Edit a reference image with the prompt (Gemini only)")
+	referencePath := fs.String("reference", "", "Path to reference image for editing (or uses last generated)")
 	tts := fs.Bool("tts", false, "Generate speech from prompt (Gemini only)")
 	voice := fs.String("voice", "", "TTS voice name (default: Kore). Options: Aoede, Charon, Fenrir, Kore, Puck, Zephyr, Enceladus")
 	verbose := fs.Bool("v", false, "Verbose output")
@@ -110,6 +112,8 @@ Examples:
   voyage ai -provider claude -prompt "Hi"   # Use Claude
   voyage ai -provider gemini -prompt "Hi"   # Use Gemini
   voyage ai -prompt "Draw a cat" -generate-image  # Generate image
+  voyage ai -prompt "Make sky purple" -edit-image -reference img.png  # Edit image
+  voyage ai -prompt "Add more stars" -edit-image  # Edit last generated image
   voyage ai -prompt "Hello world" -tts      # Text to speech
   voyage ai -prompt "Hello" -tts -voice Puck  # TTS with specific voice
 
@@ -197,6 +201,18 @@ Environment Variables:
 		req.Context["tts"] = true
 		if *voice != "" {
 			req.Context["voice"] = *voice
+		}
+	}
+	if *editImage {
+		promptText = "edit: " + promptText
+		req.Context["edit_image"] = true
+		// Add reference image if provided
+		if *referencePath != "" {
+			if _, err := os.Stat(*referencePath); err != nil {
+				fmt.Fprintf(os.Stderr, "Reference image not found: %s\n", *referencePath)
+				os.Exit(1)
+			}
+			req.Context["reference_image"] = *referencePath
 		}
 	}
 
