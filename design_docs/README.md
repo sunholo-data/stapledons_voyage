@@ -6,7 +6,7 @@ This directory is the **source of truth** for feature planning and implementatio
 
 | Category | Count | Location | Purpose |
 |----------|-------|----------|---------|
-| Implemented | 14 | [implemented/](implemented/) | Completed features |
+| Implemented | 16 | [implemented/](implemented/) | Completed features |
 | Planned (Next) | 4 | [planned/next/](planned/next/) | Active development |
 | Planned (Future) | 23 | [planned/future/](planned/future/) | Backlog |
 | Reference | 12 | [reference/](reference/) | Architecture & system docs |
@@ -43,7 +43,8 @@ Run the validation script to check doc organization:
 | Feature | Description | Doc |
 |---------|-------------|-----|
 | **SR Effects** | Special relativity: aberration, Doppler, beaming | [sr-effects.md](implemented/v0_1_0/sr-effects.md) |
-| **GR Effects** | Gravitational lensing near black holes | [sprint-relativistic-effects.md](implemented/v0_1_0/sprint-relativistic-effects.md) |
+| **GR Effects** | Gravitational lensing, redshift near massive objects | [gr-effects.md](implemented/v0_1_0/gr-effects.md) |
+| **Relativistic Sprint** | Combined SR+GR implementation sprint | [sprint-relativistic-effects.md](implemented/v0_1_0/sprint-relativistic-effects.md) |
 | **Shader Pipeline** | Bloom, vignette, CRT, chromatic aberration | [shader-system.md](implemented/v0_1_0/shader-system.md) |
 | **Audio System** | OGG/WAV loading, PlaySound API | [audio-system.md](implemented/v0_1_0/audio-system.md) |
 | **Screenshot Mode** | Headless capture for visual testing | [screenshot-mode.md](implemented/v0_1_0/screenshot-mode.md) |
@@ -56,6 +57,7 @@ Run the validation script to check doc organization:
 | **Asset Management** | Sprites, audio, fonts with manifests | [asset-management.md](implemented/v0_1_0/asset-management.md) |
 | **Player Input** | Mouse handling, keyboard events | [player-interaction.md](implemented/v0_1_0/player-interaction.md) |
 | **AI Handler System** | Claude, Gemini, multimodal (text/image/TTS) | [ai-handler-system.md](implemented/v0_1_0/ai-handler-system.md) |
+| **CLI Dev Tools** | voyage CLI, granimation, asset generators | [cli-dev-tools.md](implemented/v0_1_0/cli-dev-tools.md) |
 
 ---
 
