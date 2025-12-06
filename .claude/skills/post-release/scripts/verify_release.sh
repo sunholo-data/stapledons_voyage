@@ -95,7 +95,9 @@ echo
 echo "6/7 Checking CHANGELOG..."
 if [[ -f "$PROJECT_ROOT/CHANGELOG.md" ]]; then
     if [[ -n "$VERSION" ]]; then
-        if grep -q "\[$VERSION\]" "$PROJECT_ROOT/CHANGELOG.md"; then
+        # Strip 'v' prefix for CHANGELOG lookup (CHANGELOG uses [0.1.0] not [v0.1.0])
+        VERSION_NUM="${VERSION#v}"
+        if grep -q "\[$VERSION_NUM\]" "$PROJECT_ROOT/CHANGELOG.md" || grep -q "\[$VERSION\]" "$PROJECT_ROOT/CHANGELOG.md"; then
             echo "  ✓ CHANGELOG has $VERSION entry"
         else
             echo "  ⚠ CHANGELOG missing $VERSION entry"
