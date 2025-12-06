@@ -199,8 +199,22 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 	return g.display.Layout(outsideWidth, outsideHeight)
 }
 
-func main() {
-	// Parse command line flags
+// gameFlags holds all parsed command line flags
+type gameFlags struct {
+	screenshotFrames int
+	screenshotOutput string
+	seed             int64
+	cameraStr        string
+	scenarioName     string
+	testMode         bool
+	demoMode         bool
+	effectsStr       string
+	demoScene        bool
+	velocity         float64
+	viewAngle        float64
+}
+
+func parseFlags() gameFlags {
 	screenshotFrames := flag.Int("screenshot", 0, "Take screenshot after N frames and exit")
 	screenshotOutput := flag.String("output", "out/screenshot.png", "Screenshot output path")
 	seed := flag.Int64("seed", 1234, "World seed for determinism")
@@ -214,84 +228,73 @@ func main() {
 	viewAngle := flag.Float64("view-angle", 0.0, "View direction: 0=front, 1.57=side, 3.14=back (radians)")
 	flag.Parse()
 
-	// Handle scenario mode
-	if *scenarioName != "" {
-		scenarioPath, err := scenario.FindScenario(*scenarioName)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Scenario error: %v\n", err)
-			os.Exit(1)
-		}
+	return gameFlags{
+		screenshotFrames: *screenshotFrames,
+		screenshotOutput: *screenshotOutput,
+		seed:             *seed,
+		cameraStr:        *cameraStr,
+		scenarioName:     *scenarioName,
+		testMode:         *testMode,
+		demoMode:         *demoMode,
+		effectsStr:       *effectsStr,
+		demoScene:        *demoScene,
+		velocity:         *velocity,
+		viewAngle:        *viewAngle,
+	}
+}
 
-		outputDir := filepath.Join("out", "scenarios", *scenarioName)
-		if err := scenario.RunVisualScenarioWithOptions(scenarioPath, outputDir, *testMode, *testMode); err != nil {
-			fmt.Fprintf(os.Stderr, "Scenario failed: %v\n", err)
-			os.Exit(1)
-		}
-		os.Exit(0)
+func handleScenarioMode(flags gameFlags) {
+	scenarioPath, err := scenario.FindScenario(flags.scenarioName)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Scenario error: %v\n", err)
+		os.Exit(1)
 	}
 
-	// Handle screenshot mode
-	if *screenshotFrames > 0 {
-		cfg := screenshot.DefaultConfig()
-		cfg.Frames = *screenshotFrames
-		cfg.OutputPath = *screenshotOutput
-		cfg.Seed = *seed
-		cfg.TestMode = *testMode
-		cfg.Effects = *effectsStr
-		cfg.DemoScene = *demoScene
-		cfg.Velocity = *velocity
-		cfg.ViewAngle = *viewAngle
+	outputDir := filepath.Join("out", "scenarios", flags.scenarioName)
+	if err := scenario.RunVisualScenarioWithOptions(scenarioPath, outputDir, flags.testMode, flags.testMode); err != nil {
+		fmt.Fprintf(os.Stderr, "Scenario failed: %v\n", err)
+		os.Exit(1)
+	}
+	os.Exit(0)
+}
 
-		// Parse camera position if provided
-		if *cameraStr != "" {
-			parts := strings.Split(*cameraStr, ",")
-			if len(parts) == 3 {
-				if x, err := strconv.ParseFloat(parts[0], 64); err == nil {
-					cfg.CameraX = x
-				}
-				if y, err := strconv.ParseFloat(parts[1], 64); err == nil {
-					cfg.CameraY = y
-				}
-				if z, err := strconv.ParseFloat(parts[2], 64); err == nil {
-					cfg.CameraZoom = z
-				}
+func handleScreenshotMode(flags gameFlags) {
+	cfg := screenshot.DefaultConfig()
+	cfg.Frames = flags.screenshotFrames
+	cfg.OutputPath = flags.screenshotOutput
+	cfg.Seed = flags.seed
+	cfg.TestMode = flags.testMode
+	cfg.Effects = flags.effectsStr
+	cfg.DemoScene = flags.demoScene
+	cfg.Velocity = flags.velocity
+	cfg.ViewAngle = flags.viewAngle
+
+	// Parse camera position if provided
+	if flags.cameraStr != "" {
+		parts := strings.Split(flags.cameraStr, ",")
+		if len(parts) == 3 {
+			if x, err := strconv.ParseFloat(parts[0], 64); err == nil {
+				cfg.CameraX = x
+			}
+			if y, err := strconv.ParseFloat(parts[1], 64); err == nil {
+				cfg.CameraY = y
+			}
+			if z, err := strconv.ParseFloat(parts[2], 64); err == nil {
+				cfg.CameraZoom = z
 			}
 		}
-
-		if err := screenshot.Capture(cfg); err != nil {
-			fmt.Fprintf(os.Stderr, "Screenshot failed: %v\n", err)
-			os.Exit(1)
-		}
-		os.Exit(0)
 	}
 
-	// Normal game mode
-	// Initialize display manager (loads config from file)
-	displayMgr := display.NewManager("config.json")
-
-	// Initialize asset manager
-	assetMgr, err := assets.NewManager("assets")
-	if err != nil {
-		log.Printf("Warning: failed to initialize assets: %v", err)
+	if err := screenshot.Capture(cfg); err != nil {
+		fmt.Fprintf(os.Stderr, "Screenshot failed: %v\n", err)
+		os.Exit(1)
 	}
+	os.Exit(0)
+}
 
-	// Scale fonts for internal resolution
-	if assetMgr != nil {
-		assetMgr.SetFontScale(display.InternalHeight)
-	}
-
-	// Note: Star catalog loading removed - not available in AILANG codegen yet
-	// TODO: Add star catalog support when available
-
-	// Create renderer with asset manager
-	renderer := render.NewRenderer(assetMgr)
-
-	// Initialize effect handlers BEFORE any sim_gen calls
-	// CRITICAL: Handlers must be set up before InitWorld or Step
+func initializeHandlers(seed int64) (*handlers.EbitenClockHandler, handlers.AIHandler) {
 	clockHandler := handlers.NewEbitenClockHandler()
 
-	// Initialize AI handler - auto-detects provider from env vars
-	// Set AI_PROVIDER=claude, AI_PROVIDER=gemini, or let it auto-detect
 	ctx := context.Background()
 	aiHandler, err := handlers.NewAIHandlerFromEnv(ctx)
 	if err != nil {
@@ -301,44 +304,79 @@ func main() {
 
 	sim_gen.Init(sim_gen.Handlers{
 		Debug: sim_gen.NewDebugContext(),
-		Rand:  handlers.NewSeededRandHandler(*seed),
+		Rand:  handlers.NewSeededRandHandler(seed),
 		Clock: clockHandler,
 		AI:    aiHandler,
 	})
 
-	// Initialize save manager (Pillar 1: single save file, auto-save only)
-	saveMgr := save.NewManager()
+	return clockHandler, aiHandler
+}
 
-	// Try to load existing save
-	var world *sim_gen.World
+func loadOrCreateWorld(saveMgr *save.Manager, seed int64) *sim_gen.World {
 	savedWorld, err := saveMgr.LoadGame()
 	if err != nil {
 		log.Printf("Warning: failed to load save: %v", err)
 	}
 
 	if savedWorld != nil {
-		// Continue from saved game
-		world = savedWorld
 		log.Printf("Loaded save with %.1f minutes play time", saveMgr.PlayTime()/60)
-	} else {
-		// New game - initialize fresh world
-		worldIface := sim_gen.InitWorld(*seed)
-		var ok bool
-		world, ok = worldIface.(*sim_gen.World)
-		if !ok {
-			log.Fatal("InitWorld did not return *World")
-		}
+		return savedWorld
 	}
 
-	// Initialize shader effects
+	worldIface := sim_gen.InitWorld(seed)
+	world, ok := worldIface.(*sim_gen.World)
+	if !ok {
+		log.Fatal("InitWorld did not return *World")
+	}
+	return world
+}
+
+func setupShutdownHandler(saveMgr *save.Manager, game *Game) {
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+	go func() {
+		<-sigChan
+		log.Println("Saving game before exit...")
+		if err := saveMgr.SaveGame(game.world); err != nil {
+			log.Printf("Failed to save on exit: %v", err)
+		}
+		os.Exit(0)
+	}()
+}
+
+func main() {
+	flags := parseFlags()
+
+	// Handle special modes
+	if flags.scenarioName != "" {
+		handleScenarioMode(flags)
+	}
+	if flags.screenshotFrames > 0 {
+		handleScreenshotMode(flags)
+	}
+
+	// Normal game mode
+	displayMgr := display.NewManager("config.json")
+
+	assetMgr, err := assets.NewManager("assets")
+	if err != nil {
+		log.Printf("Warning: failed to initialize assets: %v", err)
+	}
+	if assetMgr != nil {
+		assetMgr.SetFontScale(display.InternalHeight)
+	}
+
+	renderer := render.NewRenderer(assetMgr)
+	clockHandler, _ := initializeHandlers(flags.seed)
+	saveMgr := save.NewManager()
+	world := loadOrCreateWorld(saveMgr, flags.seed)
+
 	effects := shader.NewEffects()
 	if err := effects.Preload(); err != nil {
 		log.Printf("Warning: shader preload failed: %v", err)
 	}
-	effects.SetDemoMode(*demoMode)
-
-	// Show demo mode hint if enabled
-	if *demoMode {
+	effects.SetDemoMode(flags.demoMode)
+	if flags.demoMode {
 		log.Println("Demo mode enabled: F4=SR Warp, F5=Bloom, F6=Vignette, F7=CRT, F8=Aberration, F9=Overlay")
 	}
 
@@ -352,29 +390,17 @@ func main() {
 		effects:  effects,
 	}
 
-	// Set up graceful shutdown handler to save on exit
-	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
-	go func() {
-		<-sigChan
-		log.Println("Saving game before exit...")
-		if err := saveMgr.SaveGame(game.world); err != nil {
-			log.Printf("Failed to save on exit: %v", err)
-		}
-		os.Exit(0)
-	}()
+	setupShutdownHandler(saveMgr, game)
 
 	ebiten.SetWindowTitle("Stapledons Voyage")
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	if err := ebiten.RunGame(game); err != nil {
-		// Save on error exit too
 		if saveErr := saveMgr.SaveGame(game.world); saveErr != nil {
 			log.Printf("Failed to save on exit: %v", saveErr)
 		}
 		log.Fatal(err)
 	}
 
-	// Save on normal exit
 	if err := saveMgr.SaveGame(game.world); err != nil {
 		log.Printf("Failed to save on exit: %v", err)
 	}

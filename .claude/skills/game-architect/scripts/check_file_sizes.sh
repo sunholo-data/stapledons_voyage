@@ -23,8 +23,12 @@ echo ""
 # Check Go files
 echo "Go files:"
 while IFS= read -r file; do
-    # Skip generated/vendor directories
+    # Skip generated/vendor directories and test files
     if [[ "$file" == *"/vendor/"* ]] || [[ "$file" == *"_test.go" ]]; then
+        continue
+    fi
+    # Skip auto-generated AILANG output directories
+    if [[ "$file" == *"/sim_gen/"* ]] || [[ "$file" == *"/gen/game/"* ]]; then
         continue
     fi
 
@@ -37,7 +41,7 @@ while IFS= read -r file; do
         echo "  ! WARN:  $file ($lines lines)"
         WARNINGS=$((WARNINGS + 1))
     fi
-done < <(find . -name "*.go" -type f | grep -v "/vendor/" | sort)
+done < <(find . -name "*.go" -type f | grep -v "/vendor/" | grep -v "/sim_gen/" | grep -v "/gen/game/" | sort)
 
 echo ""
 

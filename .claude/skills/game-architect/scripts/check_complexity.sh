@@ -26,7 +26,7 @@ echo "----------------------------------------"
 # Find large functions
 # This is a heuristic - counts lines between "func" and next "func" or EOF
 find_large_funcs() {
-    for file in $(find . -name "*.go" -type f | grep -v "/vendor/" | grep -v "_test.go"); do
+    for file in $(find . -name "*.go" -type f | grep -v "/vendor/" | grep -v "_test.go" | grep -v "/sim_gen/" | grep -v "/gen/game/"); do
         awk -v max="$MAX_FUNC_LINES" -v file="$file" '
         /^func / {
             if (func_name != "" && line_count > max) {
@@ -61,7 +61,7 @@ echo "----------------------------------------"
 
 # Find switches with many cases
 find_complex_switches() {
-    for file in $(find . -name "*.go" -type f | grep -v "/vendor/"); do
+    for file in $(find . -name "*.go" -type f | grep -v "/vendor/" | grep -v "/sim_gen/" | grep -v "/gen/game/"); do
         awk -v max="$MAX_SWITCH_CASES" -v file="$file" '
         /switch/ { in_switch = 1; switch_line = NR; case_count = 0 }
         in_switch && /case / { case_count++ }
@@ -89,7 +89,7 @@ echo "----------------------------------------"
 
 # Find deeply nested code (heuristic based on indentation)
 find_deep_nesting() {
-    for file in $(find . -name "*.go" -type f | grep -v "/vendor/" | grep -v "_test.go"); do
+    for file in $(find . -name "*.go" -type f | grep -v "/vendor/" | grep -v "_test.go" | grep -v "/sim_gen/" | grep -v "/gen/game/"); do
         awk -v max="$MAX_NESTING" -v file="$file" '
         {
             # Count leading tabs
@@ -130,7 +130,7 @@ while IFS= read -r file; do
         echo "  ! $file - $count functions (consider splitting)"
         FUNC_WARNINGS=$((FUNC_WARNINGS + 1))
     fi
-done < <(find . -name "*.go" -type f | grep -v "/vendor/" | grep -v "_test.go" | head -100)
+done < <(find . -name "*.go" -type f | grep -v "/vendor/" | grep -v "_test.go" | grep -v "/sim_gen/" | grep -v "/gen/game/" | head -100)
 
 WARNINGS=$((WARNINGS + FUNC_WARNINGS))
 if [ $FUNC_WARNINGS -eq 0 ]; then
@@ -143,7 +143,7 @@ echo "----------------------------------------"
 
 # Find functions with many parameters
 find_many_params() {
-    for file in $(find . -name "*.go" -type f | grep -v "/vendor/"); do
+    for file in $(find . -name "*.go" -type f | grep -v "/vendor/" | grep -v "/sim_gen/" | grep -v "/gen/game/"); do
         grep -n "^func " "$file" | while read -r line; do
             linenum=$(echo "$line" | cut -d: -f1)
             # Count commas in parameter list (rough estimate)
