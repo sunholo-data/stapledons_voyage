@@ -15,14 +15,15 @@ import (
 )
 
 // GeminiAIHandler provides a real Gemini API implementation with multimodal support.
-// Supports text, images (input/output), and audio (input/output via TTS).
+// Supports text, images (input/output/editing), and audio (input/output via TTS).
 type GeminiAIHandler struct {
-	client      *genai.Client
-	model       string
-	imagenModel string // For image generation
-	ttsModel    string // For text-to-speech
-	ttsVoice    string // TTS voice name
-	assetsDir   string // Where to save generated media
+	client             *genai.Client
+	model              string
+	imagenModel        string // For image generation
+	ttsModel           string // For text-to-speech
+	ttsVoice           string // TTS voice name
+	assetsDir          string // Where to save generated media
+	lastGeneratedImage string // Track last generated image for iterative editing
 }
 
 // GeminiConfig holds configuration for the Gemini handler.
@@ -148,7 +149,7 @@ func NewGeminiAIHandler(ctx context.Context, cfg GeminiConfig) (*GeminiAIHandler
 
 // Call implements the AIHandler interface.
 // Input is JSON-encoded AIRequest, output is JSON-encoded AIResponse.
-// Supports text, images (input and generation), and audio (input and TTS output).
+// Supports text, images (input/generation/editing), and audio (input and TTS output).
 func (h *GeminiAIHandler) Call(input string) (string, error) {
 	// Parse input as AIRequest
 	var req AIRequest
@@ -157,6 +158,11 @@ func (h *GeminiAIHandler) Call(input string) (string, error) {
 		req = AIRequest{
 			Messages: []ContentBlock{{Type: ContentTypeText, Text: input}},
 		}
+	}
+
+	// Check if this is an image edit request (must check before generate)
+	if h.isImageEditRequest(req) {
+		return h.editImage(req)
 	}
 
 	// Check if this is an image generation request
@@ -215,6 +221,191 @@ func (h *GeminiAIHandler) isTTSRequest(req AIRequest) bool {
 		}
 	}
 	return false
+}
+
+// isImageEditRequest checks if the request is asking for image editing.
+// Image editing requires either:
+// - An image in the messages + edit keywords
+// - Context flag "edit_image": true
+// - Keywords like "edit:", "modify:", "change:", "refine:", "fix:"
+// - Reference to "last image" or "previous image"
+func (h *GeminiAIHandler) isImageEditRequest(req AIRequest) bool {
+	hasImage := false
+	hasEditKeyword := false
+	usesLastImage := false
+
+	for _, msg := range req.Messages {
+		if msg.Type == ContentTypeImage && msg.ImageRef != "" {
+			hasImage = true
+		}
+		if msg.Type == ContentTypeText {
+			lower := strings.ToLower(msg.Text)
+			// Check for edit keywords
+			if strings.Contains(lower, "edit:") ||
+				strings.Contains(lower, "edit image") ||
+				strings.Contains(lower, "modify:") ||
+				strings.Contains(lower, "modify image") ||
+				strings.Contains(lower, "change:") ||
+				strings.Contains(lower, "refine:") ||
+				strings.Contains(lower, "fix:") ||
+				strings.Contains(lower, "adjust:") ||
+				strings.Contains(lower, "update image") {
+				hasEditKeyword = true
+			}
+			// Check for reference to last/previous image
+			if strings.Contains(lower, "last image") ||
+				strings.Contains(lower, "previous image") ||
+				strings.Contains(lower, "that image") ||
+				strings.Contains(lower, "the image") {
+				usesLastImage = true
+			}
+		}
+	}
+
+	// Check context for explicit edit flag or reference image
+	if req.Context != nil {
+		if editImg, ok := req.Context["edit_image"].(bool); ok && editImg {
+			hasEditKeyword = true
+		}
+		if refImg, ok := req.Context["reference_image"].(string); ok && refImg != "" {
+			hasImage = true
+		}
+		if useLast, ok := req.Context["use_last_image"].(bool); ok && useLast {
+			usesLastImage = true
+		}
+	}
+
+	// Need edit keyword AND (explicit image OR reference to last image with existing last image)
+	return hasEditKeyword && (hasImage || (usesLastImage && h.lastGeneratedImage != ""))
+}
+
+// editImage sends a reference image with an edit prompt to generate a modified version.
+// Supports explicit image in request, context["reference_image"], or "last image" reference.
+func (h *GeminiAIHandler) editImage(req AIRequest) (string, error) {
+	ctx := context.Background()
+
+	// Find the reference image
+	var refImagePath string
+
+	// Priority 1: Explicit image in messages
+	for _, msg := range req.Messages {
+		if msg.Type == ContentTypeImage && msg.ImageRef != "" {
+			refImagePath = msg.ImageRef
+			break
+		}
+	}
+
+	// Priority 2: Context reference_image
+	if refImagePath == "" && req.Context != nil {
+		if refImg, ok := req.Context["reference_image"].(string); ok && refImg != "" {
+			refImagePath = refImg
+		}
+	}
+
+	// Priority 3: Use last generated image
+	if refImagePath == "" && h.lastGeneratedImage != "" {
+		refImagePath = h.lastGeneratedImage
+	}
+
+	if refImagePath == "" {
+		return h.errorResponse("no reference image for editing - provide an image or generate one first")
+	}
+
+	// Extract the edit prompt
+	var editPrompt string
+	for _, msg := range req.Messages {
+		if msg.Type == ContentTypeText {
+			text := msg.Text
+			// Strip edit prefixes
+			text = strings.TrimPrefix(text, "edit:")
+			text = strings.TrimPrefix(text, "Edit:")
+			text = strings.TrimPrefix(text, "modify:")
+			text = strings.TrimPrefix(text, "Modify:")
+			text = strings.TrimPrefix(text, "change:")
+			text = strings.TrimPrefix(text, "Change:")
+			text = strings.TrimPrefix(text, "refine:")
+			text = strings.TrimPrefix(text, "Refine:")
+			text = strings.TrimPrefix(text, "fix:")
+			text = strings.TrimPrefix(text, "Fix:")
+			text = strings.TrimPrefix(text, "adjust:")
+			text = strings.TrimPrefix(text, "Adjust:")
+			editPrompt = strings.TrimSpace(text)
+			if editPrompt != "" {
+				break
+			}
+		}
+	}
+
+	if editPrompt == "" {
+		return h.errorResponse("no edit prompt provided")
+	}
+
+	// Load the reference image
+	imgPart, err := h.loadImagePart(refImagePath, "")
+	if err != nil {
+		return h.errorResponse(fmt.Sprintf("failed to load reference image %s: %v", refImagePath, err))
+	}
+
+	// Build multimodal content: image + edit instruction
+	parts := []*genai.Part{
+		imgPart,
+		genai.NewPartFromText(fmt.Sprintf("Edit this image: %s", editPrompt)),
+	}
+
+	// Use image generation model with IMAGE response modality
+	config := &genai.GenerateContentConfig{
+		ResponseModalities: []string{"IMAGE", "TEXT"},
+	}
+
+	contents := []*genai.Content{
+		genai.NewContentFromParts(parts, genai.RoleUser),
+	}
+
+	resp, err := h.client.Models.GenerateContent(ctx, h.imagenModel, contents, config)
+	if err != nil {
+		return h.errorResponse(fmt.Sprintf("Image editing error: %v", err))
+	}
+
+	// Extract images from response
+	var responseBlocks []ContentBlock
+	if resp != nil && len(resp.Candidates) > 0 && resp.Candidates[0].Content != nil {
+		for _, part := range resp.Candidates[0].Content.Parts {
+			// Handle inline image data
+			if part.InlineData != nil && strings.HasPrefix(part.InlineData.MIMEType, "image/") {
+				// Save the image
+				mediaPath, _, err := h.saveInlineMedia(part.InlineData)
+				if err == nil {
+					// Track as last generated image for further edits
+					h.lastGeneratedImage = mediaPath
+					responseBlocks = append(responseBlocks, ContentBlock{
+						Type:     ContentTypeImage,
+						ImageRef: mediaPath,
+						MimeType: part.InlineData.MIMEType,
+						AltText:  fmt.Sprintf("Edited: %s", editPrompt),
+					})
+				}
+			}
+			// Also capture any text response
+			if part.Text != "" {
+				responseBlocks = append(responseBlocks, ContentBlock{
+					Type: ContentTypeText,
+					Text: part.Text,
+				})
+			}
+		}
+	}
+
+	if len(responseBlocks) == 0 {
+		return h.errorResponse("no edited image generated")
+	}
+
+	aiResp := AIResponse{Content: responseBlocks}
+	output, err := json.Marshal(aiResp)
+	if err != nil {
+		return h.errorResponse(fmt.Sprintf("encoding response: %v", err))
+	}
+
+	return string(output), nil
 }
 
 // chat handles standard multimodal conversation.
@@ -368,6 +559,8 @@ func (h *GeminiAIHandler) generateImage(req AIRequest) (string, error) {
 				// Save the image
 				mediaPath, _, err := h.saveInlineMedia(part.InlineData)
 				if err == nil {
+					// Track as last generated image for iterative editing
+					h.lastGeneratedImage = mediaPath
 					responseBlocks = append(responseBlocks, ContentBlock{
 						Type:     ContentTypeImage,
 						ImageRef: mediaPath,
@@ -628,6 +821,23 @@ func (h *GeminiAIHandler) errorResponse(msg string) (string, error) {
 	resp := AIResponse{Error: msg}
 	output, _ := json.Marshal(resp)
 	return string(output), fmt.Errorf("%s", msg)
+}
+
+// LastGeneratedImage returns the path to the most recently generated image.
+// Returns empty string if no image has been generated yet.
+func (h *GeminiAIHandler) LastGeneratedImage() string {
+	return h.lastGeneratedImage
+}
+
+// ClearLastGeneratedImage clears the reference to the last generated image.
+func (h *GeminiAIHandler) ClearLastGeneratedImage() {
+	h.lastGeneratedImage = ""
+}
+
+// SetLastGeneratedImage allows setting a reference image manually.
+// Useful for loading a previous session's image for continued editing.
+func (h *GeminiAIHandler) SetLastGeneratedImage(path string) {
+	h.lastGeneratedImage = path
 }
 
 // EncodeImageBase64 is a helper to encode an image file as base64.

@@ -153,6 +153,32 @@ config := &genai.GenerateContentConfig{
 }
 ```
 
+**Image Editing (iterative refinement):**
+```go
+// Triggered by keywords: "edit:", "modify:", "change:", "refine:", "fix:", "adjust:"
+// Or context flag: {"edit_image": true}
+// Plus either: explicit image in messages, context["reference_image"], or "last image" reference
+
+// Reference image sources (priority order):
+// 1. Explicit image in request messages
+// 2. context["reference_image"] path
+// 3. Last generated image (tracked automatically)
+
+// Example usage:
+{"messages": [
+    {"type": "image", "image_ref": "path/to/image.png"},
+    {"type": "text", "text": "edit: make the sky more purple"}
+]}
+
+// Or reference last generated image:
+{"messages": [{"type": "text", "text": "edit the last image: add more stars"}]}
+
+// Helper methods:
+handler.LastGeneratedImage()       // Get path to last generated
+handler.SetLastGeneratedImage(p)   // Set reference manually
+handler.ClearLastGeneratedImage()  // Clear reference
+```
+
 **Text-to-Speech:**
 ```go
 // Triggered by keywords: "speak:", "say:", "tts:", "voice:"
@@ -323,6 +349,8 @@ See [ai-the-archive.md](../../input/ai-the-archive.md) for full design.
 - [x] Automatic provider detection from environment
 - [x] Multimodal content types
 - [x] Image generation (Gemini)
+- [x] Image editing with reference images (Gemini)
+- [x] Last-image tracking for iterative refinement
 - [x] Text-to-speech (Gemini)
 - [x] Chain handler with fallback
 - [x] Pattern-based stub for testing
@@ -344,4 +372,4 @@ See [ai-the-archive.md](../../input/ai-the-archive.md) for full design.
 ---
 
 **Document created**: 2025-12-06
-**Last updated**: 2025-12-06
+**Last updated**: 2025-12-06 (added image editing)
