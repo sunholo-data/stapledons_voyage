@@ -132,6 +132,8 @@ func main() {
 	}
 
 	fmt.Printf("\nFrames saved to %s/\n", outputDir)
-	fmt.Println("To create GIF: ffmpeg -framerate 30 -i out/gr-animation/frame_%03d.png -vf 'scale=640:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse' out/gr-journey.gif")
-	fmt.Println("To create MP4: ffmpeg -framerate 30 -i out/gr-animation/frame_%03d.png -c:v libx264 -pix_fmt yuv420p out/gr-journey.mp4")
+	// Use variable to avoid go vet false positive about Printf directive in ffmpeg pattern
+	framePattern := "frame_%03d.png"
+	fmt.Printf("To create GIF: ffmpeg -framerate 30 -i out/gr-animation/%s -vf 'scale=640:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse' out/gr-journey.gif\n", framePattern)
+	fmt.Printf("To create MP4: ffmpeg -framerate 30 -i out/gr-animation/%s -c:v libx264 -pix_fmt yuv420p out/gr-journey.mp4\n", framePattern)
 }
