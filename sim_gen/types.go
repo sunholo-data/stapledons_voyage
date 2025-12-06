@@ -5,15 +5,19 @@ package sim_gen
 type ArrivalPhaseKind int
 
 const (
-	ArrivalPhaseKindPhaseEmergence ArrivalPhaseKind = iota
+	ArrivalPhaseKindPhaseBlackHole ArrivalPhaseKind = iota
+	ArrivalPhaseKindPhaseEmergence
 	ArrivalPhaseKindPhaseStabilizing
 	ArrivalPhaseKindPhaseSaturn
 	ArrivalPhaseKindPhaseJupiter
 	ArrivalPhaseKindPhaseMars
 	ArrivalPhaseKindPhaseEarth
-	ArrivalPhaseKindPhaseBridge
 	ArrivalPhaseKindPhaseComplete
 )
+
+// ArrivalPhasePhaseBlackHole holds data for the PhaseBlackHole variant
+type ArrivalPhasePhaseBlackHole struct {
+}
 
 // ArrivalPhasePhaseEmergence holds data for the PhaseEmergence variant
 type ArrivalPhasePhaseEmergence struct {
@@ -39,10 +43,6 @@ type ArrivalPhasePhaseMars struct {
 type ArrivalPhasePhaseEarth struct {
 }
 
-// ArrivalPhasePhaseBridge holds data for the PhaseBridge variant
-type ArrivalPhasePhaseBridge struct {
-}
-
 // ArrivalPhasePhaseComplete holds data for the PhaseComplete variant
 type ArrivalPhasePhaseComplete struct {
 }
@@ -50,14 +50,22 @@ type ArrivalPhasePhaseComplete struct {
 // ArrivalPhase is a sum type (discriminated union)
 type ArrivalPhase struct {
 	Kind             ArrivalPhaseKind
+	PhaseBlackHole   *ArrivalPhasePhaseBlackHole
 	PhaseEmergence   *ArrivalPhasePhaseEmergence
 	PhaseStabilizing *ArrivalPhasePhaseStabilizing
 	PhaseSaturn      *ArrivalPhasePhaseSaturn
 	PhaseJupiter     *ArrivalPhasePhaseJupiter
 	PhaseMars        *ArrivalPhasePhaseMars
 	PhaseEarth       *ArrivalPhasePhaseEarth
-	PhaseBridge      *ArrivalPhasePhaseBridge
 	PhaseComplete    *ArrivalPhasePhaseComplete
+}
+
+// NewArrivalPhasePhaseBlackHole creates a new PhaseBlackHole variant
+func NewArrivalPhasePhaseBlackHole() *ArrivalPhase {
+	return &ArrivalPhase{
+		Kind:           ArrivalPhaseKindPhaseBlackHole,
+		PhaseBlackHole: &ArrivalPhasePhaseBlackHole{},
+	}
 }
 
 // NewArrivalPhasePhaseEmergence creates a new PhaseEmergence variant
@@ -108,20 +116,17 @@ func NewArrivalPhasePhaseEarth() *ArrivalPhase {
 	}
 }
 
-// NewArrivalPhasePhaseBridge creates a new PhaseBridge variant
-func NewArrivalPhasePhaseBridge() *ArrivalPhase {
-	return &ArrivalPhase{
-		Kind:        ArrivalPhaseKindPhaseBridge,
-		PhaseBridge: &ArrivalPhasePhaseBridge{},
-	}
-}
-
 // NewArrivalPhasePhaseComplete creates a new PhaseComplete variant
 func NewArrivalPhasePhaseComplete() *ArrivalPhase {
 	return &ArrivalPhase{
 		Kind:          ArrivalPhaseKindPhaseComplete,
 		PhaseComplete: &ArrivalPhasePhaseComplete{},
 	}
+}
+
+// IsPhaseBlackHole returns true if this is a PhaseBlackHole variant
+func (v *ArrivalPhase) IsPhaseBlackHole() bool {
+	return v.Kind == ArrivalPhaseKindPhaseBlackHole
 }
 
 // IsPhaseEmergence returns true if this is a PhaseEmergence variant
@@ -152,11 +157,6 @@ func (v *ArrivalPhase) IsPhaseMars() bool {
 // IsPhaseEarth returns true if this is a PhaseEarth variant
 func (v *ArrivalPhase) IsPhaseEarth() bool {
 	return v.Kind == ArrivalPhaseKindPhaseEarth
-}
-
-// IsPhaseBridge returns true if this is a PhaseBridge variant
-func (v *ArrivalPhase) IsPhaseBridge() bool {
-	return v.Kind == ArrivalPhaseKindPhaseBridge
 }
 
 // IsPhaseComplete returns true if this is a PhaseComplete variant
@@ -276,8 +276,8 @@ type ArrivalState struct {
 	PhaseTime     float64
 	TotalTime     float64
 	Velocity      float64
+	GrIntensity   float64
 	CurrentPlanet CurrentPlanet
-	ShowHUD       bool
 	ShipTimeYears float64
 	GalaxyYear    int64
 }
@@ -451,56 +451,6 @@ type NPC struct {
 	Pattern     MovementPattern
 	MoveCounter int64
 	PatrolIndex int64
-}
-
-// OptionKind discriminates between variants of Option
-type OptionKind int
-
-const (
-	OptionKindSome OptionKind = iota
-	OptionKindNone
-)
-
-// OptionSome holds data for the Some variant
-type OptionSome struct {
-	Value0 interface{}
-}
-
-// OptionNone holds data for the None variant
-type OptionNone struct {
-}
-
-// Option is a sum type (discriminated union)
-type Option struct {
-	Kind OptionKind
-	Some *OptionSome
-	None *OptionNone
-}
-
-// NewOptionSome creates a new Some variant
-func NewOptionSome(v0 interface{}) *Option {
-	return &Option{
-		Kind: OptionKindSome,
-		Some: &OptionSome{Value0: v0},
-	}
-}
-
-// NewOptionNone creates a new None variant
-func NewOptionNone() *Option {
-	return &Option{
-		Kind: OptionKindNone,
-		None: &OptionNone{},
-	}
-}
-
-// IsSome returns true if this is a Some variant
-func (v *Option) IsSome() bool {
-	return v.Kind == OptionKindSome
-}
-
-// IsNone returns true if this is a None variant
-func (v *Option) IsNone() bool {
-	return v.Kind == OptionKindNone
 }
 
 // Coord is a record type
@@ -905,6 +855,8 @@ const (
 	DrawCmdKindTextWrapped
 	DrawCmdKindCircle
 	DrawCmdKindRectScreen
+	DrawCmdKindRectRGBA
+	DrawCmdKindCircleRGBA
 	DrawCmdKindGalaxyBg
 	DrawCmdKindStar
 )
@@ -1014,6 +966,26 @@ type DrawCmdRectScreen struct {
 	Z     int64
 }
 
+// DrawCmdRectRGBA holds data for the RectRGBA variant
+type DrawCmdRectRGBA struct {
+	X    float64
+	Y    float64
+	W    float64
+	H    float64
+	Rgba int64
+	Z    int64
+}
+
+// DrawCmdCircleRGBA holds data for the CircleRGBA variant
+type DrawCmdCircleRGBA struct {
+	X      float64
+	Y      float64
+	Radius float64
+	Rgba   int64
+	Filled bool
+	Z      int64
+}
+
 // DrawCmdGalaxyBg holds data for the GalaxyBg variant
 type DrawCmdGalaxyBg struct {
 	Opacity     float64
@@ -1047,6 +1019,8 @@ type DrawCmd struct {
 	TextWrapped *DrawCmdTextWrapped
 	Circle      *DrawCmdCircle
 	RectScreen  *DrawCmdRectScreen
+	RectRGBA    *DrawCmdRectRGBA
+	CircleRGBA  *DrawCmdCircleRGBA
 	GalaxyBg    *DrawCmdGalaxyBg
 	Star        *DrawCmdStar
 }
@@ -1131,6 +1105,22 @@ func NewDrawCmdRectScreen(x float64, y float64, w float64, h float64, color int6
 	}
 }
 
+// NewDrawCmdRectRGBA creates a new RectRGBA variant
+func NewDrawCmdRectRGBA(x float64, y float64, w float64, h float64, rgba int64, z int64) *DrawCmd {
+	return &DrawCmd{
+		Kind:     DrawCmdKindRectRGBA,
+		RectRGBA: &DrawCmdRectRGBA{X: x, Y: y, W: w, H: h, Rgba: rgba, Z: z},
+	}
+}
+
+// NewDrawCmdCircleRGBA creates a new CircleRGBA variant
+func NewDrawCmdCircleRGBA(x float64, y float64, radius float64, rgba int64, filled bool, z int64) *DrawCmd {
+	return &DrawCmd{
+		Kind:       DrawCmdKindCircleRGBA,
+		CircleRGBA: &DrawCmdCircleRGBA{X: x, Y: y, Radius: radius, Rgba: rgba, Filled: filled, Z: z},
+	}
+}
+
 // NewDrawCmdGalaxyBg creates a new GalaxyBg variant
 func NewDrawCmdGalaxyBg(opacity float64, z int64, skyViewMode bool, viewLon float64, viewLat float64, fov float64) *DrawCmd {
 	return &DrawCmd{
@@ -1197,6 +1187,16 @@ func (v *DrawCmd) IsRectScreen() bool {
 	return v.Kind == DrawCmdKindRectScreen
 }
 
+// IsRectRGBA returns true if this is a RectRGBA variant
+func (v *DrawCmd) IsRectRGBA() bool {
+	return v.Kind == DrawCmdKindRectRGBA
+}
+
+// IsCircleRGBA returns true if this is a CircleRGBA variant
+func (v *DrawCmd) IsCircleRGBA() bool {
+	return v.Kind == DrawCmdKindCircleRGBA
+}
+
 // IsGalaxyBg returns true if this is a GalaxyBg variant
 func (v *DrawCmd) IsGalaxyBg() bool {
 	return v.Kind == DrawCmdKindGalaxyBg
@@ -1213,6 +1213,56 @@ type FrameOutput struct {
 	Sounds []int64
 	Debug  []string
 	Camera Camera
+}
+
+// OptionKind discriminates between variants of Option
+type OptionKind int
+
+const (
+	OptionKindSome OptionKind = iota
+	OptionKindNone
+)
+
+// OptionSome holds data for the Some variant
+type OptionSome struct {
+	Value0 interface{}
+}
+
+// OptionNone holds data for the None variant
+type OptionNone struct {
+}
+
+// Option is a sum type (discriminated union)
+type Option struct {
+	Kind OptionKind
+	Some *OptionSome
+	None *OptionNone
+}
+
+// NewOptionSome creates a new Some variant
+func NewOptionSome(v0 interface{}) *Option {
+	return &Option{
+		Kind: OptionKindSome,
+		Some: &OptionSome{Value0: v0},
+	}
+}
+
+// NewOptionNone creates a new None variant
+func NewOptionNone() *Option {
+	return &Option{
+		Kind: OptionKindNone,
+		None: &OptionNone{},
+	}
+}
+
+// IsSome returns true if this is a Some variant
+func (v *Option) IsSome() bool {
+	return v.Kind == OptionKindSome
+}
+
+// IsNone returns true if this is a None variant
+func (v *Option) IsNone() bool {
+	return v.Kind == OptionKindNone
 }
 
 // Tile is a record type

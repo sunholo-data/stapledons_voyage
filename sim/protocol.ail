@@ -90,6 +90,10 @@ export type DrawCmd =
     | Circle(x: float, y: float, radius: float, color: int, filled: bool, z: int)
     | RectScreen(x: float, y: float, w: float, h: float, color: int, z: int)
 
+    -- RGBA draw commands (color is packed 0xRRGGBBAA, screen-space coordinates)
+    | RectRGBA(x: float, y: float, w: float, h: float, rgba: int, z: int)
+    | CircleRGBA(x: float, y: float, radius: float, rgba: int, filled: bool, z: int)
+
     -- Starmap draw commands
     | GalaxyBg(opacity: float, z: int, skyViewMode: bool, viewLon: float, viewLat: float, fov: float)
     | Star(x: float, y: float, spriteId: int, scale: float, alpha: float, z: int)

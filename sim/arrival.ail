@@ -7,16 +7,16 @@ module sim/arrival
 -- Types
 -- =============================================================================
 
--- Arrival sequence phases
+-- Arrival sequence phases (includes black hole emergence)
 export type ArrivalPhase =
-    | PhaseEmergence      -- Tumbling, high velocity, chaotic
+    | PhaseBlackHole      -- Emerging from black hole (GR effects)
+    | PhaseEmergence      -- Tumbling, high velocity, chaotic (SR effects)
     | PhaseStabilizing    -- Player gaining control
     | PhaseSaturn         -- Approaching Saturn
     | PhaseJupiter        -- Approaching Jupiter
     | PhaseMars           -- Approaching Mars
     | PhaseEarth          -- Approaching Earth
-    | PhaseBridge         -- Bridge view established
-    | PhaseComplete       -- Sequence finished
+    | PhaseComplete       -- Sequence finished (removed PhaseBridge to stay at 8)
 
 -- Planet being approached
 export type CurrentPlanet =
@@ -31,9 +31,9 @@ export type ArrivalState = {
     phase: ArrivalPhase,
     phaseTime: float,
     totalTime: float,
-    velocity: float,
+    velocity: float,               -- SR velocity (fraction of c)
+    grIntensity: float,            -- GR effect intensity (0.0 = none, 1.0 = extreme)
     currentPlanet: CurrentPlanet,
-    showHUD: bool,
     shipTimeYears: float,
     galaxyYear: int
 }
@@ -47,15 +47,15 @@ export type ArrivalInput = {
 -- Initialization
 -- =============================================================================
 
--- Create initial arrival state
+-- Create initial arrival state (starts inside black hole)
 export pure func initArrival() -> ArrivalState {
     {
-        phase: PhaseEmergence,
+        phase: PhaseBlackHole,
         phaseTime: 0.0,
         totalTime: 0.0,
-        velocity: 0.99,
+        velocity: 0.99,            -- Already at near-lightspeed
+        grIntensity: 1.0,          -- Maximum GR effects (inside black hole)
         currentPlanet: NoPlanet,
-        showHUD: false,
         shipTimeYears: 47.3,
         galaxyYear: 2157
     }
@@ -68,13 +68,13 @@ export pure func initArrival() -> ArrivalState {
 -- Get target velocity for current phase
 pure func phaseTargetVelocity(phase: ArrivalPhase) -> float {
     match phase {
+        PhaseBlackHole => 0.99,    -- Ejected at near-lightspeed
         PhaseEmergence => 0.99,
         PhaseStabilizing => 0.95,
         PhaseSaturn => 0.9,
         PhaseJupiter => 0.8,
         PhaseMars => 0.5,
         PhaseEarth => 0.0,
-        PhaseBridge => 0.0,
         PhaseComplete => 0.0
     }
 }
@@ -86,7 +86,6 @@ pure func phasePlanet(phase: ArrivalPhase) -> CurrentPlanet {
         PhaseJupiter => Jupiter,
         PhaseMars => Mars,
         PhaseEarth => Earth,
-        PhaseBridge => Earth,
         _ => NoPlanet
     }
 }
@@ -94,13 +93,13 @@ pure func phasePlanet(phase: ArrivalPhase) -> CurrentPlanet {
 -- Get next phase
 pure func nextPhase(phase: ArrivalPhase) -> ArrivalPhase {
     match phase {
+        PhaseBlackHole => PhaseEmergence,    -- Exit black hole → tumbling
         PhaseEmergence => PhaseStabilizing,
         PhaseStabilizing => PhaseSaturn,
         PhaseSaturn => PhaseJupiter,
         PhaseJupiter => PhaseMars,
         PhaseMars => PhaseEarth,
-        PhaseEarth => PhaseBridge,
-        PhaseBridge => PhaseComplete,
+        PhaseEarth => PhaseComplete,
         PhaseComplete => PhaseComplete
     }
 }
@@ -108,13 +107,13 @@ pure func nextPhase(phase: ArrivalPhase) -> ArrivalPhase {
 -- Check if phase should transition based on time
 pure func shouldTransition(phase: ArrivalPhase, phaseTime: float) -> bool {
     match phase {
+        PhaseBlackHole => phaseTime > 8.0,    -- 8 seconds in black hole
         PhaseEmergence => phaseTime > 5.0,
         PhaseStabilizing => phaseTime > 3.0,
         PhaseSaturn => phaseTime > 5.0,
         PhaseJupiter => phaseTime > 5.0,
         PhaseMars => phaseTime > 5.0,
         PhaseEarth => phaseTime > 5.0,
-        PhaseBridge => phaseTime > 3.0,
         PhaseComplete => false
     }
 }
@@ -150,26 +149,44 @@ export pure func getArrivalPlanetName(state: ArrivalState) -> string {
 -- Get phase name for debugging
 export pure func getArrivalPhaseName(state: ArrivalState) -> string {
     match state.phase {
+        PhaseBlackHole => "blackhole",
         PhaseEmergence => "emergence",
         PhaseStabilizing => "stabilizing",
         PhaseSaturn => "saturn",
         PhaseJupiter => "jupiter",
         PhaseMars => "mars",
         PhaseEarth => "earth",
-        PhaseBridge => "bridge",
         PhaseComplete => "complete"
     }
+}
+
+-- Get GR effect intensity (0.0 = none, 1.0 = extreme)
+export pure func getGRIntensity(state: ArrivalState) -> float {
+    state.grIntensity
 }
 
 -- =============================================================================
 -- Step Function
 -- =============================================================================
 
+-- Calculate GR intensity decay (1.0 → 0.0 over black hole phase)
+pure func calcGRDecay(phase: ArrivalPhase, phaseTime: float, currentGR: float) -> float {
+    match phase {
+        PhaseBlackHole => {
+            -- GR fades from 1.0 to 0.0 over 8 seconds
+            let progress = phaseTime / 8.0;
+            if progress > 1.0 then 0.0 else 1.0 - progress
+        },
+        _ => 0.0  -- No GR effects after black hole
+    }
+}
+
 -- Update arrival state for one frame
 export pure func stepArrival(state: ArrivalState, input: ArrivalInput) -> ArrivalState {
     let dt = input.dt;
     let newPhaseTime = state.phaseTime + dt;
     let newTotalTime = state.totalTime + dt;
+    let newGR = calcGRDecay(state.phase, newPhaseTime, state.grIntensity);
 
     let transition = shouldTransition(state.phase, newPhaseTime);
 
@@ -182,12 +199,12 @@ export pure func stepArrival(state: ArrivalState, input: ArrivalInput) -> Arriva
             phaseTime: 0.0,
             totalTime: newTotalTime,
             velocity: nextVel,
+            grIntensity: 0.0,        -- GR effects end after black hole
             currentPlanet: nextPlanet,
-            showHUD: true,
             shipTimeYears: state.shipTimeYears,
             galaxyYear: state.galaxyYear
         }
     } else {
-        { state | phaseTime: newPhaseTime, totalTime: newTotalTime }
+        { state | phaseTime: newPhaseTime, totalTime: newTotalTime, grIntensity: newGR }
     }
 }

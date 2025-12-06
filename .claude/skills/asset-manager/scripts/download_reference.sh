@@ -31,40 +31,44 @@ mkdir -p "$REF_DIR/planets"
 mkdir -p "$REF_DIR/backgrounds"
 
 download_planets() {
-    echo "=== Downloading NASA Planet Reference Images ==="
+    echo "=== Downloading Planet Reference Images ==="
     echo "Destination: $REF_DIR/planets/"
     echo ""
 
-    # NASA Solar System images (public domain)
-    # These are lower-res versions suitable for reference
+    # Wikimedia Commons images (public domain / CC licensed)
+    # Using stable Wikimedia thumbnail URLs that work reliably
 
     echo "Downloading Mercury..."
     curl -s -L -o "$REF_DIR/planets/mercury.jpg" \
-        "https://solarsystem.nasa.gov/system/resources/detail_files/771_PIA16853.jpg" 2>/dev/null || echo "  (skipped - network error)"
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Mercury_in_true_color.jpg/1024px-Mercury_in_true_color.jpg" 2>/dev/null || echo "  (skipped - network error)"
 
     echo "Downloading Venus..."
     curl -s -L -o "$REF_DIR/planets/venus.jpg" \
-        "https://solarsystem.nasa.gov/system/resources/detail_files/688_Venus.jpg" 2>/dev/null || echo "  (skipped - network error)"
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Venus_from_Mariner_10.jpg/1024px-Venus_from_Mariner_10.jpg" 2>/dev/null || echo "  (skipped - network error)"
 
     echo "Downloading Earth..."
     curl -s -L -o "$REF_DIR/planets/earth.jpg" \
-        "https://solarsystem.nasa.gov/system/resources/detail_files/786_1-702702main_702702main_702574main_702574mainEarth.jpg" 2>/dev/null || echo "  (skipped - network error)"
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/The_Blue_Marble_%28remastered%29.jpg/1024px-The_Blue_Marble_%28remastered%29.jpg" 2>/dev/null || echo "  (skipped - network error)"
 
     echo "Downloading Mars..."
     curl -s -L -o "$REF_DIR/planets/mars.jpg" \
-        "https://solarsystem.nasa.gov/system/resources/detail_files/683_Mars.jpg" 2>/dev/null || echo "  (skipped - network error)"
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/OSIRIS_Mars_true_color.jpg/1280px-OSIRIS_Mars_true_color.jpg" 2>/dev/null || echo "  (skipped - network error)"
 
     echo "Downloading Jupiter..."
     curl -s -L -o "$REF_DIR/planets/jupiter.jpg" \
-        "https://solarsystem.nasa.gov/system/resources/detail_files/2486_stsci-h-p1936a_1800.jpg" 2>/dev/null || echo "  (skipped - network error)"
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Jupiter_and_its_shrunken_Great_Red_Spot.jpg/1280px-Jupiter_and_its_shrunken_Great_Red_Spot.jpg" 2>/dev/null || echo "  (skipped - network error)"
 
     echo "Downloading Saturn..."
     curl -s -L -o "$REF_DIR/planets/saturn.jpg" \
-        "https://solarsystem.nasa.gov/system/resources/detail_files/17763_Saturn_from_Cassini_Orbiter.jpg" 2>/dev/null || echo "  (skipped - network error)"
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Saturn_during_Equinox.jpg/1280px-Saturn_during_Equinox.jpg" 2>/dev/null || echo "  (skipped - network error)"
+
+    echo "Downloading Moon..."
+    curl -s -L -o "$REF_DIR/planets/moon.jpg" \
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/FullMoon2010.jpg/1024px-FullMoon2010.jpg" 2>/dev/null || echo "  (skipped - network error)"
 
     echo ""
     echo "Planet references downloaded. Use these as visual references for pixel art planets."
-    echo "License: NASA imagery is public domain (no copyright restrictions)."
+    echo "License: NASA/ESA imagery - public domain. Wikimedia images may require attribution."
 }
 
 download_backgrounds() {

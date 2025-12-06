@@ -25,8 +25,18 @@ import (
 	"stapledons_voyage/sim_gen"
 )
 
+// GameMode tracks whether we're in arrival sequence or main game
+type GameMode int
+
+const (
+	ModeArrival GameMode = iota // Black hole emergence sequence
+	ModePlaying                 // Normal gameplay
+)
+
 type Game struct {
+	mode         GameMode                     // Current game mode (Arrival or Playing)
 	world        *sim_gen.World               // Typed world (M-DX16: RecordUpdate preserves struct types)
+	arrivalState *sim_gen.ArrivalState        // Arrival sequence state (when mode == ModeArrival)
 	out          sim_gen.FrameOutput
 	renderer     *render.Renderer
 	display      *display.Manager
@@ -60,14 +70,161 @@ func (g *Game) Update() error {
 	// Handle display input (F11 for fullscreen)
 	g.display.HandleInput()
 
-	// Handle effects demo input (F5-F9)
-	if g.effects != nil {
+	// Handle effects demo input (F5-F9) - only when not in arrival mode
+	if g.effects != nil && g.mode != ModeArrival {
 		if msgs := g.effects.HandleInput(); len(msgs) > 0 {
 			g.statusMsg = msgs[len(msgs)-1]
 			g.statusTimer = 2.0
 		}
 	}
 
+	// Mode-specific update
+	switch g.mode {
+	case ModeArrival:
+		return g.updateArrival(dt)
+	case ModePlaying:
+		return g.updatePlaying()
+	}
+	return nil
+}
+
+// updateArrival handles the black hole emergence sequence
+func (g *Game) updateArrival(dt float64) error {
+	if g.arrivalState == nil {
+		g.arrivalState = sim_gen.InitArrival()
+	}
+
+	// Step the arrival simulation
+	input := &sim_gen.ArrivalInput{Dt: dt}
+	g.arrivalState = sim_gen.StepArrival(g.arrivalState, input)
+
+	// Wire arrival state to shader effects
+	g.updateArrivalEffects()
+
+	// Generate visual output for arrival sequence
+	g.generateArrivalOutput()
+
+	// Check for arrival completion
+	if sim_gen.IsArrivalComplete(g.arrivalState) {
+		g.transitionToPlaying()
+	}
+
+	return nil
+}
+
+// generateArrivalOutput creates DrawCmds for the arrival sequence
+func (g *Game) generateArrivalOutput() {
+	if g.arrivalState == nil {
+		return
+	}
+
+	// Build draw commands for arrival scene
+	var cmds []*sim_gen.DrawCmd
+
+	// Use internal resolution for screen-space drawing
+	screenW := float64(display.InternalWidth)
+	screenH := float64(display.InternalHeight)
+
+	// Dark space background using RectRGBA (screen-space, packed 0xRRGGBBAA)
+	// Color: very dark blue (R=5, G=5, B=16, A=255) = 0x050510FF
+	cmds = append(cmds, sim_gen.NewDrawCmdRectRGBA(0, 0, screenW, screenH, 0x050510FF, 0))
+
+	// Add stars using CircleRGBA (screen-space with RGBA colors)
+	// Use deterministic positions based on a simple pattern
+	for i := 0; i < 200; i++ { // More stars for larger screen
+		x := float64((i*127+53)%int(screenW)) + float64(i%7)   // Pseudo-random x
+		y := float64((i*89+37)%int(screenH)) + float64(i%5)    // Pseudo-random y
+		size := float64(1 + (i % 3))                            // 1-3 pixel stars
+		// Vary brightness - pack as 0xRRGGBBAA
+		brightness := int64(0x80 + (i%4)*0x20)
+		rgba := (brightness << 24) | (brightness << 16) | (brightness << 8) | 0xFF
+		cmds = append(cmds, sim_gen.NewDrawCmdCircleRGBA(x, y, size, rgba, true, 1))
+	}
+
+	// Show current phase as debug text
+	phaseName := sim_gen.GetArrivalPhaseName(g.arrivalState)
+	velocity := sim_gen.GetArrivalVelocity(g.arrivalState)
+	grIntensity := sim_gen.GetGRIntensity(g.arrivalState)
+
+	// Phase indicator (fontSize=12, z=10 for UI)
+	phaseText := fmt.Sprintf("Phase: %s", phaseName)
+	cmds = append(cmds, sim_gen.NewDrawCmdText(phaseText, 10, 20, 12, 0xFFFFFFFF, 10))
+
+	// Velocity indicator
+	velText := fmt.Sprintf("Velocity: %.2fc", velocity)
+	cmds = append(cmds, sim_gen.NewDrawCmdText(velText, 10, 40, 12, 0xAAFFAAFF, 10))
+
+	// GR intensity (only during black hole phase)
+	if grIntensity > 0.001 {
+		grText := fmt.Sprintf("GR Intensity: %.1f%%", grIntensity*100)
+		cmds = append(cmds, sim_gen.NewDrawCmdText(grText, 10, 60, 12, 0xFFAAAAFF, 10))
+	}
+
+	// Planet name if approaching one (centered at bottom)
+	planetName := sim_gen.GetArrivalPlanetName(g.arrivalState)
+	if planetName != "" {
+		planetText := fmt.Sprintf("Approaching: %s", strings.ToUpper(planetName))
+		// Position centered at 40% from left, 85% down
+		textX := screenW * 0.35
+		textY := screenH * 0.85
+		cmds = append(cmds, sim_gen.NewDrawCmdText(planetText, textX, textY, 16, 0xFFFF00FF, 10))
+	}
+
+	// Set frame output
+	g.out = sim_gen.FrameOutput{
+		Draw:   cmds,
+		Sounds: nil,
+		Camera: sim_gen.Camera{X: 0, Y: 0, Zoom: 1.0},
+	}
+}
+
+// updateArrivalEffects wires arrival state to GR/SR shaders
+func (g *Game) updateArrivalEffects() {
+	if g.effects == nil || g.arrivalState == nil {
+		return
+	}
+
+	// Wire GR intensity (black hole gravitational effects)
+	grIntensity := sim_gen.GetGRIntensity(g.arrivalState)
+	if grIntensity > 0.001 {
+		// GR effects active - set demo mode with intensity
+		// phi controls intensity: 0.001=subtle, 0.005=strong, 0.05=extreme
+		phi := float32(grIntensity * 0.05) // Scale 0-1 to 0-0.05 (extreme)
+		g.effects.GRWarp().SetEnabled(true)
+		g.effects.GRWarp().SetDemoMode(0.5, 0.5, 0.08, phi) // Center screen, rs=8%
+	} else {
+		g.effects.GRWarp().SetEnabled(false)
+	}
+
+	// Wire SR velocity (relativistic visual effects)
+	velocity := sim_gen.GetArrivalVelocity(g.arrivalState)
+	if velocity > 0.1 {
+		g.effects.SRWarp().SetEnabled(true)
+		g.effects.SRWarp().SetForwardVelocity(velocity)
+	} else {
+		g.effects.SRWarp().SetEnabled(false)
+	}
+}
+
+// transitionToPlaying switches from arrival to normal gameplay
+func (g *Game) transitionToPlaying() {
+	g.mode = ModePlaying
+	g.arrivalState = nil
+
+	// Disable arrival effects
+	if g.effects != nil {
+		g.effects.GRWarp().SetEnabled(false)
+		g.effects.SRWarp().SetEnabled(false)
+	}
+
+	g.statusMsg = "Welcome to the Solar System"
+	g.statusTimer = 3.0
+
+	log.Println("Arrival sequence complete - transitioning to gameplay")
+}
+
+// updatePlaying handles normal gameplay
+func (g *Game) updatePlaying() error {
 	// Capture game input with camera for screen-to-world conversion
 	// Uses internal resolution (640x480) for coordinate conversion
 	input := render.CaptureInputWithCamera(g.out.Camera, display.InternalWidth, display.InternalHeight)
@@ -107,7 +264,7 @@ func (g *Game) Update() error {
 
 func (g *Game) Draw(screen *ebiten.Image) {
 	// Check if we need to apply effects
-	hasEffects := g.effects != nil && (g.effects.SRWarp().IsEnabled() || g.effects.Bloom().IsEnabled() || len(g.effects.Pipeline().EnabledEffects()) > 0)
+	hasEffects := g.effects != nil && (g.effects.GRWarp().IsEnabled() || g.effects.SRWarp().IsEnabled() || g.effects.Bloom().IsEnabled() || len(g.effects.Pipeline().EnabledEffects()) > 0)
 	if hasEffects {
 		// Render to buffer first
 		w, h := screen.Bounds().Dx(), screen.Bounds().Dy()
@@ -212,6 +369,7 @@ type gameFlags struct {
 	demoScene        bool
 	velocity         float64
 	viewAngle        float64
+	arrivalMode      bool // Start with black hole emergence sequence
 }
 
 func parseFlags() gameFlags {
@@ -226,6 +384,7 @@ func parseFlags() gameFlags {
 	demoScene := flag.Bool("demo-scene", false, "Use shader demo scene (dark bg, stars, etc) for effects screenshots")
 	velocity := flag.Float64("velocity", 0.0, "Ship velocity as fraction of c (0.0-0.99) for SR visual effects")
 	viewAngle := flag.Float64("view-angle", 0.0, "View direction: 0=front, 1.57=side, 3.14=back (radians)")
+	arrivalMode := flag.Bool("arrival", false, "Start with black hole emergence arrival sequence")
 	flag.Parse()
 
 	return gameFlags{
@@ -240,6 +399,7 @@ func parseFlags() gameFlags {
 		demoScene:        *demoScene,
 		velocity:         *velocity,
 		viewAngle:        *viewAngle,
+		arrivalMode:      *arrivalMode,
 	}
 }
 
@@ -268,6 +428,7 @@ func handleScreenshotMode(flags gameFlags) {
 	cfg.DemoScene = flags.demoScene
 	cfg.Velocity = flags.velocity
 	cfg.ViewAngle = flags.viewAngle
+	cfg.ArrivalMode = flags.arrivalMode
 
 	// Parse camera position if provided
 	if flags.cameraStr != "" {
@@ -380,7 +541,15 @@ func main() {
 		log.Println("Demo mode enabled: F4=SR Warp, F5=Bloom, F6=Vignette, F7=CRT, F8=Aberration, F9=Overlay")
 	}
 
+	// Determine starting mode
+	startMode := ModePlaying
+	if flags.arrivalMode {
+		startMode = ModeArrival
+		log.Println("Starting in arrival mode - black hole emergence sequence")
+	}
+
 	game := &Game{
+		mode:     startMode,
 		world:    world,
 		renderer: renderer,
 		display:  displayMgr,
@@ -388,6 +557,11 @@ func main() {
 		clock:    clockHandler,
 		save:     saveMgr,
 		effects:  effects,
+	}
+
+	// Initialize arrival state if starting in arrival mode
+	if startMode == ModeArrival {
+		game.arrivalState = sim_gen.InitArrival()
 	}
 
 	setupShutdownHandler(saveMgr, game)

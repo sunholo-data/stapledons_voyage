@@ -1,0 +1,152 @@
+{
+  "sprint_id": "arrival-sequence",
+  "name": "Arrival Sequence - Black Hole Emergence",
+  "status": "in_progress",
+  "type": "ailang",
+  "started": "2025-12-06",
+  "design_doc": "design_docs/planned/next/arrival-sequence.md",
+  "phases": [
+    {
+      "id": "phase1",
+      "name": "Core Sequence",
+      "goal": "Playable black hole emergence → Saturn arrival with GR+SR effects",
+      "status": "in_progress",
+      "tasks": [
+        {"id": "1.1", "name": "Asset Acquisition & Setup", "status": "completed", "notes": "NASA URLs broken - fixed with Wikimedia Commons URLs. Planet images now load correctly."},
+        {"id": "1.2", "name": "Camera Tumble & Stabilization", "status": "pending", "notes": ""},
+        {"id": "1.3", "name": "State Machine & GR/SR Integration", "status": "completed", "notes": "AILANG arrival.ail with PhaseBlackHole, grIntensity field. Manual sim_gen/arrival.go workaround."},
+        {"id": "1.4", "name": "Planet Rendering", "status": "completed", "notes": "Direct Ebiten rendering implemented. Planets display centered with proper scaling."},
+        {"id": "1.5", "name": "Integration & Demo", "status": "completed", "notes": "Screenshots working. Applied artistic license to velocities (0.3c-0.5c instead of 0.8c-0.99c) for visual clarity while maintaining SR effect progression."}
+      ]
+    },
+    {
+      "id": "phase2",
+      "name": "Polish & Bridge View",
+      "goal": "Complete planetary tour, Bridge View as main screen",
+      "status": "pending",
+      "tasks": [
+        {"id": "2.1", "name": "Remaining Planets", "status": "pending", "notes": ""},
+        {"id": "2.2", "name": "Bridge View Layout", "status": "pending", "notes": ""},
+        {"id": "2.3", "name": "Bridge Interior", "status": "pending", "notes": ""},
+        {"id": "2.4", "name": "Audio & Archive Dialogue", "status": "pending", "notes": ""},
+        {"id": "2.5", "name": "Final Integration & Testing", "status": "pending", "notes": ""}
+      ]
+    }
+  ],
+  "dependencies": {
+    "implemented": [
+      "SR Shader (engine/shader/sr.go)",
+      "GR Shader (engine/shader/gr.go)",
+      "GR Context (engine/relativity/gr_context.go)",
+      "Input System (engine/input/)",
+      "Display Manager (engine/display/)",
+      "Asset Manager (engine/assets/)"
+    ],
+    "external": [
+      "Wikimedia Commons planetary images (public domain/CC)"
+    ]
+  },
+  "deliverables": [
+    "sim/arrival.ail - AILANG state machine",
+    "sim_gen/arrival.go - Go workaround until codegen fixed",
+    "engine/screenshot/screenshot.go - Arrival screenshot support",
+    "Planet textures in assets/planets/",
+    "Playable arrival sequence with GR→SR transition"
+  ],
+  "ailang_issues": [
+    {"type": "bug", "title": "Effect checker hangs on records >10 fields", "status": "fixed", "notes": "Fixed in AILANG - type checking now works on large records"},
+    {"type": "bug", "title": "Go codegen fails for arrival.ail", "status": "reported", "workaround": "Manual sim_gen/arrival.go"},
+    {"type": "feature", "title": "Add DrawCmdRGBA variants for direct RGBA color support", "status": "requested", "notes": "Sent via ailang-feedback. Current DrawCmd uses color index not RGBA. Blocks pure-AILANG cinematic scenes."}
+  ],
+  "dx_issues_discovered": [
+    {
+      "issue": "DrawCmd color system uses index into biomeColors[], not RGBA values",
+      "impact": "Cannot use NewDrawCmdRect/Circle for custom colors in arrival scene",
+      "workaround": "Direct Ebiten drawing with actual RGBA colors",
+      "recommendation": "Add DrawCmdRawRect/DrawCmdRawCircle with actual RGBA colors"
+    },
+    {
+      "issue": "Screenshot mode didn't support arrival flag initially",
+      "impact": "Could not self-test arrival rendering",
+      "workaround": "Added ArrivalMode to screenshot.Config and CaptureArrival function",
+      "recommendation": "Always ensure screenshot testing works for new game modes"
+    },
+    {
+      "issue": "DrawCmd renderer designed for isometric world, not 2D screen-space",
+      "impact": "Viewport culling and camera transforms applied to screen-space elements",
+      "workaround": "Use direct rendering for arrival sequence",
+      "recommendation": "Consider separate renderer for cinematic/UI scenes"
+    },
+    {
+      "issue": "Asset-manager planet URLs were broken (NASA solarsystem URLs return 404)",
+      "impact": "Downloaded HTML error pages instead of images, causing 'unknown format' errors",
+      "workaround": "Updated to use reliable Wikimedia Commons thumbnail URLs",
+      "recommendation": "Always verify downloaded files are valid images (use 'file' command)"
+    },
+    {
+      "issue": "SR shader blueshift too intense at high velocities (>0.5c)",
+      "impact": "At 0.9c (Saturn) and 0.8c (Jupiter), entire screen becomes blue/white, obscuring content",
+      "workaround": "Use artistic license - lower velocities (0.1c-0.5c) for playability",
+      "recommendation": "Document that physics shaders are accurate but velocities need artistic tuning"
+    },
+    {
+      "issue": "GR shader at high intensity (inside black hole) renders pure black",
+      "impact": "Black hole phase shows no visual feedback - just black screen",
+      "workaround": "Need visual elements that survive extreme GR distortion",
+      "recommendation": "Add glowing accretion disk or lens flare that remains visible"
+    },
+    {
+      "issue": "sim_gen/*.go files are AILANG-generated - must NOT be edited manually",
+      "impact": "Manual edits to generated files will be overwritten",
+      "workaround": "Request features via ailang-feedback, use engine/ for workarounds",
+      "recommendation": "CRITICAL: sim_gen/ = generated, engine/ = safe to edit"
+    },
+    {
+      "issue": "AILANG codegen produces incomplete types.go when re-run on single module",
+      "impact": "Running 'ailang compile' on just one .ail file overwrites types.go, breaking other modules",
+      "workaround": "Compile ALL sim/*.ail together, or patch types.go with PATCH comments",
+      "recommendation": "Document partial recompile danger. Consider merge behavior."
+    },
+    {
+      "issue": "Binary not rebuilt after Go code changes",
+      "impact": "Running ./bin/game shows stale behavior - changes don't appear",
+      "workaround": "Run 'go build -o bin/game ./cmd/game' after any Go changes, or use 'go run ./cmd/game' for testing",
+      "recommendation": "Add rebuild reminder to sprint checklist. Consider 'make game' before testing."
+    },
+    {
+      "issue": "Hardcoded 640x480 screen coordinates",
+      "impact": "Rendering only fills top-left corner of window - rest is black",
+      "workaround": "Use display.InternalWidth (1280) and display.InternalHeight (960) instead of hardcoded values",
+      "recommendation": "NEVER hardcode resolution-dependent values. Use display constants or percentages."
+    }
+  ],
+  "lessons_learned": [
+    "Always test with screenshots at multiple frame points before declaring rendering complete",
+    "Use real images from start - no placeholder rectangles",
+    "Sprint JSON should be updated as issues are discovered, not just at completion",
+    "Downloaded assets should be verified with 'file' command to catch HTML error pages",
+    "Relativistic effects are physically accurate but need artistic tuning for playability",
+    "Screenshot self-testing is essential for rapid iteration on visual features",
+    "NEVER edit sim_gen/*.go files - request features via ailang-feedback instead",
+    "sim_gen/arrival.go is EXCEPTION - manual workaround until codegen fixed",
+    "If patching types.go is unavoidable, mark all changes with PATCH comments",
+    "Recompiling single .ail file will overwrite types.go - must compile ALL files together",
+    "Always rebuild binary after Go changes: 'go build -o bin/game ./cmd/game' or use 'go run' for testing",
+    "NEVER hardcode screen coordinates (640x480) - use display.InternalWidth/Height (1280x960)",
+    "Use percentages for UI positioning (screenW * 0.5) instead of fixed pixel values"
+  ],
+  "test_screenshots": {
+    "frame_2100_earth": "Earth phase at 0.0c - shows dark space, centered Earth image, HUD visible",
+    "frame_1800_mars": "Mars phase at 0.1c - subtle blueshift, Mars clearly visible",
+    "frame_1500_jupiter": "Jupiter phase at 0.2c - mild blueshift, Jupiter visible",
+    "frame_1000_saturn": "Saturn phase at 0.3c - moderate blueshift, Saturn and rings visible",
+    "frame_600_emergence": "Emergence phase at 0.45c - noticeable blueshift, space background visible"
+  },
+  "velocity_tuning": {
+    "approach": "Artistic license - keep SR shaders physically accurate but use lower velocities",
+    "original_velocities": "0.99c → 0.9c → 0.8c → 0.5c → 0.0c (caused visual washout)",
+    "tuned_velocities": "0.5c → 0.45c → 0.35c → 0.3c → 0.2c → 0.1c → 0.0c (visible content)",
+    "rationale": "SR blueshift above 0.5c causes entire scene to become solid blue, obscuring gameplay"
+  },
+  "notes": []
+}

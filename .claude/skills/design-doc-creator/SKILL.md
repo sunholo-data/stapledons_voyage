@@ -66,7 +66,44 @@ Ask user:
 
 **Reference:** [docs/game-vision.md](../../../docs/game-vision.md)
 
-### 3. Engine Capabilities Reference
+### 3. Physics-First Design (CRITICAL)
+
+**This is a hard sci-fi game. All visual effects must be based on real physics.**
+
+#### Real Physics (USE THESE)
+
+| Effect | Physics Basis | When to Use |
+|--------|---------------|-------------|
+| **SR Doppler Shift** | Light wavelength changes with relative velocity | Relativistic travel |
+| **SR Aberration** | Stars appear to bunch forward at high velocity | High-speed scenes |
+| **GR Lensing** | Light bends around massive objects | Near black holes, neutron stars |
+| **GR Redshift** | Light escaping gravity wells shifts red | Near massive objects |
+| **Time Dilation** | γ = 1/√(1-v²/c²) | All relativistic travel |
+| **Parallax** | Distant objects move slower than near ones | Depth perception |
+
+#### Hollywood Conventions (NEVER USE)
+
+| Rejected Effect | Why It's Wrong | What to Use Instead |
+|-----------------|----------------|---------------------|
+| **Star Streaks** | Stars are too distant for motion blur | SR aberration (stars bunch forward) |
+| **Radial Motion Blur** | No physical basis at relativistic speeds | SR Doppler shift (color change) |
+| **Warp Tunnels** | Pure fantasy, no physics | Actual SR/GR visual distortion |
+| **Sound in Space** | No medium for sound waves | Silence, or ship interior sounds |
+| **Engine Glow Trails** | No medium to illuminate in vacuum | Point-source engine light only |
+| **Instant Communication** | Violates light speed limit | Time-delayed messages |
+| **Artificial Gravity Plates** | No known physics | Rotation or acceleration |
+
+#### Physics Validation Checklist
+
+Before finalizing any visual/physics design:
+- [ ] Is this effect based on real physics?
+- [ ] Can I cite the equation or principle?
+- [ ] Would a physicist approve?
+- [ ] If "artistic license" is needed, is there a narrative justification?
+
+**Example narrative justification**: Lower velocities (0.1c-0.5c instead of 0.9c) because "the AI pilot slows for crew sightseeing" - physics is still accurate, just at visible intensities.
+
+### 4. Engine Capabilities Reference
 
 **Before designing, know what's already available:**
 
@@ -83,7 +120,7 @@ Ask user:
 - **Shaders**: SR warp (Doppler, aberration), GR warp (lensing, redshift), bloom, vignette
 - **Physics**: Lorentz factor (γ), time dilation, gravitational redshift, Schwarzschild radius
 
-### 4. Consider AILANG Constraints
+### 5. Consider AILANG Constraints
 
 **Important for this project:** All game logic is written in AILANG. Consider:
 - No mutable state - must use functional updates
@@ -91,17 +128,31 @@ Ask user:
 - Limited data structures - lists only, no arrays
 - Known issues - check CLAUDE.md for current limitations
 
-### 5. Design Doc Structure
+### 6. Design Doc Structure
 
 **Game-specific sections:**
 - **Game Vision Alignment**: Score against core pillars
+- **Physics Validation**: (for visual features) What real physics principles apply?
 - **Feature Overview**: What gameplay does this enable?
 - **AILANG Implementation**: Types, functions, effects needed
 - **Engine Integration**: How Go/Ebiten renders this
 - **Performance**: Recursion depth, list operations needed
 - **Testing**: How to verify the feature works
 
-### 6. Example: NPC Movement Design Doc
+**For visual/physics features, include:**
+```markdown
+## Physics Basis
+- Effect: [name]
+- Principle: [cite equation or physics concept]
+- Reference: [link to physics explanation]
+
+## Rejected Alternatives
+| Hollywood Effect | Why Rejected |
+|------------------|--------------|
+| [effect] | [physics reason] |
+```
+
+### 7. Example: NPC Movement Design Doc
 
 ```markdown
 # NPC Movement System

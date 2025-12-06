@@ -7,6 +7,90 @@ description: Execute approved sprint plans for Stapledons Voyage using AILANG. A
 
 Execute an approved sprint plan with **AILANG as the primary implementation language**. All game logic, state machines, and gameplay code goes in `sim/*.ail` - the Go engine only renders DrawCmd output.
 
+## MANDATORY: Sprint JSON Tracking
+
+**Every sprint MUST have a tracking JSON file in `sprints/`:**
+
+```bash
+# Location: sprints/sprint-<sprint-id>.json
+# Example: sprints/sprint-arrival-sequence.json
+```
+
+**Create immediately when starting sprint:**
+```json
+{
+  "sprint_id": "<sprint-id>",
+  "name": "Sprint Name",
+  "status": "in_progress",
+  "type": "ailang",
+  "started": "YYYY-MM-DD",
+  "design_doc": "design_docs/planned/next/<feature>.md",
+  "phases": [
+    {
+      "id": "phase1",
+      "name": "Phase Name",
+      "status": "in_progress",
+      "tasks": [
+        {"id": "1.1", "name": "Task Name", "status": "pending", "notes": ""}
+      ]
+    }
+  ],
+  "ailang_issues": [],
+  "dx_issues_discovered": [],
+  "lessons_learned": [],
+  "notes": []
+}
+```
+
+**AILANG sprints MUST include these sections** (added to standard format):
+- `ailang_issues` - Bugs/features reported to AILANG team
+- `dx_issues_discovered` - DX friction discovered during sprint
+- `lessons_learned` - What to do differently next time
+
+**Update this JSON:**
+- Mark milestones as `completed` immediately after finishing
+- Add notes with workarounds used
+- Document ALL DX issues as you discover them
+- Add lessons learned in real-time, not at sprint end
+
+## Pre-Sprint DX Checklist
+
+Before writing any code, verify these items:
+
+### File Boundaries
+- [ ] **sim_gen/*.go is GENERATED** - Never edit (except manual workarounds marked with PATCH)
+- [ ] **engine/*.go is safe** - OK to edit for rendering
+- [ ] **sim/*.ail is source** - Primary edit location
+
+### For Visual Features
+- [ ] **Screenshot testing ready** - Can run `go run ./cmd/game -screenshot N -output /tmp/test.png`
+- [ ] **Test at multiple frames** - Don't declare rendering complete until tested
+- [ ] **Use real assets from start** - No placeholder rectangles
+
+### For Downloaded Assets
+- [ ] **Verify with `file` command** - Catch HTML error pages masquerading as images
+- [ ] **Check URLs still work** - NASA/external URLs may return 404
+
+### DrawCmd Limitations
+- [ ] **Color is INDEX not RGBA** - Use biomeColors[] indices or RectRGBA/CircleRGBA for custom colors
+- [ ] **Renderer is isometric** - Use direct drawing for screen-space elements
+- [ ] **Use RectRGBA/CircleRGBA for screen-space** - These bypass camera transforms and use packed 0xRRGGBBAA colors
+
+### Screen Resolution
+- [ ] **NEVER hardcode 640x480 or other fixed sizes** - Use `display.InternalWidth` and `display.InternalHeight`
+- [ ] **Internal resolution is 1280x960** - All screen-space coordinates should be relative to this
+- [ ] **Use percentages for positioning** - e.g., `screenW * 0.5` for center, not fixed `320`
+
+### Physics/Shader Effects
+- [ ] **Use artistic license on values** - Physically accurate may not be visually playable
+- [ ] **Test SR blueshift >0.5c** - May wash out all content
+- [ ] **Test GR at high intensity** - May render pure black
+
+### Build & Test
+- [ ] **Rebuild binary after Go changes** - `go build -o bin/game ./cmd/game` or use `go run`
+- [ ] **Use `go run` for quick testing** - Compiles fresh each time
+- [ ] **Use `make game` for release** - Ensures clean build
+
 ## CRITICAL: AILANG-First Architecture
 
 **This project is ALL-IN on AILANG.** The architecture is:
@@ -275,6 +359,9 @@ Quick reference for known issues and their solutions:
 | Module-level `let` in function | "undefined variable" | Inline constant or pass as parameter (intentional design) |
 | Tuple destructuring | Parse error on `let (x, y) = pair` | Use `match pair { (x, y) => ... }` |
 | ADT in inline tests | Test harness crashes | Only use primitive types in test inputs |
+| DrawCmd uses color index not RGBA | N/A (works but limited) | Use direct Ebiten drawing in engine/ for custom colors. Feature requested from AILANG. |
+| Go codegen fails for large modules | "format error" in generated code | Manual workaround in sim_gen/<module>.go - EXCEPTION to no-edit rule |
+| **Editing sim_gen/*.go** | Changes overwritten | **NEVER edit sim_gen files** (except manual workarounds). Request features via ailang-feedback. |
 
 ### Maintaining This List (IMPORTANT)
 

@@ -4,13 +4,14 @@
 **Status:** Planned
 **Priority:** P0 (First Player Experience)
 **Complexity:** High
-**Depends On:** SR Effects (implemented), Asset Pipeline, Input System
+**Depends On:** SR Effects (implemented), GR Effects (implemented), Asset Pipeline, Input System
 **Estimated:** 2 sprints
 
 ## Related Documents
 
 - [Opening Sequence](../future/opening-sequence.md) - Narrative context (emergence from structure)
-- [SR Effects](../../implemented/v0_1_0/sr-effects.md) - Visual effects (implemented)
+- [SR Effects](../../implemented/v0_1_0/sr-effects.md) - Special relativity effects (implemented)
+- [GR Effects](../../implemented/v0_1_0/gr-effects.md) - General relativity effects (implemented)
 - [Ship Exploration](ship-exploration.md) - Interior navigation (separate mode)
 - [Galaxy Map](galaxy-map.md) - Strategic navigation (accessed from bridge)
 - [Bubble Ship Design](../../input/bubble-ship-design.md) - Ship layout reference
@@ -39,11 +40,41 @@ The **Arrival Sequence** is the player's first experience of the game. It serves
 
 ### The Core Experience
 
-> You emerge from *somewhere* spinning wildly. Stars streak past in impossible colors. Through the chaos, you glimpse something familiar - Saturn's rings? The Archive's voice cuts through static, guiding you to stabilize. As you gain control, the universe snaps into focus. You're decelerating through our solar system, planets growing from points of light to breathtaking vistas. By the time Earth fills your view, you understand: you've been traveling at near-lightspeed, and nothing will ever be the same.
+> Reality warps around you as you emerge from a structure that bends light itself. Space distorts, twists, and then snaps into clarity as you're ejected at near-lightspeed. You're spinning wildly. Stars streak past in impossible colors. Through the chaos, you glimpse something familiar - Saturn's rings? The Archive's voice cuts through static, guiding you to stabilize. As you gain control, the universe snaps into focus. You're decelerating through our solar system, planets growing from points of light to breathtaking vistas. By the time Earth fills your view, you understand: you've been traveling at near-lightspeed, and nothing will ever be the same.
 
 ---
 
 ## Detailed Specification
+
+### Phase 0: Black Hole Emergence (8 seconds)
+
+**Visual State:**
+- Player emerges from a "mysterious structure" (black hole)
+- GR lensing effects at maximum (gravitational distortion)
+- Space itself appears warped, light bending around unseen mass
+- Accretion disk glow fading as distance increases
+- GR intensity fades from 1.0 → 0.0 over 8 seconds
+
+**Audio:**
+- Deep rumbling, reality-warping sounds
+- Distorted Archive voice: "...transit complete... systems..."
+- Gradual transition to SR soundscape
+
+**Player Input:**
+- None - purely cinematic
+- Player is ejected at 0.99c
+
+**GR Effects:**
+- `grIntensity` starts at 1.0 (Extreme level)
+- Uses existing GRWarp shader with lensing + redshift
+- Center of effect is the "structure" behind the ship
+- Fades linearly to 0.0 as player moves away
+
+**Transition:**
+- After 8 seconds, GR effects fully fade
+- Seamlessly transitions to Phase 1 (SR tumble)
+
+---
 
 ### Phase 1: Emergence & Chaos (30-60 seconds)
 

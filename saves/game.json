@@ -1,9 +1,9 @@
 {
   "version": "0.1.0",
-  "timestamp": 1764966903,
-  "play_time": 383.88333333331286,
+  "timestamp": 1765058829,
+  "play_time": 670.8333333330519,
   "world": {
-    "Tick": 23033,
+    "Tick": 24803,
     "Planet": {
       "Width": 8,
       "Height": 8,
@@ -204,12 +204,9 @@
     },
     "Npcs": [],
     "Selection": {
-      "Kind": 1,
-      "SelectionNone": null,
-      "SelectionTile": {
-        "Value0": 5,
-        "Value1": 4
-      }
+      "Kind": 0,
+      "SelectionNone": {},
+      "SelectionTile": null
     }
   }
 }

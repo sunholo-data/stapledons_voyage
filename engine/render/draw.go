@@ -171,6 +171,18 @@ func (r *Renderer) RenderFrame(screen *ebiten.Image, out sim_gen.FrameOutput) {
 
 		case sim_gen.DrawCmdKindStar:
 			r.drawStar(screen, cmd.Star)
+
+		case sim_gen.DrawCmdKindRectRGBA:
+			c := cmd.RectRGBA
+			// Screen-space rectangle with packed RGBA color (0xRRGGBBAA format)
+			col := unpackRGBA(c.Rgba)
+			ebitenutil.DrawRect(screen, c.X, c.Y, c.W, c.H, col)
+
+		case sim_gen.DrawCmdKindCircleRGBA:
+			c := cmd.CircleRGBA
+			// Screen-space circle with packed RGBA color
+			col := unpackRGBA(c.Rgba)
+			r.drawCircleRGBA(screen, c.X, c.Y, c.Radius, col, c.Filled)
 		}
 	}
 
@@ -214,6 +226,53 @@ func RenderFrame(screen *ebiten.Image, out sim_gen.FrameOutput) {
 	r.RenderFrame(screen, out)
 }
 
+// unpackRGBA converts a packed RGBA int64 (0xRRGGBBAA format) to color.RGBA
+func unpackRGBA(rgba int64) color.RGBA {
+	return color.RGBA{
+		R: uint8((rgba >> 24) & 0xFF),
+		G: uint8((rgba >> 16) & 0xFF),
+		B: uint8((rgba >> 8) & 0xFF),
+		A: uint8(rgba & 0xFF),
+	}
+}
+
+// drawCircleRGBA draws a circle with an RGBA color
+func (r *Renderer) drawCircleRGBA(screen *ebiten.Image, x, y, radius float64, col color.RGBA, filled bool) {
+	if filled {
+		// Draw filled circle using pixel-by-pixel approach
+		for dy := -radius; dy <= radius; dy++ {
+			for dx := -radius; dx <= radius; dx++ {
+				if dx*dx+dy*dy <= radius*radius {
+					screen.Set(int(x+dx), int(y+dy), col)
+				}
+			}
+		}
+	} else {
+		// Draw circle outline using midpoint algorithm
+		cx, cy := int(x), int(y)
+		r := int(radius)
+		px, py := 0, r
+		d := 1 - r
+		for px <= py {
+			screen.Set(cx+px, cy+py, col)
+			screen.Set(cx-px, cy+py, col)
+			screen.Set(cx+px, cy-py, col)
+			screen.Set(cx-px, cy-py, col)
+			screen.Set(cx+py, cy+px, col)
+			screen.Set(cx-py, cy+px, col)
+			screen.Set(cx+py, cy-px, col)
+			screen.Set(cx-py, cy-px, col)
+			if d < 0 {
+				d += 2*px + 3
+			} else {
+				d += 2*(px-py) + 5
+				py--
+			}
+			px++
+		}
+	}
+}
+
 func getZ(cmd *sim_gen.DrawCmd) int {
 	switch cmd.Kind {
 	case sim_gen.DrawCmdKindRect:
@@ -240,6 +299,10 @@ func getZ(cmd *sim_gen.DrawCmd) int {
 		return int(cmd.IsoEntity.Layer)
 	case sim_gen.DrawCmdKindUi:
 		return int(cmd.Ui.Z) + 10000 // UI always on top
+	case sim_gen.DrawCmdKindRectRGBA:
+		return int(cmd.RectRGBA.Z)
+	case sim_gen.DrawCmdKindCircleRGBA:
+		return int(cmd.CircleRGBA.Z)
 	}
 	return 0
 }
