@@ -6,8 +6,8 @@ toolchain go1.24.11
 
 require (
 	github.com/anthropics/anthropic-sdk-go v1.19.0
-	github.com/hajimehoshi/ebiten/v2 v2.6.0
-	golang.org/x/image v0.12.0
+	github.com/hajimehoshi/ebiten/v2 v2.8.0-alpha.3.0.20240826172230-42209606b1cf
+	golang.org/x/image v0.20.0
 	google.golang.org/genai v1.37.0
 )
 
@@ -15,16 +15,21 @@ require (
 	cloud.google.com/go v0.116.0 // indirect
 	cloud.google.com/go/auth v0.9.3 // indirect
 	cloud.google.com/go/compute/metadata v0.5.0 // indirect
-	github.com/ebitengine/oto/v3 v3.1.0 // indirect
-	github.com/ebitengine/purego v0.5.0 // indirect
+	github.com/ebitengine/gomobile v0.0.0-20240911145611-4856209ac325 // indirect
+	github.com/ebitengine/hideconsole v1.0.0 // indirect
+	github.com/ebitengine/oto/v3 v3.3.0-alpha.4 // indirect
+	github.com/ebitengine/purego v0.8.0-alpha.5 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/s2a-go v0.1.8 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.4 // indirect
 	github.com/gorilla/websocket v1.5.3 // indirect
-	github.com/jezek/xgb v1.1.0 // indirect
+	github.com/jezek/xgb v1.1.1 // indirect
 	github.com/jfreymuth/oggvorbis v1.0.5 // indirect
 	github.com/jfreymuth/vorbis v1.0.2 // indirect
+	github.com/qmuntal/gltf v0.27.0 // indirect
+	github.com/solarlune/tetra3d v0.17.1 // indirect
+	github.com/tanema/gween v0.0.0-20221212145351-621cc8a459d1 // indirect
 	github.com/tidwall/gjson v1.18.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect

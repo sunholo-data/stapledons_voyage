@@ -9,14 +9,45 @@ Execute an approved sprint plan with **AILANG as the primary implementation lang
 
 ## MANDATORY: Sprint JSON Tracking
 
-**Every sprint MUST have a tracking JSON file in `sprints/`:**
+**Every sprint MUST have a tracking JSON file:**
 
 ```bash
-# Location: sprints/sprint-<sprint-id>.json
-# Example: sprints/sprint-arrival-sequence.json
+# Location: sprints/sprint_<sprint-id>.json
+# Example: sprints/sprint_view-system-v1.json
 ```
 
-**Create immediately when starting sprint:**
+**Two formats supported:**
+
+### Features-Based (Preferred for new sprints)
+```json
+{
+  "sprint_id": "<sprint-id>",
+  "created": "YYYY-MM-DDTHH:MM:SSZ",
+  "status": "in_progress",
+  "design_doc": "design_docs/planned/next/<feature>.md",
+  "features": [
+    {
+      "id": "feature-id",
+      "description": "What this feature does",
+      "estimated_loc": 300,
+      "actual_loc": null,
+      "dependencies": [],
+      "acceptance_criteria": ["Criterion 1", "Criterion 2"],
+      "passes": null,
+      "started": null,
+      "completed": null,
+      "notes": null
+    }
+  ],
+  "velocity": { "target_loc_per_day": 275, "actual_loc_per_day": 0 },
+  "ailang_issues": [],
+  "dx_issues_discovered": [],
+  "lessons_learned": [],
+  "last_updated": "YYYY-MM-DDTHH:MM:SSZ"
+}
+```
+
+### Phases/Tasks-Based (Legacy)
 ```json
 {
   "sprint_id": "<sprint-id>",
@@ -142,32 +173,52 @@ Invoke this skill when:
 
 **Always update the sprint JSON file as you work.** This enables session continuity.
 
-```bash
-# Location: sprints/<sprint-id>.json
+Sprint JSON files can use either **features-based** (preferred for new sprints) or **phases/tasks-based** (legacy) structure.
 
-# Update task status (after completing each task)
+### Commands
+
+```bash
+# Location: sprints/sprint_<sprint-id>.json
+
+# For feature-based sprints (preferred):
+.claude/skills/sprint-executor/scripts/update_progress.sh \
+  sprints/sprint_<sprint-id>.json feature <feature_id> in_progress
+
+.claude/skills/sprint-executor/scripts/update_progress.sh \
+  sprints/sprint_<sprint-id>.json feature <feature_id> completed [actual_loc]
+
+# For phase/task-based sprints (legacy):
 .claude/skills/sprint-executor/scripts/update_progress.sh \
   sprints/<sprint-id>.json task <task_id> completed
 
-# Update phase status (after completing all phase tasks)
 .claude/skills/sprint-executor/scripts/update_progress.sh \
   sprints/<sprint-id>.json phase <phase_id> completed
 
-# Update sprint status
+# Update overall sprint status (both formats):
 .claude/skills/sprint-executor/scripts/update_progress.sh \
-  sprints/<sprint-id>.json sprint in_progress
+  <sprint-file>.json sprint in_progress
 
-# Show current progress
+# Show current progress (auto-detects format):
 .claude/skills/sprint-executor/scripts/update_progress.sh \
-  sprints/<sprint-id>.json show
+  <sprint-file>.json show
 ```
+
+### Feature Command (for features-based sprints)
+
+| Command | Effect |
+|---------|--------|
+| `feature <id> in_progress` | Sets `started` timestamp |
+| `feature <id> completed` | Sets `completed` timestamp, `passes: true` |
+| `feature <id> completed <loc>` | Also sets `actual_loc` |
+| `feature <id> blocked` | Sets `passes: false` |
+| `feature <id> pending` | Resets to initial state |
 
 **Status values:** `pending` | `in_progress` | `completed` | `blocked`
 
 ### When to Update JSON
 - Mark sprint as `in_progress` when starting
-- Mark each task `completed` immediately after finishing it
-- Mark phase `completed` after all its tasks are done
+- Mark each feature/task `in_progress` before starting work
+- Mark each feature/task `completed` immediately after finishing
 - Mark sprint `completed` at the end
 
 ## Engine-Only Changes (Rare)
@@ -438,6 +489,82 @@ ailang run --entry init_world sim/step.ail
 make game
 ```
 
+## Visual Verification (MANDATORY for Visual Features)
+
+**For any milestone involving visual output, YOU MUST take and verify screenshots.**
+
+### Why This Matters
+- Manual testing by the user may not reveal subtle issues
+- Screenshots provide proof that features work as expected
+- Catching visual bugs early saves debugging time later
+- Screenshots serve as visual documentation of progress
+
+### Screenshot Workflow
+
+1. **Build Demo Commands with Screenshot Support**
+   ```go
+   // Add these flags to demo commands:
+   screenshotFrame = flag.Int("screenshot", 0, "Take screenshot after N frames")
+   outputPath = flag.String("output", "out/demo.png", "Screenshot output path")
+   ```
+
+2. **Take Screenshots at Key States**
+   ```bash
+   # Initial state
+   ./bin/demo --screenshot 30 --output out/screenshots/initial.png
+
+   # During animation/transition (if applicable)
+   ./bin/demo --auto-transition 10 --screenshot 40 --output out/screenshots/mid-transition.png
+
+   # Final state
+   ./bin/demo --screenshot 90 --output out/screenshots/final.png
+   ```
+
+3. **View Screenshots Using Read Tool**
+   ```bash
+   # Claude Code can view PNG images directly
+   # Use Read tool on screenshot path to verify visuals
+   ```
+
+4. **Document What to Look For**
+   - Stars visible and distributed across screen
+   - Parallax effect showing camera offset in HUD
+   - Transition effects (fade/crossfade/wipe/zoom) clearly visible
+   - UI elements positioned correctly
+   - No visual artifacts or rendering errors
+
+### Screenshot Verification Checklist
+
+For each visual feature:
+- [ ] Screenshot captured at initial state
+- [ ] Screenshot captured during any animations/transitions
+- [ ] Screenshot captured at final state
+- [ ] Screenshots viewed and verified correct
+- [ ] Issues found documented in sprint JSON
+- [ ] Visual artifacts investigated and fixed
+
+### Auto-Transition Testing
+
+For transition/animation features, add auto-trigger capability:
+```go
+autoTransition = flag.Int("auto-transition", 0, "Auto-trigger transition at frame N")
+autoEffect = flag.String("effect", "fade", "Transition effect type")
+```
+
+This allows capturing mid-transition states without manual input.
+
+### Example Visual Verification
+
+```bash
+# Test all transition types
+for effect in fade crossfade wipe zoom; do
+  ./bin/demo-view --auto-transition 10 --effect $effect \
+    --screenshot 40 --output out/view-screenshots/${effect}-mid.png
+done
+
+# Then use Read tool to view each screenshot
+```
+
 ## Resources
 
 ### Engine & Physics Reference
@@ -490,6 +617,13 @@ make game
 ### Testing
 - [ ] Edge cases handled
 - [ ] Error conditions covered
+
+### Visual Verification (if visual feature)
+- [ ] Screenshot captured at initial state
+- [ ] Screenshot captured during animations/transitions
+- [ ] Screenshot captured at final state
+- [ ] Screenshots viewed and verified correct
+- [ ] Visual issues fixed
 
 ### Feedback
 - [ ] Issues reported: [list]
