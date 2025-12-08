@@ -7,6 +7,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - [docs/game-vision.md](docs/game-vision.md) - Full game design document
 - [DEVELOPMENT.md](DEVELOPMENT.md) - Technical reference, data flow, types
 - [design_docs/](design_docs/) - Feature design documentation
+  - `planned/next/` - Features to implement next (need sprints)
+  - `implemented/vX_Y_Z/` - Completed features by version
+- [sprints/](sprints/) - Sprint plans tracking implementation
 - [design_docs/reference/engine-capabilities.md](design_docs/reference/engine-capabilities.md) - Complete engine reference (DrawCmd, effects, shaders, physics)
 
 ## Project Overview
@@ -376,3 +379,67 @@ ailang messages ack <msg-id>            # Mark as read
 ```
 
 This feedback loop helps improve AILANG based on real-world usage in this integration test project.
+
+## Feature Development Workflow
+
+**IMPORTANT:** All game features MUST follow this workflow. Do not implement features without a sprint plan.
+
+### Design Docs → Sprints → Implementation
+
+```
+design_docs/planned/next/  →  sprints/  →  code  →  design_docs/implemented/vX_Y_Z/
+        (what)               (how+when)    (do)           (done)
+```
+
+### Step-by-Step Process
+
+1. **Create Design Doc** (`design-doc-creator` skill)
+   - Location: `design_docs/planned/next/<feature-name>.md`
+   - Describes WHAT the feature does and WHY
+   - Contains acceptance criteria
+
+2. **Create Sprint Plan** (`sprint-planner` skill)
+   - Location: `sprints/<feature-name>-sprint.md` or `sprints/plans/`
+   - Sprint file MUST reference the design doc: `Design Doc: design_docs/planned/next/<name>.md`
+   - Contains day-by-day breakdown with checkboxes
+   - Lists files to create/modify
+   - Estimates effort
+
+3. **Execute Sprint** (`sprint-executor` skill)
+   - Work through sprint tasks
+   - Mark checkboxes as completed: `[x]`
+   - Update sprint file with actual files created
+
+4. **Move to Implemented**
+   - When sprint is 100% complete
+   - Move design doc: `git mv design_docs/planned/next/<name>.md design_docs/implemented/vX_Y_Z/`
+   - Update design doc with implementation locations
+
+### Audit Command
+
+Check which design docs have sprints and their progress:
+
+```bash
+.claude/skills/game-architect/scripts/audit_design_docs.sh
+```
+
+This shows:
+- Design docs WITH sprints (ready to implement)
+- Design docs WITHOUT sprints (need planning first)
+- Sprint completion percentages
+
+### Why This Matters
+
+- **No orphan code** - All changes traced to design docs
+- **No orphan docs** - All planned features have sprint tracking
+- **Progress visibility** - Sprint checkboxes show real progress
+- **Easy auditing** - Can verify what's actually implemented vs planned
+
+### Related Skills
+
+| Skill | Purpose |
+|-------|---------|
+| `design-doc-creator` | Create new design docs in planned/next/ |
+| `sprint-planner` | Create sprint plans for design docs |
+| `sprint-executor` | Execute approved sprint plans |
+| `game-architect` | Audit design docs, validate architecture |

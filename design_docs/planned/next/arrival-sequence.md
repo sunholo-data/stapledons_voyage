@@ -1,7 +1,7 @@
 # Arrival Sequence & Bridge View
 
 **Version:** 0.2.0
-**Status:** Planned
+**Status:** In Progress
 **Priority:** P0 (First Player Experience)
 **Complexity:** High
 **Depends On:** SR Effects (implemented), GR Effects (implemented), Asset Pipeline, Input System
@@ -784,3 +784,44 @@ scenario := Scenario{
 
 **Created:** 2025-12-06
 **Author:** Design Doc Creator Skill
+
+---
+
+## Sprint Progress
+
+**Sprint ID:** arrival-sequence
+**Status:** In Progress
+**Started:** 2025-12-06
+**Tracking:** [sprints/sprint-arrival-sequence.json](../../../sprints/sprint-arrival-sequence.json)
+
+### Phase 1: Core Sequence (In Progress)
+
+| Task | Status | Notes |
+|------|--------|-------|
+| Asset Acquisition & Setup | ✅ Done | NASA URLs broken - fixed with Wikimedia Commons |
+| Camera Tumble & Stabilization | ⏳ Pending | |
+| State Machine & GR/SR Integration | ✅ Done | AILANG arrival.ail with manual sim_gen workaround |
+| Planet Rendering | ✅ Done | Direct Ebiten rendering, centered with proper scaling |
+| Integration & Demo | ✅ Done | Artistic velocity tuning (0.3c-0.5c) for visual clarity |
+
+### Phase 2: Polish & Bridge View (Pending)
+
+| Task | Status | Notes |
+|------|--------|-------|
+| Remaining Planets | ⏳ Pending | |
+| Bridge View Layout | ⏳ Pending | |
+| Bridge Interior | ⏳ Pending | |
+| Audio & Archive Dialogue | ⏳ Pending | |
+| Final Integration & Testing | ⏳ Pending | |
+
+### AILANG Issues Encountered
+
+- **Effect checker hangs on records >10 fields** - Fixed in AILANG
+- **Go codegen fails for arrival.ail** - Reported, using manual sim_gen/arrival.go workaround
+- **DrawCmdRGBA variants needed** - Feature requested via ailang-feedback
+
+### Key Learnings
+
+- SR blueshift above 0.5c causes visual washout - need artistic velocity tuning
+- Always verify downloaded assets with `file` command to catch HTML error pages
+- Never hardcode screen coordinates - use display.InternalWidth/Height

@@ -2,8 +2,6 @@ package view
 
 import (
 	"fmt"
-	"image"
-	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
@@ -13,21 +11,10 @@ type Manager struct {
 	views       map[ViewType]View
 	current     View
 	next        View
-	transition  *activeTransition
+	transition  *Transition
 	screenW     int
 	screenH     int
 	initialized bool
-}
-
-// activeTransition holds the state of an in-progress transition.
-type activeTransition struct {
-	from     View
-	to       View
-	effect   TransitionEffect
-	easing   EasingFunc // Easing function for smooth transitions
-	duration float64
-	elapsed  float64
-	buffer   *ebiten.Image // Render buffer for transition effects
 }
 
 // NewManager creates a new view manager.
@@ -109,15 +96,12 @@ func (m *Manager) TransitionTo(trans *ViewTransition) error {
 
 	// Start the transition
 	m.next = view
-	m.transition = &activeTransition{
-		from:     m.current,
-		to:       view,
-		effect:   trans.Effect,
-		easing:   EaseInOutQuad, // Default easing
-		duration: trans.Duration,
-		elapsed:  0,
-		buffer:   ebiten.NewImage(m.screenW, m.screenH),
+	config := TransitionConfig{
+		Effect:   trans.Effect,
+		Duration: trans.Duration,
+		Easing:   EaseInOutQuad,
 	}
+	m.transition = NewTransitionState(m.current, view, config, m.screenW, m.screenH)
 
 	return nil
 }
@@ -139,23 +123,9 @@ func (m *Manager) TransitionWithConfig(to ViewType, config TransitionConfig) err
 		return m.SetCurrent(to)
 	}
 
-	// Use default easing if none provided
-	easing := config.Easing
-	if easing == nil {
-		easing = EaseInOutQuad
-	}
-
 	// Start the transition
 	m.next = view
-	m.transition = &activeTransition{
-		from:     m.current,
-		to:       view,
-		effect:   config.Effect,
-		easing:   easing,
-		duration: config.Duration,
-		elapsed:  0,
-		buffer:   ebiten.NewImage(m.screenW, m.screenH),
-	}
+	m.transition = NewTransitionState(m.current, view, config, m.screenW, m.screenH)
 
 	return nil
 }
@@ -170,10 +140,7 @@ func (m *Manager) IsTransitioning() bool {
 func (m *Manager) Update(dt float64) error {
 	// Update transition
 	if m.transition != nil {
-		m.transition.elapsed += dt
-
-		// Check if transition is complete
-		if m.transition.elapsed >= m.transition.duration {
+		if m.transition.Update(dt) {
 			m.completeTransition()
 		}
 	}
@@ -189,9 +156,9 @@ func (m *Manager) Update(dt float64) error {
 	}
 
 	// Update both views during crossfade
-	if m.transition != nil && m.transition.effect == TransitionCrossfade {
-		m.transition.from.Update(dt)
-		m.transition.to.Update(dt)
+	if m.transition != nil && m.transition.Effect() == TransitionCrossfade {
+		m.transition.From().Update(dt)
+		m.transition.To().Update(dt)
 	}
 
 	return nil
@@ -205,16 +172,16 @@ func (m *Manager) completeTransition() {
 
 	// Handle exit/enter
 	fromType := ViewNone
-	if m.transition.from != nil {
-		fromType = m.transition.from.Type()
-		m.transition.from.Exit(m.transition.to.Type())
+	if m.transition.From() != nil {
+		fromType = m.transition.From().Type()
+		m.transition.From().Exit(m.transition.To().Type())
 	}
 
-	m.current = m.transition.to
+	m.current = m.transition.To()
 	m.current.Enter(fromType)
 
 	// Clean up
-	m.transition.buffer.Dispose()
+	m.transition.Dispose()
 	m.transition = nil
 	m.next = nil
 }
@@ -222,133 +189,13 @@ func (m *Manager) completeTransition() {
 // Draw renders the current view or transition to the screen.
 func (m *Manager) Draw(screen *ebiten.Image) {
 	if m.transition != nil {
-		m.drawTransition(screen)
+		m.transition.Draw(screen)
 		return
 	}
 
 	if m.current != nil {
 		m.current.Draw(screen)
 	}
-}
-
-// drawTransition renders a transition effect.
-func (m *Manager) drawTransition(screen *ebiten.Image) {
-	if m.transition == nil {
-		return
-	}
-
-	// Calculate linear progress
-	linearProgress := m.transition.elapsed / m.transition.duration
-	if linearProgress > 1.0 {
-		linearProgress = 1.0
-	}
-
-	// Apply easing function
-	progress := linearProgress
-	if m.transition.easing != nil {
-		progress = m.transition.easing(linearProgress)
-	}
-
-	switch m.transition.effect {
-	case TransitionFade:
-		m.drawFadeTransition(screen, progress)
-	case TransitionCrossfade:
-		m.drawCrossfadeTransition(screen, progress)
-	case TransitionWipe:
-		m.drawWipeTransition(screen, progress)
-	case TransitionZoom:
-		m.drawZoomTransition(screen, progress)
-	default:
-		// Just draw the target view
-		m.transition.to.Draw(screen)
-	}
-}
-
-// drawFadeTransition fades to black, then fades in the new view.
-func (m *Manager) drawFadeTransition(screen *ebiten.Image, progress float64) {
-	if progress < 0.5 {
-		// Fade out: draw old view with decreasing alpha
-		m.transition.from.Draw(screen)
-		alpha := progress * 2 // 0 to 1 over first half
-		drawFadeOverlay(screen, alpha)
-	} else {
-		// Fade in: draw new view with increasing alpha
-		m.transition.to.Draw(screen)
-		alpha := (1.0 - progress) * 2 // 1 to 0 over second half
-		drawFadeOverlay(screen, alpha)
-	}
-}
-
-// drawCrossfadeTransition blends between two views.
-func (m *Manager) drawCrossfadeTransition(screen *ebiten.Image, progress float64) {
-	// Draw old view
-	m.transition.from.Draw(screen)
-
-	// Draw new view to buffer
-	m.transition.buffer.Clear()
-	m.transition.to.Draw(m.transition.buffer)
-
-	// Blend new view on top with alpha
-	op := &ebiten.DrawImageOptions{}
-	op.ColorScale.ScaleAlpha(float32(progress))
-	screen.DrawImage(m.transition.buffer, op)
-}
-
-// drawWipeTransition wipes from left to right.
-func (m *Manager) drawWipeTransition(screen *ebiten.Image, progress float64) {
-	// Draw old view
-	m.transition.from.Draw(screen)
-
-	// Draw new view to buffer
-	m.transition.buffer.Clear()
-	m.transition.to.Draw(m.transition.buffer)
-
-	// Create wipe effect by using a sub-image
-	wipeX := int(float64(m.screenW) * progress)
-	if wipeX > 0 {
-		subRect := m.transition.buffer.SubImage(
-			image.Rect(0, 0, wipeX, m.screenH),
-		).(*ebiten.Image)
-		screen.DrawImage(subRect, nil)
-	}
-}
-
-// drawZoomTransition zooms out, then zooms in.
-func (m *Manager) drawZoomTransition(screen *ebiten.Image, progress float64) {
-	op := &ebiten.DrawImageOptions{}
-
-	if progress < 0.5 {
-		// Zoom out: scale down from 1 to 0.5
-		scale := 1.0 - progress // 1.0 to 0.5
-		op.GeoM.Translate(-float64(m.screenW)/2, -float64(m.screenH)/2)
-		op.GeoM.Scale(scale, scale)
-		op.GeoM.Translate(float64(m.screenW)/2, float64(m.screenH)/2)
-		op.ColorScale.ScaleAlpha(float32(1.0 - progress*2))
-
-		m.transition.buffer.Clear()
-		m.transition.from.Draw(m.transition.buffer)
-		screen.DrawImage(m.transition.buffer, op)
-	} else {
-		// Zoom in: scale up from 0.5 to 1
-		scale := progress // 0.5 to 1.0
-		op.GeoM.Translate(-float64(m.screenW)/2, -float64(m.screenH)/2)
-		op.GeoM.Scale(scale, scale)
-		op.GeoM.Translate(float64(m.screenW)/2, float64(m.screenH)/2)
-		op.ColorScale.ScaleAlpha(float32((progress - 0.5) * 2))
-
-		m.transition.buffer.Clear()
-		m.transition.to.Draw(m.transition.buffer)
-		screen.DrawImage(m.transition.buffer, op)
-	}
-}
-
-// drawFadeOverlay draws a black overlay with the given alpha.
-func drawFadeOverlay(screen *ebiten.Image, alpha float64) {
-	w, h := screen.Bounds().Dx(), screen.Bounds().Dy()
-	overlay := ebiten.NewImage(w, h)
-	overlay.Fill(color.RGBA{0, 0, 0, uint8(alpha * 255)})
-	screen.DrawImage(overlay, nil)
-	overlay.Dispose()
 }
 
 // Resize updates the manager's screen dimensions.

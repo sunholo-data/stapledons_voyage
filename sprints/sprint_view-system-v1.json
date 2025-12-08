@@ -1,0 +1,118 @@
+{
+  "sprint_id": "view-system-v1",
+  "created": "2024-12-06T00:00:00Z",
+  "status": "in_progress",
+  "design_doc": "design_docs/planned/next/01-view-system.md",
+  "features": [
+    {
+      "id": "core-interfaces",
+      "description": "View interface, ViewType enum, layer interfaces",
+      "estimated_loc": 300,
+      "actual_loc": 288,
+      "dependencies": [],
+      "acceptance_criteria": [
+        "View interface defined",
+        "ViewType enum defined",
+        "Layer interfaces defined"
+      ],
+      "passes": true,
+      "started": "2024-12-06T00:00:00Z",
+      "completed": "2024-12-06T00:00:00Z",
+      "notes": "view.go, layer.go, manager.go"
+    },
+    {
+      "id": "transition-system",
+      "description": "Transition effects (fade, crossfade, wipe, zoom) and easing",
+      "estimated_loc": 250,
+      "actual_loc": 280,
+      "dependencies": ["core-interfaces"],
+      "acceptance_criteria": [
+        "Fade transition works",
+        "Crossfade transition works",
+        "Wipe transition works",
+        "Zoom transition works",
+        "Easing functions available"
+      ],
+      "passes": true,
+      "started": "2024-12-06T00:00:00Z",
+      "completed": "2024-12-08T00:00:00Z",
+      "notes": "transition.go, easing.go"
+    },
+    {
+      "id": "ui-layer",
+      "description": "BasicUILayer implementation with panel management",
+      "estimated_loc": 150,
+      "actual_loc": 186,
+      "dependencies": ["core-interfaces"],
+      "acceptance_criteria": [
+        "AddPanel works",
+        "RemovePanel works",
+        "GetPanel works",
+        "ShowDialogue works",
+        "HideDialogue works"
+      ],
+      "passes": true,
+      "started": "2024-12-08T00:00:00Z",
+      "completed": "2024-12-08T00:00:00Z",
+      "notes": "ui_layer.go"
+    },
+    {
+      "id": "background-layer",
+      "description": "SpaceBackground with parallax star layers",
+      "estimated_loc": 200,
+      "actual_loc": 220,
+      "dependencies": ["core-interfaces"],
+      "acceptance_criteria": [
+        "Parallax star layers render",
+        "SR/GR shader support integrated",
+        "60fps maintained"
+      ],
+      "passes": true,
+      "started": "2024-12-06T00:00:00Z",
+      "completed": "2024-12-06T00:00:00Z",
+      "notes": "background/space.go"
+    },
+    {
+      "id": "view-space",
+      "description": "ViewSpace implementation as first real view",
+      "estimated_loc": 150,
+      "actual_loc": 180,
+      "dependencies": ["background-layer", "ui-layer"],
+      "acceptance_criteria": [
+        "ViewSpace renders background",
+        "ViewSpace renders content",
+        "Demo commands work"
+      ],
+      "passes": true,
+      "started": "2024-12-06T00:00:00Z",
+      "completed": "2024-12-06T00:00:00Z",
+      "notes": "demo-planet-view, demo-sr-flyby work"
+    },
+    {
+      "id": "main-integration",
+      "description": "Integrate ViewManager into cmd/game/main.go",
+      "estimated_loc": 100,
+      "actual_loc": null,
+      "dependencies": ["view-space", "transition-system"],
+      "acceptance_criteria": [
+        "ViewManager used in main game",
+        "Transitions work in main game"
+      ],
+      "passes": false,
+      "started": null,
+      "completed": null,
+      "notes": "DEFERRED: current GameMode system works for arrival sequence"
+    }
+  ],
+  "velocity": {
+    "target_loc_per_day": 275,
+    "actual_loc_per_day": 290
+  },
+  "ailang_issues": [],
+  "dx_issues_discovered": [],
+  "lessons_learned": [
+    "GameMode enum works well for simple mode switching",
+    "ViewManager is ready but not critical for current gameplay"
+  ],
+  "last_updated": "2024-12-08T00:00:00Z"
+}

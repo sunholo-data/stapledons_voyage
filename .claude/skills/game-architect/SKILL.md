@@ -110,6 +110,31 @@ The API stability check maintains a baseline of sim_gen exports:
 .claude/skills/game-architect/scripts/check_api_stability.sh --update
 ```
 
+## Design Doc Management
+
+Track implementation progress of design docs through sprint files:
+
+```bash
+# Audit design docs - check which have sprints
+.claude/skills/game-architect/scripts/audit_design_docs.sh
+```
+
+### Design Doc Workflow
+
+1. **Create design doc** in `design_docs/planned/next/`
+2. **Use sprint-planner skill** to create sprint plan in `sprints/`
+3. **Execute sprint** (sprint tracks implementation progress via checkboxes)
+4. **When sprint complete**, move doc to `design_docs/implemented/vX_Y_Z/`
+
+### Audit Output
+
+The audit script checks:
+- Which design docs have corresponding sprint files
+- Sprint completion percentage (via checkbox counting)
+- Orphan sprints (sprints without design docs)
+
+Design docs WITHOUT sprints need planning before implementation.
+
 ## Resources
 
 - [Architecture Rules](resources/architecture_rules.md) - Detailed layer boundaries and examples
