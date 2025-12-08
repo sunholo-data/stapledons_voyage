@@ -22,10 +22,10 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgl1-mesa-dev xorg-dev libasound2-dev
+          sudo apt-get install -y libgl1-mesa-dev xorg-dev libasound2-dev xvfb
 
       - name: Test
-        run: go test -tags ci -v ./...
+        run: xvfb-run -a go test -tags ci -v ./...
 
       - name: Build
         run: make game-mock
