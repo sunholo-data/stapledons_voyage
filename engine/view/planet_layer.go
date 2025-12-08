@@ -43,12 +43,26 @@ func NewPlanetLayer(screenW, screenH int) *PlanetLayer {
 	return pl
 }
 
-// AddPlanet adds a planet to the layer.
+// AddPlanet adds a solid-color planet to the layer.
 func (pl *PlanetLayer) AddPlanet(name string, radius float64, c color.RGBA) *tetra.Planet {
 	planet := tetra.NewPlanet(name, radius, c)
 	planet.AddToScene(pl.scene)
 	pl.planets = append(pl.planets, planet)
 	return planet
+}
+
+// AddTexturedPlanet adds a textured planet to the layer.
+func (pl *PlanetLayer) AddTexturedPlanet(name string, radius float64, texture *ebiten.Image) *tetra.Planet {
+	planet := tetra.NewTexturedPlanet(name, radius, texture)
+	planet.AddToScene(pl.scene)
+	pl.planets = append(pl.planets, planet)
+	return planet
+}
+
+// AddExistingPlanet adds an already-created planet to the layer.
+func (pl *PlanetLayer) AddExistingPlanet(planet *tetra.Planet) {
+	planet.AddToScene(pl.scene)
+	pl.planets = append(pl.planets, planet)
 }
 
 // RemovePlanet removes a planet by name.

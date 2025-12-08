@@ -185,6 +185,105 @@ Speed > 0.5c (Raw view):
 - [ ] Should "navigation view" be default, with raw view as optional hardcore mode?
 - [ ] Do we need gradual aberration transitions, or can we use discrete thresholds?
 
+#### Boundary Glow Effect (Higgs Bubble Motion Cue)
+
+The Higgs bubble provides a **physically-justified motion cue** that works at all speeds. Per [bubble-constraint.md](../../planned/future/bubble-constraint.md), mass cannot pass through the bubble boundary - only information (light/EM) crosses. This creates a visible effect when traveling through the interstellar medium.
+
+**The Physics:**
+- ISM contains ~1 atom/cm³ (hydrogen, helium, trace dust)
+- At relativistic speeds, particles hit the bubble with enormous kinetic energy
+- Since mass cannot pass, energy converts to EM radiation at the boundary
+- The bubble's energy-dependent filtering means high-energy emissions (X-ray, gamma) are absorbed, but visible light escapes inward
+- Result: a **glow at the forward boundary** proportional to speed and local ISM density
+
+**Intensity by Speed:**
+
+| Speed | Particle Flux | Boundary Effect |
+|-------|---------------|-----------------|
+| < 0.1c | Low | Invisible or very faint shimmer |
+| 0.1c - 0.3c | Moderate | Subtle forward glow |
+| 0.3c - 0.5c | High | Visible "bow glow" |
+| 0.5c - 0.9c | Very high | Bright forward corona |
+| > 0.9c | Extreme | Intense "plasma crown" |
+
+**Intensity by Region:**
+
+| Region | ISM Density | Boundary Effect |
+|--------|-------------|-----------------|
+| Deep interstellar | ~1 atom/cm³ | Standard glow |
+| Hot ionized bubble | ~0.01 atom/cm³ | Very faint |
+| Near star (stellar wind) | 10-100 atom/cm³ | Bright |
+| Oort cloud / debris disk | Variable | Flickering, occasional flashes |
+| Nebula / molecular cloud | 100-1000+ atom/cm³ | Intense "plasma rain" |
+
+**Visual Design:**
+
+```
+Deep interstellar at 0.5c:
+┌─────────────────────────────────────────────────────┐
+│        · · · ·                                      │
+│      ·╭━━━━━━━━━━━━━━━━━━━━━━━━━╮                  │
+│     · │                         │                   │
+│    ·  │     [SHIP INTERIOR]     │                   │
+│     · │                         │                   │
+│      ·╰━━━━━━━━━━━━━━━━━━━━━━━━━╯                  │
+│         (subtle forward glow)                       │
+└─────────────────────────────────────────────────────┘
+
+Approaching star system at 0.3c:
+┌─────────────────────────────────────────────────────┐
+│      ✦·✦·✦·✦                                       │
+│    ✦·╭━━━━━━━━━━━━━━━━━━━━━━━━━╮·                  │
+│   ✦· │                         │ ·                  │
+│  ✦·  │     [SHIP INTERIOR]     │  ·                 │
+│   ✦· │                         │ ·                  │
+│    ✦·╰━━━━━━━━━━━━━━━━━━━━━━━━━╯·                  │
+│       (bright bow glow from stellar wind)           │
+└─────────────────────────────────────────────────────┘
+
+Inside nebula at any speed:
+┌─────────────────────────────────────────────────────┐
+│  ✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦                   │
+│ ✦✦✦╭━━━━━━━━━━━━━━━━━━━━━━━━━╮✦✦✦                  │
+│ ✦✦ │                         │ ✦✦                   │
+│ ✦✦ │     [SHIP INTERIOR]     │ ✦✦                   │
+│ ✦✦ │                         │ ✦✦                   │
+│ ✦✦✦╰━━━━━━━━━━━━━━━━━━━━━━━━━╯✦✦✦                  │
+│     (intense all-around glow, "plasma rain")        │
+└─────────────────────────────────────────────────────┘
+```
+
+**Why This Works for Gameplay:**
+
+1. **Always visible** - Unlike stellar parallax, boundary glow works at ALL speeds because you're always hitting something
+2. **Direction-dependent** - Forward glow is strongest, gives heading feedback
+3. **Contextual information** - Intensity tells you about local ISM density
+4. **Physically justified** - Emerges directly from the Higgs bubble constraint (mass cannot pass)
+5. **Narratively rich** - Crew culture could develop around the glow ("we wear a crown of fire")
+
+**Narrative Opportunities:**
+
+- **The Watch** - Crew tradition of watching the boundary glow during long journeys
+- **Density Warnings** - Bright glow means dense region (navigation hazard? fuel opportunity?)
+- **Color Shifts** - Different elements in ISM could tint the glow (hydrogen pink, helium blue)
+- **Milestone Marker** - Glow intensity drop signals leaving a system's influence
+
+**Integration with Other Effects:**
+
+| Speed | Primary Cue | Secondary Cue |
+|-------|-------------|---------------|
+| < 0.1c | Boundary glow | Local parallax (if near planets) |
+| 0.1c - 0.3c | Boundary glow + faint aberration | Stellar parallax for nearby stars |
+| 0.3c - 0.9c | SR aberration + boundary glow | Color Doppler shift |
+| > 0.9c | SR "starbow" + intense boundary glow | Doppler dominates |
+
+**Open Questions:**
+
+- [ ] Should glow color vary with ISM composition?
+- [ ] Add occasional "flashes" from larger dust grain impacts?
+- [ ] Should the glow be visible from interior views (window reflections)?
+- [ ] Tie glow intensity to the trace mass absorption mechanic?
+
 ### Content Layer
 
 The main interactive content.

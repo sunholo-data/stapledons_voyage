@@ -577,3 +577,24 @@ Emotionally: "sad but happy" - bittersweet remembrance.
 
 **Rationale:** Serves Pillar 2 (Game Doesn't Judge). Player experiences the unreliability, doesn't optimize around a number. Discovery is organic, not mechanical.
 
+
+## [2025-12-08] Parallax and SR Visual Thresholds
+
+**Decision:** Implement tiered visual physics based on ship speed: <0.1c uses boundary glow only, 0.1-0.3c adds faint aberration, 0.3-0.5c shows nearby star parallax, 0.5-0.9c has strong aberration (60°→26° cone), >0.9c produces extreme starbow effect. Dual view modes: 'Raw SR View' (physically accurate aberration/Doppler) and 'Navigation View' (computer-compensated with enhanced parallax). Local system parallax (planets, moons) is always visible when near objects - only stellar parallax requires high speeds.
+
+**Rationale:** Serves Pillar 3 (Time Has Emotional Weight): Visual distortion makes relativistic travel visceral, not abstract. Serves Pillar 5 (Grounded Strangeness): Real SR physics that players can see. Serves Pillar 6 (We Are Not Built For This): Disorienting raw view emphasizes cosmic alienation. Dual view respects player preference while maintaining hard sci-fi authenticity.
+
+
+## [2025-12-08] Boundary Glow as Motion Cue
+
+**Decision:** The Higgs bubble boundary glows when particles from the ISM impact it at speed. Since mass cannot pass through (per bubble-constraint), kinetic energy converts to visible light at the boundary. Effect scales with both velocity and local ISM density: faint in deep space, bright near stars (stellar wind), intense in nebulae. Forward-facing glow is strongest, providing heading feedback. This replaces 'fake space dust' with a physically-justified motion cue.
+
+**Rationale:** Serves Pillar 5 (Grounded Strangeness): Effect emerges directly from the Higgs bubble physics - mass rejection creates visible phenomenon. Serves Pillar 4 (Ship Is Home): Creates narrative opportunities (crew traditions around 'The Watch', monitoring the glow). Serves Pillar 3 (Time Has Emotional Weight): The constant glow is a reminder you're hurtling through space at relativistic speeds, disconnected from the universe.
+
+
+## [2025-12-08] Departure-Cruise-Arrival Parallax Lifecycle
+
+**Decision:** Parallax visibility follows a natural lifecycle: DEPARTURE (rich local parallax from planets/moons, lasting minutes to days as you leave a system), INTERSTELLAR CRUISE (parallax desert - stars too far apart, motion cues from boundary glow and SR effects only), ARRIVAL (parallax returns as destination system objects become resolvable). This means 'artificial dust layers' are only needed during cruise phase - departure and arrival have natural 3D geometry.
+
+**Rationale:** Serves Pillar 5 (Grounded Strangeness): Follows real physics - AU-scale parallax is visible, light-year-scale is not. Serves Pillar 3 (Time Has Emotional Weight): The 'parallax desert' of interstellar cruise reinforces isolation and distance. The return of parallax during arrival creates anticipation.
+
