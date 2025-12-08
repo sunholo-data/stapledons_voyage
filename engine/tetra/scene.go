@@ -74,6 +74,17 @@ func (s *Scene) RotateCamera(axisX, axisY, axisZ, angle float64) {
 	s.camera.Rotate(float32(axisX), float32(axisY), float32(axisZ), float32(angle))
 }
 
+// LookAt makes the camera look at the given world position.
+func (s *Scene) LookAt(x, y, z float64) {
+	camPos := s.camera.LocalPosition()
+	from := tetra3d.Vector3{X: camPos.X, Y: camPos.Y, Z: camPos.Z}
+	to := tetra3d.Vector3{X: float32(x), Y: float32(y), Z: float32(z)}
+	up := tetra3d.Vector3{X: 0, Y: 1, Z: 0} // Y-up
+
+	lookMatrix := tetra3d.NewMatrix4LookAt(from, to, up)
+	s.camera.SetLocalRotation(lookMatrix)
+}
+
 // Width returns the render width.
 func (s *Scene) Width() int {
 	return s.width

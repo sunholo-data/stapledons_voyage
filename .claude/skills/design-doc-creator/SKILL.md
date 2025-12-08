@@ -48,7 +48,18 @@ Ask user:
 
 ### 2. Game Vision Alignment
 
-**Every feature should be scored against the game's core pillars:**
+**Every feature should be scored against the game's core pillars.**
+
+**IMPORTANT:** Before creating any design doc, read these files maintained by `game-vision-designer`:
+
+| File | Purpose | When to Check |
+|------|---------|---------------|
+| [core-pillars.md](../../../docs/vision/core-pillars.md) | Authoritative pillar definitions | Always - score feature against each |
+| [design-decisions.md](../../../docs/vision/design-decisions.md) | Prior decisions & rationale | Check for relevant constraints |
+| [open-questions.md](../../../docs/vision/open-questions.md) | Unresolved design questions | See if feature touches these |
+| [game-vision.md](../../../docs/game-vision.md) | Full game design document | Deep context when needed |
+
+**Score against each pillar in core-pillars.md:**
 
 | Pillar | Question |
 |--------|----------|
@@ -64,7 +75,10 @@ Ask user:
 - **Engine/Infrastructure** features can score N/A on most pillars (they're enabling tech)
 - **No feature** should score negatively on any pillar (violates game vision)
 
-**Reference:** [docs/game-vision.md](../../../docs/game-vision.md)
+**Check design-decisions.md for:**
+- Prior decisions that constrain this feature
+- Rejected alternatives (don't re-propose without new justification)
+- Related features and how they were resolved
 
 ### 3. Physics-First Design (CRITICAL)
 
@@ -131,13 +145,19 @@ Before finalizing any visual/physics design:
 ### 6. Design Doc Structure
 
 **Game-specific sections:**
-- **Game Vision Alignment**: Score against core pillars
+- **Game Vision Alignment**: Score against core pillars from `docs/vision/core-pillars.md`
+- **Prior Decisions**: Reference relevant entries from `docs/vision/design-decisions.md`
 - **Physics Validation**: (for visual features) What real physics principles apply?
 - **Feature Overview**: What gameplay does this enable?
 - **AILANG Implementation**: Types, functions, effects needed
 - **Engine Integration**: How Go/Ebiten renders this
 - **Performance**: Recursion depth, list operations needed
 - **Testing**: How to verify the feature works
+
+**When creating a design doc:**
+1. Read `docs/vision/core-pillars.md` and score the feature
+2. Check `docs/vision/design-decisions.md` for constraints
+3. If this doc makes new design decisions, log them via `game-vision-designer`
 
 **For visual/physics features, include:**
 ```markdown
@@ -161,6 +181,19 @@ Before finalizing any visual/physics design:
 - Status: Planned
 - Priority: P1
 - Estimated: 2 days
+
+## Game Vision Alignment
+
+Checked against [core-pillars.md](docs/vision/core-pillars.md):
+
+| Pillar | Alignment | Notes |
+|--------|-----------|-------|
+| Time Dilation Consequence | N/A | Infrastructure feature |
+| Civilization Simulation | ✅ Supports | NPCs populate civilizations |
+| Ship & Crew Life | ✅ Supports | Crew members use this system |
+| Hard Sci-Fi Authenticity | N/A | No physics implications |
+
+**Prior Decisions:** None directly relevant in design-decisions.md.
 
 ## Feature Overview
 NPCs should move around the world grid, avoiding obstacles.

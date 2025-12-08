@@ -14,10 +14,20 @@ Game design docs should cover:
 
 ## Game Vision Alignment Section
 
+**BEFORE WRITING:** Read the vision docs maintained by `game-vision-designer`:
+
+| File | Purpose |
+|------|---------|
+| `docs/vision/core-pillars.md` | Authoritative pillar definitions - score against these |
+| `docs/vision/design-decisions.md` | Prior decisions that may constrain this feature |
+| `docs/vision/open-questions.md` | Unresolved questions this feature might address |
+
 Every feature should be evaluated against Stapledon's Voyage core pillars:
 
 ```markdown
 ## Game Vision Alignment
+
+Checked against [core-pillars.md](docs/vision/core-pillars.md):
 
 | Pillar | Relevance | Score | Notes |
 |--------|-----------|-------|-------|
@@ -30,6 +40,13 @@ Every feature should be evaluated against Stapledon's Voyage core pillars:
 | **Net Score** | | **[Total]** | **Decision: [Move forward / Reject / Redesign]** |
 
 **Feature type:** [Gameplay / Engine / Infrastructure]
+
+### Prior Decisions
+
+Checked [design-decisions.md](docs/vision/design-decisions.md) for relevant constraints:
+
+- [List any prior decisions that affect this feature, or "None directly relevant"]
+- [If proposing something previously rejected, explain new justification]
 ```
 
 **Scoring guidelines:**
@@ -38,6 +55,8 @@ Every feature should be evaluated against Stapledon's Voyage core pillars:
 - **Net score < 0**: Redesign needed - feature conflicts with game vision
 - **Net score = 0**: Acceptable for infrastructure, questionable for gameplay
 - **Net score > 0**: Move forward
+
+**After implementation:** If this design doc makes new decisions, log them via `game-vision-designer` skill
 
 ## Header Section
 
@@ -175,6 +194,21 @@ make run
 **Priority**: P1
 **Complexity**: Medium
 **AILANG Workarounds**: No RNG, duplicate types
+
+## Game Vision Alignment
+
+Checked against [core-pillars.md](docs/vision/core-pillars.md):
+
+| Pillar | Score | Notes |
+|--------|-------|-------|
+| Time Dilation Consequence | N/A | Infrastructure feature |
+| Civilization Simulation | +1 | NPCs populate civilizations player visits |
+| Ship & Crew Life | +1 | Crew members use this movement system |
+| Hard Sci-Fi Authenticity | N/A | No physics implications |
+| **Net Score** | **+2** | **Move forward** |
+
+### Prior Decisions
+Checked [design-decisions.md](docs/vision/design-decisions.md): None directly relevant.
 
 ## Problem Statement
 NPCs are defined but never move.

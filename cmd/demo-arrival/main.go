@@ -57,15 +57,19 @@ func (v ViewDirection) String() string {
 }
 
 func (v ViewDirection) Angle() float64 {
+	// ViewAngle is the angle between our view direction and velocity direction
+	// 0 = looking in direction of motion (forward)
+	// π/2 = looking perpendicular to motion (left or right)
+	// π = looking opposite to motion (behind)
 	switch v {
 	case ViewForward:
-		return 0 // 0 radians = looking forward
+		return 0
 	case ViewLeft:
-		return math.Pi / 2 // 90 degrees left
+		return math.Pi / 2
 	case ViewRight:
-		return -math.Pi / 2 // 90 degrees right
+		return math.Pi / 2 // Same physics as left (perpendicular to velocity)
 	case ViewBehind:
-		return math.Pi // 180 degrees = looking backward
+		return math.Pi
 	}
 	return 0
 }
@@ -132,6 +136,12 @@ func NewArrivalGame() *ArrivalGame {
 	// Create space view with starfield
 	g.spaceView = view.NewSpaceView()
 	g.spaceView.Init()
+
+	// Load galaxy background if available
+	if galaxyImg, err := loadTexture("assets/data/starmap/background/galaxy_4k.jpg"); err == nil {
+		g.spaceView.SetGalaxyImage(galaxyImg)
+		log.Println("Loaded galaxy background")
+	}
 
 	// Create planet layer
 	g.planetLayer = view.NewPlanetLayer(display.InternalWidth, display.InternalHeight)
@@ -252,9 +262,18 @@ func (g *ArrivalGame) Update() error {
 
 	g.planetLayer.SetCameraPosition(camX, camY, camZ)
 
-	// Set SR effect based on view direction
-	g.srWarp.SetForwardVelocity(g.velocity)
-	g.srWarp.SetViewAngle(g.viewDir.Angle())
+	// Set SR effect for all view directions
+	// The shader handles ViewAngle properly for all directions:
+	// - ViewAngle = 0: forward (blueshift)
+	// - ViewAngle = π/2: perpendicular (mixed)
+	// - ViewAngle = π: behind (redshift)
+	if g.velocity > 0.05 {
+		g.srWarp.SetEnabled(true)
+		g.srWarp.SetForwardVelocity(g.velocity)
+		g.srWarp.SetViewAngle(g.viewDir.Angle())
+	} else {
+		g.srWarp.SetEnabled(false)
+	}
 
 	// Update velocity for background stars
 	g.spaceView.SetVelocity(g.velocity)

@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	_ "image/jpeg"
 	"image/png"
 	"log"
 	"math"
@@ -20,6 +21,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"stapledons_voyage/engine/display"
 	"stapledons_voyage/engine/shader"
+	"stapledons_voyage/engine/tetra"
 	"stapledons_voyage/engine/view"
 )
 
@@ -29,19 +31,25 @@ var (
 	maxVelocity     = flag.Float64("max-v", 0.8, "Maximum velocity as fraction of c")
 )
 
-// Planet colors for the solar system
+// Planet configs for the solar system - with real textures!
 var planetConfigs = []struct {
-	name   string
-	color  color.RGBA
-	radius float64
-	dist   float64 // distance from center
+	name    string
+	color   color.RGBA   // Fallback color if texture missing
+	radius  float64
+	dist    float64      // distance from center
+	texture string       // texture path (empty = solid color)
 }{
-	{"sun", color.RGBA{255, 200, 50, 255}, 1.5, 0},
-	{"mercury", color.RGBA{180, 160, 140, 255}, 0.3, 4},
-	{"venus", color.RGBA{230, 200, 150, 255}, 0.5, 6},
-	{"earth", color.RGBA{60, 120, 200, 255}, 0.5, 8},
-	{"mars", color.RGBA{200, 100, 80, 255}, 0.4, 10},
-	{"jupiter", color.RGBA{220, 180, 140, 255}, 1.0, 14},
+	// Sun uses solid color (emissive)
+	{"sun", color.RGBA{255, 220, 100, 255}, 1.5, 0, ""},
+	// Planets with equirectangular textures
+	{"mercury", color.RGBA{180, 160, 140, 255}, 0.25, 3, "assets/planets/mercury.jpg"},
+	{"venus", color.RGBA{230, 200, 150, 255}, 0.4, 5, "assets/planets/venus_atmosphere.jpg"},
+	{"earth", color.RGBA{60, 120, 200, 255}, 0.45, 7, "assets/planets/earth_daymap.jpg"},
+	{"mars", color.RGBA{200, 100, 80, 255}, 0.35, 9, "assets/planets/mars.jpg"},
+	{"jupiter", color.RGBA{220, 180, 140, 255}, 1.2, 13, "assets/planets/jupiter.jpg"},
+	{"saturn", color.RGBA{210, 190, 150, 255}, 1.0, 17, "assets/planets/saturn.jpg"},
+	{"uranus", color.RGBA{180, 220, 230, 255}, 0.6, 21, "assets/planets/uranus.jpg"},
+	{"neptune", color.RGBA{80, 120, 200, 255}, 0.55, 25, "assets/planets/neptune.jpg"},
 }
 
 type FlybyGame struct {
@@ -82,6 +90,12 @@ func NewFlybyGame() *FlybyGame {
 	g.spaceView = view.NewSpaceView()
 	g.spaceView.Init()
 
+	// Load galaxy background if available
+	if galaxyImg, err := loadTexture("assets/data/starmap/background/galaxy_4k.jpg"); err == nil {
+		g.spaceView.SetGalaxyImage(galaxyImg)
+		log.Println("Loaded galaxy background")
+	}
+
 	// Create planet layer
 	g.planetLayer = view.NewPlanetLayer(display.InternalWidth, display.InternalHeight)
 
@@ -99,18 +113,62 @@ func NewFlybyGame() *FlybyGame {
 	return g
 }
 
+// loadTexture loads an image file as an Ebiten image
+func loadTexture(path string) (*ebiten.Image, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, fmt.Errorf("open %s: %w", path, err)
+	}
+	defer f.Close()
+
+	img, _, err := image.Decode(f)
+	if err != nil {
+		return nil, fmt.Errorf("decode %s: %w", path, err)
+	}
+
+	return ebiten.NewImageFromImage(img), nil
+}
+
 func (g *FlybyGame) createSolarSystem() {
 	for _, cfg := range planetConfigs {
-		planet := g.planetLayer.AddPlanet(cfg.name, cfg.radius, cfg.color)
+		var planet *tetra.Planet
 
-		// Position planets in a line (we'll fly past them)
-		planet.SetPosition(cfg.dist, 0, 0)
-
-		// Vary rotation speeds
-		if cfg.name == "sun" {
-			planet.SetRotationSpeed(0.1) // Sun rotates slowly
+		// Try to load texture, fall back to solid color
+		if cfg.texture != "" {
+			tex, err := loadTexture(cfg.texture)
+			if err != nil {
+				log.Printf("Warning: couldn't load %s texture: %v (using fallback color)", cfg.name, err)
+				planet = g.planetLayer.AddPlanet(cfg.name, cfg.radius, cfg.color)
+			} else {
+				planet = g.planetLayer.AddTexturedPlanet(cfg.name, cfg.radius, tex)
+				log.Printf("Loaded texture for %s", cfg.name)
+			}
 		} else {
-			planet.SetRotationSpeed(0.3 + cfg.dist*0.02)
+			// No texture specified, use solid color (e.g., sun)
+			planet = g.planetLayer.AddPlanet(cfg.name, cfg.radius, cfg.color)
+		}
+
+		// Position planets along -Z axis (camera looks toward -Z)
+		// Sun at 0, Neptune at -25, camera approaches from +Z side
+		planet.SetPosition(0, 0, -cfg.dist)
+
+		// Vary rotation speeds - inner planets spin faster
+		if cfg.name == "sun" {
+			planet.SetRotationSpeed(0.05) // Sun rotates slowly
+		} else {
+			// Outer planets rotate slower
+			planet.SetRotationSpeed(0.4 - cfg.dist*0.01)
+		}
+
+		// Add Saturn's rings
+		if cfg.name == "saturn" {
+			// Saturn's rings: inner at 1.1× radius, outer at 2.3× radius
+			innerR := cfg.radius * 1.1
+			outerR := cfg.radius * 2.3
+			ring := g.planetLayer.AddRing("saturn_ring", innerR, outerR, nil) // No texture for now
+			ring.SetPosition(0, 0, -cfg.dist)
+			ring.SetTilt(0.47) // Saturn's rings are tilted ~27 degrees (0.47 radians)
+			log.Printf("Added Saturn's rings")
 		}
 	}
 }
@@ -120,29 +178,30 @@ func (g *FlybyGame) Update() error {
 	g.time += dt
 	g.frameCount++
 
-	// Flyby mode: fly past the solar system in a straight line
-	// Camera moves along Z axis, looking forward (+Z direction)
+	// Flyby mode: fly through the solar system along Z axis
+	// Planets are positioned along -Z: Sun at 0, Neptune at -25
+	// Camera looks toward -Z by default, so start at +Z and fly toward planets
 
-	// Position cycles from -25 to +25, repeating
-	cycleLength := 50.0
-	cycleTime := cycleLength / ((*maxVelocity) * 10) // Time to complete one pass
+	// Position cycles from +30 (far from Sun) to -30 (past Neptune)
+	cycleLength := 60.0
+	cycleTime := cycleLength / ((*maxVelocity) * 8) // Time to complete one pass
 	phase := math.Mod(g.time, cycleTime*2) / cycleTime // 0-2 range
 
 	var camZ float64
 	if phase < 1.0 {
-		// Flying forward (approaching planets)
-		camZ = -25.0 + phase*cycleLength
+		// Flying forward toward planets (decreasing Z)
+		camZ = 30.0 - phase*cycleLength
 		g.approaching = true
 		g.velocity = *maxVelocity
 	} else {
-		// Flying backward (receding from planets)
-		camZ = 25.0 - (phase-1.0)*cycleLength
+		// Flying backward away from planets (increasing Z)
+		camZ = -30.0 + (phase-1.0)*cycleLength
 		g.approaching = false
 		g.velocity = *maxVelocity
 	}
 
-	camY := 2.0 // Slightly above the plane
-	camX := 0.0 // Centered
+	camY := 2.0 // Slightly above for better view
+	camX := 0.0 // Centered on planet line
 
 	g.planetLayer.SetCameraPosition(camX, camY, camZ)
 

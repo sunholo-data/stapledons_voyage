@@ -33,6 +33,9 @@ type SpaceBackground struct {
 	screenW     int
 	screenH     int
 
+	// Optional galaxy background image
+	galaxyImage *ebiten.Image
+
 	// Velocity for SR effects (fraction of c)
 	velocity float64
 
@@ -102,6 +105,12 @@ func (bg *SpaceBackground) SetParallax(depth float64) {
 	bg.parallaxDepth = depth
 }
 
+// SetGalaxyImage sets an optional galaxy background image.
+// The image is drawn behind the procedural stars at low opacity.
+func (bg *SpaceBackground) SetGalaxyImage(img *ebiten.Image) {
+	bg.galaxyImage = img
+}
+
 // SetVelocity sets the ship velocity for SR effects.
 func (bg *SpaceBackground) SetVelocity(v float64) {
 	bg.velocity = v
@@ -132,6 +141,30 @@ func (bg *SpaceBackground) Draw(screen *ebiten.Image, camera *CameraOffset) {
 	cam := camera
 	if cam == nil {
 		cam = bg.camera
+	}
+
+	// Draw galaxy background if set (behind stars)
+	if bg.galaxyImage != nil {
+		op := &ebiten.DrawImageOptions{}
+		// Scale to fit screen
+		imgW := float64(bg.galaxyImage.Bounds().Dx())
+		imgH := float64(bg.galaxyImage.Bounds().Dy())
+		scaleX := float64(bg.screenW) / imgW
+		scaleY := float64(bg.screenH) / imgH
+		scale := scaleX
+		if scaleY > scale {
+			scale = scaleY
+		}
+		op.GeoM.Scale(scale, scale)
+		// Center the image
+		scaledW := imgW * scale
+		scaledH := imgH * scale
+		op.GeoM.Translate((float64(bg.screenW)-scaledW)/2, (float64(bg.screenH)-scaledH)/2)
+		// Very slow parallax for distant galaxy
+		op.GeoM.Translate(-cam.X*0.02, -cam.Y*0.02)
+		// Dim the galaxy so stars are visible on top
+		op.ColorScale.Scale(0.3, 0.3, 0.35, 1.0)
+		screen.DrawImage(bg.galaxyImage, op)
 	}
 
 	// Draw each star layer with parallax

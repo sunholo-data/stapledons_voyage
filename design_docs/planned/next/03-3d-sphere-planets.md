@@ -42,8 +42,10 @@ Current planet rendering uses flat 2D images. For the arrival sequence and solar
 
 | Planet | Radius (rel) | Rotation Period | Axial Tilt | Has Rings |
 |--------|--------------|-----------------|------------|-----------|
-| Saturn | 9.45 | 10.7 hours | 26.7° | Yes (major) |
+| Saturn | 9.45 | 10.7 hours | 26.7° | Yes (bright) |
 | Jupiter | 11.2 | 9.9 hours | 3.1° | Yes (faint) |
+| Uranus | 4.01 | 17.2 hours | 97.8° | Yes (dark, discrete) |
+| Neptune | 3.88 | 16.1 hours | 28.3° | Yes (faint arcs) |
 | Mars | 0.53 | 24.6 hours | 25.2° | No |
 | Earth | 1.0 | 24 hours | 23.4° | No |
 | Moon | 0.27 | 27.3 days | 6.7° | No |
@@ -482,6 +484,10 @@ Incremental demos to validate each system:
 | `--demo-planet --gr` | GR shaders work with 3D | Black hole sequence |
 | `--demo-solar-system` | Multiple planets, orbital view | Solar system navigation |
 | `--demo-bridge` | Isometric + space background composite | Main game view |
+
+## Related Design Docs
+
+- [planetary-rings.md](../v0_2_0/planetary-rings.md) - Extended ring systems for all gas giants (not just Saturn)
 
 ## Next Steps
 

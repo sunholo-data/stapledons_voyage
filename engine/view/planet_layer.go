@@ -12,6 +12,7 @@ import (
 type PlanetLayer struct {
 	scene   *tetra.Scene
 	planets []*tetra.Planet
+	rings   []*tetra.Ring
 	sun     *tetra.SunLight
 	ambient *tetra.AmbientLight
 
@@ -65,6 +66,16 @@ func (pl *PlanetLayer) AddExistingPlanet(planet *tetra.Planet) {
 	pl.planets = append(pl.planets, planet)
 }
 
+// AddRing adds a planetary ring (like Saturn's) to the layer.
+// innerRadius and outerRadius are relative to the planet (1.0 = planet radius).
+// For Saturn, typical values are innerRadius=1.2, outerRadius=2.3.
+func (pl *PlanetLayer) AddRing(name string, innerRadius, outerRadius float64, texture *ebiten.Image) *tetra.Ring {
+	ring := tetra.NewRing(name, innerRadius, outerRadius, texture)
+	ring.AddToScene(pl.scene)
+	pl.rings = append(pl.rings, ring)
+	return ring
+}
+
 // RemovePlanet removes a planet by name.
 func (pl *PlanetLayer) RemovePlanet(name string) {
 	for i, p := range pl.planets {
@@ -84,10 +95,13 @@ func (pl *PlanetLayer) ClearPlanets() {
 	pl.planets = nil
 }
 
-// Update updates planet animations.
+// Update updates planet and ring animations.
 func (pl *PlanetLayer) Update(dt float64) {
 	for _, p := range pl.planets {
 		p.Update(dt)
+	}
+	for _, r := range pl.rings {
+		r.Update(dt)
 	}
 }
 
@@ -108,6 +122,13 @@ func (pl *PlanetLayer) Draw(screen *ebiten.Image) {
 func (pl *PlanetLayer) SetCameraPosition(x, y, z float64) {
 	if pl.scene != nil {
 		pl.scene.SetCameraPosition(x, y, z)
+	}
+}
+
+// LookAt makes the camera look at the given position.
+func (pl *PlanetLayer) LookAt(x, y, z float64) {
+	if pl.scene != nil {
+		pl.scene.LookAt(x, y, z)
 	}
 }
 

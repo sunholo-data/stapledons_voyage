@@ -143,6 +143,13 @@ func (v *SpaceView) SetCamera(x, y, zoom float64) {
 	v.camera.Zoom = zoom
 }
 
+// SetGalaxyImage sets a galaxy background image for the starfield.
+func (v *SpaceView) SetGalaxyImage(img *ebiten.Image) {
+	if v.background != nil {
+		v.background.SetGalaxyImage(img)
+	}
+}
+
 // AddUIPanel adds a UI panel to the view.
 func (v *SpaceView) AddUIPanel(panel *UIPanel) {
 	v.uiPanels = append(v.uiPanels, panel)

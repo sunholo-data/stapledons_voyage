@@ -54,9 +54,11 @@ func NewPlanet(name string, radius float64, c color.RGBA) *Planet {
 }
 
 // NewTexturedPlanet creates a planet with a texture.
+// Uses a UV sphere mesh for proper equirectangular texture mapping.
 func NewTexturedPlanet(name string, radius float64, texture *ebiten.Image) *Planet {
-	// Create icosphere mesh
-	mesh := tetra3d.NewIcosphereMesh(3)
+	// Create UV sphere mesh with proper texture coordinates
+	// 32 segments, 16 rings gives good quality for equirectangular maps
+	mesh := NewUVSphereMesh(32, 16)
 
 	// Create material with texture
 	mat := tetra3d.NewMaterial("planet_" + name)

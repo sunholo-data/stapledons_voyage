@@ -35,6 +35,8 @@ Invoke this skill when:
 
 ## Asset Types
 
+### 2D Sprites (for UI, maps, pixel art)
+
 | Type | Dimensions | Location | Format |
 |------|------------|----------|--------|
 | **Isometric Tile** | 64x32 px | `assets/sprites/iso_tiles/` | PNG, transparent bg |
@@ -42,8 +44,17 @@ Invoke this skill when:
 | **Star Sprite** | 16x16 px | `assets/sprites/stars/` | PNG, glow effect |
 | **UI Element** | Varies | `assets/sprites/ui/` | PNG, transparent |
 | **Portrait** | 128x128 px | `assets/sprites/portraits/` | PNG |
-| **Background** | 1920x1080+ | `assets/data/starmap/background/` | JPG/PNG |
-| **Planet** | 256x256 px | `assets/sprites/planets/` | PNG, transparent |
+| **Planet Sprite** | 256x256 px | `assets/sprites/planets/` | PNG, transparent |
+
+### 3D Textures (for Tetra3D sphere rendering)
+
+| Type | Dimensions | Location | Format | Notes |
+|------|------------|----------|--------|-------|
+| **Planet Texture** | 2048x1024+ | `assets/planets/` | JPG | **Equirectangular (2:1 ratio)** |
+| **Background** | 1920x1080+ | `assets/data/starmap/background/` | JPG/PNG | Panoramic or tiled |
+| **Ring Texture** | 1024x64+ | `assets/planets/` | PNG with alpha | For Saturn-like rings |
+
+**Important:** Planet textures for 3D rendering MUST use equirectangular projection (2:1 aspect ratio) to wrap correctly on spheres. Square photos will distort at the poles.
 
 ## Available Scripts
 
@@ -85,6 +96,22 @@ Download real-world reference images (NASA planets, ESO backgrounds).
 # Download ESO/ESA galaxy backgrounds
 .claude/skills/asset-manager/scripts/download_reference.sh backgrounds
 ```
+
+### `scripts/download_planet_textures.sh [resolution]`
+Download proper equirectangular planet textures for 3D sphere rendering.
+
+```bash
+# Download 2K textures (default, good for game use)
+.claude/skills/asset-manager/scripts/download_planet_textures.sh
+
+# Download 4K textures (high quality)
+.claude/skills/asset-manager/scripts/download_planet_textures.sh 4k
+
+# Download 8K textures (very high quality, large files)
+.claude/skills/asset-manager/scripts/download_planet_textures.sh 8k
+```
+
+Downloads from Solar System Scope (CC BY 4.0). Includes all Solar System planets, moons, and ring textures.
 
 ## Workflow
 
@@ -193,6 +220,63 @@ See [`resources/prompt_templates.md`](resources/prompt_templates.md) for:
 | 500-599 | Ships | Reserved |
 | 600-699 | Portraits | Reserved |
 
+## Procedural Exoplanet Textures
+
+For fictional/theoretical planets that players visit, use these approaches:
+
+### Option 1: AI Image Generation (Recommended for unique planets)
+
+Generate equirectangular maps using AI with specific prompts:
+
+```
+Generate an equirectangular projection planet texture map, 2:1 aspect ratio (2048x1024).
+[Planet type]: [rocky/gas giant/ice giant/ocean world/lava world]
+Features: [continents, craters, storms, bands, clouds, etc.]
+Color palette: [specific colors matching planet type]
+Style: Realistic, NASA-quality, seamless at edges.
+No stars or space background - just the planet surface.
+```
+
+**Key requirements:**
+- Must be 2:1 aspect ratio (equirectangular projection)
+- Left and right edges must tile seamlessly
+- Top/bottom converge to poles
+- No background (solid color or transparent)
+
+### Option 2: Procedural Generation Libraries
+
+For batch generation, consider these tools (not yet integrated):
+
+| Tool | Type | Notes |
+|------|------|-------|
+| **libnoise** | C++ | Perlin noise for terrain heightmaps |
+| **Space Engine** | App | Exports planet textures |
+| **Blender + Geometry Nodes** | 3D | Procedural planet shader |
+
+### Option 3: Color Variants
+
+For quick variants, take existing textures and apply color transformations:
+
+```bash
+# ImageMagick to recolor Earth for an ocean world
+convert earth_daymap.jpg -modulate 100,80,180 ocean_world.jpg
+
+# Make a desert world (warm tones)
+convert earth_daymap.jpg -modulate 100,120,30 desert_world.jpg
+```
+
+### Planet Type Guidelines
+
+| Type | Base Color | Features | Example |
+|------|------------|----------|---------|
+| **Rocky** | Gray/brown | Craters, mountains | Mercury, Moon |
+| **Terrestrial** | Blue/green/tan | Continents, clouds | Earth, hypothetical |
+| **Gas Giant** | Orange/tan bands | Cloud bands, storms | Jupiter |
+| **Ice Giant** | Cyan/blue | Subtle bands | Uranus, Neptune |
+| **Ocean World** | Deep blue | Cloud patterns | Hypothetical |
+| **Lava World** | Black + orange cracks | Magma rivers | Hypothetical |
+| **Desert World** | Tan/orange | Dunes, canyons | Mars-like |
+
 ## Notes
 
 - All game sprites use pixel art style for consistency
@@ -201,3 +285,4 @@ See [`resources/prompt_templates.md`](resources/prompt_templates.md) for:
 - Generated images go to `assets/generated/` first
 - Always test new assets in-game before committing
 - Real-world reference data should cite sources (NASA, ESO are CC-compatible)
+- **Planet textures (3D)**: Must be equirectangular (2:1 ratio) for proper UV mapping
