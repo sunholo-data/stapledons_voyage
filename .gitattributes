@@ -1,2 +1,13 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Git LFS tracking for large binary files
+assets/planets/*.jpg filter=lfs diff=lfs merge=lfs -text
+assets/planets/*.png filter=lfs diff=lfs merge=lfs -text
+assets/reference/**/*.jpg filter=lfs diff=lfs merge=lfs -text
+assets/reference/**/*.png filter=lfs diff=lfs merge=lfs -text
+docs/images/*.gif filter=lfs diff=lfs merge=lfs -text
+docs/images/*.png filter=lfs diff=lfs merge=lfs -text
+docs/img/*.png filter=lfs diff=lfs merge=lfs -text
+assets/generated/*.png filter=lfs diff=lfs merge=lfs -text
+assets/data/raw/*.csv filter=lfs diff=lfs merge=lfs -text
