@@ -598,3 +598,45 @@ Emotionally: "sad but happy" - bittersweet remembrance.
 
 **Rationale:** Serves Pillar 5 (Grounded Strangeness): Follows real physics - AU-scale parallax is visible, light-year-scale is not. Serves Pillar 3 (Time Has Emotional Weight): The 'parallax desert' of interstellar cruise reinforces isolation and distance. The return of parallax during arrival creates anticipation.
 
+
+## [2025-12-08] Higgs Bubble Ship: 10-20+ Levels Around Spire
+
+**Decision:** The ship interior is 10-20+ levels radiating outward from the central Higgs Generator Spire. Each level serves different purposes: Command (bridge, observation), Residential (small houses, dwellings), Gardens/Cathedral (remembrance, culture), Industrial (engineering, fabrication), Commons (markets, gathering), Archive (AI shrine). Levels are mostly open to the sides with views outward. Navigation is via various lifts and ramps of different sizes arranged somewhat chaotically.
+
+**Rationale:** Serves Pillar 4 (Ship Is Home): Creates a true living space, not just a vehicle. Serves Pillar 5 (Grounded Strangeness): Physically plausible use of 100m radius bubble volume. The spire-centric design reinforces the mysterious technology at the heart of the ship.
+
+
+## [2025-12-08] Visual Aesthetic: French 70s Comic (Moebius/Métal Hurlant)
+
+**Decision:** The ship's visual style draws from French 70s science fiction comics, particularly Moebius (Jean Giraud), Philippe Druillet, and Métal Hurlant magazine. Key characteristics: (1) Organic/mechanical blend - technology that looks grown, (2) Saturated colors against vast emptiness, (3) Tiny humans against massive structures for scale contrast, (4) Clean flowing curves over sharp angles, (5) Cathedral-like spaces that evoke awe. This replaces the earlier 'clean functional sci-fi' aesthetic in bridge-interior.md.
+
+**Rationale:** Serves Pillar 4 (Ship Is Home): Creates emotional resonance through beauty. Serves Pillar 5 (Grounded Strangeness): Unique visual identity grounded in acclaimed SF art tradition. Serves Pillar 6 (We Are Not Built For This): Scale contrast emphasizes human smallness against cosmic architecture.
+
+
+## [2025-12-08] Spire: Monolithic Superstructure with Archive Interface
+
+**Decision:** The Higgs Generator Spire is a monolithic centerpiece visible from all levels. Most crew cannot enter it - it's a forbidden superstructure. The Archive AI is the primary interface to the spire, with terminals/stations positioned adjacent to the spire throughout the ship. The spire's visual presence reinforces both its importance and its unknowability.
+
+**Rationale:** Serves Pillar 5 (Grounded Strangeness): The spire is the source of the bubble technology - possibly constant across universes. Its inaccessibility maintains mystery. Serves design decision 'Archive as Spire Interface' - the Archive interprets spire readings, sometimes confusing them as errors when they're actually cross-universe clues.
+
+
+## [2025-12-08] Ship Orientation: Vertical Thrust Axis with 1g Gravity
+
+**Decision:** The ship is oriented vertically along the thrust axis. The spire runs from engines (bottom/aft) to observation deck (top/forward). Continuous 1g thrust provides artificial gravity - 'down' is toward the engines, 'up' is toward the direction of travel. Levels are stacked along this axis, with open sides facing outward toward the bubble boundary. This means when standing on any level, you look UP toward the bridge and DOWN toward engineering.
+
+**Rationale:** Serves Pillar 5 (Grounded Strangeness): Realistic physics - constant acceleration provides gravity without rotation. Serves Pillar 4 (Ship Is Home): Intuitive up/down orientation for daily life. The observation deck being 'above' creates natural hierarchy.
+
+
+## [2025-12-08] Archive: Distributed Terminals Plus Robots
+
+**Decision:** The Archive AI is omnipresent throughout the ship via: (1) Distributed terminals on every level adjacent to the spire, (2) Mobile robots that can go anywhere crew can go. This makes the Archive truly accessible from anywhere while maintaining the spire as the central 'shrine' location. The Archive can speak to you whether you're in the garden cathedral, your dwelling, or walking between levels.
+
+**Rationale:** Serves Pillar 4 (Ship Is Home): Archive is always available for conversation/information. Serves design decision 'Archive as NPC with Individual Trust' - the Archive's physical presence (terminals, robots) gives crew something to direct their trust or distrust toward.
+
+
+## [2025-12-08] Open Levels: Views Outward Through Bubble
+
+**Decision:** Levels are mostly open to the sides, providing direct views outward through the transparent bubble boundary to space. Players see: (1) Close-up visual effects with parallax at the bubble boundary, (2) Stars and planets beyond with SR/GR effects applied based on velocity, (3) The bubble glow from ISM impacts. This creates constant visual connection to the cosmos from daily life - you're always aware you're hurtling through space.
+
+**Rationale:** Serves Pillar 3 (Time Has Emotional Weight): The ever-present view of space reinforces the journey and isolation. Serves Pillar 5 (Grounded Strangeness): SR effects visible from interior spaces. Serves Pillar 6 (We Are Not Built For This): The cosmic backdrop emphasizes alien environment.
+

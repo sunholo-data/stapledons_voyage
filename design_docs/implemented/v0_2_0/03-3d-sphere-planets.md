@@ -550,6 +550,7 @@ After this is implemented:
 
 ### Remaining Work
 
+See [planet-rendering-polish.md](../future/planet-rendering-polish.md) for deferred features:
 1. **Atmosphere glow** - Fresnel shader for Earth's atmosphere limb (low priority)
 2. **LOD system** - Distance-based rendering quality (not needed yet)
 3. **PlanetConfig registry** - Currently planets are created ad-hoc in demos

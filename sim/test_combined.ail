@@ -1,0 +1,81 @@
+module sim/test_combined
+
+import sim/protocol (Coord)
+import sim/npc_ai (Direction, North)
+import std/option (Option, Some, None)
+
+-- ADT types
+type BridgeStation =
+    | StationHelm
+    | StationComms
+    | StationNone
+
+type CrewID = { id: int, name: string }
+
+type CrewActivity =
+    | ActivityIdle
+    | ActivityWorking
+
+type CrewPosition = {
+    crew: CrewID,
+    station: BridgeStation,
+    pos: Coord,
+    facing: Direction,
+    activity: CrewActivity
+}
+
+type ConsoleState = {
+    station: BridgeStation,
+    pos: Coord,
+    active: bool,
+    hasAlert: bool,
+    spriteId: int
+}
+
+type MoveState = MoveIdle | MoveWalking(Direction)
+
+-- Record with BOTH list types
+type BridgeState = {
+    playerPos: Coord,
+    playerFacing: Direction,
+    moveState: MoveState,
+    crewPositions: [CrewPosition],
+    consoles: [ConsoleState],
+    width: int,
+    height: int
+}
+
+pure func makeCoord(x: int, y: int) -> Coord {
+    { x: x, y: y }
+}
+
+export pure func createConsoles() -> [ConsoleState] {
+    [
+        { station: StationHelm, pos: makeCoord(3, 2), active: true, hasAlert: false, spriteId: 1100 }
+    ]
+}
+
+export pure func createDefaultCrew() -> [CrewPosition] {
+    [
+        {
+            crew: { id: 1, name: "Pilot" },
+            station: StationHelm,
+            pos: makeCoord(3, 3),
+            facing: North,
+            activity: ActivityWorking
+        }
+    ]
+}
+
+-- This combines both
+export pure func initBridge() -> BridgeState {
+    {
+        playerPos: makeCoord(8, 10),
+        playerFacing: North,
+        moveState: MoveIdle,
+        crewPositions: createDefaultCrew(),
+        consoles: createConsoles(),
+        width: 16,
+        height: 12
+    }
+}

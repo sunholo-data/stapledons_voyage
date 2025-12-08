@@ -288,11 +288,11 @@ make run          # Test rendering
    ```bash
    # For bugs
    ~/.claude/skills/ailang-feedback/scripts/send_feedback.sh bug \
-     "Issue title" "Description" "stapledons_voyage"
+     "Issue title" "Description" --from stapledons_voyage
 
    # For missing features
    ~/.claude/skills/ailang-feedback/scripts/send_feedback.sh feature \
-     "Feature needed" "Why it would help" "stapledons_voyage"
+     "Feature needed" "Why it would help" --from stapledons_voyage
    ```
 
 5. **Update Progress (IMPORTANT)**
@@ -353,7 +353,7 @@ make run          # Test rendering
    ~/.claude/skills/ailang-feedback/scripts/send_feedback.sh dx \
      "Sprint DX: <sprint-name>" \
      "<honest reflection on working with AILANG this sprint>" \
-     "stapledons_voyage"
+     --from stapledons_voyage
    ```
 
    **Include in your reflection:**

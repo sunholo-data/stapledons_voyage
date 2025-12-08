@@ -1,0 +1,340 @@
+{
+  "sprint_id": "bridge-interior-v1",
+  "design_doc": "design_docs/planned/next/02-bridge-interior.md",
+  "status": "in_progress",
+  "created": "2025-12-08",
+  "sessions": {
+    "total": 8,
+    "completed": 0
+  },
+  "progress": {
+    "session_1_ailang_types": {
+      "status": "completed",
+      "tasks": [
+        {
+          "id": "1.1",
+          "desc": "Create sim/bridge.ail module",
+          "done": true
+        },
+        {
+          "id": "1.2",
+          "desc": "Define BridgeState record",
+          "done": true
+        },
+        {
+          "id": "1.3",
+          "desc": "Define BridgeStation ADT",
+          "done": true
+        },
+        {
+          "id": "1.4",
+          "desc": "Define CrewPosition record",
+          "done": true
+        },
+        {
+          "id": "1.5",
+          "desc": "Define ConsoleState record",
+          "done": true
+        },
+        {
+          "id": "1.6",
+          "desc": "Define DomeViewState record",
+          "done": true
+        },
+        {
+          "id": "1.7",
+          "desc": "ailang check passes",
+          "done": true
+        },
+        {
+          "id": "1.8",
+          "desc": "Export types via protocol.ail",
+          "done": true,
+          "note": "Types exported directly from bridge.ail"
+        }
+      ]
+    },
+    "session_2_layout_data": {
+      "status": "blocked",
+      "tasks": [
+        {
+          "id": "2.1",
+          "desc": "Create 16x12 tile layout array",
+          "done": true,
+          "note": "createBridgeLayout() defined but not used due to AILANG bug"
+        },
+        {
+          "id": "2.2",
+          "desc": "Define console positions",
+          "done": true,
+          "note": "createConsoles() defined but not used due to AILANG bug"
+        },
+        {
+          "id": "2.3",
+          "desc": "Define crew station assignments",
+          "done": true,
+          "note": "createDefaultCrew() defined but not used due to AILANG bug"
+        },
+        {
+          "id": "2.4",
+          "desc": "Define walkable/blocked tiles",
+          "done": true,
+          "note": "createWalkableMap() defined but not used due to AILANG bug"
+        },
+        {
+          "id": "2.5",
+          "desc": "Add initBridge() function",
+          "done": true,
+          "note": "Uses empty lists/small arrays as workaround"
+        }
+      ]
+    },
+    "session_3_rendering": {
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "3.1",
+          "desc": "Implement renderBridgeFloor()",
+          "done": false
+        },
+        {
+          "id": "3.2",
+          "desc": "Implement renderConsoles()",
+          "done": false
+        },
+        {
+          "id": "3.3",
+          "desc": "Implement renderBridgeCrew()",
+          "done": false
+        },
+        {
+          "id": "3.4",
+          "desc": "Implement renderPlayer()",
+          "done": false
+        },
+        {
+          "id": "3.5",
+          "desc": "Implement renderBridge() combining all",
+          "done": false
+        }
+      ]
+    },
+    "session_4_go_view": {
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "4.1",
+          "desc": "Create engine/view/bridge_view.go",
+          "done": false
+        },
+        {
+          "id": "4.2",
+          "desc": "Implement BridgeView struct",
+          "done": false
+        },
+        {
+          "id": "4.3",
+          "desc": "Implement View interface",
+          "done": false
+        },
+        {
+          "id": "4.4",
+          "desc": "Wire bridge state to renderer",
+          "done": false
+        },
+        {
+          "id": "4.5",
+          "desc": "Register BridgeView in ViewManager",
+          "done": false
+        },
+        {
+          "id": "4.6",
+          "desc": "Create cmd/demo-bridge/main.go",
+          "done": false
+        },
+        {
+          "id": "4.7",
+          "desc": "Add Makefile target",
+          "done": false
+        }
+      ]
+    },
+    "session_5_dome": {
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "5.1",
+          "desc": "Create engine/view/dome_renderer.go",
+          "done": false
+        },
+        {
+          "id": "5.2",
+          "desc": "Define dome bounds and mask",
+          "done": false
+        },
+        {
+          "id": "5.3",
+          "desc": "Render SpaceView to buffer",
+          "done": false
+        },
+        {
+          "id": "5.4",
+          "desc": "Apply mask shader",
+          "done": false
+        },
+        {
+          "id": "5.5",
+          "desc": "Composite dome onto bridge",
+          "done": false
+        },
+        {
+          "id": "5.6",
+          "desc": "Pass DomeViewState from AILANG",
+          "done": false
+        }
+      ]
+    },
+    "session_6_movement": {
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "6.1",
+          "desc": "Add processBridgeInput() to AILANG",
+          "done": false
+        },
+        {
+          "id": "6.2",
+          "desc": "Implement WASD direction detection",
+          "done": false
+        },
+        {
+          "id": "6.3",
+          "desc": "Implement collision check",
+          "done": false
+        },
+        {
+          "id": "6.4",
+          "desc": "Update player position",
+          "done": false
+        },
+        {
+          "id": "6.5",
+          "desc": "Update player facing",
+          "done": false
+        },
+        {
+          "id": "6.6",
+          "desc": "Wire input in Go",
+          "done": false
+        }
+      ]
+    },
+    "session_7_interactions": {
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "7.1",
+          "desc": "Implement findInteractableAt()",
+          "done": false
+        },
+        {
+          "id": "7.2",
+          "desc": "Add hover state",
+          "done": false
+        },
+        {
+          "id": "7.3",
+          "desc": "Render hover highlight",
+          "done": false
+        },
+        {
+          "id": "7.4",
+          "desc": "Implement click handling",
+          "done": false
+        },
+        {
+          "id": "7.5",
+          "desc": "Define BridgeInputResult ADT",
+          "done": false
+        },
+        {
+          "id": "7.6",
+          "desc": "Wire to ViewTransition",
+          "done": false
+        }
+      ]
+    },
+    "session_8_assets_polish": {
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "8.1",
+          "desc": "Generate bridge floor tiles",
+          "done": false
+        },
+        {
+          "id": "8.2",
+          "desc": "Generate console sprites",
+          "done": false
+        },
+        {
+          "id": "8.3",
+          "desc": "Generate crew sprites",
+          "done": false
+        },
+        {
+          "id": "8.4",
+          "desc": "Generate player sprite",
+          "done": false
+        },
+        {
+          "id": "8.5",
+          "desc": "Update manifest.json",
+          "done": false
+        },
+        {
+          "id": "8.6",
+          "desc": "Add room entry label",
+          "done": false
+        },
+        {
+          "id": "8.7",
+          "desc": "Add transition animation",
+          "done": false
+        },
+        {
+          "id": "8.8",
+          "desc": "Performance test 60 FPS",
+          "done": false
+        },
+        {
+          "id": "8.9",
+          "desc": "Update design doc",
+          "done": false
+        }
+      ]
+    }
+  },
+  "ailang_feedback": [
+    {
+      "msg_id": "msg_20251208_210021_6dc9a062",
+      "type": "bug_report",
+      "title": "Effect checker hangs on record with multiple list-of-record fields",
+      "status": "sent",
+      "blocking": true
+    }
+  ],
+  "blockers": [
+    {
+      "desc": "AILANG effect checker hangs when BridgeState has list-of-record fields populated via function calls",
+      "workaround": "Using empty lists in initBridge() - crew/consoles/layout not loaded from AILANG",
+      "ailang_msg": "msg_20251208_210021_6dc9a062",
+      "minimal_repro": "sim/test_combined.ail"
+    }
+  ],
+  "notes": [
+    "Session 2 layout functions are defined but cannot be used until AILANG bug is fixed",
+    "Proceeding with Go implementation using hardcoded data as workaround"
+  ],
+  "last_updated": "2025-12-08T21:10:00Z"
+}

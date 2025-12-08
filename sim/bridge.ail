@@ -1,0 +1,409 @@
+module sim/bridge
+
+-- =============================================================================
+-- Bridge Interior Types
+-- The bridge is the command center of the ship - the player's primary interface
+-- =============================================================================
+
+import sim/protocol (Coord, DrawCmd, IsoTile, IsoEntity, FrameInput)
+import sim/npc_ai (Direction, North, South, East, West)
+import std/array as A
+import std/option (Option, Some, None)
+
+-- =============================================================================
+-- Bridge Station Types
+-- =============================================================================
+
+-- Crew stations on the bridge
+export type BridgeStation =
+    | StationHelm       -- Pilot controls
+    | StationComms      -- Communications
+    | StationStatus     -- Ship systems overview
+    | StationNav        -- Galaxy map terminal
+    | StationScience    -- Sensors and research
+    | StationCaptain    -- Captain's chair
+    | StationNone       -- Not at a station (moving/idle)
+
+-- Crew ID for identifying crew members
+export type CrewID = { id: int, name: string }
+
+-- Crew activity state
+export type CrewActivity =
+    | ActivityIdle
+    | ActivityWorking
+    | ActivityTalking(CrewID)  -- Talking to another crew member
+
+-- Crew position on the bridge
+export type CrewPosition = {
+    crew: CrewID,
+    station: BridgeStation,
+    pos: Coord,
+    facing: Direction,
+    activity: CrewActivity
+}
+
+-- =============================================================================
+-- Console Types
+-- =============================================================================
+
+-- Console state (interactive station)
+export type ConsoleState = {
+    station: BridgeStation,
+    pos: Coord,
+    active: bool,        -- Console is powered on
+    hasAlert: bool,      -- Has pending notification
+    spriteId: int        -- Sprite to render
+}
+
+-- Interactable ID for hover/click detection
+export type InteractableID =
+    | InteractConsole(BridgeStation)
+    | InteractCrew(CrewID)
+    | InteractHatch(int)  -- Deck number to transition to
+
+-- =============================================================================
+-- Observation Dome
+-- =============================================================================
+
+-- State for the observation dome (shows space exterior)
+export type DomeViewState = {
+    targetPlanetId: int,    -- Which planet is visible (0 = none)
+    shipVelocity: float,    -- Current velocity for SR effects
+    viewAngle: float        -- Camera angle in radians
+}
+
+-- =============================================================================
+-- Bridge State
+-- =============================================================================
+
+-- Player movement state
+export type MoveState =
+    | MoveIdle
+    | MoveWalking(Direction)
+    | MoveTransitioning(int, Coord)  -- Transitioning to deck, target position
+
+-- Complete bridge state
+export type BridgeState = {
+    -- Player
+    playerPos: Coord,
+    playerFacing: Direction,
+    moveState: MoveState,
+
+    -- Crew
+    crewPositions: [CrewPosition],
+
+    -- Consoles
+    consoles: [ConsoleState],
+
+    -- Interaction
+    hoveredInteractable: Option[InteractableID],
+    selectedInteractable: Option[InteractableID],
+
+    -- Dome
+    domeView: DomeViewState,
+
+    -- Layout
+    layout: Array[int],     -- Tile IDs for 16x12 grid
+    walkable: Array[bool],  -- Which tiles can be walked on
+    width: int,
+    height: int
+}
+
+-- =============================================================================
+-- Bridge Input Result
+-- =============================================================================
+
+-- Result of processing bridge input
+export type BridgeInputResult =
+    | BridgeStay(BridgeState)              -- Stay on bridge with updated state
+    | BridgeToGalaxyMap                     -- Transition to galaxy map
+    | BridgeToDialogue(CrewID)              -- Start dialogue with crew
+    | BridgeToDeck(int, Coord)              -- Transition to another deck
+
+-- =============================================================================
+-- Tile IDs (Bridge-specific sprites)
+-- =============================================================================
+
+-- Bridge tile sprite IDs (1000-1099 range)
+export pure func tileFloor() -> int { 1000 }
+export pure func tileFloorGlow() -> int { 1001 }
+export pure func tileConsoleBase() -> int { 1002 }
+export pure func tileWalkway() -> int { 1003 }
+export pure func tileDomeEdge() -> int { 1004 }
+export pure func tileWall() -> int { 1005 }
+export pure func tileHatch() -> int { 1006 }
+export pure func tileCaptainArea() -> int { 1007 }
+
+-- Console sprite IDs (1100-1149 range)
+export pure func spriteConsoleHelm() -> int { 1100 }
+export pure func spriteConsoleComms() -> int { 1101 }
+export pure func spriteConsoleStatus() -> int { 1102 }
+export pure func spriteConsoleNav() -> int { 1103 }
+export pure func spriteConsoleScience() -> int { 1104 }
+export pure func spriteConsoleCaptain() -> int { 1105 }
+
+-- Crew sprite IDs (1200-1249 range)
+export pure func spriteCrewPilot() -> int { 1200 }
+export pure func spriteCrewComms() -> int { 1201 }
+export pure func spriteCrewEngineer() -> int { 1202 }
+export pure func spriteCrewScientist() -> int { 1203 }
+export pure func spriteCrewCaptain() -> int { 1204 }
+export pure func spritePlayer() -> int { 1205 }
+
+-- =============================================================================
+-- Helper Functions
+-- =============================================================================
+
+-- Get tile index from coordinates
+export pure func tileIndex(x: int, y: int, width: int) -> int {
+    y * width + x
+}
+
+-- Check if coordinates are in bounds
+export pure func inBounds(x: int, y: int, width: int, height: int) -> bool {
+    x >= 0 && x < width && y >= 0 && y < height
+}
+
+-- Check if a tile is walkable
+export pure func isWalkable(state: BridgeState, x: int, y: int) -> bool {
+    if inBounds(x, y, state.width, state.height) then
+        match A.getOpt(state.walkable, tileIndex(x, y, state.width)) {
+            Some(w) => w,
+            None => false
+        }
+    else
+        false
+}
+
+-- Get sprite ID for a station
+export pure func stationSprite(station: BridgeStation) -> int {
+    match station {
+        StationHelm => spriteConsoleHelm(),
+        StationComms => spriteConsoleComms(),
+        StationStatus => spriteConsoleStatus(),
+        StationNav => spriteConsoleNav(),
+        StationScience => spriteConsoleScience(),
+        StationCaptain => spriteConsoleCaptain(),
+        StationNone => 0
+    }
+}
+
+-- Get sprite ID for a crew member based on their station
+export pure func crewSprite(station: BridgeStation) -> int {
+    match station {
+        StationHelm => spriteCrewPilot(),
+        StationComms => spriteCrewComms(),
+        StationStatus => spriteCrewEngineer(),
+        StationScience => spriteCrewScientist(),
+        StationCaptain => spriteCrewCaptain(),
+        StationNav => spriteCrewEngineer(),  -- Nav officer uses engineer sprite for now
+        StationNone => spriteCrewPilot()     -- Default
+    }
+}
+
+-- Move coordinate in direction
+export pure func moveInDirection(pos: Coord, dir: Direction) -> Coord {
+    let px = pos.x;
+    let py = pos.y;
+    match dir {
+        North => makeCoord(px, py - 1),
+        South => makeCoord(px, py + 1),
+        East => makeCoord(px + 1, py),
+        West => makeCoord(px - 1, py)
+    }
+}
+
+-- Helper to construct Coord
+pure func makeCoord(x: int, y: int) -> Coord {
+    { x: x, y: y }
+}
+
+-- =============================================================================
+-- Bridge Layout Data (16 wide x 12 tall)
+-- =============================================================================
+
+-- Bridge dimensions
+export pure func bridgeWidth() -> int { 16 }
+export pure func bridgeHeight() -> int { 12 }
+
+-- Layout constants for reference:
+-- Row 0-1: Dome edge (top of observation dome)
+-- Row 2:   Main console stations (Helm, Comms, Status)
+-- Row 3-4: Open floor area
+-- Row 5:   Central walkway
+-- Row 6-7: Captain's area
+-- Row 8-9: Side stations (Nav, Science)
+-- Row 10-11: Access hatches (deck transitions)
+
+-- Create initial bridge layout (192 tiles = 16x12)
+-- Returns Array of tile IDs
+export pure func createBridgeLayout() -> Array[int] {
+    -- Build layout row by row using array construction
+    A.fromList([
+        -- Row 0: Dome edge (top)
+        1005, 1005, 1004, 1004, 1004, 1004, 1004, 1004, 1004, 1004, 1004, 1004, 1004, 1004, 1005, 1005,
+        -- Row 1: Dome edge
+        1005, 1004, 1004, 1004, 1004, 1004, 1004, 1004, 1004, 1004, 1004, 1004, 1004, 1004, 1004, 1005,
+        -- Row 2: Console stations (Helm at 3, Comms at 7, Status at 11)
+        1005, 1000, 1000, 1002, 1000, 1000, 1000, 1002, 1000, 1000, 1000, 1002, 1000, 1000, 1000, 1005,
+        -- Row 3: Open floor
+        1005, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1005,
+        -- Row 4: Open floor
+        1005, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1005,
+        -- Row 5: Central walkway
+        1005, 1003, 1003, 1003, 1003, 1003, 1003, 1003, 1003, 1003, 1003, 1003, 1003, 1003, 1003, 1005,
+        -- Row 6: Captain's area
+        1005, 1000, 1000, 1000, 1000, 1000, 1007, 1007, 1007, 1007, 1000, 1000, 1000, 1000, 1000, 1005,
+        -- Row 7: Captain's chair position (at 7-8)
+        1005, 1000, 1000, 1000, 1000, 1000, 1007, 1002, 1007, 1000, 1000, 1000, 1000, 1000, 1000, 1005,
+        -- Row 8: Side stations (Nav at 2, Science at 13)
+        1005, 1000, 1002, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1002, 1000, 1005,
+        -- Row 9: Open floor
+        1005, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1005,
+        -- Row 10: Access hatches
+        1005, 1000, 1000, 1006, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1006, 1000, 1000, 1005,
+        -- Row 11: Bottom wall
+        1005, 1005, 1005, 1006, 1005, 1005, 1005, 1005, 1005, 1005, 1005, 1005, 1006, 1005, 1005, 1005
+    ])
+}
+
+-- Create walkable map (true = can walk, false = blocked)
+export pure func createWalkableMap() -> Array[bool] {
+    A.fromList([
+        -- Row 0: Dome edge - blocked
+        false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+        -- Row 1: Dome edge - blocked
+        false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+        -- Row 2: Console row - consoles blocked, walkway open
+        false, true, true, false, true, true, true, false, true, true, true, false, true, true, true, false,
+        -- Row 3: Open floor
+        false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false,
+        -- Row 4: Open floor
+        false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false,
+        -- Row 5: Central walkway
+        false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false,
+        -- Row 6: Captain's area
+        false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false,
+        -- Row 7: Captain's chair blocked
+        false, true, true, true, true, true, true, false, true, true, true, true, true, true, true, false,
+        -- Row 8: Side stations
+        false, true, false, true, true, true, true, true, true, true, true, true, true, false, true, false,
+        -- Row 9: Open floor
+        false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false,
+        -- Row 10: Hatches - hatches are walkable (transitions)
+        false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false,
+        -- Row 11: Bottom wall
+        false, false, false, true, false, false, false, false, false, false, false, false, true, false, false, false
+    ])
+}
+
+-- =============================================================================
+-- Console Definitions
+-- =============================================================================
+
+-- Create console state list
+export pure func createConsoles() -> [ConsoleState] {
+    [
+        { station: StationHelm, pos: makeCoord(3, 2), active: true, hasAlert: false, spriteId: spriteConsoleHelm() },
+        { station: StationComms, pos: makeCoord(7, 2), active: true, hasAlert: false, spriteId: spriteConsoleComms() },
+        { station: StationStatus, pos: makeCoord(11, 2), active: true, hasAlert: false, spriteId: spriteConsoleStatus() },
+        { station: StationCaptain, pos: makeCoord(7, 7), active: true, hasAlert: false, spriteId: spriteConsoleCaptain() },
+        { station: StationNav, pos: makeCoord(2, 8), active: true, hasAlert: false, spriteId: spriteConsoleNav() },
+        { station: StationScience, pos: makeCoord(13, 8), active: true, hasAlert: false, spriteId: spriteConsoleScience() }
+    ]
+}
+
+-- =============================================================================
+-- Crew Definitions
+-- =============================================================================
+
+-- Create default crew positions
+export pure func createDefaultCrew() -> [CrewPosition] {
+    [
+        {
+            crew: { id: 1, name: "Pilot Chen" },
+            station: StationHelm,
+            pos: makeCoord(3, 3),
+            facing: North,
+            activity: ActivityWorking
+        },
+        {
+            crew: { id: 2, name: "Comms Officer Patel" },
+            station: StationComms,
+            pos: makeCoord(7, 3),
+            facing: North,
+            activity: ActivityWorking
+        },
+        {
+            crew: { id: 3, name: "Engineer Torres" },
+            station: StationStatus,
+            pos: makeCoord(11, 3),
+            facing: North,
+            activity: ActivityWorking
+        },
+        {
+            crew: { id: 4, name: "Navigator Kim" },
+            station: StationNav,
+            pos: makeCoord(2, 9),
+            facing: North,
+            activity: ActivityWorking
+        },
+        {
+            crew: { id: 5, name: "Science Officer Okafor" },
+            station: StationScience,
+            pos: makeCoord(13, 9),
+            facing: North,
+            activity: ActivityWorking
+        },
+        {
+            crew: { id: 6, name: "Captain Reyes" },
+            station: StationCaptain,
+            pos: makeCoord(7, 8),
+            facing: North,
+            activity: ActivityIdle
+        }
+    ]
+}
+
+-- =============================================================================
+-- Bridge Initialization
+-- =============================================================================
+
+-- Create initial bridge state
+-- WORKAROUND: Using empty lists due to AILANG effect checker bug (msg_20251208_210021_6dc9a062)
+-- The bug triggers when BridgeState has list-of-record fields populated via function calls
+-- When bug is fixed:
+--   - Change crewPositions: [] to crewPositions: createDefaultCrew()
+--   - Change consoles: [] to consoles: createConsoles()
+--   - Change layout/walkable to use createBridgeLayout()/createWalkableMap()
+export pure func initBridge() -> BridgeState {
+    {
+        -- Player starts near the entrance (bottom center)
+        playerPos: makeCoord(8, 10),
+        playerFacing: North,
+        moveState: MoveIdle,
+
+        -- Load crew (WORKAROUND: empty list)
+        crewPositions: [],
+
+        -- Load consoles (WORKAROUND: empty list)
+        consoles: [],
+
+        -- No current interaction
+        hoveredInteractable: None,
+        selectedInteractable: None,
+
+        -- Dome showing generic space view
+        domeView: {
+            targetPlanetId: 0,
+            shipVelocity: 0.0,
+            viewAngle: 0.0
+        },
+
+        -- Layout data (WORKAROUND: small arrays)
+        layout: A.fromList([1, 2, 3, 4]),
+        walkable: A.fromList([true, true, true, true]),
+        width: 2,
+        height: 2
+    }
+}
