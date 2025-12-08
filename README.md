@@ -63,6 +63,27 @@ The shader implements:
 
 This is what approaching a stellar-mass black hole would actually look like — beautiful, terrifying, and scientifically accurate.
 
+### Coming Home: 3D Solar System Flyby
+
+What does it feel like to decelerate from near-light speed back into our solar system? This demo combines 3D planet rendering with relativistic visual effects:
+
+![Solar System Flyby](docs/images/solar-flyby.gif)
+
+**What's happening in this animation:**
+1. **Starting at 0.9c**: Blue-shifted starfield ahead, planets stretched by relativistic aberration
+2. **Passing the outer planets**: Neptune, Uranus, Saturn (with rings), Jupiter flash by as we decelerate
+3. **Doppler color shift**: Stars ahead are blue-white (approaching), behind would be red (receding)
+4. **Decelerating to 0.3c**: The Lorentz factor drops from ~2.3 to ~1.05 as we slow down
+5. **Arriving at Earth**: Coming home after a journey where centuries passed on Earth while we aged years
+
+The demo uses:
+- **Tetra3D**: Software 3D renderer for planet spheres with NASA texture maps
+- **UV sphere mesh**: Proper equirectangular mapping for realistic planet surfaces
+- **SR shader**: Real-time Doppler shift and aberration applied to the entire scene
+- **Time dilation HUD**: Shows velocity (β), Lorentz factor (γ), and elapsed time
+
+At 0.9c, the Lorentz factor γ = 1/√(1-0.81) ≈ 2.29. For every year you experience aboard the ship, 2.29 years pass on Earth. A 10-year subjective journey means coming home to find 23 years have passed.
+
 ## Design Pillars
 
 Five non-negotiable constraints guide every feature:
@@ -87,9 +108,10 @@ Named after [Olaf Stapledon](https://en.wikipedia.org/wiki/Olaf_Stapledon), the 
 
 ### Implemented
 
-- 2D rendering engine (Go/Ebiten)
+- 2D/3D rendering engine (Go/Ebiten + Tetra3D)
 - **Special relativity shader** — aberration, Doppler shift, relativistic beaming
 - **General relativity shader** — gravitational lensing, Einstein rings near black holes
+- **3D planet rendering** — textured spheres with NASA maps, Saturn's rings
 - Post-processing pipeline (bloom, vignette, CRT, chromatic aberration)
 - Audio system, input handling, game loop
 - Visual test framework with golden file comparison

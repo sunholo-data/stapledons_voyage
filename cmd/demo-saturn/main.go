@@ -101,23 +101,31 @@ func (g *SaturnGame) createSaturn() {
 
 	// Position Saturn at origin
 	g.saturn.SetPosition(0, 0, 0)
-	g.saturn.SetRotationSpeed(0.3)
+	// Saturn rotation period is ~10.7 hours (0.000163 rad/s real-time)
+	// For demo visibility, use 0.02 rad/s (~5 min per rotation)
+	g.saturn.SetRotationSpeed(0.02)
 
-	// Add Saturn's rings
-	// Inner ring at 1.2× radius, outer at 2.5× radius
+	// Add Saturn's rings (physically accurate per design doc)
+	// Saturn axial tilt: 26.7°, Ring inner: 1.2×, Ring outer: 2.3×
 	innerR := saturnRadius * 1.2
-	outerR := saturnRadius * 2.5
+	outerR := saturnRadius * 2.3
 
 	// Try to load ring texture (optional)
+	// Prefer generated texture which matches our UV mapping
 	var ringTex *ebiten.Image
-	if tex, err := loadTexture("assets/planets/saturn_ring.png"); err == nil {
+	if tex, err := loadTexture("assets/planets/saturn_ring_gen.png"); err == nil {
+		ringTex = tex
+		log.Println("Loaded generated ring texture")
+	} else if tex, err := loadTexture("assets/planets/saturn_ring.png"); err == nil {
 		ringTex = tex
 		log.Println("Loaded ring texture")
 	}
 
 	g.ring = g.planetLayer.AddRing("saturn_ring", innerR, outerR, ringTex)
 	g.ring.SetPosition(0, 0, 0)
-	g.ring.SetTilt(0.47) // ~27 degrees tilt
+	// Saturn's axial tilt is 26.7° = 0.466 radians
+	// Positive tilt tilts the north pole toward the viewer
+	g.ring.SetTilt(0.466)
 
 	log.Printf("Created Saturn (radius=%.1f) with rings (inner=%.1f, outer=%.1f)", saturnRadius, innerR, outerR)
 }
@@ -127,21 +135,33 @@ func (g *SaturnGame) Update() error {
 	g.time += dt
 	g.frameCount++
 
-	// Keep camera stationary, looking down -Z axis
-	// Position camera slightly elevated for better ring view angle
-	g.planetLayer.SetCameraPosition(0, 2, *distance)
+	// Orbit Saturn around camera (same visual effect as camera orbiting Saturn)
+	// Camera stays at origin looking -Z, Saturn orbits in front
+	g.orbitAngle += *orbitSpeed * dt
 
-	// Position sun to illuminate the camera-facing side
-	// Sun in front-right of Saturn for nice side lighting
-	g.planetLayer.SetSunPosition(5, 5, 5)
+	// Saturn orbits in the XZ plane at negative Z (in front of camera)
+	// Camera is elevated to see rings from above
+	saturnX := math.Sin(g.orbitAngle) * *distance
+	saturnZ := -math.Cos(g.orbitAngle) * *distance // negative Z = in front of camera
+	saturnY := 0.0
 
-	// Rotate Saturn slowly (planet already rotates via Update)
-	// But also slowly rotate the whole view angle by moving Saturn in a circle
-	g.orbitAngle += *orbitSpeed * dt * 0.1
+	// Camera at elevated position, looking toward negative Z
+	camY := 2.0
+	g.planetLayer.SetCameraPosition(0, camY, 0)
 
-	// Position Saturn at origin (it rotates on its own axis)
-	g.saturn.SetPosition(0, 0, 0)
-	g.ring.SetPosition(0, 0, 0)
+	// Debug logging every 30 frames
+	if g.frameCount%30 == 0 {
+		log.Printf("Frame %d: Camera(0, %.2f, 0) Saturn(%.2f, %.2f, %.2f) Orbit=%.1f°",
+			g.frameCount, camY, saturnX, saturnY, saturnZ, g.orbitAngle*180/math.Pi)
+	}
+
+	// Saturn and ring orbit around camera
+	g.saturn.SetPosition(saturnX, saturnY, saturnZ)
+	g.ring.SetPosition(saturnX, saturnY, saturnZ)
+
+	// Sun from above and behind camera
+	g.planetLayer.SetSunPosition(0, 5, 3)
+	g.planetLayer.SetSunTarget(saturnX, saturnY, saturnZ)
 
 	// Update planets
 	g.planetLayer.Update(dt)
@@ -185,11 +205,11 @@ func (g *SaturnGame) drawHUD(screen *ebiten.Image) {
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Distance: %.1f", *distance), 10, int(y))
 	y += lineHeight
 
-	// Ring info
+	// Ring info (physically accurate per design doc)
 	y += lineHeight
-	ebitenutil.DebugPrintAt(screen, "Ring: inner=2.4, outer=5.0", 10, int(y))
+	ebitenutil.DebugPrintAt(screen, "Ring: inner=1.2x, outer=2.3x planet radius", 10, int(y))
 	y += lineHeight
-	ebitenutil.DebugPrintAt(screen, "Ring tilt: 27° (~0.47 rad)", 10, int(y))
+	ebitenutil.DebugPrintAt(screen, "Saturn axial tilt: 26.7° (0.466 rad)", 10, int(y))
 
 	// Help at bottom
 	y = float64(display.InternalHeight) - 40

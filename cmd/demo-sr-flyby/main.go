@@ -28,28 +28,38 @@ import (
 var (
 	screenshotFrame = flag.Int("screenshot", 0, "Take screenshot after N frames (0=disabled)")
 	outputPath      = flag.String("output", "out/sr-flyby.png", "Screenshot output path")
-	maxVelocity     = flag.Float64("max-v", 0.8, "Maximum velocity as fraction of c")
+	startVelocity   = flag.Float64("start-v", 0.9, "Starting velocity as fraction of c")
+	endVelocity     = flag.Float64("end-v", 0.3, "Ending velocity as fraction of c")
+	demoDuration    = flag.Float64("duration", 60.0, "Demo duration in seconds")
+	captureFrames   = flag.Bool("capture", false, "Capture frames for video (exits after capture-duration)")
+	captureDuration = flag.Float64("capture-duration", 45.0, "Duration to capture in seconds")
+	captureInterval = flag.Int("capture-interval", 2, "Capture every N frames (2=30fps output)")
 )
 
 // Planet configs for the solar system - with real textures!
+// REVERSED ORDER: Neptune closest (seen first), Sun furthest (climactic ending)
+// Camera starts at positive Z, flies toward negative Z
+// See Neptune first, pass through the system, end approaching the Sun!
 var planetConfigs = []struct {
 	name    string
-	color   color.RGBA   // Fallback color if texture missing
+	color   color.RGBA // Fallback color if texture missing
 	radius  float64
-	dist    float64      // distance from center
-	texture string       // texture path (empty = solid color)
+	dist    float64 // distance from camera start (higher = seen later)
+	texture string  // texture path (empty = solid color)
 }{
-	// Sun uses solid color (emissive)
-	{"sun", color.RGBA{255, 220, 100, 255}, 1.5, 0, ""},
-	// Planets with equirectangular textures
-	{"mercury", color.RGBA{180, 160, 140, 255}, 0.25, 3, "assets/planets/mercury.jpg"},
-	{"venus", color.RGBA{230, 200, 150, 255}, 0.4, 5, "assets/planets/venus_atmosphere.jpg"},
-	{"earth", color.RGBA{60, 120, 200, 255}, 0.45, 7, "assets/planets/earth_daymap.jpg"},
-	{"mars", color.RGBA{200, 100, 80, 255}, 0.35, 9, "assets/planets/mars.jpg"},
-	{"jupiter", color.RGBA{220, 180, 140, 255}, 1.2, 13, "assets/planets/jupiter.jpg"},
-	{"saturn", color.RGBA{210, 190, 150, 255}, 1.0, 17, "assets/planets/saturn.jpg"},
-	{"uranus", color.RGBA{180, 220, 230, 255}, 0.6, 21, "assets/planets/uranus.jpg"},
-	{"neptune", color.RGBA{80, 120, 200, 255}, 0.55, 25, "assets/planets/neptune.jpg"},
+	// Ice giants - FIRST we encounter (closest to start)
+	{"neptune", color.RGBA{80, 120, 200, 255}, 1.0, 15, "assets/planets/neptune.jpg"},
+	{"uranus", color.RGBA{180, 220, 230, 255}, 1.1, 40, "assets/planets/uranus.jpg"},
+	// Gas giants
+	{"saturn", color.RGBA{210, 190, 150, 255}, 1.8, 75, "assets/planets/saturn.jpg"},
+	{"jupiter", color.RGBA{220, 180, 140, 255}, 2.2, 115, "assets/planets/jupiter.jpg"},
+	// Inner planets
+	{"mars", color.RGBA{200, 100, 80, 255}, 0.5, 145, "assets/planets/mars.jpg"},
+	{"earth", color.RGBA{60, 120, 200, 255}, 0.7, 160, "assets/planets/earth_daymap.jpg"},
+	{"venus", color.RGBA{230, 200, 150, 255}, 0.6, 175, "assets/planets/venus_atmosphere.jpg"},
+	{"mercury", color.RGBA{180, 160, 140, 255}, 0.45, 188, "assets/planets/mercury.jpg"},
+	// Sun at the END - the climax!
+	{"sun", color.RGBA{255, 220, 100, 255}, 3.5, 210, "assets/planets/sun.jpg"},
 }
 
 type FlybyGame struct {
@@ -60,6 +70,9 @@ type FlybyGame struct {
 	// Shader system
 	shaderMgr *shader.Manager
 	srWarp    *shader.SRWarp
+
+	// Planet references for special handling
+	earth *tetra.Planet
 
 	// Orbit state
 	orbitAngle   float64 // Current position in orbit (radians)
@@ -75,6 +88,10 @@ type FlybyGame struct {
 	// Screenshot
 	screenshotTaken bool
 
+	// Frame capture for video
+	captureDir     string
+	capturedFrames int
+
 	// Buffers
 	preShaderBuffer *ebiten.Image
 }
@@ -84,6 +101,16 @@ func NewFlybyGame() *FlybyGame {
 		orbitRadius: 20.0,
 		orbitSpeed:  0.3,
 		orbitAngle:  0,
+		captureDir:  "out/frames",
+	}
+
+	// Set up frame capture directory if enabled
+	if *captureFrames {
+		if err := os.MkdirAll(g.captureDir, 0755); err != nil {
+			log.Printf("Failed to create capture dir: %v", err)
+		} else {
+			log.Printf("Frame capture enabled: %s (%.0fs at interval %d)", g.captureDir, *captureDuration, *captureInterval)
+		}
 	}
 
 	// Create space view with starfield
@@ -130,6 +157,16 @@ func loadTexture(path string) (*ebiten.Image, error) {
 }
 
 func (g *FlybyGame) createSolarSystem() {
+	// Load ring texture for Saturn
+	var ringTex *ebiten.Image
+	if tex, err := loadTexture("assets/planets/saturn_ring_gen.png"); err == nil {
+		ringTex = tex
+		log.Println("Loaded generated ring texture")
+	} else if tex, err := loadTexture("assets/planets/saturn_ring.png"); err == nil {
+		ringTex = tex
+		log.Println("Loaded ring texture")
+	}
+
 	for _, cfg := range planetConfigs {
 		var planet *tetra.Planet
 
@@ -149,26 +186,33 @@ func (g *FlybyGame) createSolarSystem() {
 		}
 
 		// Position planets along -Z axis (camera looks toward -Z)
-		// Sun at 0, Neptune at -25, camera approaches from +Z side
+		// Sun at 0, Neptune furthest at -190
+		// Camera starts at high +Z and flies toward -Z, seeing Neptune first then Sun last
 		planet.SetPosition(0, 0, -cfg.dist)
+
+		// Save Earth reference and flip its texture orientation
+		if cfg.name == "earth" {
+			g.earth = planet
+			planet.FlipX() // Fix upside-down texture
+		}
 
 		// Vary rotation speeds - inner planets spin faster
 		if cfg.name == "sun" {
-			planet.SetRotationSpeed(0.05) // Sun rotates slowly
+			planet.SetRotationSpeed(0.02) // Sun rotates slowly
 		} else {
-			// Outer planets rotate slower
-			planet.SetRotationSpeed(0.4 - cfg.dist*0.01)
+			// Scale rotation speed with distance (outer = slower)
+			planet.SetRotationSpeed(0.3 - cfg.dist*0.001)
 		}
 
 		// Add Saturn's rings
 		if cfg.name == "saturn" {
-			// Saturn's rings: inner at 1.1× radius, outer at 2.3× radius
-			innerR := cfg.radius * 1.1
+			// Saturn's rings: inner at 1.2× radius, outer at 2.3× radius
+			innerR := cfg.radius * 1.2
 			outerR := cfg.radius * 2.3
-			ring := g.planetLayer.AddRing("saturn_ring", innerR, outerR, nil) // No texture for now
+			ring := g.planetLayer.AddRing("saturn_ring", innerR, outerR, ringTex)
 			ring.SetPosition(0, 0, -cfg.dist)
 			ring.SetTilt(0.47) // Saturn's rings are tilted ~27 degrees (0.47 radians)
-			log.Printf("Added Saturn's rings")
+			log.Printf("Added Saturn's rings (inner=%.1f, outer=%.1f) at Z=%.0f", innerR, outerR, -cfg.dist)
 		}
 	}
 }
@@ -179,35 +223,39 @@ func (g *FlybyGame) Update() error {
 	g.frameCount++
 
 	// Flyby mode: fly through the solar system along Z axis
-	// Planets are positioned along -Z: Sun at 0, Neptune at -25
+	// Planets are positioned along -Z: Sun at 0, Neptune at -85
 	// Camera looks toward -Z by default, so start at +Z and fly toward planets
 
-	// Position cycles from +30 (far from Sun) to -30 (past Neptune)
-	cycleLength := 60.0
-	cycleTime := cycleLength / ((*maxVelocity) * 8) // Time to complete one pass
-	phase := math.Mod(g.time, cycleTime*2) / cycleTime // 0-2 range
-
-	var camZ float64
-	if phase < 1.0 {
-		// Flying forward toward planets (decreasing Z)
-		camZ = 30.0 - phase*cycleLength
-		g.approaching = true
-		g.velocity = *maxVelocity
-	} else {
-		// Flying backward away from planets (increasing Z)
-		camZ = -30.0 + (phase-1.0)*cycleLength
-		g.approaching = false
-		g.velocity = *maxVelocity
+	// Calculate progress through the demo (0.0 to 1.0)
+	progress := g.time / *demoDuration
+	if progress > 1.0 {
+		progress = 1.0 // Clamp at end
 	}
 
-	camY := 2.0 // Slightly above for better view
+	// Velocity profile: linear deceleration from startVelocity to endVelocity
+	// v(t) = v0 - (v0 - v1) * t/T
+	g.velocity = *startVelocity - (*startVelocity-*endVelocity)*progress
+	g.approaching = true // Always approaching in this demo
+
+	// Camera position: fly from Neptune side toward Earth
+	// Planets: Neptune at -15, Earth at -160
+	// Camera starts ahead of Neptune, ends hovering above Earth
+	startZ := 10.0    // Start ahead of Neptune (at -15)
+	endZ := -157.0    // End just above Earth (at -160), hovering to admire home
+
+	// Quadratic easing for deceleration feel:
+	// Fast at start (0.9c), slow at end (0.3c)
+	// This naturally maps to covering more distance early
+	easedProgress := progress * (2 - progress) // Quadratic ease-out
+	camZ := startZ - (startZ-endZ)*easedProgress
+
+	camY := 4.0 // Elevated for better ring views
 	camX := 0.0 // Centered on planet line
 
 	g.planetLayer.SetCameraPosition(camX, camY, camZ)
 
 	// SR effect: ViewAngle = 0 means looking forward (in direction of motion)
-	// When approaching (flying +Z), objects ahead are blue-shifted
-	// When receding (flying -Z), objects "ahead" are red-shifted
+	// When approaching, objects ahead are blue-shifted
 	g.srWarp.SetForwardVelocity(g.velocity)
 	g.srWarp.SetViewAngle(0) // Always looking forward in direction of motion
 
@@ -216,6 +264,12 @@ func (g *FlybyGame) Update() error {
 
 	// Update planets
 	g.planetLayer.Update(dt)
+
+	// Exit after capture duration if in capture mode
+	if *captureFrames && g.time >= *captureDuration {
+		log.Printf("Capture complete: %d frames captured", g.capturedFrames)
+		return ebiten.Termination
+	}
 
 	return nil
 }
@@ -249,30 +303,37 @@ func (g *FlybyGame) Draw(screen *ebiten.Image) {
 		g.takeScreenshot(screen)
 		g.screenshotTaken = true
 	}
+
+	// Frame capture for video
+	if *captureFrames && g.frameCount%*captureInterval == 0 {
+		g.captureFrame(screen)
+	}
 }
 
 func (g *FlybyGame) drawHUD(screen *ebiten.Image) {
 	y := 20.0
 	lineHeight := 18.0
 
-	ebitenutil.DebugPrintAt(screen, "SR Flyby Demo", 10, int(y))
+	ebitenutil.DebugPrintAt(screen, "Solar System Flyby", 10, int(y))
 	y += lineHeight
 
 	fps := ebiten.ActualFPS()
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("FPS: %.1f", fps), 10, int(y))
 	y += lineHeight
 
+	// Time progress
+	progress := g.time / *demoDuration
+	if progress > 1.0 {
+		progress = 1.0
+	}
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Time: %.1fs / %.0fs (%.0f%%)", g.time, *demoDuration, progress*100), 10, int(y))
+	y += lineHeight
+
 	// Velocity display with color indicator
 	gamma := 1.0 / math.Sqrt(1-g.velocity*g.velocity+0.0001)
-	direction := "APPROACHING"
-	if !g.approaching {
-		direction = "RECEDING"
-	}
-	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Velocity: %.2fc", g.velocity), 10, int(y))
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Velocity: %.2fc (decelerating)", g.velocity), 10, int(y))
 	y += lineHeight
-	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Gamma: %.2f", gamma), 10, int(y))
-	y += lineHeight
-	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Direction: %s", direction), 10, int(y))
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Lorentz γ: %.2f (time dilation)", gamma), 10, int(y))
 	y += lineHeight
 
 	// Visual velocity bar
@@ -284,8 +345,8 @@ func (g *FlybyGame) drawHUD(screen *ebiten.Image) {
 	// Background bar
 	ebitenutil.DrawRect(screen, barX, barY, barWidth, barHeight, color.RGBA{50, 50, 50, 255})
 
-	// Velocity fill
-	fillWidth := (g.velocity / *maxVelocity) * barWidth
+	// Velocity fill (relative to start velocity)
+	fillWidth := (g.velocity / *startVelocity) * barWidth
 	var barColor color.RGBA
 	if g.approaching {
 		// Blue shift when approaching
@@ -298,15 +359,11 @@ func (g *FlybyGame) drawHUD(screen *ebiten.Image) {
 
 	y += lineHeight + 10
 
-	// Orbit phase
-	phaseDeg := math.Mod(g.orbitAngle*180/math.Pi, 360)
-	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Orbit: %.0f deg", phaseDeg), 10, int(y))
-
 	// Help at bottom
 	y = float64(display.InternalHeight) - 60
-	ebitenutil.DebugPrintAt(screen, "SR Effects: Blue=approaching, Red=receding", 10, int(y))
+	ebitenutil.DebugPrintAt(screen, "Neptune -> Uranus -> Saturn -> Jupiter -> Mars -> EARTH", 10, int(y))
 	y += lineHeight
-	ebitenutil.DebugPrintAt(screen, "Watch the Doppler shift change as we orbit!", 10, int(y))
+	ebitenutil.DebugPrintAt(screen, "Decelerating from 0.9c to 0.3c - coming home!", 10, int(y))
 	y += lineHeight
 	if *screenshotFrame > 0 {
 		ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Screenshot at frame %d", *screenshotFrame), 10, int(y))
@@ -343,6 +400,35 @@ func (g *FlybyGame) takeScreenshot(screen *ebiten.Image) {
 	log.Printf("Screenshot saved to %s (frame %d)", *outputPath, g.frameCount)
 }
 
+func (g *FlybyGame) captureFrame(screen *ebiten.Image) {
+	bounds := screen.Bounds()
+	img := image.NewRGBA(bounds)
+	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
+		for x := bounds.Min.X; x < bounds.Max.X; x++ {
+			img.Set(x, y, screen.At(x, y))
+		}
+	}
+
+	// Save frame with sequential numbering
+	path := fmt.Sprintf("%s/frame_%05d.png", g.captureDir, g.capturedFrames)
+	f, err := os.Create(path)
+	if err != nil {
+		log.Printf("Failed to create frame file: %v", err)
+		return
+	}
+	defer f.Close()
+
+	if err := png.Encode(f, img); err != nil {
+		log.Printf("Failed to encode frame: %v", err)
+		return
+	}
+
+	g.capturedFrames++
+	if g.capturedFrames%100 == 0 {
+		log.Printf("Captured %d frames...", g.capturedFrames)
+	}
+}
+
 func (g *FlybyGame) Layout(outsideWidth, outsideHeight int) (int, int) {
 	return display.InternalWidth, display.InternalHeight
 }
@@ -350,22 +436,26 @@ func (g *FlybyGame) Layout(outsideWidth, outsideHeight int) (int, int) {
 func main() {
 	flag.Parse()
 
-	if *maxVelocity <= 0 || *maxVelocity >= 1 {
-		log.Fatal("Max velocity must be between 0 and 1")
+	if *startVelocity <= 0 || *startVelocity >= 1 {
+		log.Fatal("Start velocity must be between 0 and 1")
+	}
+	if *endVelocity <= 0 || *endVelocity >= 1 {
+		log.Fatal("End velocity must be between 0 and 1")
 	}
 
-	fmt.Println("SR Flyby Demo")
-	fmt.Println("=============")
+	fmt.Println("Solar System Flyby Demo")
+	fmt.Println("=======================")
 	fmt.Printf("Resolution: %dx%d\n", display.InternalWidth, display.InternalHeight)
-	fmt.Printf("Max velocity: %.0f%% c\n", *maxVelocity*100)
+	fmt.Printf("Velocity: %.0f%% c → %.0f%% c (deceleration)\n", *startVelocity*100, *endVelocity*100)
+	fmt.Printf("Duration: %.0f seconds\n", *demoDuration)
 	fmt.Println()
-	fmt.Println("Watch the Doppler shift change as we orbit the solar system!")
-	fmt.Println("- Blue shift when APPROACHING (moving toward planets)")
-	fmt.Println("- Red shift when RECEDING (moving away from planets)")
+	fmt.Println("Watch the Doppler shift change as velocity decreases!")
+	fmt.Println("- Blue shift when traveling fast toward planets")
+	fmt.Println("- Less shift as we decelerate to cruise speed")
 	fmt.Println()
 
 	ebiten.SetWindowSize(display.InternalWidth, display.InternalHeight)
-	ebiten.SetWindowTitle("Stapledon's Voyage - SR Flyby Demo")
+	ebiten.SetWindowTitle("Stapledon's Voyage - Solar System Flyby")
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 
 	game := NewFlybyGame()

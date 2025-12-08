@@ -139,6 +139,14 @@ func (pl *PlanetLayer) SetSunPosition(x, y, z float64) {
 	}
 }
 
+// SetSunTarget makes the sun light point at the given position.
+// Call this AFTER SetSunPosition to properly orient the directional light.
+func (pl *PlanetLayer) SetSunTarget(x, y, z float64) {
+	if pl.sun != nil {
+		pl.sun.LookAt(x, y, z)
+	}
+}
+
 // Scene returns the underlying Tetra3D scene.
 func (pl *PlanetLayer) Scene() *tetra.Scene {
 	return pl.scene

@@ -232,3 +232,79 @@ portraits/captain_chen.png
 - **Sprites**: 32-bit RGBA (8 bits per channel)
 - **Backgrounds**: 24-bit RGB (JPG compatible)
 - **Working palette**: Limit to 16-32 colors per sprite for pixel art look
+
+## 3D Planet Textures
+
+### Directory Structure
+```
+assets/planets/           # 3D planet textures (JPG/PNG)
+├── earth.jpg            # 2K equirectangular
+├── mars.jpg
+├── jupiter.jpg
+├── saturn.jpg
+├── saturn_ring.png      # Ring texture with alpha
+├── uranus.jpg
+├── neptune.jpg
+└── ...
+```
+
+### Texture Sources (Creative Commons / Public Domain)
+
+**Recommended Sources:**
+1. **Solar System Scope** (CC BY 4.0)
+   - URL: https://www.solarsystemscope.com/textures/
+   - Quality: 2K-8K, good for planets
+   - Note: Ring textures are basic, may need alternatives
+
+2. **NASA Visible Earth** (Public Domain)
+   - URL: https://visibleearth.nasa.gov/
+   - Quality: Very high resolution, authentic
+   - Note: Best for Earth textures
+
+3. **NASA JPL Photojournal** (Public Domain)
+   - URL: https://photojournal.jpl.nasa.gov/
+   - Quality: Mission imagery, authentic
+   - Note: Good for ring details (Cassini data)
+
+4. **Planet Pixel Emporium**
+   - URL: http://planetpixelemporium.com/
+   - Quality: 2K, stylized/artistic
+   - Note: Good for artistic ring textures
+
+5. **JHT's Planetary Pixel Emporium**
+   - URL: https://www.jhtplanets.co.uk/
+   - Quality: 2K-8K, high quality
+   - Note: Excellent Saturn ring maps
+
+### Ring Texture Specifications
+
+**Format:** PNG with alpha channel (for ring gaps)
+**UV Layout:**
+- U axis wraps around ring (0-1 = full circle)
+- V axis maps inner to outer radius (0=inner, 1=outer)
+
+**Download Commands:**
+```bash
+# Solar System Scope (basic)
+curl -sL "https://www.solarsystemscope.com/textures/download/2k_saturn_ring_alpha.png" -o assets/planets/saturn_ring.png
+
+# Alternative: Use asset-manager download script
+.claude/skills/asset-manager/scripts/download_planet_textures.sh
+```
+
+### Ring Texture Quality Notes
+
+The Solar System Scope ring texture is basic and may appear odd. For better results:
+1. Use Cassini mission data from NASA JPL for authentic appearance
+2. Or generate procedural ring textures with multiple bands and varying opacity
+3. The ring texture should have clear gaps (Cassini Division, etc.) as transparent regions
+
+### Ring Implementation Notes
+
+Our 3D ring mesh (`engine/tetra/ring.go`) expects:
+- Flat ring in XZ plane
+- UV mapping: U wraps circumference, V maps radial distance
+- Alpha transparency for ring gaps
+- `TransparencyModeAlphaClip` when textured
+
+TODO: Download higher quality ring textures from NASA or generate procedurally.

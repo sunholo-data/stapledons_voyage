@@ -13,7 +13,7 @@ import (
 // rings: vertical divisions (latitude)
 //
 // Higher values = smoother sphere but more vertices.
-// Recommended: segments=32, rings=16 for good quality
+// Recommended: segments=64, rings=32 for good quality (higher for less pixelation)
 func NewUVSphereMesh(segments, rings int) *tetra3d.Mesh {
 	if segments < 4 {
 		segments = 4

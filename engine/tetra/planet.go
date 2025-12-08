@@ -57,8 +57,8 @@ func NewPlanet(name string, radius float64, c color.RGBA) *Planet {
 // Uses a UV sphere mesh for proper equirectangular texture mapping.
 func NewTexturedPlanet(name string, radius float64, texture *ebiten.Image) *Planet {
 	// Create UV sphere mesh with proper texture coordinates
-	// 32 segments, 16 rings gives good quality for equirectangular maps
-	mesh := NewUVSphereMesh(32, 16)
+	// 64 segments, 32 rings for smooth appearance on close-up views
+	mesh := NewUVSphereMesh(64, 32)
 
 	// Create material with texture
 	mat := tetra3d.NewMaterial("planet_" + name)
@@ -163,4 +163,10 @@ func (p *Planet) SetScale(scale float64) {
 // Rotation returns the current rotation in radians.
 func (p *Planet) Rotation() float64 {
 	return p.rotation
+}
+
+// FlipX flips the planet 180° around the X axis (inverts north/south poles).
+// Use this when a texture appears upside down.
+func (p *Planet) FlipX() {
+	p.model.Rotate(1, 0, 0, 3.14159265359) // π radians = 180°
 }

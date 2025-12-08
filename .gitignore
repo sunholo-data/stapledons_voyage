@@ -3,3 +3,10 @@ bin/
 cli
 granimation
 game
+
+# Build artifacts
+out/
+*.mp4
+
+# Large data files (downloaded separately)
+assets/data/starmap/
