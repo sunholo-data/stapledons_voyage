@@ -1,8 +1,10 @@
 .DS_Store
 bin/
-cli
-granimation
-game
+
+# Root-level binary artifacts (if not in bin/)
+/cli
+/granimation
+/game
 
 # Build artifacts
 out/
