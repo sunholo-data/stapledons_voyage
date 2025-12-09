@@ -42,15 +42,7 @@ func RunAll() Report {
 }
 
 func runInitScenario() Result {
-	worldIface := sim_gen.InitWorld(int64(42))
-	world, ok := worldIface.(*sim_gen.World)
-	if !ok {
-		return Result{
-			Name:    "init_world",
-			Passed:  false,
-			Message: "InitWorld did not return *World",
-		}
-	}
+	world := sim_gen.InitWorld(int64(42))
 
 	if world.Tick != 0 {
 		return Result{
@@ -77,23 +69,15 @@ func runInitScenario() Result {
 }
 
 func runStepScenario() Result {
-	// Initialize world - type assert to *World (M-DX16: struct types preserved)
-	worldIface := sim_gen.InitWorld(int64(42))
-	world, ok := worldIface.(*sim_gen.World)
-	if !ok {
-		return Result{
-			Name:    "step_100_ticks",
-			Passed:  false,
-			Message: "InitWorld did not return *World",
-		}
-	}
+	// Initialize world - returns *World in v0.5.8+
+	world := sim_gen.InitWorld(int64(42))
 
-	input := sim_gen.FrameInput{
+	input := &sim_gen.FrameInput{
 		Keys:            []*sim_gen.KeyEvent{},
-		ActionRequested: *sim_gen.NewPlayerActionActionNone(),
+		ActionRequested: sim_gen.NewPlayerActionActionNone(),
 	}
 
-	// Run 100 ticks - RecordUpdate preserves *World type through loop
+	// Run 100 ticks
 	for i := 0; i < 100; i++ {
 		result := sim_gen.Step(world, input)
 		tuple, ok := result.([]interface{})
@@ -109,10 +93,7 @@ func runStepScenario() Result {
 		}
 	}
 
-	// World should still be typed after 100 steps
-	worldTyped := world
-
-	if worldTyped.Tick != 100 {
+	if world.Tick != 100 {
 		return Result{
 			Name:    "step_100_ticks",
 			Passed:  false,

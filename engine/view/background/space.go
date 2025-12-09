@@ -163,18 +163,26 @@ func (bg *SpaceBackground) Draw(screen *ebiten.Image, camera *CameraOffset) {
 		// Very slow parallax for distant galaxy
 		op.GeoM.Translate(-cam.X*0.02, -cam.Y*0.02)
 		// Dim the galaxy so stars are visible on top
-		op.ColorScale.Scale(0.3, 0.3, 0.35, 1.0)
+		// Apply velocity-based color shift to galaxy (slight blue shift at high speed)
+		r, g, b := 0.3, 0.3, 0.35
+		if bg.velocity > 0.01 {
+			// Blue shift forward (exaggerated for visual effect)
+			blueShift := bg.velocity * 0.3
+			r -= blueShift * 0.2
+			b += blueShift * 0.15
+		}
+		op.ColorScale.Scale(float32(r), float32(g), float32(b), 1.0)
 		screen.DrawImage(bg.galaxyImage, op)
 	}
 
-	// Draw each star layer with parallax
+	// Draw each star layer with parallax and SR effects
 	for _, layer := range bg.starLayers {
 		// Calculate parallax offset based on camera position
 		parallax := layer.config.Parallax * bg.parallaxDepth
 		offsetX := -cam.X * parallax
 		offsetY := -cam.Y * parallax
 
-		layer.Draw(screen, offsetX, offsetY)
+		layer.DrawWithSR(screen, offsetX, offsetY, bg.velocity, bg.screenW, bg.screenH)
 	}
 }
 
@@ -326,6 +334,123 @@ func (l *StarLayer) Draw(screen *ebiten.Image, offsetX, offsetY float64) {
 
 		// Draw the star
 		drawStar(screen, x, y, star.Size, star.Color)
+	}
+}
+
+// DrawWithSR renders the star layer with Special Relativity effects.
+// Applies Doppler shift (blue toward center/forward, red at edges/behind),
+// relativistic beaming, and forward motion parallax (stars expand from center).
+func (l *StarLayer) DrawWithSR(screen *ebiten.Image, offsetX, offsetY, velocity float64, screenW, screenH int) {
+	if velocity < 0.01 {
+		// No SR effects at low velocity, use standard draw
+		l.Draw(screen, offsetX, offsetY)
+		return
+	}
+
+	// Direction of travel is upper-center
+	// Stars expand outward from this point (forward motion effect)
+	centerX := float64(screenW) * 0.5 // Center
+	centerY := float64(screenH) * 0.3 // Upper area (direction of travel)
+
+	for _, star := range l.stars {
+		// Apply parallax offset
+		x := star.X + offsetX
+		y := star.Y + offsetY
+
+		// Forward motion parallax: stars expand outward from center
+		// This creates the illusion of moving toward the center point
+		dx := x - centerX
+		dy := y - centerY
+		dist := dx*dx + dy*dy
+		if dist > 0 {
+			// Expand stars outward from center based on velocity and layer parallax
+			expansionRate := velocity * l.config.Parallax * 0.3
+			expandX := dx * expansionRate
+			expandY := dy * expansionRate
+			x += expandX
+			y += expandY
+		}
+
+		// Wrap around screen edges (seamless scrolling)
+		padding := 200.0
+		totalW := float64(l.screenW) + padding*2
+		totalH := float64(l.screenH) + padding*2
+
+		for x < -padding {
+			x += totalW
+		}
+		for x > float64(l.screenW)+padding {
+			x -= totalW
+		}
+		for y < -padding {
+			y += totalH
+		}
+		for y > float64(l.screenH)+padding {
+			y -= totalH
+		}
+
+		// Skip if outside visible area
+		if x < -star.Size || x > float64(screenW)+star.Size ||
+			y < -star.Size || y > float64(screenH)+star.Size {
+			continue
+		}
+
+		// Calculate angle from center (direction of travel)
+		dx = x - centerX
+		dy = y - centerY
+		// Normalize to 0-1 where 0 = center (forward), 1 = edge (perpendicular)
+		maxDist := centerX
+		if centerY < maxDist {
+			maxDist = centerY
+		}
+		dist = (dx*dx + dy*dy)
+		normDist := dist / (maxDist * maxDist)
+		if normDist > 1 {
+			normDist = 1
+		}
+
+		// Apply Doppler shift based on position
+		// Forward (center) = blue shift, sides = red shift
+		// HEAVILY exaggerated for visual drama
+		shiftIntensity := velocity * 8.0 * (1.0 - normDist) // Strong blue at center
+		redShift := velocity * 4.0 * normDist              // Red at edges
+
+		// Modify star color - blue shift center, red shift edges
+		r := float64(star.Color.R) - shiftIntensity*100 + redShift*80
+		g := float64(star.Color.G) + shiftIntensity*30 - redShift*20
+		b := float64(star.Color.B) + shiftIntensity*100 - redShift*60
+
+		// Clamp values
+		if r < 0 {
+			r = 0
+		}
+		if r > 255 {
+			r = 255
+		}
+		if g < 0 {
+			g = 0
+		}
+		if g > 255 {
+			g = 255
+		}
+		if b < 0 {
+			b = 0
+		}
+		if b > 255 {
+			b = 255
+		}
+
+		// Relativistic beaming - stars toward center appear brighter
+		brightnessBoost := 1.0 + velocity*3.0*(1.0-normDist)
+		a := float64(star.Color.A) * brightnessBoost
+		if a > 255 {
+			a = 255
+		}
+
+		srColor := color.RGBA{uint8(r), uint8(g), uint8(b), uint8(a)}
+
+		// Draw the star with SR-modified color
+		drawStar(screen, x, y, star.Size, srColor)
 	}
 }
 

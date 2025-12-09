@@ -8,13 +8,13 @@ import (
 
 func BenchmarkInitWorld(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_ = sim_gen.InitWorld(i)
+		_ = sim_gen.InitWorld(int64(i))
 	}
 }
 
 func BenchmarkStep(b *testing.B) {
 	world := sim_gen.InitWorld(42)
-	input := sim_gen.FrameInput{}
+	input := &sim_gen.FrameInput{}
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -23,14 +23,14 @@ func BenchmarkStep(b *testing.B) {
 		if !ok || len(tuple) != 2 {
 			b.Fatal("unexpected Step result")
 		}
-		world = tuple[0]
+		world = tuple[0].(*sim_gen.World)
 	}
 }
 
 func BenchmarkStep100(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		world := sim_gen.InitWorld(42)
-		input := sim_gen.FrameInput{}
+		input := &sim_gen.FrameInput{}
 
 		for j := 0; j < 100; j++ {
 			result := sim_gen.Step(world, input)
@@ -38,7 +38,7 @@ func BenchmarkStep100(b *testing.B) {
 			if !ok || len(tuple) != 2 {
 				b.Fatal("unexpected Step result")
 			}
-			world = tuple[0]
+			world = tuple[0].(*sim_gen.World)
 		}
 	}
 }

@@ -40,13 +40,13 @@ Examples:
 		os.Exit(1)
 	}
 
-	// Initialize world
-	world := sim_gen.InitWorld(*seed)
+	// Initialize world - returns *World in v0.5.8+
+	world := sim_gen.InitWorld(int64(*seed))
 
 	// Run steps if requested
 	if *steps > 0 {
 		fmt.Printf("Running %d steps...\n", *steps)
-		input := sim_gen.FrameInput{}
+		input := &sim_gen.FrameInput{}
 		for i := 0; i < *steps; i++ {
 			result := sim_gen.Step(world, input)
 			tuple, ok := result.([]interface{})
@@ -54,7 +54,9 @@ Examples:
 				fmt.Fprintln(os.Stderr, "Error: unexpected Step result")
 				os.Exit(1)
 			}
-			world = tuple[0]
+			if w, ok := tuple[0].(*sim_gen.World); ok {
+				world = w
+			}
 		}
 	}
 

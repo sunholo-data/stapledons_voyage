@@ -92,11 +92,12 @@ func (r *Renderer) RenderFrame(screen *ebiten.Image, out sim_gen.FrameOutput) {
 	// Get screen dimensions
 	screenW, screenH := screen.Bounds().Dx(), screen.Bounds().Dy()
 
-	// Create camera transform
-	transform := camera.FromOutput(out.Camera, screenW, screenH)
+	// Create camera transform (dereference pointer)
+	cam := *out.Camera
+	transform := camera.FromOutput(cam, screenW, screenH)
 
 	// Calculate viewport for culling
-	viewport := camera.CalculateViewport(out.Camera, screenW, screenH)
+	viewport := camera.CalculateViewport(cam, screenW, screenH)
 
 	// Sort draw commands using isometric depth sorting
 	// This handles both legacy Z-sorting and iso (layer, screenY) sorting
@@ -104,7 +105,7 @@ func (r *Renderer) RenderFrame(screen *ebiten.Image, out sim_gen.FrameOutput) {
 	for i, cmd := range out.Draw {
 		sortables[i] = isoSortable{
 			cmd:     cmd,
-			sortKey: getIsoSortKey(cmd, out.Camera, screenW, screenH),
+			sortKey: getIsoSortKey(cmd, cam, screenW, screenH),
 		}
 	}
 	sort.Slice(sortables, func(i, j int) bool {
@@ -142,10 +143,10 @@ func (r *Renderer) RenderFrame(screen *ebiten.Image, out sim_gen.FrameOutput) {
 			r.drawText(screen, c, int(c.X), int(c.Y))
 
 		case sim_gen.DrawCmdKindIsoTile:
-			r.drawIsoTile(screen, cmd.IsoTile, out.Camera, screenW, screenH)
+			r.drawIsoTile(screen, cmd.IsoTile, cam, screenW, screenH)
 
 		case sim_gen.DrawCmdKindIsoEntity:
-			r.drawIsoEntity(screen, cmd.IsoEntity, out.Camera, screenW, screenH)
+			r.drawIsoEntity(screen, cmd.IsoEntity, cam, screenW, screenH)
 
 		case sim_gen.DrawCmdKindUi:
 			r.drawUiElement(screen, cmd.Ui, screenW, screenH)
@@ -193,23 +194,67 @@ func (r *Renderer) RenderFrame(screen *ebiten.Image, out sim_gen.FrameOutput) {
 	}
 }
 
+// getBridgeSpriteColor returns a fallback color for bridge sprite IDs
+func getBridgeSpriteColor(id int64) color.RGBA {
+	switch {
+	// Bridge tiles (1000-1099)
+	case id == 1000: // tileFloor
+		return color.RGBA{40, 45, 55, 255}
+	case id == 1001: // tileFloorGlow
+		return color.RGBA{50, 60, 80, 255}
+	case id == 1002: // tileConsoleBase
+		return color.RGBA{35, 40, 50, 255}
+	case id == 1003: // tileWalkway
+		return color.RGBA{55, 60, 70, 255}
+	case id == 1004: // tileDomeEdge
+		return color.RGBA{30, 50, 70, 200}
+	case id == 1005: // tileWall
+		return color.RGBA{25, 30, 40, 255}
+	case id == 1006: // tileHatch
+		return color.RGBA{60, 50, 40, 255}
+	case id == 1007: // tileCaptainArea
+		return color.RGBA{50, 45, 60, 255}
+	// Console sprites (1100-1149)
+	case id >= 1100 && id < 1150:
+		return color.RGBA{80, 120, 180, 255} // Blue consoles
+	// Crew sprites (1200-1249)
+	case id == 1200: // pilot
+		return color.RGBA{180, 80, 80, 255} // Red
+	case id == 1201: // comms
+		return color.RGBA{80, 180, 80, 255} // Green
+	case id == 1202: // engineer
+		return color.RGBA{180, 180, 80, 255} // Yellow
+	case id == 1203: // scientist
+		return color.RGBA{80, 180, 180, 255} // Cyan
+	case id == 1204: // captain
+		return color.RGBA{180, 80, 180, 255} // Magenta
+	case id == 1205: // player
+		return color.RGBA{255, 255, 255, 255} // White
+	case id >= 1200 && id < 1250:
+		return color.RGBA{200, 150, 100, 255} // Generic crew tan
+	default:
+		return color.RGBA{128, 128, 128, 255} // Gray fallback
+	}
+}
+
 // drawSprite draws a sprite using the asset manager with camera transform.
 func (r *Renderer) drawSprite(screen *ebiten.Image, c *sim_gen.DrawCmdSprite, transform camera.Transform) {
 	sx, sy := transform.WorldToScreen(c.X, c.Y)
+	sw := 16.0 * transform.Scale
+	sh := 16.0 * transform.Scale
 
 	if r.assets == nil {
-		// Fallback: draw white placeholder
-		sw := 16.0 * transform.Scale
-		sh := 16.0 * transform.Scale
-		ebitenutil.DrawRect(screen, sx, sy, sw, sh, color.White)
+		// Fallback: draw colored placeholder based on sprite ID
+		col := getBridgeSpriteColor(c.Id)
+		ebitenutil.DrawRect(screen, sx, sy, sw, sh, col)
 		return
 	}
 
 	sprite := r.assets.GetSprite(int(c.Id))
 	if sprite == nil {
-		sw := 16.0 * transform.Scale
-		sh := 16.0 * transform.Scale
-		ebitenutil.DrawRect(screen, sx, sy, sw, sh, color.White)
+		// No sprite loaded - draw colored placeholder
+		col := getBridgeSpriteColor(c.Id)
+		ebitenutil.DrawRect(screen, sx, sy, sw, sh, col)
 		return
 	}
 

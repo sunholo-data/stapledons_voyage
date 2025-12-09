@@ -272,12 +272,12 @@ func (v *CurrentPlanet) IsEarth() bool {
 
 // ArrivalState is a record type
 type ArrivalState struct {
-	Phase         ArrivalPhase
+	Phase         *ArrivalPhase
 	PhaseTime     float64
 	TotalTime     float64
 	Velocity      float64
 	GrIntensity   float64
-	CurrentPlanet CurrentPlanet
+	CurrentPlanet *CurrentPlanet
 	ShipTimeYears float64
 	GalaxyYear    int64
 }
@@ -456,7 +456,7 @@ type CrewActivityActivityWorking struct {
 
 // CrewActivityActivityTalking holds data for the ActivityTalking variant
 type CrewActivityActivityTalking struct {
-	Value0 CrewID
+	Value0 *CrewID
 }
 
 // CrewActivity is a sum type (discriminated union)
@@ -484,7 +484,7 @@ func NewCrewActivityActivityWorking() *CrewActivity {
 }
 
 // NewCrewActivityActivityTalking creates a new ActivityTalking variant
-func NewCrewActivityActivityTalking(v0 CrewID) *CrewActivity {
+func NewCrewActivityActivityTalking(v0 *CrewID) *CrewActivity {
 	return &CrewActivity{
 		Kind:            CrewActivityKindActivityTalking,
 		ActivityTalking: &CrewActivityActivityTalking{Value0: v0},
@@ -508,17 +508,17 @@ func (v *CrewActivity) IsActivityTalking() bool {
 
 // CrewPosition is a record type
 type CrewPosition struct {
-	Crew     CrewID
-	Station  BridgeStation
-	Pos      Coord
-	Facing   Direction
-	Activity CrewActivity
+	Crew     *CrewID
+	Station  *BridgeStation
+	Pos      *Coord
+	Facing   *Direction
+	Activity *CrewActivity
 }
 
 // ConsoleState is a record type
 type ConsoleState struct {
-	Station  BridgeStation
-	Pos      Coord
+	Station  *BridgeStation
+	Pos      *Coord
 	Active   bool
 	HasAlert bool
 	SpriteId int64
@@ -535,12 +535,12 @@ const (
 
 // InteractableIDInteractConsole holds data for the InteractConsole variant
 type InteractableIDInteractConsole struct {
-	Value0 BridgeStation
+	Value0 *BridgeStation
 }
 
 // InteractableIDInteractCrew holds data for the InteractCrew variant
 type InteractableIDInteractCrew struct {
-	Value0 CrewID
+	Value0 *CrewID
 }
 
 // InteractableIDInteractHatch holds data for the InteractHatch variant
@@ -557,7 +557,7 @@ type InteractableID struct {
 }
 
 // NewInteractableIDInteractConsole creates a new InteractConsole variant
-func NewInteractableIDInteractConsole(v0 BridgeStation) *InteractableID {
+func NewInteractableIDInteractConsole(v0 *BridgeStation) *InteractableID {
 	return &InteractableID{
 		Kind:            InteractableIDKindInteractConsole,
 		InteractConsole: &InteractableIDInteractConsole{Value0: v0},
@@ -565,7 +565,7 @@ func NewInteractableIDInteractConsole(v0 BridgeStation) *InteractableID {
 }
 
 // NewInteractableIDInteractCrew creates a new InteractCrew variant
-func NewInteractableIDInteractCrew(v0 CrewID) *InteractableID {
+func NewInteractableIDInteractCrew(v0 *CrewID) *InteractableID {
 	return &InteractableID{
 		Kind:         InteractableIDKindInteractCrew,
 		InteractCrew: &InteractableIDInteractCrew{Value0: v0},
@@ -617,13 +617,13 @@ type MoveStateMoveIdle struct {
 
 // MoveStateMoveWalking holds data for the MoveWalking variant
 type MoveStateMoveWalking struct {
-	Value0 Direction
+	Value0 *Direction
 }
 
 // MoveStateMoveTransitioning holds data for the MoveTransitioning variant
 type MoveStateMoveTransitioning struct {
 	Value0 int64
-	Value1 Coord
+	Value1 *Coord
 }
 
 // MoveState is a sum type (discriminated union)
@@ -643,7 +643,7 @@ func NewMoveStateMoveIdle() *MoveState {
 }
 
 // NewMoveStateMoveWalking creates a new MoveWalking variant
-func NewMoveStateMoveWalking(v0 Direction) *MoveState {
+func NewMoveStateMoveWalking(v0 *Direction) *MoveState {
 	return &MoveState{
 		Kind:        MoveStateKindMoveWalking,
 		MoveWalking: &MoveStateMoveWalking{Value0: v0},
@@ -651,7 +651,7 @@ func NewMoveStateMoveWalking(v0 Direction) *MoveState {
 }
 
 // NewMoveStateMoveTransitioning creates a new MoveTransitioning variant
-func NewMoveStateMoveTransitioning(v0 int64, v1 Coord) *MoveState {
+func NewMoveStateMoveTransitioning(v0 int64, v1 *Coord) *MoveState {
 	return &MoveState{
 		Kind:              MoveStateKindMoveTransitioning,
 		MoveTransitioning: &MoveStateMoveTransitioning{Value0: v0, Value1: v1},
@@ -675,14 +675,14 @@ func (v *MoveState) IsMoveTransitioning() bool {
 
 // BridgeState is a record type
 type BridgeState struct {
-	PlayerPos            Coord
-	PlayerFacing         Direction
-	MoveState            MoveState
+	PlayerPos            *Coord
+	PlayerFacing         *Direction
+	MoveState            *MoveState
 	CrewPositions        []*CrewPosition
 	Consoles             []*ConsoleState
-	HoveredInteractable  Option
-	SelectedInteractable Option
-	DomeView             DomeViewState
+	HoveredInteractable  *Option
+	SelectedInteractable *Option
+	DomeView             *DomeViewState
 	Layout               []int64
 	Walkable             []bool
 	Width                int64
@@ -701,7 +701,7 @@ const (
 
 // BridgeInputResultBridgeStay holds data for the BridgeStay variant
 type BridgeInputResultBridgeStay struct {
-	Value0 BridgeState
+	Value0 *BridgeState
 }
 
 // BridgeInputResultBridgeToGalaxyMap holds data for the BridgeToGalaxyMap variant
@@ -710,13 +710,13 @@ type BridgeInputResultBridgeToGalaxyMap struct {
 
 // BridgeInputResultBridgeToDialogue holds data for the BridgeToDialogue variant
 type BridgeInputResultBridgeToDialogue struct {
-	Value0 CrewID
+	Value0 *CrewID
 }
 
 // BridgeInputResultBridgeToDeck holds data for the BridgeToDeck variant
 type BridgeInputResultBridgeToDeck struct {
 	Value0 int64
-	Value1 Coord
+	Value1 *Coord
 }
 
 // BridgeInputResult is a sum type (discriminated union)
@@ -729,7 +729,7 @@ type BridgeInputResult struct {
 }
 
 // NewBridgeInputResultBridgeStay creates a new BridgeStay variant
-func NewBridgeInputResultBridgeStay(v0 BridgeState) *BridgeInputResult {
+func NewBridgeInputResultBridgeStay(v0 *BridgeState) *BridgeInputResult {
 	return &BridgeInputResult{
 		Kind:       BridgeInputResultKindBridgeStay,
 		BridgeStay: &BridgeInputResultBridgeStay{Value0: v0},
@@ -745,7 +745,7 @@ func NewBridgeInputResultBridgeToGalaxyMap() *BridgeInputResult {
 }
 
 // NewBridgeInputResultBridgeToDialogue creates a new BridgeToDialogue variant
-func NewBridgeInputResultBridgeToDialogue(v0 CrewID) *BridgeInputResult {
+func NewBridgeInputResultBridgeToDialogue(v0 *CrewID) *BridgeInputResult {
 	return &BridgeInputResult{
 		Kind:             BridgeInputResultKindBridgeToDialogue,
 		BridgeToDialogue: &BridgeInputResultBridgeToDialogue{Value0: v0},
@@ -753,7 +753,7 @@ func NewBridgeInputResultBridgeToDialogue(v0 CrewID) *BridgeInputResult {
 }
 
 // NewBridgeInputResultBridgeToDeck creates a new BridgeToDeck variant
-func NewBridgeInputResultBridgeToDeck(v0 int64, v1 Coord) *BridgeInputResult {
+func NewBridgeInputResultBridgeToDeck(v0 int64, v1 *Coord) *BridgeInputResult {
 	return &BridgeInputResult{
 		Kind:         BridgeInputResultKindBridgeToDeck,
 		BridgeToDeck: &BridgeInputResultBridgeToDeck{Value0: v0, Value1: v1},
@@ -990,8 +990,8 @@ func (v *MovementPattern) IsPatternPatrol() bool {
 // NPC is a record type
 type NPC struct {
 	Id          int64
-	Pos         Coord
-	Pattern     MovementPattern
+	Pos         *Coord
+	Pattern     *MovementPattern
 	MoveCounter int64
 	PatrolIndex int64
 }
@@ -1110,7 +1110,7 @@ type PlayerActionActionInspect struct {
 
 // PlayerActionActionBuild holds data for the ActionBuild variant
 type PlayerActionActionBuild struct {
-	Value0 StructureType
+	Value0 *StructureType
 }
 
 // PlayerActionActionClear holds data for the ActionClear variant
@@ -1143,7 +1143,7 @@ func NewPlayerActionActionInspect() *PlayerAction {
 }
 
 // NewPlayerActionActionBuild creates a new ActionBuild variant
-func NewPlayerActionActionBuild(v0 StructureType) *PlayerAction {
+func NewPlayerActionActionBuild(v0 *StructureType) *PlayerAction {
 	return &PlayerAction{
 		Kind:        PlayerActionKindActionBuild,
 		ActionBuild: &PlayerActionActionBuild{Value0: v0},
@@ -1248,14 +1248,14 @@ func (v *ClickKind) IsClickMiddle() bool {
 
 // FrameInput is a record type
 type FrameInput struct {
-	Mouse            MouseState
+	Mouse            *MouseState
 	Keys             []*KeyEvent
 	ClickedThisFrame bool
 	WorldMouseX      float64
 	WorldMouseY      float64
 	TileMouseX       int64
 	TileMouseY       int64
-	ActionRequested  PlayerAction
+	ActionRequested  *PlayerAction
 	TestMode         bool
 }
 
@@ -1434,7 +1434,7 @@ type DrawCmdText struct {
 
 // DrawCmdIsoTile holds data for the IsoTile variant
 type DrawCmdIsoTile struct {
-	Tile     Coord
+	Tile     *Coord
 	Height   int64
 	SpriteId int64
 	Layer    int64
@@ -1444,7 +1444,7 @@ type DrawCmdIsoTile struct {
 // DrawCmdIsoEntity holds data for the IsoEntity variant
 type DrawCmdIsoEntity struct {
 	Id       string
-	Tile     Coord
+	Tile     *Coord
 	OffsetX  float64
 	OffsetY  float64
 	Height   int64
@@ -1455,7 +1455,7 @@ type DrawCmdIsoEntity struct {
 // DrawCmdUi holds data for the Ui variant
 type DrawCmdUi struct {
 	Id       string
-	Kind     UiKind
+	Kind     *UiKind
 	X        float64
 	Y        float64
 	W        float64
@@ -1593,7 +1593,7 @@ func NewDrawCmdText(text string, x float64, y float64, fontSize int64, color int
 }
 
 // NewDrawCmdIsoTile creates a new IsoTile variant
-func NewDrawCmdIsoTile(tile Coord, height int64, spriteId int64, layer int64, color int64) *DrawCmd {
+func NewDrawCmdIsoTile(tile *Coord, height int64, spriteId int64, layer int64, color int64) *DrawCmd {
 	return &DrawCmd{
 		Kind:    DrawCmdKindIsoTile,
 		IsoTile: &DrawCmdIsoTile{Tile: tile, Height: height, SpriteId: spriteId, Layer: layer, Color: color},
@@ -1601,7 +1601,7 @@ func NewDrawCmdIsoTile(tile Coord, height int64, spriteId int64, layer int64, co
 }
 
 // NewDrawCmdIsoEntity creates a new IsoEntity variant
-func NewDrawCmdIsoEntity(id string, tile Coord, offsetX float64, offsetY float64, height int64, spriteId int64, layer int64) *DrawCmd {
+func NewDrawCmdIsoEntity(id string, tile *Coord, offsetX float64, offsetY float64, height int64, spriteId int64, layer int64) *DrawCmd {
 	return &DrawCmd{
 		Kind:      DrawCmdKindIsoEntity,
 		IsoEntity: &DrawCmdIsoEntity{Id: id, Tile: tile, OffsetX: offsetX, OffsetY: offsetY, Height: height, SpriteId: spriteId, Layer: layer},
@@ -1609,7 +1609,7 @@ func NewDrawCmdIsoEntity(id string, tile Coord, offsetX float64, offsetY float64
 }
 
 // NewDrawCmdUi creates a new Ui variant
-func NewDrawCmdUi(id string, kind UiKind, x float64, y float64, w float64, h float64, text string, spriteId int64, z int64, color int64, value float64) *DrawCmd {
+func NewDrawCmdUi(id string, kind *UiKind, x float64, y float64, w float64, h float64, text string, spriteId int64, z int64, color int64, value float64) *DrawCmd {
 	return &DrawCmd{
 		Kind: DrawCmdKindUi,
 		Ui:   &DrawCmdUi{Id: id, Kind: kind, X: x, Y: y, W: w, H: h, Text: text, SpriteId: spriteId, Z: z, Color: color, Value: value},
@@ -1755,7 +1755,7 @@ type FrameOutput struct {
 	Draw   []*DrawCmd
 	Sounds []int64
 	Debug  []string
-	Camera Camera
+	Camera *Camera
 }
 
 // Tile is a record type
@@ -1824,7 +1824,7 @@ func (v *Selection) IsSelectionTile() bool {
 // World is a record type
 type World struct {
 	Tick      int64
-	Planet    PlanetState
+	Planet    *PlanetState
 	Npcs      []*NPC
-	Selection Selection
+	Selection *Selection
 }

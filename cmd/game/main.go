@@ -34,10 +34,11 @@ const (
 )
 
 type Game struct {
-	mode         GameMode                     // Current game mode (Arrival or Playing)
-	world        *sim_gen.World               // Typed world (M-DX16: RecordUpdate preserves struct types)
-	arrivalState *sim_gen.ArrivalState        // Arrival sequence state (when mode == ModeArrival)
-	out          sim_gen.FrameOutput
+	mode             GameMode                  // Current game mode (Arrival or Playing)
+	world            *sim_gen.World            // Pointer type in v0.5.8+
+	arrivalState     *sim_gen.ArrivalState     // Arrival sequence state (when mode == ModeArrival)
+	arrivalInitiated bool                      // Whether arrival state has been initialized
+	out              sim_gen.FrameOutput
 	renderer     *render.Renderer
 	display      *display.Manager
 	assets       *assets.Manager
@@ -90,13 +91,14 @@ func (g *Game) Update() error {
 
 // updateArrival handles the black hole emergence sequence
 func (g *Game) updateArrival(dt float64) error {
-	if g.arrivalState == nil {
-		g.arrivalState = sim_gen.InitArrival()
+	if !g.arrivalInitiated {
+		g.arrivalState = sim_gen.InitArrival() // returns *ArrivalState
+		g.arrivalInitiated = true
 	}
 
 	// Step the arrival simulation
 	input := &sim_gen.ArrivalInput{Dt: dt}
-	g.arrivalState = sim_gen.StepArrival(g.arrivalState, input)
+	g.arrivalState = sim_gen.StepArrival(g.arrivalState, input) // takes and returns *ArrivalState
 
 	// Wire arrival state to shader effects
 	g.updateArrivalEffects()
@@ -114,7 +116,7 @@ func (g *Game) updateArrival(dt float64) error {
 
 // generateArrivalOutput creates DrawCmds for the arrival sequence
 func (g *Game) generateArrivalOutput() {
-	if g.arrivalState == nil {
+	if !g.arrivalInitiated {
 		return
 	}
 
@@ -174,13 +176,13 @@ func (g *Game) generateArrivalOutput() {
 	g.out = sim_gen.FrameOutput{
 		Draw:   cmds,
 		Sounds: nil,
-		Camera: sim_gen.Camera{X: 0, Y: 0, Zoom: 1.0},
+		Camera: &sim_gen.Camera{X: 0, Y: 0, Zoom: 1.0},
 	}
 }
 
 // updateArrivalEffects wires arrival state to GR/SR shaders
 func (g *Game) updateArrivalEffects() {
-	if g.effects == nil || g.arrivalState == nil {
+	if g.effects == nil || !g.arrivalInitiated {
 		return
 	}
 
@@ -209,7 +211,7 @@ func (g *Game) updateArrivalEffects() {
 // transitionToPlaying switches from arrival to normal gameplay
 func (g *Game) transitionToPlaying() {
 	g.mode = ModePlaying
-	g.arrivalState = nil
+	g.arrivalInitiated = false
 
 	// Disable arrival effects
 	if g.effects != nil {
@@ -227,10 +229,10 @@ func (g *Game) transitionToPlaying() {
 func (g *Game) updatePlaying() error {
 	// Capture game input with camera for screen-to-world conversion
 	// Uses internal resolution (640x480) for coordinate conversion
-	input := render.CaptureInputWithCamera(g.out.Camera, display.InternalWidth, display.InternalHeight)
+	input := render.CaptureInputWithCamera(*g.out.Camera, display.InternalWidth, display.InternalHeight)
 
-	// Step returns []interface{}{newWorld, output} - RecordUpdate preserves *World type
-	result := sim_gen.Step(g.world, input)
+	// Step returns []interface{}{*World, *FrameOutput} in v0.5.8+
+	result := sim_gen.Step(g.world, &input)
 	tuple, ok := result.([]interface{})
 	if !ok || len(tuple) != 2 {
 		return fmt.Errorf("unexpected Step result")
@@ -254,7 +256,7 @@ func (g *Game) updatePlaying() error {
 
 	// Auto-save check (Pillar 1: automatic, not player-controlled)
 	if g.save != nil && g.save.ShouldAutoSave() {
-		if err := g.save.SaveGame(g.world); err != nil {
+		if err := g.save.SaveGame(g.world); err != nil { // world is already *World
 			log.Printf("Auto-save failed: %v", err)
 		}
 	}
@@ -484,12 +486,7 @@ func loadOrCreateWorld(saveMgr *save.Manager, seed int64) *sim_gen.World {
 		return savedWorld
 	}
 
-	worldIface := sim_gen.InitWorld(seed)
-	world, ok := worldIface.(*sim_gen.World)
-	if !ok {
-		log.Fatal("InitWorld did not return *World")
-	}
-	return world
+	return sim_gen.InitWorld(seed) // returns *World in v0.5.8+
 }
 
 func setupShutdownHandler(saveMgr *save.Manager, game *Game) {
@@ -498,7 +495,7 @@ func setupShutdownHandler(saveMgr *save.Manager, game *Game) {
 	go func() {
 		<-sigChan
 		log.Println("Saving game before exit...")
-		if err := saveMgr.SaveGame(game.world); err != nil {
+		if err := saveMgr.SaveGame(game.world); err != nil { // world is already *World
 			log.Printf("Failed to save on exit: %v", err)
 		}
 		os.Exit(0)
@@ -562,6 +559,7 @@ func main() {
 	// Initialize arrival state if starting in arrival mode
 	if startMode == ModeArrival {
 		game.arrivalState = sim_gen.InitArrival()
+		game.arrivalInitiated = true
 	}
 
 	setupShutdownHandler(saveMgr, game)
@@ -569,13 +567,13 @@ func main() {
 	ebiten.SetWindowTitle("Stapledons Voyage")
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	if err := ebiten.RunGame(game); err != nil {
-		if saveErr := saveMgr.SaveGame(game.world); saveErr != nil {
+		if saveErr := saveMgr.SaveGame(game.world); saveErr != nil { // world is already *World
 			log.Printf("Failed to save on exit: %v", saveErr)
 		}
 		log.Fatal(err)
 	}
 
-	if err := saveMgr.SaveGame(game.world); err != nil {
+	if err := saveMgr.SaveGame(game.world); err != nil { // world is already *World
 		log.Printf("Failed to save on exit: %v", err)
 	}
 }

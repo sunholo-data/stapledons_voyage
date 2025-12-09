@@ -52,7 +52,7 @@ func DefaultConfig() Config {
 // screenshotGame implements ebiten.Game for screenshot capture
 type screenshotGame struct {
 	config       Config
-	world        *sim_gen.World // Typed world (M-DX16: RecordUpdate preserves struct types)
+	world        *sim_gen.World // Pointer type in v0.5.8+
 	out          sim_gen.FrameOutput
 	renderer     *render.Renderer
 	effects      *shader.Effects
@@ -70,15 +70,15 @@ func (g *screenshotGame) Update() error {
 	}
 
 	// Empty input (no keys, no clicks)
-	input := sim_gen.FrameInput{
-		Mouse:            sim_gen.MouseState{},
+	input := &sim_gen.FrameInput{
+		Mouse:            &sim_gen.MouseState{},
 		Keys:             []*sim_gen.KeyEvent{},
 		ClickedThisFrame: false,
-		ActionRequested:  *sim_gen.NewPlayerActionActionNone(),
+		ActionRequested:  sim_gen.NewPlayerActionActionNone(),
 		TestMode:         g.config.TestMode,
 	}
 
-	// Step returns []interface{}{newWorld, output} - RecordUpdate preserves *World type
+	// Step returns []interface{}{*World, *FrameOutput} in v0.5.8+
 	result := sim_gen.Step(g.world, input)
 	tuple, ok := result.([]interface{})
 	if !ok || len(tuple) != 2 {
@@ -167,12 +167,8 @@ func Capture(cfg Config) error {
 		AI:    handlers.NewStubAIHandler(),
 	})
 
-	// Initialize world with seed - type assert to *World (M-DX16: struct types preserved)
-	worldIface := sim_gen.InitWorld(cfg.Seed)
-	world, ok := worldIface.(*sim_gen.World)
-	if !ok {
-		return fmt.Errorf("InitWorld did not return *World")
-	}
+	// Initialize world with seed - returns *World in v0.5.8+
+	world := sim_gen.InitWorld(cfg.Seed)
 
 	// Initialize shader effects if requested
 	var effects *shader.Effects
@@ -285,7 +281,7 @@ func enableSRWarpWithVelocity(effects *shader.Effects, velocity, viewAngle float
 // arrivalGame implements ebiten.Game for arrival sequence screenshot capture
 type arrivalGame struct {
 	config       Config
-	arrivalState *sim_gen.ArrivalState
+	arrivalState *sim_gen.ArrivalState // Pointer type in v0.5.8+
 	effects      *shader.Effects
 	renderBuffer *ebiten.Image
 	planetImages map[string]*ebiten.Image // Loaded planet images
@@ -313,12 +309,12 @@ func (g *arrivalGame) Update() error {
 }
 
 func (g *arrivalGame) updateEffects() {
-	if g.effects == nil || g.arrivalState == nil {
+	if g.effects == nil {
 		return
 	}
 
 	// Wire GR intensity
-	grIntensity := sim_gen.GetGRIntensity(g.arrivalState)
+	grIntensity := sim_gen.GetGRIntensity(g.arrivalState) // takes *ArrivalState
 	if grIntensity > 0.001 {
 		phi := float32(grIntensity * 0.05)
 		g.effects.GRWarp().SetEnabled(true)
@@ -328,7 +324,7 @@ func (g *arrivalGame) updateEffects() {
 	}
 
 	// Wire SR velocity
-	velocity := sim_gen.GetArrivalVelocity(g.arrivalState)
+	velocity := sim_gen.GetArrivalVelocity(g.arrivalState) // takes *ArrivalState
 	if velocity > 0.1 {
 		g.effects.SRWarp().SetEnabled(true)
 		g.effects.SRWarp().SetForwardVelocity(velocity)

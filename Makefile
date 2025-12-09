@@ -15,6 +15,10 @@ eval: sim
 run: sim
 	go run ./cmd/game
 
+# Demo targets
+demo-bridge: sim
+	go run ./cmd/demo-bridge --debug
+
 # CLI tool
 cli:
 	go build -o bin/voyage ./cmd/cli
@@ -102,4 +106,4 @@ clean:
 clean-all:
 	rm -rf sim_gen bin out/*
 
-.PHONY: sim game eval run cli cli-mock game-mock eval-mock run-mock sprites test test-all test-visual test-golden update-golden lint clean clean-all screenshot screenshot-zoomed screenshot-panned screenshots scenario-pan scenario-zoom scenario-npc scenarios
+.PHONY: sim game eval run demo-bridge cli cli-mock game-mock eval-mock run-mock sprites test test-all test-visual test-golden update-golden lint clean clean-all screenshot screenshot-zoomed screenshot-panned screenshots scenario-pan scenario-zoom scenario-npc scenarios

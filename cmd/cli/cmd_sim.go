@@ -43,8 +43,8 @@ Examples:
 	fmt.Println("======================")
 	fmt.Printf("Steps: %d, Seed: %d\n\n", *steps, *seed)
 
-	world := sim_gen.InitWorld(*seed)
-	input := sim_gen.FrameInput{}
+	world := sim_gen.InitWorld(int64(*seed))
+	input := &sim_gen.FrameInput{}
 
 	start := time.Now()
 	lastCheck := start
@@ -62,7 +62,9 @@ Examples:
 			}
 			continue
 		}
-		world = tuple[0]
+		if w, ok := tuple[0].(*sim_gen.World); ok {
+			world = w
+		}
 
 		if *validateState {
 			if err := validateWorld(world); err != nil {

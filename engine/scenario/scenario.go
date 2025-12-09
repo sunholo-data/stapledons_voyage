@@ -128,18 +128,18 @@ func BuildFrameInput(activeKeys map[int]bool, pressedKeys map[int]bool, pendingC
 	}
 
 	// Use discriminator struct constructors for PlayerAction
-	action := *sim_gen.NewPlayerActionActionNone()
+	action := sim_gen.NewPlayerActionActionNone()
 	// Check for action keys
 	if activeKeys[8] { // I key
-		action = *sim_gen.NewPlayerActionActionInspect()
+		action = sim_gen.NewPlayerActionActionInspect()
 	} else if activeKeys[1] { // B key
-		action = *sim_gen.NewPlayerActionActionBuild(*sim_gen.NewStructureTypeStructureHouse())
+		action = sim_gen.NewPlayerActionActionBuild(sim_gen.NewStructureTypeStructureHouse())
 	} else if activeKeys[23] { // X key
-		action = *sim_gen.NewPlayerActionActionClear()
+		action = sim_gen.NewPlayerActionActionClear()
 	}
 
 	return sim_gen.FrameInput{
-		Mouse: sim_gen.MouseState{
+		Mouse: &sim_gen.MouseState{
 			X: worldX,
 			Y: worldY,
 		},

@@ -125,8 +125,8 @@ func pathLength_impl(path interface{}) interface{} {
 	return Length(path)
 }
 
-func pathLength(path interface{}) interface{} {
-	return pathLength_impl(path)
+func pathLength(path []*Direction) int64 {
+	return pathLength_impl(path).(int64)
 }
 
 func pathGet_impl(path interface{}, idx interface{}) interface{} {
@@ -151,8 +151,8 @@ func pathGet_impl(path interface{}, idx interface{}) interface{} {
 	}()
 }
 
-func pathGet(path interface{}, idx interface{}) interface{} {
-	return pathGet_impl(path, idx)
+func pathGet(path []*Direction, idx int64) *Direction {
+	return pathGet_impl(path, idx).(*Direction)
 }
 
 func npcWithPos_impl(npc interface{}, newX interface{}, newY interface{}) interface{} {
@@ -163,16 +163,16 @@ func npcWithPos_impl(npc interface{}, newX interface{}, newY interface{}) interf
 	}()
 }
 
-func npcWithPos(npc interface{}, newX interface{}, newY interface{}) interface{} {
-	return npcWithPos_impl(npc, newX, newY)
+func npcWithPos(npc *NPC, newX int64, newY int64) *NPC {
+	return npcWithPos_impl(npc, newX, newY).(*NPC)
 }
 
 func npcWithCounter_impl(npc interface{}, counter interface{}) interface{} {
 	return RecordUpdate(npc, map[string]interface{}{"moveCounter": counter})
 }
 
-func npcWithCounter(npc interface{}, counter interface{}) interface{} {
-	return npcWithCounter_impl(npc, counter)
+func npcWithCounter(npc *NPC, counter int64) *NPC {
+	return npcWithCounter_impl(npc, counter).(*NPC)
 }
 
 func tryMoveDirection_impl(npc interface{}, dir interface{}, width interface{}, height interface{}) interface{} {
@@ -220,8 +220,8 @@ func tryMoveDirection_impl(npc interface{}, dir interface{}, width interface{}, 
 	}()
 }
 
-func TryMoveDirection(npc interface{}, dir interface{}, width interface{}, height interface{}) interface{} {
-	return tryMoveDirection_impl(npc, dir, width, height)
+func TryMoveDirection(npc *NPC, dir *Direction, width int64, height int64) *NPC {
+	return tryMoveDirection_impl(npc, dir, width, height).(*NPC)
 }
 
 func updateRandomWalk_impl(npc interface{}, interval interface{}, width interface{}, height interface{}) interface{} {
@@ -261,8 +261,8 @@ func updateRandomWalk_impl(npc interface{}, interval interface{}, width interfac
 	}()
 }
 
-func updateRandomWalk(npc interface{}, interval interface{}, width interface{}, height interface{}) interface{} {
-	return updateRandomWalk_impl(npc, interval, width, height)
+func updateRandomWalk(npc *NPC, interval int64, width int64, height int64) *NPC {
+	return updateRandomWalk_impl(npc, interval, width, height).(*NPC)
 }
 
 func updatePatrol_impl(npc interface{}, path interface{}, width interface{}, height interface{}) interface{} {
@@ -305,7 +305,7 @@ func updatePatrol_impl(npc interface{}, path interface{}, width interface{}, hei
 												}()
 											}()
 											_ = nextIndex // suppress unused
-											return RecordUpdate(movedNpc, map[string]interface{}{"moveCounter": int64(20), "patrolIndex": nextIndex})
+											return RecordUpdate(movedNpc, map[string]interface{}{"patrolIndex": nextIndex, "moveCounter": int64(20)})
 										}()
 									}()
 								}()
@@ -327,8 +327,8 @@ func updatePatrol_impl(npc interface{}, path interface{}, width interface{}, hei
 	}()
 }
 
-func updatePatrol(npc interface{}, path interface{}, width interface{}, height interface{}) interface{} {
-	return updatePatrol_impl(npc, path, width, height)
+func updatePatrol(npc *NPC, path []*Direction, width int64, height int64) *NPC {
+	return updatePatrol_impl(npc, path, width, height).(*NPC)
 }
 
 func updateNPC_impl(npc interface{}, width interface{}, height interface{}) interface{} {
@@ -357,8 +357,8 @@ func updateNPC_impl(npc interface{}, width interface{}, height interface{}) inte
 	}()
 }
 
-func UpdateNPC(npc interface{}, width interface{}, height interface{}) interface{} {
-	return updateNPC_impl(npc, width, height)
+func UpdateNPC(npc *NPC, width int64, height int64) *NPC {
+	return updateNPC_impl(npc, width, height).(*NPC)
 }
 
 func updateAllNPCs_impl(npcs interface{}, width interface{}, height interface{}) interface{} {
@@ -387,6 +387,6 @@ func updateAllNPCs_impl(npcs interface{}, width interface{}, height interface{})
 	}()
 }
 
-func UpdateAllNPCs(npcs interface{}, width interface{}, height interface{}) interface{} {
-	return updateAllNPCs_impl(npcs, width, height)
+func UpdateAllNPCs(npcs []*NPC, width int64, height int64) []*NPC {
+	return ConvertToNPCSlice(updateAllNPCs_impl(npcs, width, height))
 }

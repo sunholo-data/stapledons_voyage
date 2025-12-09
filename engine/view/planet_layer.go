@@ -31,11 +31,14 @@ func NewPlanetLayer(screenW, screenH int) *PlanetLayer {
 	pl.scene = tetra.NewScene(screenW, screenH)
 
 	// Add lighting
+	// Sun positioned behind/below camera to illuminate planet faces we see
+	// (camera is below planets looking up)
 	pl.sun = tetra.NewSunLight()
-	pl.sun.SetPosition(5, 3, 5) // Upper-right-front
+	pl.sun.SetPosition(0, -5, 8) // Behind and below camera
 	pl.sun.AddToScene(pl.scene)
 
-	pl.ambient = tetra.NewAmbientLight(0.2, 0.2, 0.3, 0.5) // Dim blue ambient
+	// Brighter ambient light for better overall visibility
+	pl.ambient = tetra.NewAmbientLight(0.5, 0.5, 0.6, 0.8) // Bright blue-ish ambient
 	pl.ambient.AddToScene(pl.scene)
 
 	// Set camera back to see planets

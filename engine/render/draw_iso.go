@@ -16,13 +16,16 @@ import (
 
 // drawIsoTile renders an isometric tile.
 func (r *Renderer) drawIsoTile(screen *ebiten.Image, c *sim_gen.DrawCmdIsoTile, cam sim_gen.Camera, screenW, screenH int) {
+	// Dereference tile coord pointer
+	tile := *c.Tile
+
 	// Check if tile is in view
-	if !TileInView(c.Tile, int(c.Height), cam, screenW, screenH) {
+	if !TileInView(tile, int(c.Height), cam, screenW, screenH) {
 		return
 	}
 
 	// Convert tile to screen coordinates
-	sx, sy := TileToScreen(c.Tile, int(c.Height), cam, screenW, screenH)
+	sx, sy := TileToScreen(tile, int(c.Height), cam, screenW, screenH)
 
 	// Calculate tile size in screen space
 	tileW := TileWidth * cam.Zoom
@@ -48,8 +51,11 @@ func (r *Renderer) drawIsoTile(screen *ebiten.Image, c *sim_gen.DrawCmdIsoTile, 
 
 // drawIsoEntity renders an isometric entity with sub-tile positioning.
 func (r *Renderer) drawIsoEntity(screen *ebiten.Image, c *sim_gen.DrawCmdIsoEntity, cam sim_gen.Camera, screenW, screenH int) {
+	// Dereference tile coord pointer
+	tile := *c.Tile
+
 	// Convert tile + offset to screen coordinates
-	sx, sy := TileToScreenWithOffset(c.Tile, c.OffsetX, c.OffsetY, int(c.Height), cam, screenW, screenH)
+	sx, sy := TileToScreenWithOffset(tile, c.OffsetX, c.OffsetY, int(c.Height), cam, screenW, screenH)
 
 	// Draw sprite if available
 	if r.assets != nil && c.SpriteId > 0 {
@@ -144,12 +150,12 @@ func getIsoSortKey(cmd *sim_gen.DrawCmd, cam sim_gen.Camera, screenW, screenH in
 	switch cmd.Kind {
 	case sim_gen.DrawCmdKindIsoTile:
 		c := cmd.IsoTile
-		_, sy := TileToScreen(c.Tile, int(c.Height), cam, screenW, screenH)
+		_, sy := TileToScreen(*c.Tile, int(c.Height), cam, screenW, screenH)
 		return IsoDepth(int(c.Layer), sy)
 
 	case sim_gen.DrawCmdKindIsoEntity:
 		c := cmd.IsoEntity
-		_, sy := TileToScreenWithOffset(c.Tile, c.OffsetX, c.OffsetY, int(c.Height), cam, screenW, screenH)
+		_, sy := TileToScreenWithOffset(*c.Tile, c.OffsetX, c.OffsetY, int(c.Height), cam, screenW, screenH)
 		return IsoDepth(int(c.Layer), sy)
 
 	case sim_gen.DrawCmdKindUi:

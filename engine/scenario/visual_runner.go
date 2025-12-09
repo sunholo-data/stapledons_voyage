@@ -19,7 +19,7 @@ import (
 // VisualRunner executes a visual test scenario with screenshots.
 type VisualRunner struct {
 	scenario     *Scenario
-	world        *sim_gen.World // Typed world (M-DX16: RecordUpdate preserves struct types)
+	world        *sim_gen.World // Pointer type in v0.5.8+
 	out          sim_gen.FrameOutput
 	renderer     *render.Renderer
 	currentFrame int
@@ -117,12 +117,12 @@ func (r *VisualRunner) Update() error {
 	}
 
 	// Build input and step simulation
-	input := BuildFrameInput(r.activeKeys, r.pressedKeys, r.pendingClick, r.scenario.TestMode)
+	frameInput := BuildFrameInput(r.activeKeys, r.pressedKeys, r.pendingClick, r.scenario.TestMode)
 	r.pendingClick = nil // Clear pending click
 
-	// Step returns []interface{}{newWorld, output} - RecordUpdate preserves *World type
+	// Step returns []interface{}{*World, *FrameOutput} in v0.5.8+
 	stepStart := time.Now()
-	result := sim_gen.Step(r.world, input)
+	result := sim_gen.Step(r.world, &frameInput)
 	r.stepTimes = append(r.stepTimes, time.Since(stepStart))
 
 	tuple, ok := result.([]interface{})
@@ -213,15 +213,11 @@ func RunVisualScenarioWithOptions(scenarioPath, outputDir string, testMode, test
 	assetMgr, _ := assets.NewManager("assets")
 	renderer := render.NewRenderer(assetMgr)
 
-	// Initialize world - type assert to *World (M-DX16: struct types preserved)
-	worldIface := sim_gen.InitWorld(s.Seed)
-	world, ok := worldIface.(*sim_gen.World)
-	if !ok {
-		return fmt.Errorf("InitWorld did not return *World")
-	}
+	// Initialize world - returns *World in v0.5.8+
+	world := sim_gen.InitWorld(s.Seed)
 
 	runner := NewVisualRunner(s, outputDir)
-	runner.world = world
+	runner.world = world // world is already *World
 	runner.renderer = renderer
 
 	// Run with window

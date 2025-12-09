@@ -18,6 +18,37 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **This project is also the primary integration test for AILANG** - the game simulation logic will be written in AILANG, a new programming language. This repo is the "host" (Go/Ebiten engine) while AILANG is the "brain" (simulation logic).
 
+## ⚠️ CRITICAL: AILANG-Only Game Logic
+
+**STOP before writing ANY Go code for game features!**
+
+This project tests AILANG as a game scripting language. The Go engine is a "dumb renderer" - it ONLY:
+- Captures input → passes to AILANG
+- Renders DrawCmd output from AILANG
+- Loads assets and applies shaders
+
+**ALL game logic MUST be in AILANG** (`sim/*.ail`):
+- Tile layouts and positioning
+- NPC/crew positions, movement, AI
+- Player movement and interactions
+- State management and game rules
+- Draw command generation (what to render where)
+
+**The Go engine should NEVER contain:**
+- Game state definitions (use AILANG types)
+- Movement or positioning logic
+- AI or behavior logic
+- Level layout or tile data
+- Any "game design" decisions
+
+**If you're about to write game logic in Go, STOP. Write it in AILANG instead.**
+
+The Go layer only needs to:
+1. Call `InitX()` to get initial state from AILANG
+2. Call `StepX(state, input)` each frame to get updated state
+3. Call `RenderX(state)` to get DrawCmds
+4. Render those DrawCmds to screen
+
 ## Build Commands
 
 ### With AILANG Compiler (when `ailc` is available)
@@ -40,6 +71,21 @@ make run-mock    # Run game using mock sim_gen
 ```
 
 **For all new game features, write AILANG code in `sim/*.ail`.**
+
+### Output Directories
+
+**All binaries MUST go in `bin/`** - never write executables to the project root.
+
+```bash
+bin/game         # Main game executable
+bin/demo-*       # Demo/test executables (e.g., bin/demo-bridge)
+out/             # Reports, screenshots, test output
+```
+
+When creating new `cmd/` entrypoints, always build to `bin/`:
+```bash
+go build -o bin/demo-foo ./cmd/demo-foo
+```
 
 ### Cleanup
 

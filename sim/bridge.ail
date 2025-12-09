@@ -416,13 +416,22 @@ pure func layerPlayer() -> int { 3 }
 -- Default color (white, no tint) - 0xFFFFFFFF as decimal
 pure func colorWhite() -> int { 4294967295 }
 
+-- Screen center offset for centering the isometric grid
+-- Screen is 1280x960, we want the grid centered horizontally
+-- and positioned in the lower portion (below the dome)
+pure func screenOffsetX() -> float { 640.0 }  -- Center horizontally
+pure func screenOffsetY() -> float { 350.0 }  -- Lower portion, below dome
+
 -- Render a single floor tile at position
 -- NOTE: Using Sprite instead of IsoTile due to AILANG type alias bug
 -- IsoTile(Coord, ...) fails with "cannot unify Coord with TRecord"
 pure func renderTileAt(tileX: int, tileY: int, sid: int) -> DrawCmd {
     -- Isometric projection: x' = (x - y) * tileWidth/2, y' = (x + y) * tileHeight/2
-    let screenX = intToFloat((tileX - tileY) * 32);
-    let screenY = intToFloat((tileX + tileY) * 16);
+    -- Then offset to center on screen
+    let isoX = intToFloat((tileX - tileY) * 32);
+    let isoY = intToFloat((tileX + tileY) * 16);
+    let screenX = isoX + screenOffsetX();
+    let screenY = isoY + screenOffsetY();
     Sprite(sid, screenX, screenY, layerFloor())
 }
 
@@ -453,8 +462,10 @@ export pure func renderBridgeFloor(state: BridgeState) -> [DrawCmd] {
 -- Render a single console as an entity
 -- NOTE: Using Sprite instead of IsoEntity due to AILANG type alias bug
 pure func renderConsole(console: ConsoleState) -> DrawCmd {
-    let screenX = intToFloat((console.pos.x - console.pos.y) * 32);
-    let screenY = intToFloat((console.pos.x + console.pos.y) * 16);
+    let isoX = intToFloat((console.pos.x - console.pos.y) * 32);
+    let isoY = intToFloat((console.pos.x + console.pos.y) * 16);
+    let screenX = isoX + screenOffsetX();
+    let screenY = isoY + screenOffsetY();
     Sprite(console.spriteId, screenX, screenY, layerConsoles())
 }
 
@@ -474,8 +485,10 @@ export pure func renderConsoles(state: BridgeState) -> [DrawCmd] {
 -- Render a single crew member as an entity
 -- NOTE: Using Sprite instead of IsoEntity due to AILANG type alias bug
 pure func renderCrewMember(crew: CrewPosition) -> DrawCmd {
-    let screenX = intToFloat((crew.pos.x - crew.pos.y) * 32);
-    let screenY = intToFloat((crew.pos.x + crew.pos.y) * 16);
+    let isoX = intToFloat((crew.pos.x - crew.pos.y) * 32);
+    let isoY = intToFloat((crew.pos.x + crew.pos.y) * 16);
+    let screenX = isoX + screenOffsetX();
+    let screenY = isoY + screenOffsetY();
     Sprite(crewSprite(crew.station), screenX, screenY, layerCrew())
 }
 
@@ -495,8 +508,10 @@ export pure func renderBridgeCrew(state: BridgeState) -> [DrawCmd] {
 -- Render the player entity
 -- NOTE: Using Sprite instead of IsoEntity due to AILANG type alias bug
 export pure func renderPlayer(state: BridgeState) -> [DrawCmd] {
-    let screenX = intToFloat((state.playerPos.x - state.playerPos.y) * 32);
-    let screenY = intToFloat((state.playerPos.x + state.playerPos.y) * 16);
+    let isoX = intToFloat((state.playerPos.x - state.playerPos.y) * 32);
+    let isoY = intToFloat((state.playerPos.x + state.playerPos.y) * 16);
+    let screenX = isoX + screenOffsetX();
+    let screenY = isoY + screenOffsetY();
     [Sprite(spritePlayer(), screenX, screenY, layerPlayer())]
 }
 
@@ -509,4 +524,49 @@ export pure func renderBridge(state: BridgeState) -> [DrawCmd] {
         ),
         renderPlayer(state)
     )
+}
+
+-- =============================================================================
+-- Bridge Update Logic (Step function)
+-- =============================================================================
+
+-- Get direction to move based on frame and crew ID (deterministic patrol)
+pure func getPatrolDirection(crewId: int, frame: int) -> Direction {
+    -- Each crew member has a different patrol pattern based on ID
+    let phase = (frame / 30 + crewId * 7) % 4;
+    match phase {
+        0 => North,
+        1 => East,
+        2 => South,
+        _ => West
+    }
+}
+
+-- Try to move a crew member, checking walkability
+pure func tryMoveCrew(crew: CrewPosition, dir: Direction, state: BridgeState) -> CrewPosition {
+    let newPos = moveInDirection(crew.pos, dir);
+    if isWalkable(state, newPos.x, newPos.y) then
+        { crew | pos: newPos, facing: dir }
+    else
+        { crew | facing: dir }  -- Just turn, don't move
+}
+
+-- Update a single crew member (patrol near their station)
+pure func updateCrewMember(crew: CrewPosition, frame: int, state: BridgeState) -> CrewPosition {
+    -- Only move every 30 frames (about 0.5 sec at 60fps)
+    if frame % 30 == 0 then tryMoveCrew(crew, getPatrolDirection(crew.crew.id, frame), state) else crew
+}
+
+-- Update all crew recursively
+pure func updateCrewRec(crew: [CrewPosition], frame: int, state: BridgeState) -> [CrewPosition] {
+    match crew {
+        [] => [],
+        c :: rest => updateCrewMember(c, frame, state) :: updateCrewRec(rest, frame, state)
+    }
+}
+
+-- Step the bridge state forward (called each frame)
+export pure func stepBridge(state: BridgeState, frame: int) -> BridgeState {
+    let updatedCrew = updateCrewRec(state.crewPositions, frame, state);
+    { state | crewPositions: updatedCrew }
 }

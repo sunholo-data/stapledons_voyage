@@ -82,13 +82,13 @@ Benchmarks:
 func benchInitWorld(warmup, iterations int) {
 	// Warmup
 	for i := 0; i < warmup; i++ {
-		_ = sim_gen.InitWorld(i)
+		_ = sim_gen.InitWorld(int64(i))
 	}
 
 	// Benchmark
 	start := time.Now()
 	for i := 0; i < iterations; i++ {
-		_ = sim_gen.InitWorld(i)
+		_ = sim_gen.InitWorld(int64(i))
 	}
 	elapsed := time.Since(start)
 
@@ -97,26 +97,30 @@ func benchInitWorld(warmup, iterations int) {
 }
 
 func benchStep(warmup, iterations int) {
-	world := sim_gen.InitWorld(42)
-	input := sim_gen.FrameInput{}
+	world := sim_gen.InitWorld(int64(42))
+	input := &sim_gen.FrameInput{}
 
 	// Warmup
 	for i := 0; i < warmup; i++ {
 		result := sim_gen.Step(world, input)
 		if tuple, ok := result.([]interface{}); ok && len(tuple) == 2 {
-			world = tuple[0]
+			if w, ok := tuple[0].(*sim_gen.World); ok {
+				world = w
+			}
 		}
 	}
 
 	// Reset world
-	world = sim_gen.InitWorld(42)
+	world = sim_gen.InitWorld(int64(42))
 
 	// Benchmark
 	start := time.Now()
 	for i := 0; i < iterations; i++ {
 		result := sim_gen.Step(world, input)
 		if tuple, ok := result.([]interface{}); ok && len(tuple) == 2 {
-			world = tuple[0]
+			if w, ok := tuple[0].(*sim_gen.World); ok {
+				world = w
+			}
 		}
 	}
 	elapsed := time.Since(start)
@@ -126,15 +130,17 @@ func benchStep(warmup, iterations int) {
 }
 
 func benchStep100(warmup, iterations int) {
-	input := sim_gen.FrameInput{}
+	input := &sim_gen.FrameInput{}
 
 	// Warmup
 	for i := 0; i < warmup; i++ {
-		world := sim_gen.InitWorld(42)
+		world := sim_gen.InitWorld(int64(42))
 		for j := 0; j < 100; j++ {
 			result := sim_gen.Step(world, input)
 			if tuple, ok := result.([]interface{}); ok && len(tuple) == 2 {
-				world = tuple[0]
+				if w, ok := tuple[0].(*sim_gen.World); ok {
+					world = w
+				}
 			}
 		}
 	}
@@ -142,11 +148,13 @@ func benchStep100(warmup, iterations int) {
 	// Benchmark
 	start := time.Now()
 	for i := 0; i < iterations; i++ {
-		world := sim_gen.InitWorld(42)
+		world := sim_gen.InitWorld(int64(42))
 		for j := 0; j < 100; j++ {
 			result := sim_gen.Step(world, input)
 			if tuple, ok := result.([]interface{}); ok && len(tuple) == 2 {
-				world = tuple[0]
+				if w, ok := tuple[0].(*sim_gen.World); ok {
+					world = w
+				}
 			}
 		}
 	}

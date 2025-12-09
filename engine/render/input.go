@@ -68,18 +68,18 @@ func CaptureInputWithCamera(cam sim_gen.Camera, screenW, screenH int) sim_gen.Fr
 	clicked := inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft)
 
 	// Detect action keys (I=inspect, B=build, X=clear)
-	// PlayerAction is a discriminator struct - use constructor functions
-	action := *sim_gen.NewPlayerActionActionNone()
+	// PlayerAction is a discriminator struct - use constructor functions (pointers)
+	action := sim_gen.NewPlayerActionActionNone()
 	if inpututil.IsKeyJustPressed(ebiten.KeyI) {
-		action = *sim_gen.NewPlayerActionActionInspect()
+		action = sim_gen.NewPlayerActionActionInspect()
 	} else if inpututil.IsKeyJustPressed(ebiten.KeyB) {
-		action = *sim_gen.NewPlayerActionActionBuild(*sim_gen.NewStructureTypeStructureHouse())
+		action = sim_gen.NewPlayerActionActionBuild(sim_gen.NewStructureTypeStructureHouse())
 	} else if inpututil.IsKeyJustPressed(ebiten.KeyX) {
-		action = *sim_gen.NewPlayerActionActionClear()
+		action = sim_gen.NewPlayerActionActionClear()
 	}
 
 	return sim_gen.FrameInput{
-		Mouse: sim_gen.MouseState{
+		Mouse: &sim_gen.MouseState{
 			X:       float64(x),
 			Y:       float64(y),
 			Buttons: buttons,

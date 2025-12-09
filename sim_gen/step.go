@@ -30,8 +30,8 @@ func generate_impl(n interface{}, f interface{}) interface{} {
 	}()
 }
 
-func generate(n int64, f func(int64) int64) []int64 {
-	return ConvertToInt64Slice(generate_impl(n, f))
+func generate(n int64, f interface{}) []*Tile {
+	return ConvertToTileSlice(generate_impl(n, f))
 }
 
 func tilesToDraw_impl(tiles interface{}, width interface{}, idx interface{}) interface{} {
@@ -92,8 +92,8 @@ func tilesToDraw_impl(tiles interface{}, width interface{}, idx interface{}) int
 	}()
 }
 
-func tilesToDraw(tiles interface{}, width interface{}, idx interface{}) interface{} {
-	return tilesToDraw_impl(tiles, width, idx)
+func tilesToDraw(tiles []*Tile, width int64, idx int64) []*DrawCmd {
+	return ConvertToDrawCmdSlice(tilesToDraw_impl(tiles, width, idx))
 }
 
 func npcsToDraw_impl(npcs interface{}) interface{} {
@@ -162,8 +162,8 @@ func npcsToDraw_impl(npcs interface{}) interface{} {
 	}()
 }
 
-func npcsToDraw(npcs interface{}) interface{} {
-	return npcsToDraw_impl(npcs)
+func npcsToDraw(npcs []*NPC) []*DrawCmd {
+	return ConvertToDrawCmdSlice(npcsToDraw_impl(npcs))
 }
 
 func selectionToDraw_impl(sel interface{}) interface{} {
@@ -206,8 +206,8 @@ func selectionToDraw_impl(sel interface{}) interface{} {
 	}()
 }
 
-func selectionToDraw(sel func([]int64, []int64) []int64) []*DrawCmd {
-	return convertToDrawCmdSlice(selectionToDraw_impl(sel))
+func selectionToDraw(sel *Selection) []*DrawCmd {
+	return ConvertToDrawCmdSlice(selectionToDraw_impl(sel))
 }
 
 func concatDrawCmds_impl(a interface{}, b interface{}) interface{} {
@@ -232,8 +232,8 @@ func concatDrawCmds_impl(a interface{}, b interface{}) interface{} {
 	}()
 }
 
-func concatDrawCmds(a []int64, b []int64) []int64 {
-	return ConvertToInt64Slice(concatDrawCmds_impl(a, b))
+func concatDrawCmds(a []*DrawCmd, b []*DrawCmd) []*DrawCmd {
+	return ConvertToDrawCmdSlice(concatDrawCmds_impl(a, b))
 }
 
 func processSelection_impl(input interface{}, world interface{}) interface{} {
@@ -337,8 +337,8 @@ func processSelection_impl(input interface{}, world interface{}) interface{} {
 	}()
 }
 
-func processSelection(input interface{}, world interface{}) interface{} {
-	return processSelection_impl(input, world)
+func processSelection(input *FrameInput, world *World) *Selection {
+	return processSelection_impl(input, world).(*Selection)
 }
 
 func initWorld_impl(seed interface{}) interface{} {
@@ -372,7 +372,7 @@ func initWorld_impl(seed interface{}) interface{} {
 								var tmp47 interface{} = NewMovementPatternPatternRandomWalk(int64(int64(30)))
 								_ = tmp47 // suppress unused
 								return func() interface{} {
-									var tmp48 interface{} = &NPC{Id: int64(int64(1)), Pos: *(tmp46.(*Coord)), Pattern: *(tmp47.(*MovementPattern)), MoveCounter: int64(int64(30)), PatrolIndex: int64(int64(0))}
+									var tmp48 interface{} = &NPC{Id: int64(int64(1)), Pos: tmp46.(*Coord), Pattern: tmp47.(*MovementPattern), MoveCounter: int64(int64(30)), PatrolIndex: int64(int64(0))}
 									_ = tmp48 // suppress unused
 									return func() interface{} {
 										var tmp49 interface{} = &Coord{X: int64(int64(5)), Y: int64(int64(3))}
@@ -381,22 +381,22 @@ func initWorld_impl(seed interface{}) interface{} {
 											var tmp50 interface{} = NewMovementPatternPatternRandomWalk(int64(int64(45)))
 											_ = tmp50 // suppress unused
 											return func() interface{} {
-												var tmp51 interface{} = &NPC{Id: int64(int64(2)), Pos: *(tmp49.(*Coord)), Pattern: *(tmp50.(*MovementPattern)), MoveCounter: int64(int64(45)), PatrolIndex: int64(int64(0))}
+												var tmp51 interface{} = &NPC{Id: int64(int64(2)), Pos: tmp49.(*Coord), Pattern: tmp50.(*MovementPattern), MoveCounter: int64(int64(45)), PatrolIndex: int64(int64(0))}
 												_ = tmp51 // suppress unused
 												return func() interface{} {
 													var tmp52 interface{} = &Coord{X: int64(int64(4)), Y: int64(int64(4))}
 													_ = tmp52 // suppress unused
 													return func() interface{} {
-														var tmp53 interface{} = &NPC{Id: int64(int64(3)), Pos: *(tmp52.(*Coord)), Pattern: *NewMovementPatternPatternStatic(), MoveCounter: int64(int64(0)), PatrolIndex: int64(int64(0))}
+														var tmp53 interface{} = &NPC{Id: int64(int64(3)), Pos: tmp52.(*Coord), Pattern: NewMovementPatternPatternStatic(), MoveCounter: int64(int64(0)), PatrolIndex: int64(int64(0))}
 														_ = tmp53 // suppress unused
 														return func() interface{} {
 															var tmp54 interface{} = &Coord{X: int64(int64(1)), Y: int64(int64(1))}
 															_ = tmp54 // suppress unused
 															return func() interface{} {
-																var tmp55 interface{} = NewMovementPatternPatternPatrol(convertToDirectionSlice(patrolPath))
+																var tmp55 interface{} = NewMovementPatternPatternPatrol(ConvertToDirectionSlice(patrolPath))
 																_ = tmp55 // suppress unused
 																return func() interface{} {
-																	var tmp56 interface{} = &NPC{Id: int64(int64(4)), Pos: *(tmp54.(*Coord)), Pattern: *(tmp55.(*MovementPattern)), MoveCounter: int64(int64(0)), PatrolIndex: int64(int64(0))}
+																	var tmp56 interface{} = &NPC{Id: int64(int64(4)), Pos: tmp54.(*Coord), Pattern: tmp55.(*MovementPattern), MoveCounter: int64(int64(0)), PatrolIndex: int64(int64(0))}
 																	_ = tmp56 // suppress unused
 																	return []interface{}{tmp48, tmp51, tmp53, tmp56}
 																}()
@@ -412,9 +412,9 @@ func initWorld_impl(seed interface{}) interface{} {
 						}()
 						_ = testNpcs // suppress unused
 						return func() interface{} {
-							var tmp45 interface{} = &PlanetState{Width: w.(int64), Height: h.(int64), Tiles: convertToTileSlice(tiles)}
+							var tmp45 interface{} = &PlanetState{Width: w.(int64), Height: h.(int64), Tiles: ConvertToTileSlice(tiles)}
 							_ = tmp45 // suppress unused
-							return &World{Tick: int64(int64(0)), Planet: *(tmp45.(*PlanetState)), Npcs: convertToNPCSlice(testNpcs), Selection: *NewSelectionNone()}
+							return &World{Tick: int64(int64(0)), Planet: tmp45.(*PlanetState), Npcs: ConvertToNPCSlice(testNpcs), Selection: NewSelectionNone()}
 						}()
 					}()
 				}()
@@ -423,8 +423,8 @@ func initWorld_impl(seed interface{}) interface{} {
 	}()
 }
 
-func InitWorld(seed interface{}) interface{} {
-	return initWorld_impl(seed)
+func InitWorld(seed int64) *World {
+	return initWorld_impl(seed).(*World)
 }
 
 func step_impl(world interface{}, input interface{}) interface{} {
@@ -454,7 +454,7 @@ func step_impl(world interface{}, input interface{}) interface{} {
 								return func() interface{} {
 									var tmp70 interface{} = FieldGet(tmp69, "height")
 									_ = tmp70 // suppress unused
-									return UpdateAllNPCs(tmp66, tmp68, tmp70)
+									return updateAllNPCs_impl(tmp66, tmp68, tmp70)
 								}()
 							}()
 						}()
@@ -462,7 +462,7 @@ func step_impl(world interface{}, input interface{}) interface{} {
 				}()
 				_ = updatedNpcs // suppress unused
 				return func() interface{} {
-					var newWorld interface{} = RecordUpdate(world, map[string]interface{}{"tick": newTick, "npcs": updatedNpcs, "selection": newSelection})
+					var newWorld interface{} = RecordUpdate(world, map[string]interface{}{"selection": newSelection, "tick": newTick, "npcs": updatedNpcs})
 					_ = newWorld // suppress unused
 					return func() interface{} {
 						var tileCmds interface{} = func() interface{} {
@@ -506,7 +506,7 @@ func step_impl(world interface{}, input interface{}) interface{} {
 												return func() interface{} {
 													var tmp60 interface{} = []interface{}{}
 													_ = tmp60 // suppress unused
-													return &FrameOutput{Draw: convertToDrawCmdSlice(drawCmds), Sounds: ConvertToInt64Slice(tmp59), Debug: ConvertToStringSlice(tmp60), Camera: *(cam.(*Camera))}
+													return &FrameOutput{Draw: ConvertToDrawCmdSlice(drawCmds), Sounds: ConvertToInt64Slice(tmp59), Debug: ConvertToStringSlice(tmp60), Camera: cam.(*Camera)}
 												}()
 											}()
 											_ = output // suppress unused
@@ -523,6 +523,6 @@ func step_impl(world interface{}, input interface{}) interface{} {
 	}()
 }
 
-func Step(world interface{}, input interface{}) interface{} {
+func Step(world *World, input *FrameInput) interface{} {
 	return step_impl(world, input)
 }
