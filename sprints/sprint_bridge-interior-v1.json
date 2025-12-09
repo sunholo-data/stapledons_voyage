@@ -55,7 +55,7 @@
       ]
     },
     "session_2_layout_data": {
-      "status": "blocked",
+      "status": "completed",
       "tasks": [
         {
           "id": "2.1",
@@ -320,21 +320,14 @@
       "msg_id": "msg_20251208_210021_6dc9a062",
       "type": "bug_report",
       "title": "Effect checker hangs on record with multiple list-of-record fields",
-      "status": "sent",
-      "blocking": true
+      "status": "resolved",
+      "blocking": false
     }
   ],
-  "blockers": [
-    {
-      "desc": "AILANG effect checker hangs when BridgeState has list-of-record fields populated via function calls",
-      "workaround": "Using empty lists in initBridge() - crew/consoles/layout not loaded from AILANG",
-      "ailang_msg": "msg_20251208_210021_6dc9a062",
-      "minimal_repro": "sim/test_combined.ail"
-    }
-  ],
+  "blockers": [],
   "notes": [
-    "Session 2 layout functions are defined but cannot be used until AILANG bug is fixed",
-    "Proceeding with Go implementation using hardcoded data as workaround"
+    "AILANG bug fixed - full bridge layout now compiles",
+    "Sessions 1-2 complete, ready for Go implementation"
   ],
-  "last_updated": "2025-12-08T21:10:00Z"
+  "last_updated": "2025-12-08T21:15:00Z"
 }

@@ -370,12 +370,6 @@ export pure func createDefaultCrew() -> [CrewPosition] {
 -- =============================================================================
 
 -- Create initial bridge state
--- WORKAROUND: Using empty lists due to AILANG effect checker bug (msg_20251208_210021_6dc9a062)
--- The bug triggers when BridgeState has list-of-record fields populated via function calls
--- When bug is fixed:
---   - Change crewPositions: [] to crewPositions: createDefaultCrew()
---   - Change consoles: [] to consoles: createConsoles()
---   - Change layout/walkable to use createBridgeLayout()/createWalkableMap()
 export pure func initBridge() -> BridgeState {
     {
         -- Player starts near the entrance (bottom center)
@@ -383,11 +377,11 @@ export pure func initBridge() -> BridgeState {
         playerFacing: North,
         moveState: MoveIdle,
 
-        -- Load crew (WORKAROUND: empty list)
-        crewPositions: [],
+        -- Load crew
+        crewPositions: createDefaultCrew(),
 
-        -- Load consoles (WORKAROUND: empty list)
-        consoles: [],
+        -- Load consoles
+        consoles: createConsoles(),
 
         -- No current interaction
         hoveredInteractable: None,
@@ -400,10 +394,10 @@ export pure func initBridge() -> BridgeState {
             viewAngle: 0.0
         },
 
-        -- Layout data (WORKAROUND: small arrays)
-        layout: A.fromList([1, 2, 3, 4]),
-        walkable: A.fromList([true, true, true, true]),
-        width: 2,
-        height: 2
+        -- Layout data
+        layout: createBridgeLayout(),
+        walkable: createWalkableMap(),
+        width: bridgeWidth(),
+        height: bridgeHeight()
     }
 }
