@@ -551,6 +551,54 @@ func convertToArrivalPhaseSlice(v interface{}) []*ArrivalPhase {
 	return out
 }
 
+// convertToBridgeInputResultSlice converts []interface{} to []*BridgeInputResult.
+// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
+func convertToBridgeInputResultSlice(v interface{}) []*BridgeInputResult {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("convertToBridgeInputResultSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*BridgeInputResult{}
+	}
+	out := make([]*BridgeInputResult, len(src))
+	for i, e := range src {
+		elem, ok := e.(*BridgeInputResult)
+		if !ok {
+			panic(fmt.Sprintf("convertToBridgeInputResultSlice: element %d: expected *BridgeInputResult, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// convertToBridgeStationSlice converts []interface{} to []*BridgeStation.
+// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
+func convertToBridgeStationSlice(v interface{}) []*BridgeStation {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("convertToBridgeStationSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*BridgeStation{}
+	}
+	out := make([]*BridgeStation, len(src))
+	for i, e := range src {
+		elem, ok := e.(*BridgeStation)
+		if !ok {
+			panic(fmt.Sprintf("convertToBridgeStationSlice: element %d: expected *BridgeStation, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
 // convertToClickKindSlice converts []interface{} to []*ClickKind.
 // M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
 func convertToClickKindSlice(v interface{}) []*ClickKind {
@@ -569,6 +617,78 @@ func convertToClickKindSlice(v interface{}) []*ClickKind {
 		elem, ok := e.(*ClickKind)
 		if !ok {
 			panic(fmt.Sprintf("convertToClickKindSlice: element %d: expected *ClickKind, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// convertToConsoleStateSlice converts []interface{} to []*ConsoleState.
+// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
+func convertToConsoleStateSlice(v interface{}) []*ConsoleState {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("convertToConsoleStateSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*ConsoleState{}
+	}
+	out := make([]*ConsoleState, len(src))
+	for i, e := range src {
+		elem, ok := e.(*ConsoleState)
+		if !ok {
+			panic(fmt.Sprintf("convertToConsoleStateSlice: element %d: expected *ConsoleState, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// convertToCrewActivitySlice converts []interface{} to []*CrewActivity.
+// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
+func convertToCrewActivitySlice(v interface{}) []*CrewActivity {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("convertToCrewActivitySlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*CrewActivity{}
+	}
+	out := make([]*CrewActivity, len(src))
+	for i, e := range src {
+		elem, ok := e.(*CrewActivity)
+		if !ok {
+			panic(fmt.Sprintf("convertToCrewActivitySlice: element %d: expected *CrewActivity, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// convertToCrewPositionSlice converts []interface{} to []*CrewPosition.
+// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
+func convertToCrewPositionSlice(v interface{}) []*CrewPosition {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("convertToCrewPositionSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*CrewPosition{}
+	}
+	out := make([]*CrewPosition, len(src))
+	for i, e := range src {
+		elem, ok := e.(*CrewPosition)
+		if !ok {
+			panic(fmt.Sprintf("convertToCrewPositionSlice: element %d: expected *CrewPosition, got %T", i, e))
 		}
 		out[i] = elem
 	}
@@ -647,6 +767,30 @@ func convertToDrawCmdSlice(v interface{}) []*DrawCmd {
 	return out
 }
 
+// convertToInteractableIDSlice converts []interface{} to []*InteractableID.
+// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
+func convertToInteractableIDSlice(v interface{}) []*InteractableID {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("convertToInteractableIDSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*InteractableID{}
+	}
+	out := make([]*InteractableID, len(src))
+	for i, e := range src {
+		elem, ok := e.(*InteractableID)
+		if !ok {
+			panic(fmt.Sprintf("convertToInteractableIDSlice: element %d: expected *InteractableID, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
 // convertToKeyEventSlice converts []interface{} to []*KeyEvent.
 // M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
 func convertToKeyEventSlice(v interface{}) []*KeyEvent {
@@ -665,6 +809,30 @@ func convertToKeyEventSlice(v interface{}) []*KeyEvent {
 		elem, ok := e.(*KeyEvent)
 		if !ok {
 			panic(fmt.Sprintf("convertToKeyEventSlice: element %d: expected *KeyEvent, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// convertToMoveStateSlice converts []interface{} to []*MoveState.
+// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
+func convertToMoveStateSlice(v interface{}) []*MoveState {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("convertToMoveStateSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*MoveState{}
+	}
+	out := make([]*MoveState, len(src))
+	for i, e := range src {
+		elem, ok := e.(*MoveState)
+		if !ok {
+			panic(fmt.Sprintf("convertToMoveStateSlice: element %d: expected *MoveState, got %T", i, e))
 		}
 		out[i] = elem
 	}

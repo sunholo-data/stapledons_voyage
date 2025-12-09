@@ -168,6 +168,7 @@ Invoke this skill when:
 4. **Track Progress**: Use TodoWrite AND update sprint JSON
 5. **Document Workarounds**: Record how you navigated limitations
 6. **Physics Accuracy First**: Use exact formulas, document any approximations
+7. **No Wrapper Files**: NEVER create Go wrapper files to work around AILANG codegen issues - report the bug and wait for a fix
 
 ## JSON Progress Tracking (IMPORTANT)
 
@@ -411,8 +412,9 @@ Quick reference for known issues and their solutions:
 | Tuple destructuring | Parse error on `let (x, y) = pair` | Use `match pair { (x, y) => ... }` |
 | ADT in inline tests | Test harness crashes | Only use primitive types in test inputs |
 | DrawCmd uses color index not RGBA | N/A (works but limited) | Use direct Ebiten drawing in engine/ for custom colors. Feature requested from AILANG. |
-| Go codegen fails for large modules | "format error" in generated code | Manual workaround in sim_gen/<module>.go - EXCEPTION to no-edit rule |
-| **Editing sim_gen/*.go** | Changes overwritten | **NEVER edit sim_gen files** (except manual workarounds). Request features via ailang-feedback. |
+| Go codegen wrong return types | Exported func returns `struct{}` but impl returns typed value | **DO NOT create wrapper files** - report bug via ailang-feedback and wait for fix |
+| Go codegen unexported converters | `convertToDrawCmdSlice` is lowercase | **DO NOT create wrapper files** - report bug via ailang-feedback and wait for fix |
+| **Editing sim_gen/*.go** | Changes overwritten | **NEVER edit sim_gen files**. Request features via ailang-feedback. |
 
 ### Maintaining This List (IMPORTANT)
 

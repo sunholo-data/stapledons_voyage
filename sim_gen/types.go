@@ -287,6 +287,549 @@ type ArrivalInput struct {
 	Dt float64
 }
 
+// BridgeStationKind discriminates between variants of BridgeStation
+type BridgeStationKind int
+
+const (
+	BridgeStationKindStationHelm BridgeStationKind = iota
+	BridgeStationKindStationComms
+	BridgeStationKindStationStatus
+	BridgeStationKindStationNav
+	BridgeStationKindStationScience
+	BridgeStationKindStationCaptain
+	BridgeStationKindStationNone
+)
+
+// BridgeStationStationHelm holds data for the StationHelm variant
+type BridgeStationStationHelm struct {
+}
+
+// BridgeStationStationComms holds data for the StationComms variant
+type BridgeStationStationComms struct {
+}
+
+// BridgeStationStationStatus holds data for the StationStatus variant
+type BridgeStationStationStatus struct {
+}
+
+// BridgeStationStationNav holds data for the StationNav variant
+type BridgeStationStationNav struct {
+}
+
+// BridgeStationStationScience holds data for the StationScience variant
+type BridgeStationStationScience struct {
+}
+
+// BridgeStationStationCaptain holds data for the StationCaptain variant
+type BridgeStationStationCaptain struct {
+}
+
+// BridgeStationStationNone holds data for the StationNone variant
+type BridgeStationStationNone struct {
+}
+
+// BridgeStation is a sum type (discriminated union)
+type BridgeStation struct {
+	Kind           BridgeStationKind
+	StationHelm    *BridgeStationStationHelm
+	StationComms   *BridgeStationStationComms
+	StationStatus  *BridgeStationStationStatus
+	StationNav     *BridgeStationStationNav
+	StationScience *BridgeStationStationScience
+	StationCaptain *BridgeStationStationCaptain
+	StationNone    *BridgeStationStationNone
+}
+
+// NewBridgeStationStationHelm creates a new StationHelm variant
+func NewBridgeStationStationHelm() *BridgeStation {
+	return &BridgeStation{
+		Kind:        BridgeStationKindStationHelm,
+		StationHelm: &BridgeStationStationHelm{},
+	}
+}
+
+// NewBridgeStationStationComms creates a new StationComms variant
+func NewBridgeStationStationComms() *BridgeStation {
+	return &BridgeStation{
+		Kind:         BridgeStationKindStationComms,
+		StationComms: &BridgeStationStationComms{},
+	}
+}
+
+// NewBridgeStationStationStatus creates a new StationStatus variant
+func NewBridgeStationStationStatus() *BridgeStation {
+	return &BridgeStation{
+		Kind:          BridgeStationKindStationStatus,
+		StationStatus: &BridgeStationStationStatus{},
+	}
+}
+
+// NewBridgeStationStationNav creates a new StationNav variant
+func NewBridgeStationStationNav() *BridgeStation {
+	return &BridgeStation{
+		Kind:       BridgeStationKindStationNav,
+		StationNav: &BridgeStationStationNav{},
+	}
+}
+
+// NewBridgeStationStationScience creates a new StationScience variant
+func NewBridgeStationStationScience() *BridgeStation {
+	return &BridgeStation{
+		Kind:           BridgeStationKindStationScience,
+		StationScience: &BridgeStationStationScience{},
+	}
+}
+
+// NewBridgeStationStationCaptain creates a new StationCaptain variant
+func NewBridgeStationStationCaptain() *BridgeStation {
+	return &BridgeStation{
+		Kind:           BridgeStationKindStationCaptain,
+		StationCaptain: &BridgeStationStationCaptain{},
+	}
+}
+
+// NewBridgeStationStationNone creates a new StationNone variant
+func NewBridgeStationStationNone() *BridgeStation {
+	return &BridgeStation{
+		Kind:        BridgeStationKindStationNone,
+		StationNone: &BridgeStationStationNone{},
+	}
+}
+
+// IsStationHelm returns true if this is a StationHelm variant
+func (v *BridgeStation) IsStationHelm() bool {
+	return v.Kind == BridgeStationKindStationHelm
+}
+
+// IsStationComms returns true if this is a StationComms variant
+func (v *BridgeStation) IsStationComms() bool {
+	return v.Kind == BridgeStationKindStationComms
+}
+
+// IsStationStatus returns true if this is a StationStatus variant
+func (v *BridgeStation) IsStationStatus() bool {
+	return v.Kind == BridgeStationKindStationStatus
+}
+
+// IsStationNav returns true if this is a StationNav variant
+func (v *BridgeStation) IsStationNav() bool {
+	return v.Kind == BridgeStationKindStationNav
+}
+
+// IsStationScience returns true if this is a StationScience variant
+func (v *BridgeStation) IsStationScience() bool {
+	return v.Kind == BridgeStationKindStationScience
+}
+
+// IsStationCaptain returns true if this is a StationCaptain variant
+func (v *BridgeStation) IsStationCaptain() bool {
+	return v.Kind == BridgeStationKindStationCaptain
+}
+
+// IsStationNone returns true if this is a StationNone variant
+func (v *BridgeStation) IsStationNone() bool {
+	return v.Kind == BridgeStationKindStationNone
+}
+
+// CrewID is a record type
+type CrewID struct {
+	Id   int64
+	Name string
+}
+
+// CrewActivityKind discriminates between variants of CrewActivity
+type CrewActivityKind int
+
+const (
+	CrewActivityKindActivityIdle CrewActivityKind = iota
+	CrewActivityKindActivityWorking
+	CrewActivityKindActivityTalking
+)
+
+// CrewActivityActivityIdle holds data for the ActivityIdle variant
+type CrewActivityActivityIdle struct {
+}
+
+// CrewActivityActivityWorking holds data for the ActivityWorking variant
+type CrewActivityActivityWorking struct {
+}
+
+// CrewActivityActivityTalking holds data for the ActivityTalking variant
+type CrewActivityActivityTalking struct {
+	Value0 CrewID
+}
+
+// CrewActivity is a sum type (discriminated union)
+type CrewActivity struct {
+	Kind            CrewActivityKind
+	ActivityIdle    *CrewActivityActivityIdle
+	ActivityWorking *CrewActivityActivityWorking
+	ActivityTalking *CrewActivityActivityTalking
+}
+
+// NewCrewActivityActivityIdle creates a new ActivityIdle variant
+func NewCrewActivityActivityIdle() *CrewActivity {
+	return &CrewActivity{
+		Kind:         CrewActivityKindActivityIdle,
+		ActivityIdle: &CrewActivityActivityIdle{},
+	}
+}
+
+// NewCrewActivityActivityWorking creates a new ActivityWorking variant
+func NewCrewActivityActivityWorking() *CrewActivity {
+	return &CrewActivity{
+		Kind:            CrewActivityKindActivityWorking,
+		ActivityWorking: &CrewActivityActivityWorking{},
+	}
+}
+
+// NewCrewActivityActivityTalking creates a new ActivityTalking variant
+func NewCrewActivityActivityTalking(v0 CrewID) *CrewActivity {
+	return &CrewActivity{
+		Kind:            CrewActivityKindActivityTalking,
+		ActivityTalking: &CrewActivityActivityTalking{Value0: v0},
+	}
+}
+
+// IsActivityIdle returns true if this is a ActivityIdle variant
+func (v *CrewActivity) IsActivityIdle() bool {
+	return v.Kind == CrewActivityKindActivityIdle
+}
+
+// IsActivityWorking returns true if this is a ActivityWorking variant
+func (v *CrewActivity) IsActivityWorking() bool {
+	return v.Kind == CrewActivityKindActivityWorking
+}
+
+// IsActivityTalking returns true if this is a ActivityTalking variant
+func (v *CrewActivity) IsActivityTalking() bool {
+	return v.Kind == CrewActivityKindActivityTalking
+}
+
+// CrewPosition is a record type
+type CrewPosition struct {
+	Crew     CrewID
+	Station  BridgeStation
+	Pos      Coord
+	Facing   Direction
+	Activity CrewActivity
+}
+
+// ConsoleState is a record type
+type ConsoleState struct {
+	Station  BridgeStation
+	Pos      Coord
+	Active   bool
+	HasAlert bool
+	SpriteId int64
+}
+
+// InteractableIDKind discriminates between variants of InteractableID
+type InteractableIDKind int
+
+const (
+	InteractableIDKindInteractConsole InteractableIDKind = iota
+	InteractableIDKindInteractCrew
+	InteractableIDKindInteractHatch
+)
+
+// InteractableIDInteractConsole holds data for the InteractConsole variant
+type InteractableIDInteractConsole struct {
+	Value0 BridgeStation
+}
+
+// InteractableIDInteractCrew holds data for the InteractCrew variant
+type InteractableIDInteractCrew struct {
+	Value0 CrewID
+}
+
+// InteractableIDInteractHatch holds data for the InteractHatch variant
+type InteractableIDInteractHatch struct {
+	Value0 int64
+}
+
+// InteractableID is a sum type (discriminated union)
+type InteractableID struct {
+	Kind            InteractableIDKind
+	InteractConsole *InteractableIDInteractConsole
+	InteractCrew    *InteractableIDInteractCrew
+	InteractHatch   *InteractableIDInteractHatch
+}
+
+// NewInteractableIDInteractConsole creates a new InteractConsole variant
+func NewInteractableIDInteractConsole(v0 BridgeStation) *InteractableID {
+	return &InteractableID{
+		Kind:            InteractableIDKindInteractConsole,
+		InteractConsole: &InteractableIDInteractConsole{Value0: v0},
+	}
+}
+
+// NewInteractableIDInteractCrew creates a new InteractCrew variant
+func NewInteractableIDInteractCrew(v0 CrewID) *InteractableID {
+	return &InteractableID{
+		Kind:         InteractableIDKindInteractCrew,
+		InteractCrew: &InteractableIDInteractCrew{Value0: v0},
+	}
+}
+
+// NewInteractableIDInteractHatch creates a new InteractHatch variant
+func NewInteractableIDInteractHatch(v0 int64) *InteractableID {
+	return &InteractableID{
+		Kind:          InteractableIDKindInteractHatch,
+		InteractHatch: &InteractableIDInteractHatch{Value0: v0},
+	}
+}
+
+// IsInteractConsole returns true if this is a InteractConsole variant
+func (v *InteractableID) IsInteractConsole() bool {
+	return v.Kind == InteractableIDKindInteractConsole
+}
+
+// IsInteractCrew returns true if this is a InteractCrew variant
+func (v *InteractableID) IsInteractCrew() bool {
+	return v.Kind == InteractableIDKindInteractCrew
+}
+
+// IsInteractHatch returns true if this is a InteractHatch variant
+func (v *InteractableID) IsInteractHatch() bool {
+	return v.Kind == InteractableIDKindInteractHatch
+}
+
+// DomeViewState is a record type
+type DomeViewState struct {
+	TargetPlanetId int64
+	ShipVelocity   float64
+	ViewAngle      float64
+}
+
+// MoveStateKind discriminates between variants of MoveState
+type MoveStateKind int
+
+const (
+	MoveStateKindMoveIdle MoveStateKind = iota
+	MoveStateKindMoveWalking
+	MoveStateKindMoveTransitioning
+)
+
+// MoveStateMoveIdle holds data for the MoveIdle variant
+type MoveStateMoveIdle struct {
+}
+
+// MoveStateMoveWalking holds data for the MoveWalking variant
+type MoveStateMoveWalking struct {
+	Value0 Direction
+}
+
+// MoveStateMoveTransitioning holds data for the MoveTransitioning variant
+type MoveStateMoveTransitioning struct {
+	Value0 int64
+	Value1 Coord
+}
+
+// MoveState is a sum type (discriminated union)
+type MoveState struct {
+	Kind              MoveStateKind
+	MoveIdle          *MoveStateMoveIdle
+	MoveWalking       *MoveStateMoveWalking
+	MoveTransitioning *MoveStateMoveTransitioning
+}
+
+// NewMoveStateMoveIdle creates a new MoveIdle variant
+func NewMoveStateMoveIdle() *MoveState {
+	return &MoveState{
+		Kind:     MoveStateKindMoveIdle,
+		MoveIdle: &MoveStateMoveIdle{},
+	}
+}
+
+// NewMoveStateMoveWalking creates a new MoveWalking variant
+func NewMoveStateMoveWalking(v0 Direction) *MoveState {
+	return &MoveState{
+		Kind:        MoveStateKindMoveWalking,
+		MoveWalking: &MoveStateMoveWalking{Value0: v0},
+	}
+}
+
+// NewMoveStateMoveTransitioning creates a new MoveTransitioning variant
+func NewMoveStateMoveTransitioning(v0 int64, v1 Coord) *MoveState {
+	return &MoveState{
+		Kind:              MoveStateKindMoveTransitioning,
+		MoveTransitioning: &MoveStateMoveTransitioning{Value0: v0, Value1: v1},
+	}
+}
+
+// IsMoveIdle returns true if this is a MoveIdle variant
+func (v *MoveState) IsMoveIdle() bool {
+	return v.Kind == MoveStateKindMoveIdle
+}
+
+// IsMoveWalking returns true if this is a MoveWalking variant
+func (v *MoveState) IsMoveWalking() bool {
+	return v.Kind == MoveStateKindMoveWalking
+}
+
+// IsMoveTransitioning returns true if this is a MoveTransitioning variant
+func (v *MoveState) IsMoveTransitioning() bool {
+	return v.Kind == MoveStateKindMoveTransitioning
+}
+
+// BridgeState is a record type
+type BridgeState struct {
+	PlayerPos            Coord
+	PlayerFacing         Direction
+	MoveState            MoveState
+	CrewPositions        []*CrewPosition
+	Consoles             []*ConsoleState
+	HoveredInteractable  Option
+	SelectedInteractable Option
+	DomeView             DomeViewState
+	Layout               []int64
+	Walkable             []bool
+	Width                int64
+	Height               int64
+}
+
+// BridgeInputResultKind discriminates between variants of BridgeInputResult
+type BridgeInputResultKind int
+
+const (
+	BridgeInputResultKindBridgeStay BridgeInputResultKind = iota
+	BridgeInputResultKindBridgeToGalaxyMap
+	BridgeInputResultKindBridgeToDialogue
+	BridgeInputResultKindBridgeToDeck
+)
+
+// BridgeInputResultBridgeStay holds data for the BridgeStay variant
+type BridgeInputResultBridgeStay struct {
+	Value0 BridgeState
+}
+
+// BridgeInputResultBridgeToGalaxyMap holds data for the BridgeToGalaxyMap variant
+type BridgeInputResultBridgeToGalaxyMap struct {
+}
+
+// BridgeInputResultBridgeToDialogue holds data for the BridgeToDialogue variant
+type BridgeInputResultBridgeToDialogue struct {
+	Value0 CrewID
+}
+
+// BridgeInputResultBridgeToDeck holds data for the BridgeToDeck variant
+type BridgeInputResultBridgeToDeck struct {
+	Value0 int64
+	Value1 Coord
+}
+
+// BridgeInputResult is a sum type (discriminated union)
+type BridgeInputResult struct {
+	Kind              BridgeInputResultKind
+	BridgeStay        *BridgeInputResultBridgeStay
+	BridgeToGalaxyMap *BridgeInputResultBridgeToGalaxyMap
+	BridgeToDialogue  *BridgeInputResultBridgeToDialogue
+	BridgeToDeck      *BridgeInputResultBridgeToDeck
+}
+
+// NewBridgeInputResultBridgeStay creates a new BridgeStay variant
+func NewBridgeInputResultBridgeStay(v0 BridgeState) *BridgeInputResult {
+	return &BridgeInputResult{
+		Kind:       BridgeInputResultKindBridgeStay,
+		BridgeStay: &BridgeInputResultBridgeStay{Value0: v0},
+	}
+}
+
+// NewBridgeInputResultBridgeToGalaxyMap creates a new BridgeToGalaxyMap variant
+func NewBridgeInputResultBridgeToGalaxyMap() *BridgeInputResult {
+	return &BridgeInputResult{
+		Kind:              BridgeInputResultKindBridgeToGalaxyMap,
+		BridgeToGalaxyMap: &BridgeInputResultBridgeToGalaxyMap{},
+	}
+}
+
+// NewBridgeInputResultBridgeToDialogue creates a new BridgeToDialogue variant
+func NewBridgeInputResultBridgeToDialogue(v0 CrewID) *BridgeInputResult {
+	return &BridgeInputResult{
+		Kind:             BridgeInputResultKindBridgeToDialogue,
+		BridgeToDialogue: &BridgeInputResultBridgeToDialogue{Value0: v0},
+	}
+}
+
+// NewBridgeInputResultBridgeToDeck creates a new BridgeToDeck variant
+func NewBridgeInputResultBridgeToDeck(v0 int64, v1 Coord) *BridgeInputResult {
+	return &BridgeInputResult{
+		Kind:         BridgeInputResultKindBridgeToDeck,
+		BridgeToDeck: &BridgeInputResultBridgeToDeck{Value0: v0, Value1: v1},
+	}
+}
+
+// IsBridgeStay returns true if this is a BridgeStay variant
+func (v *BridgeInputResult) IsBridgeStay() bool {
+	return v.Kind == BridgeInputResultKindBridgeStay
+}
+
+// IsBridgeToGalaxyMap returns true if this is a BridgeToGalaxyMap variant
+func (v *BridgeInputResult) IsBridgeToGalaxyMap() bool {
+	return v.Kind == BridgeInputResultKindBridgeToGalaxyMap
+}
+
+// IsBridgeToDialogue returns true if this is a BridgeToDialogue variant
+func (v *BridgeInputResult) IsBridgeToDialogue() bool {
+	return v.Kind == BridgeInputResultKindBridgeToDialogue
+}
+
+// IsBridgeToDeck returns true if this is a BridgeToDeck variant
+func (v *BridgeInputResult) IsBridgeToDeck() bool {
+	return v.Kind == BridgeInputResultKindBridgeToDeck
+}
+
+// OptionKind discriminates between variants of Option
+type OptionKind int
+
+const (
+	OptionKindSome OptionKind = iota
+	OptionKindNone
+)
+
+// OptionSome holds data for the Some variant
+type OptionSome struct {
+	Value0 interface{}
+}
+
+// OptionNone holds data for the None variant
+type OptionNone struct {
+}
+
+// Option is a sum type (discriminated union)
+type Option struct {
+	Kind OptionKind
+	Some *OptionSome
+	None *OptionNone
+}
+
+// NewOptionSome creates a new Some variant
+func NewOptionSome(v0 interface{}) *Option {
+	return &Option{
+		Kind: OptionKindSome,
+		Some: &OptionSome{Value0: v0},
+	}
+}
+
+// NewOptionNone creates a new None variant
+func NewOptionNone() *Option {
+	return &Option{
+		Kind: OptionKindNone,
+		None: &OptionNone{},
+	}
+}
+
+// IsSome returns true if this is a Some variant
+func (v *Option) IsSome() bool {
+	return v.Kind == OptionKindSome
+}
+
+// IsNone returns true if this is a None variant
+func (v *Option) IsNone() bool {
+	return v.Kind == OptionKindNone
+}
+
 // DirectionKind discriminates between variants of Direction
 type DirectionKind int
 
@@ -1213,56 +1756,6 @@ type FrameOutput struct {
 	Sounds []int64
 	Debug  []string
 	Camera Camera
-}
-
-// OptionKind discriminates between variants of Option
-type OptionKind int
-
-const (
-	OptionKindSome OptionKind = iota
-	OptionKindNone
-)
-
-// OptionSome holds data for the Some variant
-type OptionSome struct {
-	Value0 interface{}
-}
-
-// OptionNone holds data for the None variant
-type OptionNone struct {
-}
-
-// Option is a sum type (discriminated union)
-type Option struct {
-	Kind OptionKind
-	Some *OptionSome
-	None *OptionNone
-}
-
-// NewOptionSome creates a new Some variant
-func NewOptionSome(v0 interface{}) *Option {
-	return &Option{
-		Kind: OptionKindSome,
-		Some: &OptionSome{Value0: v0},
-	}
-}
-
-// NewOptionNone creates a new None variant
-func NewOptionNone() *Option {
-	return &Option{
-		Kind: OptionKindNone,
-		None: &OptionNone{},
-	}
-}
-
-// IsSome returns true if this is a Some variant
-func (v *Option) IsSome() bool {
-	return v.Kind == OptionKindSome
-}
-
-// IsNone returns true if this is a None variant
-func (v *Option) IsNone() bool {
-	return v.Kind == OptionKindNone
 }
 
 // Tile is a record type

@@ -90,37 +90,43 @@
       ]
     },
     "session_3_rendering": {
-      "status": "pending",
+      "status": "completed",
       "tasks": [
         {
           "id": "3.1",
           "desc": "Implement renderBridgeFloor()",
-          "done": false
+          "done": true,
+          "note": "Using Sprite due to IsoTile type alias bug"
         },
         {
           "id": "3.2",
           "desc": "Implement renderConsoles()",
-          "done": false
+          "done": true,
+          "note": "Using Sprite due to IsoEntity type alias bug"
         },
         {
           "id": "3.3",
           "desc": "Implement renderBridgeCrew()",
-          "done": false
+          "done": true,
+          "note": "Using Sprite due to IsoEntity type alias bug"
         },
         {
           "id": "3.4",
           "desc": "Implement renderPlayer()",
-          "done": false
+          "done": true,
+          "note": "Using Sprite due to IsoEntity type alias bug"
         },
         {
           "id": "3.5",
           "desc": "Implement renderBridge() combining all",
-          "done": false
+          "done": true
         }
       ]
     },
     "session_4_go_view": {
-      "status": "pending",
+      "status": "blocked",
+      "blocked_by": "msg_20251209_103342_cdaab7c8",
+      "blocked_reason": "Go codegen produces wrong return types - InitBridge returns struct{} but impl returns *BridgeState, convertToDrawCmdSlice is unexported",
       "tasks": [
         {
           "id": "4.1",
@@ -322,12 +328,61 @@
       "title": "Effect checker hangs on record with multiple list-of-record fields",
       "status": "resolved",
       "blocking": false
+    },
+    {
+      "msg_id": "msg_20251209_102218_5633bd38",
+      "type": "bug_report",
+      "title": "Type alias in ADT variant param fails unification",
+      "status": "sent",
+      "blocking": false,
+      "workaround": "Using Sprite instead of IsoTile/IsoEntity"
+    },
+    {
+      "msg_id": "msg_20251209_103342_cdaab7c8",
+      "type": "bug_report",
+      "title": "Go codegen: wrong return types for exported functions",
+      "status": "sent",
+      "blocking": true,
+      "workaround": "NONE - waiting for fix"
+    },
+    {
+      "msg_id": "msg_20251209_103805_395798e0",
+      "type": "bug_report",
+      "title": "Go codegen: using _ as value in function calls",
+      "status": "sent",
+      "blocking": true,
+      "workaround": "NONE - waiting for fix"
+    },
+    {
+      "msg_id": "msg_20251209_110457_fa7bf0a9",
+      "type": "bug_report",
+      "title": "Go codegen: GtFloat undefined",
+      "status": "sent",
+      "blocking": true,
+      "workaround": "NONE - waiting for fix"
     }
   ],
-  "blockers": [],
-  "notes": [
-    "AILANG bug fixed - full bridge layout now compiles",
-    "Sessions 1-2 complete, ready for Go implementation"
+  "blockers": [
+    {
+      "msg_id": "msg_20251209_103342_cdaab7c8",
+      "description": "Go codegen produces wrong return types. Cannot create BridgeView without workaround files.",
+      "blocks": ["session_4", "session_5", "session_6", "session_7", "session_8"]
+    },
+    {
+      "msg_id": "msg_20251209_103805_395798e0",
+      "description": "Go codegen uses _ as value which is invalid Go syntax. Code won't compile.",
+      "blocks": ["session_4", "session_5", "session_6", "session_7", "session_8"]
+    },
+    {
+      "msg_id": "msg_20251209_110457_fa7bf0a9",
+      "description": "Go codegen uses GtFloat but runtime.go doesn't define it. Code won't compile.",
+      "blocks": ["session_4", "session_5", "session_6", "session_7", "session_8"]
+    }
   ],
-  "last_updated": "2025-12-08T21:15:00Z"
+  "notes": [
+    "Sessions 1-3 complete",
+    "Rendering uses Sprite workaround due to type alias bug",
+    "Session 4+ BLOCKED - waiting for AILANG codegen fix"
+  ],
+  "last_updated": "2025-12-09T10:37:00Z"
 }

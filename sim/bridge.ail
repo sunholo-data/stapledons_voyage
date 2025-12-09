@@ -5,10 +5,11 @@ module sim/bridge
 -- The bridge is the command center of the ship - the player's primary interface
 -- =============================================================================
 
-import sim/protocol (Coord, DrawCmd, IsoTile, IsoEntity, FrameInput)
+import sim/protocol (Coord, DrawCmd, IsoTile, IsoEntity, FrameInput, Rect, Sprite)
 import sim/npc_ai (Direction, North, South, East, West)
 import std/array as A
 import std/option (Option, Some, None)
+import std/list (concat)
 
 -- =============================================================================
 -- Bridge Station Types
@@ -400,4 +401,112 @@ export pure func initBridge() -> BridgeState {
         width: bridgeWidth(),
         height: bridgeHeight()
     }
+}
+
+-- =============================================================================
+-- Bridge Rendering Functions
+-- =============================================================================
+
+-- Layer constants for draw ordering
+pure func layerFloor() -> int { 0 }
+pure func layerConsoles() -> int { 1 }
+pure func layerCrew() -> int { 2 }
+pure func layerPlayer() -> int { 3 }
+
+-- Default color (white, no tint) - 0xFFFFFFFF as decimal
+pure func colorWhite() -> int { 4294967295 }
+
+-- Render a single floor tile at position
+-- NOTE: Using Sprite instead of IsoTile due to AILANG type alias bug
+-- IsoTile(Coord, ...) fails with "cannot unify Coord with TRecord"
+pure func renderTileAt(tileX: int, tileY: int, sid: int) -> DrawCmd {
+    -- Isometric projection: x' = (x - y) * tileWidth/2, y' = (x + y) * tileHeight/2
+    let screenX = intToFloat((tileX - tileY) * 32);
+    let screenY = intToFloat((tileX + tileY) * 16);
+    Sprite(sid, screenX, screenY, layerFloor())
+}
+
+-- Render floor tiles recursively (helper for row iteration)
+pure func renderFloorRow(layout: Array[int], x: int, y: int, width: int) -> [DrawCmd] {
+    if x >= width then
+        []
+    else
+        match A.getOpt(layout, tileIndex(x, y, width)) {
+            Some(spriteId) => renderTileAt(x, y, spriteId) :: renderFloorRow(layout, x + 1, y, width),
+            None => renderFloorRow(layout, x + 1, y, width)
+        }
+}
+
+-- Render all floor rows recursively
+pure func renderFloorRows(layout: Array[int], y: int, width: int, height: int) -> [DrawCmd] {
+    if y >= height then
+        []
+    else
+        concat(renderFloorRow(layout, 0, y, width), renderFloorRows(layout, y + 1, width, height))
+}
+
+-- Render all floor tiles from layout
+export pure func renderBridgeFloor(state: BridgeState) -> [DrawCmd] {
+    renderFloorRows(state.layout, 0, state.width, state.height)
+}
+
+-- Render a single console as an entity
+-- NOTE: Using Sprite instead of IsoEntity due to AILANG type alias bug
+pure func renderConsole(console: ConsoleState) -> DrawCmd {
+    let screenX = intToFloat((console.pos.x - console.pos.y) * 32);
+    let screenY = intToFloat((console.pos.x + console.pos.y) * 16);
+    Sprite(console.spriteId, screenX, screenY, layerConsoles())
+}
+
+-- Render all consoles recursively
+pure func renderConsolesRec(consoles: [ConsoleState]) -> [DrawCmd] {
+    match consoles {
+        [] => [],
+        c :: rest => renderConsole(c) :: renderConsolesRec(rest)
+    }
+}
+
+-- Render all console entities
+export pure func renderConsoles(state: BridgeState) -> [DrawCmd] {
+    renderConsolesRec(state.consoles)
+}
+
+-- Render a single crew member as an entity
+-- NOTE: Using Sprite instead of IsoEntity due to AILANG type alias bug
+pure func renderCrewMember(crew: CrewPosition) -> DrawCmd {
+    let screenX = intToFloat((crew.pos.x - crew.pos.y) * 32);
+    let screenY = intToFloat((crew.pos.x + crew.pos.y) * 16);
+    Sprite(crewSprite(crew.station), screenX, screenY, layerCrew())
+}
+
+-- Render all crew recursively
+pure func renderCrewRec(crew: [CrewPosition]) -> [DrawCmd] {
+    match crew {
+        [] => [],
+        c :: rest => renderCrewMember(c) :: renderCrewRec(rest)
+    }
+}
+
+-- Render all crew members
+export pure func renderBridgeCrew(state: BridgeState) -> [DrawCmd] {
+    renderCrewRec(state.crewPositions)
+}
+
+-- Render the player entity
+-- NOTE: Using Sprite instead of IsoEntity due to AILANG type alias bug
+export pure func renderPlayer(state: BridgeState) -> [DrawCmd] {
+    let screenX = intToFloat((state.playerPos.x - state.playerPos.y) * 32);
+    let screenY = intToFloat((state.playerPos.x + state.playerPos.y) * 16);
+    [Sprite(spritePlayer(), screenX, screenY, layerPlayer())]
+}
+
+-- Render entire bridge (combines all layers)
+export pure func renderBridge(state: BridgeState) -> [DrawCmd] {
+    concat(
+        concat(
+            concat(renderBridgeFloor(state), renderConsoles(state)),
+            renderBridgeCrew(state)
+        ),
+        renderPlayer(state)
+    )
 }
