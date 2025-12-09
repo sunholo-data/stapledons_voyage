@@ -272,55 +272,47 @@ func updatePatrol_impl(npc interface{}, path interface{}, width interface{}, hei
 		return func() interface{} {
 			var tmp19 interface{} = LeInt(len, int64(0))
 			_ = tmp19 // suppress unused
-			return func() interface{} {
-				if tmp19.(bool) {
-					return npc
-				}
+			var tmp20 interface{} = FieldGet(npc, "moveCounter")
+			_ = tmp20 // suppress unused
+			var tmp21 interface{} = LeInt(tmp20, int64(0))
+			_ = tmp21 // suppress unused
+			if tmp19.(bool) {
+				return npc
+			}
+			if tmp21.(bool) {
 				return func() interface{} {
-					var tmp20 interface{} = FieldGet(npc, "moveCounter")
-					_ = tmp20 // suppress unused
+					var dir interface{} = func() interface{} {
+						var tmp24 interface{} = FieldGet(npc, "patrolIndex")
+						_ = tmp24 // suppress unused
+						return pathGet_impl(path, tmp24)
+					}()
+					_ = dir // suppress unused
 					return func() interface{} {
-						var tmp21 interface{} = LeInt(tmp20, int64(0))
-						_ = tmp21 // suppress unused
+						var movedNpc interface{} = tryMoveDirection_impl(npc, dir, width, height)
+						_ = movedNpc // suppress unused
 						return func() interface{} {
-							if tmp21.(bool) {
+							var nextIndex interface{} = func() interface{} {
+								var tmp22 interface{} = FieldGet(npc, "patrolIndex")
+								_ = tmp22 // suppress unused
 								return func() interface{} {
-									var dir interface{} = func() interface{} {
-										var tmp24 interface{} = FieldGet(npc, "patrolIndex")
-										_ = tmp24 // suppress unused
-										return pathGet_impl(path, tmp24)
-									}()
-									_ = dir // suppress unused
-									return func() interface{} {
-										var movedNpc interface{} = tryMoveDirection_impl(npc, dir, width, height)
-										_ = movedNpc // suppress unused
-										return func() interface{} {
-											var nextIndex interface{} = func() interface{} {
-												var tmp22 interface{} = FieldGet(npc, "patrolIndex")
-												_ = tmp22 // suppress unused
-												return func() interface{} {
-													var tmp23 interface{} = AddInt(tmp22, int64(1))
-													_ = tmp23 // suppress unused
-													return ModInt(tmp23, len)
-												}()
-											}()
-											_ = nextIndex // suppress unused
-											return RecordUpdate(movedNpc, map[string]interface{}{"patrolIndex": nextIndex, "moveCounter": int64(20)})
-										}()
-									}()
-								}()
-							}
-							return func() interface{} {
-								var tmp25 interface{} = FieldGet(npc, "moveCounter")
-								_ = tmp25 // suppress unused
-								return func() interface{} {
-									var tmp26 interface{} = SubInt(tmp25, int64(1))
-									_ = tmp26 // suppress unused
-									return npcWithCounter_impl(npc, tmp26)
+									var tmp23 interface{} = AddInt(tmp22, int64(1))
+									_ = tmp23 // suppress unused
+									return ModInt(tmp23, len)
 								}()
 							}()
+							_ = nextIndex // suppress unused
+							return RecordUpdate(movedNpc, map[string]interface{}{"patrolIndex": nextIndex, "moveCounter": int64(20)})
 						}()
 					}()
+				}()
+			}
+			return func() interface{} {
+				var tmp25 interface{} = FieldGet(npc, "moveCounter")
+				_ = tmp25 // suppress unused
+				return func() interface{} {
+					var tmp26 interface{} = SubInt(tmp25, int64(1))
+					_ = tmp26 // suppress unused
+					return npcWithCounter_impl(npc, tmp26)
 				}()
 			}()
 		}()

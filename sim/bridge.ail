@@ -7,7 +7,6 @@ module sim/bridge
 
 import sim/protocol (Coord, DrawCmd, IsoTile, IsoEntity, FrameInput, Rect, Sprite)
 import sim/npc_ai (Direction, North, South, East, West)
-import std/array as A
 import std/option (Option, Some, None)
 import std/list (concat)
 
@@ -90,6 +89,10 @@ export type BridgeState = {
     playerFacing: Direction,
     moveState: MoveState,
 
+    -- Camera (follows player, used for viewport)
+    cameraX: int,
+    cameraY: int,
+
     -- Crew
     crewPositions: [CrewPosition],
 
@@ -103,11 +106,10 @@ export type BridgeState = {
     -- Dome
     domeView: DomeViewState,
 
-    -- Layout
-    layout: Array[int],     -- Tile IDs for 16x12 grid
-    walkable: Array[bool],  -- Which tiles can be walked on
-    width: int,
-    height: int
+    -- Disc configuration (procedural - no stored layout)
+    discRadius: int,        -- Radius of the walkable disc
+    discCenterX: int,       -- Center X of disc
+    discCenterY: int        -- Center Y of disc
 }
 
 -- =============================================================================
@@ -155,26 +157,54 @@ export pure func spritePlayer() -> int { 1205 }
 -- Helper Functions
 -- =============================================================================
 
--- Get tile index from coordinates
-export pure func tileIndex(x: int, y: int, width: int) -> int {
-    y * width + x
+-- Helper to construct Coord
+pure func makeCoord(x: int, y: int) -> Coord {
+    { x: x, y: y }
 }
 
--- Check if coordinates are in bounds
-export pure func inBounds(x: int, y: int, width: int, height: int) -> bool {
-    x >= 0 && x < width && y >= 0 && y < height
+-- Distance squared from disc center (efficient - no sqrt needed)
+pure func distSq(x: int, y: int, cx: int, cy: int) -> int {
+    let dx = x - cx;
+    let dy = y - cy;
+    dx * dx + dy * dy
 }
 
--- Check if a tile is walkable
+-- Check if a position is within the disc
+export pure func isOnDisc(x: int, y: int, cx: int, cy: int, radius: int) -> bool {
+    distSq(x, y, cx, cy) <= radius * radius
+}
+
+-- Check if a tile is walkable (procedural based on disc)
+-- Uses squared distance to avoid expensive isqrt
 export pure func isWalkable(state: BridgeState, x: int, y: int) -> bool {
-    if inBounds(x, y, state.width, state.height) then
-        match A.getOpt(state.walkable, tileIndex(x, y, state.width)) {
-            Some(w) => w,
-            None => false
-        }
-    else
-        false
+    let dSq = distSq(x, y, state.discCenterX, state.discCenterY);
+    let radiusSq = state.discRadius * state.discRadius;
+    -- Walkable if within disc radius minus 1 (edge is not walkable)
+    dSq < radiusSq
 }
+
+-- Get procedural tile type based on position on disc
+-- Uses squared distances to avoid expensive isqrt (major perf win)
+export pure func getTileType(x: int, y: int, cx: int, cy: int, radius: int) -> int {
+    let dSq = distSq(x, y, cx, cy);
+    let radiusSq = radius * radius;
+    let edgeSq = (radius - 1) * (radius - 1);
+    if dSq >= radiusSq then
+        tileWall()          -- Outside disc = void
+    else if dSq >= edgeSq then
+        tileDomeEdge()      -- Edge of disc
+    else if dSq <= 9 then
+        tileCaptainArea()   -- Center = captain's area (d <= 3)
+    else if dSq <= 36 then
+        tileFloorGlow()     -- Inner ring = glowing floor (d <= 6)
+    else if (x + y) % 8 == 0 then
+        tileWalkway()       -- Radial walkways
+    else
+        tileFloor()         -- Normal floor
+}
+
+-- Viewport size (tiles visible in each direction from camera)
+export pure func viewportSize() -> int { 10 }
 
 -- Get sprite ID for a station
 export pure func stationSprite(station: BridgeStation) -> int {
@@ -214,152 +244,76 @@ export pure func moveInDirection(pos: Coord, dir: Direction) -> Coord {
     }
 }
 
--- Helper to construct Coord
-pure func makeCoord(x: int, y: int) -> Coord {
-    { x: x, y: y }
-}
-
 -- =============================================================================
--- Bridge Layout Data (16 wide x 12 tall)
+-- Console and Crew Definitions for Large Disc
 -- =============================================================================
 
--- Bridge dimensions
-export pure func bridgeWidth() -> int { 16 }
-export pure func bridgeHeight() -> int { 12 }
+-- Disc configuration constants for 48x48 disc (radius 24, center 24,24)
+export pure func discRadiusDefault() -> int { 24 }
+export pure func discCenterDefault() -> int { 24 }
 
--- Layout constants for reference:
--- Row 0-1: Dome edge (top of observation dome)
--- Row 2:   Main console stations (Helm, Comms, Status)
--- Row 3-4: Open floor area
--- Row 5:   Central walkway
--- Row 6-7: Captain's area
--- Row 8-9: Side stations (Nav, Science)
--- Row 10-11: Access hatches (deck transitions)
-
--- Create initial bridge layout (192 tiles = 16x12)
--- Returns Array of tile IDs
-export pure func createBridgeLayout() -> Array[int] {
-    -- Build layout row by row using array construction
-    A.fromList([
-        -- Row 0: Dome edge (top)
-        1005, 1005, 1004, 1004, 1004, 1004, 1004, 1004, 1004, 1004, 1004, 1004, 1004, 1004, 1005, 1005,
-        -- Row 1: Dome edge
-        1005, 1004, 1004, 1004, 1004, 1004, 1004, 1004, 1004, 1004, 1004, 1004, 1004, 1004, 1004, 1005,
-        -- Row 2: Console stations (Helm at 3, Comms at 7, Status at 11)
-        1005, 1000, 1000, 1002, 1000, 1000, 1000, 1002, 1000, 1000, 1000, 1002, 1000, 1000, 1000, 1005,
-        -- Row 3: Open floor
-        1005, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1005,
-        -- Row 4: Open floor
-        1005, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1005,
-        -- Row 5: Central walkway
-        1005, 1003, 1003, 1003, 1003, 1003, 1003, 1003, 1003, 1003, 1003, 1003, 1003, 1003, 1003, 1005,
-        -- Row 6: Captain's area
-        1005, 1000, 1000, 1000, 1000, 1000, 1007, 1007, 1007, 1007, 1000, 1000, 1000, 1000, 1000, 1005,
-        -- Row 7: Captain's chair position (at 7-8)
-        1005, 1000, 1000, 1000, 1000, 1000, 1007, 1002, 1007, 1000, 1000, 1000, 1000, 1000, 1000, 1005,
-        -- Row 8: Side stations (Nav at 2, Science at 13)
-        1005, 1000, 1002, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1002, 1000, 1005,
-        -- Row 9: Open floor
-        1005, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1005,
-        -- Row 10: Access hatches
-        1005, 1000, 1000, 1006, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1006, 1000, 1000, 1005,
-        -- Row 11: Bottom wall
-        1005, 1005, 1005, 1006, 1005, 1005, 1005, 1005, 1005, 1005, 1005, 1005, 1006, 1005, 1005, 1005
-    ])
-}
-
--- Create walkable map (true = can walk, false = blocked)
-export pure func createWalkableMap() -> Array[bool] {
-    A.fromList([
-        -- Row 0: Dome edge - blocked
-        false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
-        -- Row 1: Dome edge - blocked
-        false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
-        -- Row 2: Console row - consoles blocked, walkway open
-        false, true, true, false, true, true, true, false, true, true, true, false, true, true, true, false,
-        -- Row 3: Open floor
-        false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false,
-        -- Row 4: Open floor
-        false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false,
-        -- Row 5: Central walkway
-        false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false,
-        -- Row 6: Captain's area
-        false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false,
-        -- Row 7: Captain's chair blocked
-        false, true, true, true, true, true, true, false, true, true, true, true, true, true, true, false,
-        -- Row 8: Side stations
-        false, true, false, true, true, true, true, true, true, true, true, true, true, false, true, false,
-        -- Row 9: Open floor
-        false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false,
-        -- Row 10: Hatches - hatches are walkable (transitions)
-        false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false,
-        -- Row 11: Bottom wall
-        false, false, false, true, false, false, false, false, false, false, false, false, true, false, false, false
-    ])
-}
-
--- =============================================================================
--- Console Definitions
--- =============================================================================
-
--- Create console state list
+-- Create console state list - positioned around the large disc
+-- Consoles are placed at various radii from center
 export pure func createConsoles() -> [ConsoleState] {
+    let cx = discCenterDefault();
+    let cy = discCenterDefault();
     [
-        { station: StationHelm, pos: makeCoord(3, 2), active: true, hasAlert: false, spriteId: spriteConsoleHelm() },
-        { station: StationComms, pos: makeCoord(7, 2), active: true, hasAlert: false, spriteId: spriteConsoleComms() },
-        { station: StationStatus, pos: makeCoord(11, 2), active: true, hasAlert: false, spriteId: spriteConsoleStatus() },
-        { station: StationCaptain, pos: makeCoord(7, 7), active: true, hasAlert: false, spriteId: spriteConsoleCaptain() },
-        { station: StationNav, pos: makeCoord(2, 8), active: true, hasAlert: false, spriteId: spriteConsoleNav() },
-        { station: StationScience, pos: makeCoord(13, 8), active: true, hasAlert: false, spriteId: spriteConsoleScience() }
+        -- Front consoles (toward "forward" of ship, y < center)
+        { station: StationHelm, pos: makeCoord(cx, cy - 10), active: true, hasAlert: false, spriteId: spriteConsoleHelm() },
+        { station: StationComms, pos: makeCoord(cx - 8, cy - 8), active: true, hasAlert: false, spriteId: spriteConsoleComms() },
+        { station: StationStatus, pos: makeCoord(cx + 8, cy - 8), active: true, hasAlert: false, spriteId: spriteConsoleStatus() },
+        -- Captain's chair at center
+        { station: StationCaptain, pos: makeCoord(cx, cy), active: true, hasAlert: false, spriteId: spriteConsoleCaptain() },
+        -- Side consoles (equatorial)
+        { station: StationNav, pos: makeCoord(cx - 12, cy), active: true, hasAlert: false, spriteId: spriteConsoleNav() },
+        { station: StationScience, pos: makeCoord(cx + 12, cy), active: true, hasAlert: false, spriteId: spriteConsoleScience() }
     ]
 }
 
--- =============================================================================
--- Crew Definitions
--- =============================================================================
-
--- Create default crew positions
+-- Create default crew positions - crew stand near their stations
 export pure func createDefaultCrew() -> [CrewPosition] {
+    let cx = discCenterDefault();
+    let cy = discCenterDefault();
     [
         {
             crew: { id: 1, name: "Pilot Chen" },
             station: StationHelm,
-            pos: makeCoord(3, 3),
+            pos: makeCoord(cx, cy - 9),
             facing: North,
             activity: ActivityWorking
         },
         {
             crew: { id: 2, name: "Comms Officer Patel" },
             station: StationComms,
-            pos: makeCoord(7, 3),
+            pos: makeCoord(cx - 8, cy - 7),
             facing: North,
             activity: ActivityWorking
         },
         {
             crew: { id: 3, name: "Engineer Torres" },
             station: StationStatus,
-            pos: makeCoord(11, 3),
+            pos: makeCoord(cx + 8, cy - 7),
             facing: North,
             activity: ActivityWorking
         },
         {
             crew: { id: 4, name: "Navigator Kim" },
             station: StationNav,
-            pos: makeCoord(2, 9),
-            facing: North,
+            pos: makeCoord(cx - 11, cy),
+            facing: East,
             activity: ActivityWorking
         },
         {
             crew: { id: 5, name: "Science Officer Okafor" },
             station: StationScience,
-            pos: makeCoord(13, 9),
-            facing: North,
+            pos: makeCoord(cx + 11, cy),
+            facing: West,
             activity: ActivityWorking
         },
         {
             crew: { id: 6, name: "Captain Reyes" },
             station: StationCaptain,
-            pos: makeCoord(7, 8),
+            pos: makeCoord(cx, cy + 1),
             facing: North,
             activity: ActivityIdle
         }
@@ -372,11 +326,18 @@ export pure func createDefaultCrew() -> [CrewPosition] {
 
 -- Create initial bridge state
 export pure func initBridge() -> BridgeState {
+    let cx = discCenterDefault();
+    let cy = discCenterDefault();
+    let radius = discRadiusDefault();
     {
-        -- Player starts near the entrance (bottom center)
-        playerPos: makeCoord(8, 10),
+        -- Player starts at south edge of disc (high y value)
+        playerPos: makeCoord(cx, cy + 16),
         playerFacing: North,
         moveState: MoveIdle,
+
+        -- Camera starts centered on player
+        cameraX: cx,
+        cameraY: cy + 16,
 
         -- Load crew
         crewPositions: createDefaultCrew(),
@@ -395,11 +356,10 @@ export pure func initBridge() -> BridgeState {
             viewAngle: 0.0
         },
 
-        -- Layout data
-        layout: createBridgeLayout(),
-        walkable: createWalkableMap(),
-        width: bridgeWidth(),
-        height: bridgeHeight()
+        -- Disc configuration
+        discRadius: radius,
+        discCenterX: cx,
+        discCenterY: cy
     }
 }
 
@@ -422,94 +382,129 @@ pure func colorWhite() -> int { 4294967295 }
 pure func screenOffsetX() -> float { 640.0 }  -- Center horizontally
 pure func screenOffsetY() -> float { 350.0 }  -- Lower portion, below dome
 
--- Render a single floor tile at position
+-- Render a single floor tile at world position, relative to camera
 -- NOTE: Using Sprite instead of IsoTile due to AILANG type alias bug
--- IsoTile(Coord, ...) fails with "cannot unify Coord with TRecord"
-pure func renderTileAt(tileX: int, tileY: int, sid: int) -> DrawCmd {
+pure func renderTileAt(worldX: int, worldY: int, camX: int, camY: int, sid: int) -> DrawCmd {
+    -- Calculate position relative to camera (so camera is at screen center)
+    let relX = worldX - camX;
+    let relY = worldY - camY;
     -- Isometric projection: x' = (x - y) * tileWidth/2, y' = (x + y) * tileHeight/2
-    -- Then offset to center on screen
-    let isoX = intToFloat((tileX - tileY) * 32);
-    let isoY = intToFloat((tileX + tileY) * 16);
+    let isoX = intToFloat((relX - relY) * 32);
+    let isoY = intToFloat((relX + relY) * 16);
     let screenX = isoX + screenOffsetX();
     let screenY = isoY + screenOffsetY();
     Sprite(sid, screenX, screenY, layerFloor())
 }
 
--- Render floor tiles recursively (helper for row iteration)
-pure func renderFloorRow(layout: Array[int], x: int, y: int, width: int) -> [DrawCmd] {
-    if x >= width then
-        []
-    else
-        match A.getOpt(layout, tileIndex(x, y, width)) {
-            Some(spriteId) => renderTileAt(x, y, spriteId) :: renderFloorRow(layout, x + 1, y, width),
-            None => renderFloorRow(layout, x + 1, y, width)
-        }
+-- Render tile row helper (recurses through x from start to maxX)
+pure func renderFloorRowViewportRec(state: BridgeState, x: int, y: int, maxX: int, acc: [DrawCmd]) -> [DrawCmd] {
+    if x > maxX then acc
+    else renderFloorRowViewportRec(
+        state,
+        x + 1,
+        y,
+        maxX,
+        renderTileAt(x, y, state.cameraX, state.cameraY,
+            getTileType(x, y, state.discCenterX, state.discCenterY, state.discRadius)) :: acc
+    )
 }
 
--- Render all floor rows recursively
-pure func renderFloorRows(layout: Array[int], y: int, width: int, height: int) -> [DrawCmd] {
-    if y >= height then
-        []
-    else
-        concat(renderFloorRow(layout, 0, y, width), renderFloorRows(layout, y + 1, width, height))
+-- Render one row of tiles in viewport
+pure func renderFloorRowViewport(state: BridgeState, x: int, y: int, maxX: int) -> [DrawCmd] {
+    renderFloorRowViewportRec(state, x, y, maxX, [])
 }
 
--- Render all floor tiles from layout
+-- Render all floor rows in viewport (procedural)
+pure func renderFloorRowsViewport(state: BridgeState, y: int, maxY: int, minX: int, maxX: int) -> [DrawCmd] {
+    if y > maxY then
+        []
+    else
+        concat(
+            renderFloorRowViewport(state, minX, y, maxX),
+            renderFloorRowsViewport(state, y + 1, maxY, minX, maxX)
+        )
+}
+
+-- Render all floor tiles within viewport around camera
 export pure func renderBridgeFloor(state: BridgeState) -> [DrawCmd] {
-    renderFloorRows(state.layout, 0, state.width, state.height)
+    let vp = viewportSize();
+    let minX = state.cameraX - vp;
+    let maxX = state.cameraX + vp;
+    let minY = state.cameraY - vp;
+    let maxY = state.cameraY + vp;
+    renderFloorRowsViewport(state, minY, maxY, minX, maxX)
 }
 
--- Render a single console as an entity
--- NOTE: Using Sprite instead of IsoEntity due to AILANG type alias bug
-pure func renderConsole(console: ConsoleState) -> DrawCmd {
-    let isoX = intToFloat((console.pos.x - console.pos.y) * 32);
-    let isoY = intToFloat((console.pos.x + console.pos.y) * 16);
+-- Helper: check if world position is within viewport
+pure func inViewport(wx: int, wy: int, camX: int, camY: int) -> bool {
+    let vp = viewportSize();
+    let dx = wx - camX;
+    let dy = wy - camY;
+    dx >= 0 - vp - 2 && dx <= vp + 2 && dy >= 0 - vp - 2 && dy <= vp + 2
+}
+
+-- Render a single console relative to camera
+pure func renderConsole(console: ConsoleState, camX: int, camY: int) -> DrawCmd {
+    let relX = console.pos.x - camX;
+    let relY = console.pos.y - camY;
+    let isoX = intToFloat((relX - relY) * 32);
+    let isoY = intToFloat((relX + relY) * 16);
     let screenX = isoX + screenOffsetX();
     let screenY = isoY + screenOffsetY();
     Sprite(console.spriteId, screenX, screenY, layerConsoles())
 }
 
--- Render all consoles recursively
-pure func renderConsolesRec(consoles: [ConsoleState]) -> [DrawCmd] {
+-- Render all consoles recursively (only those in viewport)
+pure func renderConsolesRec(consoles: [ConsoleState], camX: int, camY: int) -> [DrawCmd] {
     match consoles {
         [] => [],
-        c :: rest => renderConsole(c) :: renderConsolesRec(rest)
+        c :: rest =>
+            if inViewport(c.pos.x, c.pos.y, camX, camY) then
+                renderConsole(c, camX, camY) :: renderConsolesRec(rest, camX, camY)
+            else
+                renderConsolesRec(rest, camX, camY)
     }
 }
 
 -- Render all console entities
 export pure func renderConsoles(state: BridgeState) -> [DrawCmd] {
-    renderConsolesRec(state.consoles)
+    renderConsolesRec(state.consoles, state.cameraX, state.cameraY)
 }
 
--- Render a single crew member as an entity
--- NOTE: Using Sprite instead of IsoEntity due to AILANG type alias bug
-pure func renderCrewMember(crew: CrewPosition) -> DrawCmd {
-    let isoX = intToFloat((crew.pos.x - crew.pos.y) * 32);
-    let isoY = intToFloat((crew.pos.x + crew.pos.y) * 16);
+-- Render a single crew member relative to camera
+pure func renderCrewMember(crew: CrewPosition, camX: int, camY: int) -> DrawCmd {
+    let relX = crew.pos.x - camX;
+    let relY = crew.pos.y - camY;
+    let isoX = intToFloat((relX - relY) * 32);
+    let isoY = intToFloat((relX + relY) * 16);
     let screenX = isoX + screenOffsetX();
     let screenY = isoY + screenOffsetY();
     Sprite(crewSprite(crew.station), screenX, screenY, layerCrew())
 }
 
--- Render all crew recursively
-pure func renderCrewRec(crew: [CrewPosition]) -> [DrawCmd] {
+-- Render all crew recursively (only those in viewport)
+pure func renderCrewRec(crew: [CrewPosition], camX: int, camY: int) -> [DrawCmd] {
     match crew {
         [] => [],
-        c :: rest => renderCrewMember(c) :: renderCrewRec(rest)
+        c :: rest =>
+            if inViewport(c.pos.x, c.pos.y, camX, camY) then
+                renderCrewMember(c, camX, camY) :: renderCrewRec(rest, camX, camY)
+            else
+                renderCrewRec(rest, camX, camY)
     }
 }
 
 -- Render all crew members
 export pure func renderBridgeCrew(state: BridgeState) -> [DrawCmd] {
-    renderCrewRec(state.crewPositions)
+    renderCrewRec(state.crewPositions, state.cameraX, state.cameraY)
 }
 
--- Render the player entity
--- NOTE: Using Sprite instead of IsoEntity due to AILANG type alias bug
+-- Render the player entity (always at screen center since camera follows player)
 export pure func renderPlayer(state: BridgeState) -> [DrawCmd] {
-    let isoX = intToFloat((state.playerPos.x - state.playerPos.y) * 32);
-    let isoY = intToFloat((state.playerPos.x + state.playerPos.y) * 16);
+    let relX = state.playerPos.x - state.cameraX;
+    let relY = state.playerPos.y - state.cameraY;
+    let isoX = intToFloat((relX - relY) * 32);
+    let isoY = intToFloat((relX + relY) * 16);
     let screenX = isoX + screenOffsetX();
     let screenY = isoY + screenOffsetY();
     [Sprite(spritePlayer(), screenX, screenY, layerPlayer())]

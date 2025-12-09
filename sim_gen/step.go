@@ -462,7 +462,7 @@ func step_impl(world interface{}, input interface{}) interface{} {
 				}()
 				_ = updatedNpcs // suppress unused
 				return func() interface{} {
-					var newWorld interface{} = RecordUpdate(world, map[string]interface{}{"selection": newSelection, "tick": newTick, "npcs": updatedNpcs})
+					var newWorld interface{} = RecordUpdate(world, map[string]interface{}{"tick": newTick, "npcs": updatedNpcs, "selection": newSelection})
 					_ = newWorld // suppress unused
 					return func() interface{} {
 						var tileCmds interface{} = func() interface{} {

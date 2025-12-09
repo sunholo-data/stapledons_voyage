@@ -197,23 +197,23 @@ func (r *Renderer) RenderFrame(screen *ebiten.Image, out sim_gen.FrameOutput) {
 // getBridgeSpriteColor returns a fallback color for bridge sprite IDs
 func getBridgeSpriteColor(id int64) color.RGBA {
 	switch {
-	// Bridge tiles (1000-1099)
+	// Bridge tiles (1000-1099) - BRIGHT colors for visibility
 	case id == 1000: // tileFloor
-		return color.RGBA{40, 45, 55, 255}
+		return color.RGBA{80, 90, 110, 255} // Brighter floor
 	case id == 1001: // tileFloorGlow
-		return color.RGBA{50, 60, 80, 255}
+		return color.RGBA{100, 120, 160, 255} // Glowing floor
 	case id == 1002: // tileConsoleBase
-		return color.RGBA{35, 40, 50, 255}
+		return color.RGBA{70, 80, 100, 255} // Console base
 	case id == 1003: // tileWalkway
-		return color.RGBA{55, 60, 70, 255}
+		return color.RGBA{110, 120, 140, 255} // Bright walkway
 	case id == 1004: // tileDomeEdge
-		return color.RGBA{30, 50, 70, 200}
+		return color.RGBA{60, 100, 140, 230} // Blue-tinted dome edge
 	case id == 1005: // tileWall
-		return color.RGBA{25, 30, 40, 255}
+		return color.RGBA{50, 60, 80, 255} // Wall (darker)
 	case id == 1006: // tileHatch
-		return color.RGBA{60, 50, 40, 255}
+		return color.RGBA{120, 100, 80, 255} // Warm hatch
 	case id == 1007: // tileCaptainArea
-		return color.RGBA{50, 45, 60, 255}
+		return color.RGBA{100, 90, 120, 255} // Purple-tinted captain area
 	// Console sprites (1100-1149)
 	case id >= 1100 && id < 1150:
 		return color.RGBA{80, 120, 180, 255} // Blue consoles

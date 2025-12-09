@@ -147,7 +147,7 @@ func (g *DemoGame) drawHUD(screen *ebiten.Image) {
 		state := g.bridgeView.GetState()
 		if state != nil {
 			y += lineHeight
-			ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Bridge: %dx%d tiles", state.Width, state.Height), 10, int(y))
+			ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Disc: radius=%d", state.DiscRadius), 10, int(y))
 			y += lineHeight
 			ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Player: (%d, %d)", state.PlayerPos.X, state.PlayerPos.Y), 10, int(y))
 			y += lineHeight

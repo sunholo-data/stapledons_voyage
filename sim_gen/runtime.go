@@ -473,10 +473,20 @@ func FromList(xs interface{}) interface{} {
 	if xs == nil {
 		return []interface{}{}
 	}
+	// Fast path for []interface{}
 	if list, ok := xs.([]interface{}); ok {
 		// Return a copy to preserve immutability
 		result := make([]interface{}, len(list))
 		copy(result, list)
+		return result
+	}
+	// Reflection path for typed slices (e.g., []int64, []*Tile)
+	v := reflect.ValueOf(xs)
+	if v.Kind() == reflect.Slice {
+		result := make([]interface{}, v.Len())
+		for i := 0; i < v.Len(); i++ {
+			result[i] = v.Index(i).Interface()
+		}
 		return result
 	}
 	return []interface{}{}
@@ -488,9 +498,19 @@ func ToList(arr interface{}) interface{} {
 	if arr == nil {
 		return []interface{}{}
 	}
+	// Fast path for []interface{}
 	if slice, ok := arr.([]interface{}); ok {
 		result := make([]interface{}, len(slice))
 		copy(result, slice)
+		return result
+	}
+	// Reflection path for typed slices (e.g., []int64, []*Tile)
+	v := reflect.ValueOf(arr)
+	if v.Kind() == reflect.Slice {
+		result := make([]interface{}, v.Len())
+		for i := 0; i < v.Len(); i++ {
+			result[i] = v.Index(i).Interface()
+		}
 		return result
 	}
 	return []interface{}{}
@@ -501,8 +521,14 @@ func Length(arr interface{}) interface{} {
 	if arr == nil {
 		return int64(0)
 	}
+	// Fast path for []interface{}
 	if slice, ok := arr.([]interface{}); ok {
 		return int64(len(slice))
+	}
+	// Reflection path for typed slices (e.g., []int64, []*Tile)
+	v := reflect.ValueOf(arr)
+	if v.Kind() == reflect.Slice {
+		return int64(v.Len())
 	}
 	return int64(0)
 }
@@ -511,11 +537,20 @@ func Length(arr interface{}) interface{} {
 // Panics if index is out of bounds.
 func Get(arr interface{}, idx interface{}) interface{} {
 	i := toInt64(idx)
+	// Fast path for []interface{}
 	if slice, ok := arr.([]interface{}); ok {
 		if i < 0 || i >= int64(len(slice)) {
 			panic(fmt.Sprintf("array index out of bounds: %d (length %d)", i, len(slice)))
 		}
 		return slice[i]
+	}
+	// Reflection path for typed slices (e.g., []int64, []*Tile)
+	v := reflect.ValueOf(arr)
+	if v.Kind() == reflect.Slice {
+		if i < 0 || i >= int64(v.Len()) {
+			panic(fmt.Sprintf("array index out of bounds: %d (length %d)", i, v.Len()))
+		}
+		return v.Index(int(i)).Interface()
 	}
 	panic("Get: not an array")
 }
@@ -533,6 +568,14 @@ func GetOpt(arr interface{}, idx interface{}) interface{} {
 			return makeOptionNone()
 		}
 		return makeOptionSome(slice[i])
+	}
+	// Reflection path for typed slices (e.g., []int64, []*Tile)
+	v := reflect.ValueOf(arr)
+	if v.Kind() == reflect.Slice {
+		if i >= int64(v.Len()) {
+			return makeOptionNone()
+		}
+		return makeOptionSome(v.Index(int(i)).Interface())
 	}
 	return makeOptionNone()
 }

@@ -2,6 +2,7 @@ package view
 
 import (
 	"image/color"
+	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"stapledons_voyage/engine/assets"
@@ -121,6 +122,10 @@ func (v *BridgeView) Draw(screen *ebiten.Image) {
 
 	// 3. Get draw commands from AILANG for bridge interior
 	cmds := sim_gen.RenderBridge(v.state)
+	// DEBUG: Print cmd count every 60 frames
+	if v.frameCount%60 == 0 {
+		log.Printf("AILANG generated %d draw commands", len(cmds))
+	}
 
 	// Simple pass-through: AILANG outputs coordinates, Go renders directly
 	// Camera at (screenW/2, screenH/2) with zoom 1 = no transform (origin at screen center)

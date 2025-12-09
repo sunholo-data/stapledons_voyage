@@ -1,0 +1,32 @@
+module test/bug_repro
+
+-- MINIMAL REPRODUCER: Type inference fails with let bindings in if-else else branch
+--
+-- Error: type error: type unification failed at [if branches]: cannot unify list type with *types.TCon
+--
+-- EXPECTED: This should compile - returning a list from an if-else where the else branch
+-- has let bindings before building the list.
+--
+-- WORKS: Using accumulator pattern instead (pass list as parameter)
+-- WORKS: match instead of if-then-else
+-- FAILS: if-then-else with let bindings in else branch followed by list cons
+
+-- This FAILS:
+pure func buildList(x: int, maxX: int) -> [int] {
+    if x > maxX then
+        []
+    else
+        let v = x * 2;
+        let rest = buildList(x + 1, maxX);
+        v :: rest
+}
+
+-- This WORKS (accumulator pattern):
+-- pure func buildListAcc(x: int, maxX: int, acc: [int]) -> [int] {
+--     if x > maxX then acc
+--     else buildListAcc(x + 1, maxX, (x * 2) :: acc)
+-- }
+
+func main() -> int {
+    0
+}

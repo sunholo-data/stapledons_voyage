@@ -328,7 +328,7 @@ func stepArrival_impl(state interface{}, input interface{}) interface{} {
 									}()
 								}()
 							}
-							return RecordUpdate(state, map[string]interface{}{"phaseTime": newPhaseTime, "totalTime": newTotalTime, "grIntensity": newGR})
+							return RecordUpdate(state, map[string]interface{}{"totalTime": newTotalTime, "grIntensity": newGR, "phaseTime": newPhaseTime})
 						}()
 					}()
 				}()
