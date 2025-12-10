@@ -130,20 +130,18 @@ func shouldTransition(phase *ArrivalPhase, phaseTime float64) bool {
 }
 
 func isArrivalComplete_impl(state interface{}) interface{} {
+	var tmp1 interface{} = FieldGet(state, "phase")
+	_ = tmp1 // suppress unused
 	return func() interface{} {
-		var tmp1 interface{} = FieldGet(state, "phase")
-		_ = tmp1 // suppress unused
-		return func() interface{} {
-			_scrutinee := tmp1
-			_ = _scrutinee // suppress unused
-			_adt := _scrutinee.(*ArrivalPhase)
-			switch _adt.Kind {
-			case ArrivalPhaseKindPhaseComplete:
-				return true
-			default:
-				return false
-			}
-		}()
+		_scrutinee := tmp1
+		_ = _scrutinee // suppress unused
+		_adt := _scrutinee.(*ArrivalPhase)
+		switch _adt.Kind {
+		case ArrivalPhaseKindPhaseComplete:
+			return true
+		default:
+			return false
+		}
 	}()
 }
 
@@ -160,28 +158,26 @@ func GetArrivalVelocity(state *ArrivalState) float64 {
 }
 
 func getArrivalPlanetName_impl(state interface{}) interface{} {
+	var tmp2 interface{} = FieldGet(state, "currentPlanet")
+	_ = tmp2 // suppress unused
 	return func() interface{} {
-		var tmp2 interface{} = FieldGet(state, "currentPlanet")
-		_ = tmp2 // suppress unused
-		return func() interface{} {
-			_scrutinee := tmp2
-			_ = _scrutinee // suppress unused
-			_adt := _scrutinee.(*CurrentPlanet)
-			switch _adt.Kind {
-			case CurrentPlanetKindNoPlanet:
-				return ""
-			case CurrentPlanetKindSaturn:
-				return "saturn"
-			case CurrentPlanetKindJupiter:
-				return "jupiter"
-			case CurrentPlanetKindMars:
-				return "mars"
-			case CurrentPlanetKindEarth:
-				return "earth"
-			default:
-				panic("non-exhaustive match")
-			}
-		}()
+		_scrutinee := tmp2
+		_ = _scrutinee // suppress unused
+		_adt := _scrutinee.(*CurrentPlanet)
+		switch _adt.Kind {
+		case CurrentPlanetKindNoPlanet:
+			return ""
+		case CurrentPlanetKindSaturn:
+			return "saturn"
+		case CurrentPlanetKindJupiter:
+			return "jupiter"
+		case CurrentPlanetKindMars:
+			return "mars"
+		case CurrentPlanetKindEarth:
+			return "earth"
+		default:
+			panic("non-exhaustive match")
+		}
 	}()
 }
 
@@ -190,34 +186,32 @@ func GetArrivalPlanetName(state *ArrivalState) string {
 }
 
 func getArrivalPhaseName_impl(state interface{}) interface{} {
+	var tmp3 interface{} = FieldGet(state, "phase")
+	_ = tmp3 // suppress unused
 	return func() interface{} {
-		var tmp3 interface{} = FieldGet(state, "phase")
-		_ = tmp3 // suppress unused
-		return func() interface{} {
-			_scrutinee := tmp3
-			_ = _scrutinee // suppress unused
-			_adt := _scrutinee.(*ArrivalPhase)
-			switch _adt.Kind {
-			case ArrivalPhaseKindPhaseBlackHole:
-				return "blackhole"
-			case ArrivalPhaseKindPhaseEmergence:
-				return "emergence"
-			case ArrivalPhaseKindPhaseStabilizing:
-				return "stabilizing"
-			case ArrivalPhaseKindPhaseSaturn:
-				return "saturn"
-			case ArrivalPhaseKindPhaseJupiter:
-				return "jupiter"
-			case ArrivalPhaseKindPhaseMars:
-				return "mars"
-			case ArrivalPhaseKindPhaseEarth:
-				return "earth"
-			case ArrivalPhaseKindPhaseComplete:
-				return "complete"
-			default:
-				panic("non-exhaustive match")
-			}
-		}()
+		_scrutinee := tmp3
+		_ = _scrutinee // suppress unused
+		_adt := _scrutinee.(*ArrivalPhase)
+		switch _adt.Kind {
+		case ArrivalPhaseKindPhaseBlackHole:
+			return "blackhole"
+		case ArrivalPhaseKindPhaseEmergence:
+			return "emergence"
+		case ArrivalPhaseKindPhaseStabilizing:
+			return "stabilizing"
+		case ArrivalPhaseKindPhaseSaturn:
+			return "saturn"
+		case ArrivalPhaseKindPhaseJupiter:
+			return "jupiter"
+		case ArrivalPhaseKindPhaseMars:
+			return "mars"
+		case ArrivalPhaseKindPhaseEarth:
+			return "earth"
+		case ArrivalPhaseKindPhaseComplete:
+			return "complete"
+		default:
+			panic("non-exhaustive match")
+		}
 	}()
 }
 
@@ -265,75 +259,65 @@ func calcGRDecay(phase *ArrivalPhase, phaseTime float64, currentGR float64) floa
 }
 
 func stepArrival_impl(state interface{}, input interface{}) interface{} {
-	return func() interface{} {
-		var dt interface{} = FieldGet(input, "dt")
-		_ = dt // suppress unused
+	var dt interface{} = FieldGet(input, "dt")
+	_ = dt // suppress unused
+	var newPhaseTime interface{} = func() interface{} {
+		var tmp12 interface{} = FieldGet(state, "phaseTime")
+		_ = tmp12 // suppress unused
+		return AddInt(tmp12, dt)
+	}()
+	_ = newPhaseTime // suppress unused
+	var newTotalTime interface{} = func() interface{} {
+		var tmp11 interface{} = FieldGet(state, "totalTime")
+		_ = tmp11 // suppress unused
+		return AddInt(tmp11, dt)
+	}()
+	_ = newTotalTime // suppress unused
+	var newGR interface{} = func() interface{} {
+		var tmp9 interface{} = FieldGet(state, "phase")
+		_ = tmp9 // suppress unused
 		return func() interface{} {
-			var newPhaseTime interface{} = func() interface{} {
-				var tmp12 interface{} = FieldGet(state, "phaseTime")
-				_ = tmp12 // suppress unused
-				return AddInt(tmp12, dt)
-			}()
-			_ = newPhaseTime // suppress unused
-			return func() interface{} {
-				var newTotalTime interface{} = func() interface{} {
-					var tmp11 interface{} = FieldGet(state, "totalTime")
-					_ = tmp11 // suppress unused
-					return AddInt(tmp11, dt)
-				}()
-				_ = newTotalTime // suppress unused
-				return func() interface{} {
-					var newGR interface{} = func() interface{} {
-						var tmp9 interface{} = FieldGet(state, "phase")
-						_ = tmp9 // suppress unused
-						return func() interface{} {
-							var tmp10 interface{} = FieldGet(state, "grIntensity")
-							_ = tmp10 // suppress unused
-							return calcGRDecay_impl(tmp9, newPhaseTime, tmp10)
-						}()
-					}()
-					_ = newGR // suppress unused
-					return func() interface{} {
-						var transition interface{} = func() interface{} {
-							var tmp8 interface{} = FieldGet(state, "phase")
-							_ = tmp8 // suppress unused
-							return shouldTransition_impl(tmp8, newPhaseTime)
-						}()
-						_ = transition // suppress unused
-						return func() interface{} {
-							if transition.(bool) {
-								return func() interface{} {
-									var nextPh interface{} = func() interface{} {
-										var tmp7 interface{} = FieldGet(state, "phase")
-										_ = tmp7 // suppress unused
-										return nextPhase_impl(tmp7)
-									}()
-									_ = nextPh // suppress unused
-									return func() interface{} {
-										var nextVel interface{} = phaseTargetVelocity_impl(nextPh)
-										_ = nextVel // suppress unused
-										return func() interface{} {
-											var nextPlanet interface{} = phasePlanet_impl(nextPh)
-											_ = nextPlanet // suppress unused
-											return func() interface{} {
-												var tmp5 interface{} = FieldGet(state, "shipTimeYears")
-												_ = tmp5 // suppress unused
-												return func() interface{} {
-													var tmp6 interface{} = FieldGet(state, "galaxyYear")
-													_ = tmp6 // suppress unused
-													return &ArrivalState{Phase: nextPh.(*ArrivalPhase), PhaseTime: float64(float64(0)), TotalTime: newTotalTime.(float64), Velocity: nextVel.(float64), GrIntensity: float64(float64(0)), CurrentPlanet: nextPlanet.(*CurrentPlanet), ShipTimeYears: tmp5.(float64), GalaxyYear: tmp6.(int64)}
-												}()
-											}()
-										}()
-									}()
-								}()
-							}
-							return RecordUpdate(state, map[string]interface{}{"totalTime": newTotalTime, "grIntensity": newGR, "phaseTime": newPhaseTime})
-						}()
-					}()
-				}()
-			}()
+			var tmp10 interface{} = FieldGet(state, "grIntensity")
+			_ = tmp10 // suppress unused
+			return calcGRDecay_impl(tmp9, newPhaseTime, tmp10)
 		}()
+	}()
+	_ = newGR // suppress unused
+	var transition interface{} = func() interface{} {
+		var tmp8 interface{} = FieldGet(state, "phase")
+		_ = tmp8 // suppress unused
+		return shouldTransition_impl(tmp8, newPhaseTime)
+	}()
+	_ = transition // suppress unused
+	return func() interface{} {
+		if transition.(bool) {
+			return func() interface{} {
+				var nextPh interface{} = func() interface{} {
+					var tmp7 interface{} = FieldGet(state, "phase")
+					_ = tmp7 // suppress unused
+					return nextPhase_impl(tmp7)
+				}()
+				_ = nextPh // suppress unused
+				return func() interface{} {
+					var nextVel interface{} = phaseTargetVelocity_impl(nextPh)
+					_ = nextVel // suppress unused
+					return func() interface{} {
+						var nextPlanet interface{} = phasePlanet_impl(nextPh)
+						_ = nextPlanet // suppress unused
+						return func() interface{} {
+							var tmp5 interface{} = FieldGet(state, "shipTimeYears")
+							_ = tmp5 // suppress unused
+							return func() interface{} {
+								var tmp6 interface{} = FieldGet(state, "galaxyYear")
+								_ = tmp6 // suppress unused
+								return &ArrivalState{Phase: nextPh.(*ArrivalPhase), PhaseTime: float64(float64(0)), TotalTime: newTotalTime.(float64), Velocity: nextVel.(float64), GrIntensity: float64(float64(0)), CurrentPlanet: nextPlanet.(*CurrentPlanet), ShipTimeYears: tmp5.(float64), GalaxyYear: tmp6.(int64)}
+							}()
+						}()
+					}()
+				}()
+			}()
+		}
+		return RecordUpdate(state, map[string]interface{}{"phaseTime": newPhaseTime, "totalTime": newTotalTime, "grIntensity": newGR})
 	}()
 }
 
