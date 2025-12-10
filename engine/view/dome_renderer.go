@@ -125,7 +125,8 @@ func loadTexture(path string) *ebiten.Image {
 }
 
 // createSolarSystem sets up planets for the cruise view.
-// Simplified version - just a few planets visible during cruise.
+// NOTE: Tetra3D 3D rendering is currently disabled - AILANG renders placeholder circles
+// Keeping this code for future debugging of Tetra3D pipeline.
 func (d *DomeRenderer) createSolarSystem() {
 	// Planet configurations for cruise view
 	// Slower, more scenic - we're cruising, not racing
@@ -197,32 +198,10 @@ func (d *DomeRenderer) createSolarSystem() {
 	d.planetLayer.SetSunTarget(0, 0, -50) // Point toward planets
 }
 
-// Update updates the cruise animation.
+// Update updates the dome animations (planet rotations, bubble arc).
+// Camera position is now controlled by AILANG via SetCameraFromState.
 func (d *DomeRenderer) Update(dt float64) {
-	d.cruiseTime += dt
-
-	// Loop the cruise
-	if d.cruiseTime > d.cruiseDuration {
-		d.cruiseTime = 0
-	}
-
-	// Calculate progress through the cruise (0.0 to 1.0)
-	progress := d.cruiseTime / d.cruiseDuration
-
-	// Camera position: slowly cruise from Neptune toward Earth
-	// Using ease-in-out for smooth viewing
-	startZ := 10.0
-	endZ := -155.0
-	eased := progress * progress * (3.0 - 2.0*progress) // Smooth step
-	camZ := startZ - (startZ-endZ)*eased
-
-	// Camera is BELOW planets - we look UP through the dome at them
-	// Planets are positioned with Y offset, camera stays low
-	camY := -3.0 // Looking up at planets above us
-
-	d.planetLayer.SetCameraPosition(0, camY, camZ)
-
-	// Update planet animations
+	// Update planet animations (rotation only)
 	d.planetLayer.Update(dt)
 
 	// Update velocity for starfield parallax
@@ -233,6 +212,17 @@ func (d *DomeRenderer) Update(dt float64) {
 		d.bubbleArc.SetVelocity(d.cruiseVelocity)
 		d.bubbleArc.Update(dt)
 	}
+}
+
+// SetCameraFromState updates the camera position from AILANG's DomeState.
+// This allows AILANG to control the cruise animation while Go handles rendering.
+func (d *DomeRenderer) SetCameraFromState(cameraZ float64, velocity float64) {
+	// Camera position matches original working code
+	// Camera at Y=-3 looks UP at planets above (they have positive Y offset)
+	camY := -3.0
+	d.planetLayer.SetCameraPosition(0, camY, cameraZ)
+	// NOTE: No LookAt call - original working code didn't use it
+	d.cruiseVelocity = velocity
 }
 
 // GetCruiseInfo returns current cruise state for HUD display.
@@ -300,18 +290,18 @@ func (d *DomeRenderer) Draw(screen *ebiten.Image) {
 	// Layer 1: Starfield background (furthest - outside bubble)
 	d.spaceBackground.Draw(screen, nil)
 
-	// Layer 2: 3D planets - DISABLED: Now rendered by AILANG as CircleRGBA
-	// AILANG owns planet positions and cruise animation (sim/bridge.ail)
-	// if d.planetLayer != nil {
-	// 	d.planetLayer.Draw(screen)
-	// }
+	// Layer 2: 3D textured planets (Tetra3D)
+	// Camera position controlled by AILANG's DomeState.CameraZ
+	if d.planetLayer != nil {
+		d.planetLayer.Draw(screen)
+	}
 
 	// Layer 3: Bubble arc edge with plasma (shows we're inside dome)
 	if d.bubbleArc != nil {
 		d.bubbleArc.Draw(screen)
 	}
 
-	// The bridge interior (including AILANG planets) will be rendered on top by BridgeView
+	// The bridge interior is rendered on top by BridgeView via AILANG DrawCmds
 }
 
 // applyMask applies the elliptical mask to the space buffer.

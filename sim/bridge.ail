@@ -244,15 +244,14 @@ export pure func renderDomePlanets(state: DomeState) -> [DrawCmd] {
 -- Layer for dome background (furthest back)
 pure func layerDomeBg() -> int { 0 - 20 }
 
--- Render full dome view (galaxy background + planets)
+-- Render dome view with galaxy background and planets
+-- AILANG owns the cruise animation state (cameraZ, velocity)
+-- Using CircleRGBA for now until Tetra3D rendering is fixed
 export pure func renderDome(state: DomeState) -> [DrawCmd] {
-    -- Galaxy background first (behind everything)
-    -- GalaxyBg(opacity, z, skyViewMode, viewLon, viewLat, fov)
+    -- Galaxy background first (Milky Way starfield)
     let bgCmd = GalaxyBg(0.8, layerDomeBg(), false, 0.0, 0.0, 1.57);
-
-    -- Then planets on top of background
+    -- Planets as circles with perspective projection
     let planetCmds = renderDomePlanets(state);
-
     concat([bgCmd], planetCmds)
 }
 
@@ -340,7 +339,7 @@ pure func strutCount() -> int { 8 }
 
 -- Arc parameters: struts form curve from sides toward top
 -- Arc center Y is below screen, struts curve upward
-pure func arcCenterY() -> float { 1400.0 }   -- Below screen (960 height), pushed down to match floor
+pure func arcCenterY() -> float { 1600.0 }   -- Below screen (960 height), pushed down to match floor at 750
 pure func arcRadius() -> float { 900.0 }     -- Large radius for gentle curve
 
 -- Calculate strut base position on arc (bottom attachment point)
@@ -673,7 +672,7 @@ pure func colorWhite() -> int { 4294967295 }
 -- Screen is 1280x960, we want the grid centered horizontally
 -- and positioned in the lower portion (below the dome)
 pure func screenOffsetX() -> float { 640.0 }  -- Center horizontally
-pure func screenOffsetY() -> float { 550.0 }  -- Lower portion, below dome (pushed down to give planets space)
+pure func screenOffsetY() -> float { 750.0 }  -- Near bottom - planets fly overhead in dome area above
 
 -- Get color for tile type (placeholder rendering)
 pure func tileColor(tileType: int) -> int {
@@ -859,7 +858,7 @@ export pure func renderBridge(state: BridgeState) -> [DrawCmd] {
             concat(
                 concat(
                     concat(
-                        renderDome(state.domeState),  -- Dome planets (background)
+                        renderDome(state.domeState),  -- Dome with planets (background)
                         renderStruts(state)           -- Structural struts
                     ),
                     renderBridgeFloor(state)          -- Isometric floor tiles

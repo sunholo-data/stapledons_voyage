@@ -1,9 +1,9 @@
 {
   "version": "0.1.0",
-  "timestamp": 1765396512,
-  "play_time": 2358.750000002423,
+  "timestamp": 1765397900,
+  "play_time": 3708.100000019604,
   "world": {
-    "Tick": 141525,
+    "Tick": 222486,
     "Planet": {
       "Width": 8,
       "Height": 8,
@@ -373,11 +373,11 @@
             "Y": 1
           },
           "Facing": {
-            "Kind": 0,
-            "North": {},
+            "Kind": 3,
+            "North": null,
             "South": null,
             "East": null,
-            "West": null
+            "West": {}
           },
           "Activity": {
             "Kind": 1,
@@ -406,11 +406,11 @@
             "Y": 2
           },
           "Facing": {
-            "Kind": 3,
+            "Kind": 1,
             "North": null,
-            "South": null,
+            "South": {},
             "East": null,
-            "West": {}
+            "West": null
           },
           "Activity": {
             "Kind": 1,
@@ -439,10 +439,10 @@
             "Y": 2
           },
           "Facing": {
-            "Kind": 1,
+            "Kind": 2,
             "North": null,
-            "South": {},
-            "East": null,
+            "South": null,
+            "East": {},
             "West": null
           },
           "Activity": {
@@ -472,10 +472,10 @@
             "Y": 3
           },
           "Facing": {
-            "Kind": 2,
-            "North": null,
+            "Kind": 0,
+            "North": {},
             "South": null,
-            "East": {},
+            "East": null,
             "West": null
           },
           "Activity": {
@@ -505,11 +505,11 @@
             "Y": 3
           },
           "Facing": {
-            "Kind": 0,
-            "North": {},
+            "Kind": 3,
+            "North": null,
             "South": null,
             "East": null,
-            "West": null
+            "West": {}
           },
           "Activity": {
             "Kind": 1,
@@ -538,11 +538,11 @@
             "Y": 1
           },
           "Facing": {
-            "Kind": 3,
+            "Kind": 1,
             "North": null,
-            "South": null,
+            "South": {},
             "East": null,
-            "West": {}
+            "West": null
           },
           "Activity": {
             "Kind": 0,

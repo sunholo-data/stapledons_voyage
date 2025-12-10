@@ -88,15 +88,23 @@ func (v *BridgeView) Exit(to ViewType) {
 
 // Update updates the view state.
 func (v *BridgeView) Update(dt float64) *ViewTransition {
-	// Update dome renderer (planet cruise animation)
-	if v.domeRenderer != nil {
-		v.domeRenderer.Update(dt)
-	}
-
-	// Step AILANG bridge state (crew movement, etc.)
+	// Step AILANG bridge state first (crew movement, dome animation)
 	if v.state != nil {
 		v.state = sim_gen.StepBridge(v.state, v.frameCount)
 		v.frameCount++
+	}
+
+	// Update dome renderer with camera position from AILANG state
+	// AILANG owns the cruise animation (cameraZ, velocity)
+	// Go renders the textured planets at that position
+	if v.domeRenderer != nil {
+		if v.state != nil && v.state.DomeState != nil {
+			v.domeRenderer.SetCameraFromState(
+				v.state.DomeState.CameraZ,
+				v.state.DomeState.CruiseVelocity,
+			)
+		}
+		v.domeRenderer.Update(dt)
 	}
 
 	return nil

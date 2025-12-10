@@ -390,14 +390,9 @@ func layerDomeBg() int64 {
 }
 
 func renderDome_impl(state interface{}) interface{} {
-	var bgCmd interface{} = func() interface{} {
-		var tmp35 interface{} = layerDomeBg_impl(struct{}{})
-		_ = tmp35 // suppress unused
-		return NewDrawCmdGalaxyBg(float64(0.8), tmp35.(int64), false, float64(0), float64(0), float64(1.57))
-	}()
-	var planetCmds interface{} = renderDomePlanets_impl(state)
-	var tmp34 interface{} = []interface{}{bgCmd}
-	return Concat(tmp34, planetCmds)
+	var tmp34 interface{} = layerDomeBg_impl(struct{}{})
+	var tmp35 interface{} = NewDrawCmdGalaxyBg(float64(0.8), tmp34.(int64), false, float64(0), float64(0), float64(1.57))
+	return []interface{}{tmp35}
 }
 
 func RenderDome(state *DomeState) []*DrawCmd {
@@ -437,7 +432,7 @@ func strutCount() int64 {
 }
 
 func arcCenterY_impl(_unused0 interface{}) interface{} {
-	return float64(1400)
+	return float64(1600)
 }
 
 func arcCenterY() float64 {
@@ -1156,7 +1151,7 @@ func screenOffsetX() float64 {
 }
 
 func screenOffsetY_impl(_unused0 interface{}) interface{} {
-	return float64(550)
+	return float64(750)
 }
 
 func screenOffsetY() float64 {
@@ -1957,7 +1952,7 @@ func stepBridge_impl(state interface{}, frame interface{}) interface{} {
 		_ = tmp313 // suppress unused
 		return updateCrewRec_impl(tmp313, frame, state)
 	}()
-	return RecordUpdate(state, map[string]interface{}{"tick": frame, "crewPositions": updatedCrew, "domeState": updatedDome, "domeView": updatedDomeView})
+	return RecordUpdate(state, map[string]interface{}{"crewPositions": updatedCrew, "domeState": updatedDome, "domeView": updatedDomeView, "tick": frame})
 }
 
 func StepBridge(state *BridgeState, frame int64) *BridgeState {
