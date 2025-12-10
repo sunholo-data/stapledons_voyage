@@ -41,7 +41,58 @@ This project tests AILANG as a game scripting language. The Go engine is a "dumb
 - Level layout or tile data
 - Any "game design" decisions
 
+**The Go engine CAN contain (purely visual, no gameplay impact):**
+- Decorative particles (dust, sparks, debris) - visual only
+- Screen transition animations (fade, wipe) - visual polish
+- Shader effects (SR warp, bloom) - pure rendering
+- UI layout math (positioning) - where things draw
+
+**The key question: Does this affect gameplay outcomes?**
+- YES → Must be AILANG (e.g., velocity affects time dilation)
+- NO → Engine is OK (e.g., particle animation is decorative)
+
+```
+AILANG owns WHAT is happening (state, logic, decisions)
+Engine owns HOW it looks (rendering, animation, polish)
+```
+
 **If you're about to write game logic in Go, STOP. Write it in AILANG instead.**
+
+## ⚠️ CRITICAL: Handling AILANG Deficiencies
+
+**When AILANG is missing a feature or has a bug:**
+
+1. **DO NOT implement workarounds** - No Go workarounds, no "creative solutions"
+2. **DO NOT try alternatives** - If std/math fails, don't try literal values or inline math
+3. **DO report via messaging with GitHub issue:**
+   ```bash
+   ailang messages send user "Description of what's missing/broken..." \
+     --type bug \   # or --type feature
+     --github
+   ```
+4. **DO wait for AILANG team to fix it** - This is an integration test; waiting IS the correct action
+5. **DO mark features as BLOCKED** - Add clear comments in code noting the blocker
+6. **DO check messages for updates** - `ailang messages list --unread`
+
+**Why wait instead of workaround?**
+- This project tests AILANG - workarounds hide bugs from the AILANG team
+- Go workarounds violate the architecture (all game logic in AILANG)
+- The AILANG team responds quickly via the messaging system
+
+**Current blockers:** None! All recent issues fixed.
+
+**Recently fixed (2025-12-10):**
+- #28: math codegen type assertions (FIXED)
+- #27: math import missing (FIXED)
+- #26: math codegen builtins (FIXED)
+- #25: record list type inference (FIXED)
+- #23/#24: record update nested record (FIXED)
+- #22: std/option map() (FIXED)
+- #21: std/math PI() (FIXED)
+- #19: std/math module (FIXED)
+- #18: Field access nested closures (non-blocking)
+
+**This project exists to find these gaps.** Every deficiency reported improves AILANG.
 
 The Go layer only needs to:
 1. Call `InitX()` to get initial state from AILANG
@@ -400,21 +451,48 @@ If AILANG breaks, the game breaks - making this an effective stress test for the
 
 **IMPORTANT:** When working on this project, proactively report any AILANG issues or improvement ideas using the `ailang-feedback` skill.
 
-### What to Report
+### Message Types
 
-- **Bugs** - Parser errors, type-checker issues, runtime crashes, unexpected behavior
-- **DX improvements** - Confusing error messages, missing CLI features, workflow friction
-- **Feature requests** - Language features that would help build the game
-- **Documentation gaps** - Unclear or missing AILANG docs
+| Type | Use Case | Method |
+|------|----------|--------|
+| **Bugs** | Parser errors, codegen issues, crashes | `--type bug --github` |
+| **Features** | Language features for game development | `--type feature --github` |
+| **Coordination** | Acknowledgments, status updates, questions | Direct message (no `--github`) |
+| **DX feedback** | Error messages, CLI friction, workflow issues | `--type bug --github` or direct |
 
-### How to Report
+### How to Report (with GitHub Integration)
 
-1. Invoke the `ailang-feedback` skill
-2. Use the send script:
-   ```bash
-   ~/.claude/skills/ailang-feedback/scripts/send_feedback.sh <type> "<title>" "<description>" "stapledons_voyage"
-   ```
-   Types: `bug`, `feature`, `docs`, `compatibility`, `performance`, `dx` (developer experience)
+**For bugs and features (creates GitHub issue):**
+```bash
+ailang messages send user "Description of the issue" \
+  --title "Short title" \
+  --from "stapledons_voyage" \
+  --type bug \
+  --github
+```
+
+Types: `bug`, `feature`, `general`
+
+**For coordination/acknowledgments (no GitHub issue):**
+```bash
+ailang messages send user "Message content" \
+  --title "Title" \
+  --from "stapledons_voyage"
+```
+
+### GitHub Account Configuration
+
+GitHub sync requires matching accounts. If you see account mismatch errors:
+
+1. Check expected user in `~/.ailang/config.yaml`
+2. Switch accounts: `gh auth switch --user <expected_user>`
+3. Or update `expected_user` in config
+
+To retry failed syncs, resend the message with `--github`:
+```bash
+ailang messages read <msg-id>  # Copy the content
+ailang messages send user "<content>" --title "<title>" --from "stapledons_voyage" --type bug --github
+```
 
 ### Checking for Responses
 
@@ -422,6 +500,14 @@ If AILANG breaks, the game breaks - making this an effective stress test for the
 ailang messages list --unread           # Check for unread messages
 ailang messages read <msg-id>           # Read message content
 ailang messages ack <msg-id>            # Mark as read
+```
+
+### Import GitHub Issues
+
+Pull issues from GitHub into messaging:
+```bash
+ailang messages import-github --repo owner/repo --labels bug
+ailang messages import-github --dry-run  # Preview first
 ```
 
 This feedback loop helps improve AILANG based on real-world usage in this integration test project.

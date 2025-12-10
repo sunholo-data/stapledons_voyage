@@ -42,21 +42,44 @@ Invoke this skill when:
 
 ## Architecture Rules
 
+### The Key Question: AILANG or Engine?
+
+**Ask:** Does this affect gameplay outcomes?
+
+| If YES → AILANG | If NO → Engine OK |
+|-----------------|-------------------|
+| Position, health, inventory | Decorative particles |
+| NPC behavior, dialogue | Screen transitions |
+| Time dilation, velocity | Shader effects |
+| Planet data, civilizations | UI layout math |
+| Game mode, decisions | Asset loading |
+
+```
+AILANG owns WHAT is happening (state, logic, decisions)
+Engine owns HOW it looks (rendering, animation, polish)
+```
+
 ### Three-Layer Separation
 
 | Layer | Location | Purpose | Allowed Content |
 |-------|----------|---------|-----------------|
 | **Source** | `sim/*.ail` | Game logic (AILANG) | Types, pure functions |
 | **Simulation** | `sim_gen/*.go` | Generated/mock Go | Game logic (temporary mock) |
-| **Engine** | `engine/*.go` | IO bridging | Input capture, rendering, assets |
+| **Engine** | `engine/*.go` | IO bridging + visuals | Rendering, particles, transitions |
 | **Entry** | `cmd/*.go` | Wiring | Main, game loop |
 
 ### Layer Boundaries (Critical)
 
 **engine/ must NOT contain:**
-- Game logic (NPC behavior, building, actions)
-- World state manipulation beyond storing current World
-- Decision-making code
+- Game state (positions, health, time) - use AILANG
+- Game logic (NPC AI, decisions) - use AILANG
+- Hardcoded game data (planet configs) - use AILANG
+
+**engine/ CAN contain:**
+- Decorative particles (no gameplay impact)
+- Screen transition animations
+- Shader/visual effects
+- UI layout helpers
 
 **sim_gen/ rules:**
 - Never manually edit when using AILANG compiler

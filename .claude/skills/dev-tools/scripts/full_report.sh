@@ -9,7 +9,7 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
 cd "$PROJECT_ROOT"
 
-OUTPUT="${1:-out/dev_report.txt}"
+OUTPUT="${1:-out/eval/dev_report.txt}"
 mkdir -p "$(dirname "$OUTPUT")"
 
 echo "Generating development report..."

@@ -1,11 +1,20 @@
 # Screen Transitions
 
+> **REVIEWED 2025-12-10** - This approach is acceptable.
+>
+> Screen transitions are purely visual polish. AILANG changes the game mode,
+> engine detects the change and applies a visual transition (fade, wipe).
+> The transition animation doesn't affect gameplay state.
+>
+> **Key distinction:** AILANG owns the MODE (what state we're in),
+> engine owns the TRANSITION ANIMATION (how we visually move between modes).
+
 **Version:** 0.5.0
 **Status:** Planned
 **Priority:** P2 (Polish)
 **Complexity:** Low
 **Dependencies:** None
-**AILANG Impact:** None - AILANG changes mode, engine handles visual transition
+**AILANG Impact:** Minimal - AILANG changes mode, engine animates transition
 
 ## Problem Statement
 

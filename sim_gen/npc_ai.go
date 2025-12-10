@@ -3,27 +3,21 @@ package sim_gen
 
 func isInBounds_impl(x interface{}, y interface{}, width interface{}, height interface{}) interface{} {
 	var tmp1 interface{} = GeInt(x, int64(0))
-	_ = tmp1 // suppress unused
 	var tmp2 interface{} = LtInt(x, width)
-	_ = tmp2 // suppress unused
 	var tmp3 interface{} = func() interface{} {
 		if tmp1.(bool) {
 			return tmp2
 		}
 		return false
 	}()
-	_ = tmp3 // suppress unused
 	var tmp4 interface{} = GeInt(y, int64(0))
-	_ = tmp4 // suppress unused
 	var tmp5 interface{} = func() interface{} {
 		if tmp3.(bool) {
 			return tmp4
 		}
 		return false
 	}()
-	_ = tmp5 // suppress unused
 	var tmp6 interface{} = LtInt(y, height)
-	_ = tmp6 // suppress unused
 	return func() interface{} {
 		if tmp5.(bool) {
 			return tmp6
@@ -86,7 +80,6 @@ func directionDy(dir *Direction) int64 {
 
 func indexToDirection_impl(idx interface{}) interface{} {
 	var tmp7 interface{} = ModInt(idx, int64(4))
-	_ = tmp7 // suppress unused
 	return func() interface{} {
 		_scrutinee := tmp7
 		_ = _scrutinee // suppress unused
@@ -117,7 +110,6 @@ func pathLength(path []*Direction) int64 {
 
 func pathGet_impl(path interface{}, idx interface{}) interface{} {
 	var tmp8 interface{} = GetOpt(path, idx)
-	_ = tmp8 // suppress unused
 	return func() interface{} {
 		_scrutinee := tmp8
 		_ = _scrutinee // suppress unused
@@ -141,7 +133,6 @@ func pathGet(path []*Direction, idx int64) *Direction {
 
 func npcWithPos_impl(npc interface{}, newX interface{}, newY interface{}) interface{} {
 	var tmp9 interface{} = &Coord{X: newX.(int64), Y: newY.(int64)}
-	_ = tmp9 // suppress unused
 	return RecordUpdate(npc, map[string]interface{}{"pos": tmp9})
 }
 
@@ -159,9 +150,7 @@ func npcWithCounter(npc *NPC, counter int64) *NPC {
 
 func tryMoveDirection_impl(npc interface{}, dir interface{}, width interface{}, height interface{}) interface{} {
 	var dx interface{} = directionDx_impl(dir)
-	_ = dx // suppress unused
 	var dy interface{} = directionDy_impl(dir)
-	_ = dy // suppress unused
 	var newX interface{} = func() interface{} {
 		var tmp13 interface{} = FieldGet(npc, "pos")
 		_ = tmp13 // suppress unused
@@ -171,7 +160,6 @@ func tryMoveDirection_impl(npc interface{}, dir interface{}, width interface{}, 
 			return AddInt(tmp14, dx)
 		}()
 	}()
-	_ = newX // suppress unused
 	var newY interface{} = func() interface{} {
 		var tmp11 interface{} = FieldGet(npc, "pos")
 		_ = tmp11 // suppress unused
@@ -181,9 +169,7 @@ func tryMoveDirection_impl(npc interface{}, dir interface{}, width interface{}, 
 			return AddInt(tmp12, dy)
 		}()
 	}()
-	_ = newY // suppress unused
 	var tmp10 interface{} = isInBounds_impl(newX, newY, width, height)
-	_ = tmp10 // suppress unused
 	return func() interface{} {
 		if tmp10.(bool) {
 			return npcWithPos_impl(npc, newX, newY)
@@ -198,9 +184,7 @@ func TryMoveDirection(npc *NPC, dir *Direction, width int64, height int64) *NPC 
 
 func updateRandomWalk_impl(npc interface{}, interval interface{}, width interface{}, height interface{}) interface{} {
 	var tmp15 interface{} = FieldGet(npc, "moveCounter")
-	_ = tmp15 // suppress unused
 	var tmp16 interface{} = LeInt(tmp15, int64(0))
-	_ = tmp16 // suppress unused
 	return func() interface{} {
 		if tmp16.(bool) {
 			return func() interface{} {
@@ -235,9 +219,7 @@ func updateRandomWalk(npc *NPC, interval int64, width int64, height int64) *NPC 
 
 func updatePatrol_impl(npc interface{}, path interface{}, width interface{}, height interface{}) interface{} {
 	var len interface{} = pathLength_impl(path)
-	_ = len // suppress unused
 	var tmp19 interface{} = LeInt(len, int64(0))
-	_ = tmp19 // suppress unused
 	return func() interface{} {
 		var tmp20 interface{} = FieldGet(npc, "moveCounter")
 		_ = tmp20 // suppress unused
@@ -291,7 +273,6 @@ func updatePatrol(npc *NPC, path []*Direction, width int64, height int64) *NPC {
 
 func updateNPC_impl(npc interface{}, width interface{}, height interface{}) interface{} {
 	var tmp27 interface{} = FieldGet(npc, "pattern")
-	_ = tmp27 // suppress unused
 	return func() interface{} {
 		_scrutinee := tmp27
 		_ = _scrutinee // suppress unused

@@ -8,9 +8,9 @@ game: sim
 	go build -o bin/game ./cmd/game
 
 eval: sim
-	@mkdir -p out
-	go test -bench=. -benchmem ./engine/bench > out/bench.txt
-	go run ./cmd/eval > out/report.json
+	@mkdir -p out/eval
+	go test -bench=. -benchmem ./engine/bench > out/eval/bench.txt
+	go run ./cmd/eval
 
 run: sim
 	go run ./cmd/game
@@ -28,21 +28,21 @@ cli-mock:
 
 # Performance testing with threshold checks
 perf: cli
-	@mkdir -p out
-	./bin/voyage perf -o out/perf.json
+	@mkdir -p out/eval
+	./bin/voyage perf -o out/eval/perf.json
 
 perf-ci: cli
-	@mkdir -p out
-	./bin/voyage perf -o out/perf.json -fail=true
+	@mkdir -p out/eval
+	./bin/voyage perf -o out/eval/perf.json -fail=true
 
 # Mock targets (use existing sim_gen, no AILANG compiler needed)
 game-mock:
 	go build -o bin/game ./cmd/game
 
 eval-mock:
-	@mkdir -p out
-	go test -bench=. -benchmem ./engine/bench > out/bench.txt 2>&1 || true
-	go run ./cmd/eval > out/report.json
+	@mkdir -p out/eval
+	go test -bench=. -benchmem ./engine/bench > out/eval/bench.txt 2>&1 || true
+	go run ./cmd/eval
 
 run-mock:
 	go run ./cmd/game
@@ -53,19 +53,19 @@ sprites:
 
 # Screenshot capture for AI self-testing
 screenshot:
-	@mkdir -p out
-	go run ./cmd/game -screenshot 60 -output out/screenshot.png -seed 1234
+	@mkdir -p out/screenshots
+	go run ./cmd/game -screenshot 60 -output out/screenshots/screenshot.png -seed 1234
 
 screenshot-zoomed:
-	@mkdir -p out
-	go run ./cmd/game -screenshot 60 -output out/screenshot-zoomed.png -seed 1234 -camera 0,0,2.0
+	@mkdir -p out/screenshots
+	go run ./cmd/game -screenshot 60 -output out/screenshots/screenshot-zoomed.png -seed 1234 -camera 0,0,2.0
 
 screenshot-panned:
-	@mkdir -p out
-	go run ./cmd/game -screenshot 60 -output out/screenshot-panned.png -seed 1234 -camera 200,200,1.0
+	@mkdir -p out/screenshots
+	go run ./cmd/game -screenshot 60 -output out/screenshots/screenshot-panned.png -seed 1234 -camera 200,200,1.0
 
 screenshots: screenshot screenshot-zoomed screenshot-panned
-	@echo "Screenshots saved to out/"
+	@echo "Screenshots saved to out/screenshots/"
 
 # Test scenarios for AI self-testing
 scenario-pan:

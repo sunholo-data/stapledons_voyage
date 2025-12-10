@@ -78,12 +78,14 @@ Run performance benchmarks with threshold checking (CI/JSON output).
 
 **Examples:**
 ```bash
-./bin/voyage perf                    # Run with defaults, check thresholds
-./bin/voyage perf -o out/perf.json   # Output to file
-./bin/voyage perf -fail=false        # Don't fail on threshold violations
-./bin/voyage perf -step-max 10ms     # Custom Step threshold
-./bin/voyage perf -n 5000 -q         # More iterations, quiet mode
+./bin/voyage perf                         # Run with defaults, check thresholds
+./bin/voyage perf -o out/eval/perf.json   # Output to file (use out/eval/ for reports)
+./bin/voyage perf -fail=false             # Don't fail on threshold violations
+./bin/voyage perf -step-max 10ms          # Custom Step threshold
+./bin/voyage perf -n 5000 -q              # More iterations, quiet mode
 ```
+
+**Output Location:** Performance reports should go in `out/eval/` (see [out/README.md](../../../out/README.md)).
 
 **Exit Codes:**
 - 0: All benchmarks passed thresholds

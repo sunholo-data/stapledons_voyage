@@ -6,6 +6,9 @@ import sim/protocol (Coord)
 -- Import NPC type from npc_ai (NPC now has MovementPattern)
 import sim/npc_ai (NPC, MovementPattern, PatternStatic, PatternRandomWalk, PatternPatrol, Direction)
 
+-- Import BridgeState from bridge module
+import sim/bridge (BridgeState)
+
 -- Re-export NPC type for consumers
 export type Tile = { biome: int }
 
@@ -21,10 +24,18 @@ export type Selection =
     | SelectionNone
     | SelectionTile(int, int)  -- x, y tile coordinates
 
+-- Game view mode (what screen to render)
+export type ViewMode =
+    | ViewBridge      -- Ship bridge interior
+    | ViewPlanet      -- Planet surface (legacy test view)
+    | ViewGalaxyMap   -- Galaxy navigation
+
 -- Complete world state
 export type World = {
     tick: int,
     planet: PlanetState,
     npcs: [NPC],
-    selection: Selection
+    selection: Selection,
+    bridge: BridgeState,
+    viewMode: ViewMode
 }

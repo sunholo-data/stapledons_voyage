@@ -10,8 +10,8 @@
 ## Related Documents
 
 - [SR Rendering Go](../sr-rendering-go.md) - Specific shader implementation for relativity
-- [Particle System](../v0_5_0/particle-system.md) - May use shaders for particle effects
-- [Screen Transitions](../v0_5_0/screen-transitions.md) - Transition effects
+- [Particle System](../../planned/future/particle-system.md) - May use shaders for particle effects
+- [Screen Transitions](../../planned/future/screen-transitions.md) - Transition effects
 
 ## Problem Statement
 

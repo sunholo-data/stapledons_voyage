@@ -10,7 +10,12 @@ import (
 func main() {
 	report := scenario.RunAll()
 
-	f, err := os.Create("out/report.json")
+	// Ensure output directory exists
+	if err := os.MkdirAll("out/eval", 0755); err != nil {
+		panic(err)
+	}
+
+	f, err := os.Create("out/eval/report.json")
 	if err != nil {
 		panic(err)
 	}

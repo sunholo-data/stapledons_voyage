@@ -6,8 +6,13 @@ bin/
 /granimation
 /game
 
-# Build artifacts
-out/
+# Build artifacts - ignore contents but preserve structure
+out/**
+!out/
+!out/.gitkeep
+!out/README.md
+!out/*/
+!out/*/.gitkeep
 *.mp4
 
 # Large data files (downloaded separately)

@@ -67,7 +67,7 @@ func tilesToDraw_impl(tiles interface{}, width interface{}, idx interface{}) int
 										return func() interface{} {
 											var tmp11 interface{} = FieldGet(t, "biome")
 											_ = tmp11 // suppress unused
-											return NewDrawCmdRect(tmp8.(float64), tmp10.(float64), float64(float64(8)), float64(float64(8)), tmp11.(int64), int64(int64(0)))
+											return NewDrawCmdRect(tmp8.(float64), tmp10.(float64), float64(8), float64(8), tmp11.(int64), int64(0))
 										}()
 									}()
 								}()
@@ -138,7 +138,7 @@ func npcsToDraw_impl(npcs interface{}) interface{} {
 													return func() interface{} {
 														var tmp22 interface{} = AddInt(int64(10), tmp21)
 														_ = tmp22 // suppress unused
-														return NewDrawCmdRect(tmp16.(float64), tmp20.(float64), float64(float64(8)), float64(float64(8)), tmp22.(int64), int64(int64(2)))
+														return NewDrawCmdRect(tmp16.(float64), tmp20.(float64), float64(8), float64(8), tmp22.(int64), int64(2))
 													}()
 												}()
 											}()
@@ -194,7 +194,7 @@ func selectionToDraw_impl(sel interface{}) interface{} {
 							var tmp26 interface{} = IntToFloat(tmp25)
 							_ = tmp26 // suppress unused
 							return func() interface{} {
-								var tmp27 interface{} = NewDrawCmdRect(tmp24.(float64), tmp26.(float64), float64(float64(8)), float64(float64(8)), int64(int64(4)), int64(int64(3)))
+								var tmp27 interface{} = NewDrawCmdRect(tmp24.(float64), tmp26.(float64), float64(8), float64(8), int64(4), int64(3))
 								_ = tmp27 // suppress unused
 								return []interface{}{tmp27}
 							}()
@@ -238,7 +238,6 @@ func concatDrawCmds(a []*DrawCmd, b []*DrawCmd) []*DrawCmd {
 
 func processSelection_impl(input interface{}, world interface{}) interface{} {
 	var tmp29 interface{} = FieldGet(input, "clickedThisFrame")
-	_ = tmp29 // suppress unused
 	return func() interface{} {
 		if tmp29.(bool) {
 			return func() interface{} {
@@ -246,7 +245,7 @@ func processSelection_impl(input interface{}, world interface{}) interface{} {
 					var tmp43 interface{} = FieldGet(input, "worldMouseX")
 					_ = tmp43 // suppress unused
 					return func() interface{} {
-						var tmp44 interface{} = DivInt(tmp43, float64(8))
+						var tmp44 interface{} = DivFloat(tmp43, float64(8))
 						_ = tmp44 // suppress unused
 						return FloatToInt(tmp44)
 					}()
@@ -257,7 +256,7 @@ func processSelection_impl(input interface{}, world interface{}) interface{} {
 						var tmp41 interface{} = FieldGet(input, "worldMouseY")
 						_ = tmp41 // suppress unused
 						return func() interface{} {
-							var tmp42 interface{} = DivInt(tmp41, float64(8))
+							var tmp42 interface{} = DivFloat(tmp41, float64(8))
 							_ = tmp42 // suppress unused
 							return FloatToInt(tmp42)
 						}()
@@ -341,57 +340,53 @@ func processSelection(input *FrameInput, world *World) *Selection {
 
 func initWorld_impl(seed interface{}) interface{} {
 	var w interface{} = int64(8)
-	_ = w // suppress unused
 	var h interface{} = int64(8)
-	_ = h // suppress unused
 	var tiles interface{} = func() interface{} {
-		var tmp57 interface{} = MulInt(w, h)
-		_ = tmp57 // suppress unused
-		return generate_impl(tmp57, func(i interface{}) interface{} {
+		var tmp58 interface{} = MulInt(w, h)
+		_ = tmp58 // suppress unused
+		return generate_impl(tmp58, func(i interface{}) interface{} {
 			return func() interface{} {
-				var tmp58 interface{} = ModInt(i, int64(4))
-				_ = tmp58 // suppress unused
-				return &Tile{Biome: tmp58.(int64)}
+				var tmp59 interface{} = ModInt(i, int64(4))
+				_ = tmp59 // suppress unused
+				return &Tile{Biome: tmp59.(int64)}
 			}()
 		})
 	}()
-	_ = tiles // suppress unused
 	var patrolPath interface{} = []interface{}{NewDirectionEast(), NewDirectionEast(), NewDirectionSouth(), NewDirectionSouth(), NewDirectionWest(), NewDirectionWest(), NewDirectionNorth(), NewDirectionNorth()}
-	_ = patrolPath // suppress unused
 	var testNpcs interface{} = func() interface{} {
-		var tmp46 interface{} = &Coord{X: int64(int64(2)), Y: int64(int64(2))}
-		_ = tmp46 // suppress unused
+		var tmp47 interface{} = &Coord{X: int64(2), Y: int64(2)}
+		_ = tmp47 // suppress unused
 		return func() interface{} {
-			var tmp47 interface{} = NewMovementPatternPatternRandomWalk(int64(int64(30)))
-			_ = tmp47 // suppress unused
+			var tmp48 interface{} = NewMovementPatternPatternRandomWalk(int64(30))
+			_ = tmp48 // suppress unused
 			return func() interface{} {
-				var tmp48 interface{} = &NPC{Id: int64(int64(1)), Pos: tmp46.(*Coord), Pattern: tmp47.(*MovementPattern), MoveCounter: int64(int64(30)), PatrolIndex: int64(int64(0))}
-				_ = tmp48 // suppress unused
+				var tmp49 interface{} = &NPC{Id: int64(1), Pos: tmp47.(*Coord), Pattern: tmp48.(*MovementPattern), MoveCounter: int64(30), PatrolIndex: int64(0)}
+				_ = tmp49 // suppress unused
 				return func() interface{} {
-					var tmp49 interface{} = &Coord{X: int64(int64(5)), Y: int64(int64(3))}
-					_ = tmp49 // suppress unused
+					var tmp50 interface{} = &Coord{X: int64(5), Y: int64(3)}
+					_ = tmp50 // suppress unused
 					return func() interface{} {
-						var tmp50 interface{} = NewMovementPatternPatternRandomWalk(int64(int64(45)))
-						_ = tmp50 // suppress unused
+						var tmp51 interface{} = NewMovementPatternPatternRandomWalk(int64(45))
+						_ = tmp51 // suppress unused
 						return func() interface{} {
-							var tmp51 interface{} = &NPC{Id: int64(int64(2)), Pos: tmp49.(*Coord), Pattern: tmp50.(*MovementPattern), MoveCounter: int64(int64(45)), PatrolIndex: int64(int64(0))}
-							_ = tmp51 // suppress unused
+							var tmp52 interface{} = &NPC{Id: int64(2), Pos: tmp50.(*Coord), Pattern: tmp51.(*MovementPattern), MoveCounter: int64(45), PatrolIndex: int64(0)}
+							_ = tmp52 // suppress unused
 							return func() interface{} {
-								var tmp52 interface{} = &Coord{X: int64(int64(4)), Y: int64(int64(4))}
-								_ = tmp52 // suppress unused
+								var tmp53 interface{} = &Coord{X: int64(4), Y: int64(4)}
+								_ = tmp53 // suppress unused
 								return func() interface{} {
-									var tmp53 interface{} = &NPC{Id: int64(int64(3)), Pos: tmp52.(*Coord), Pattern: NewMovementPatternPatternStatic(), MoveCounter: int64(int64(0)), PatrolIndex: int64(int64(0))}
-									_ = tmp53 // suppress unused
+									var tmp54 interface{} = &NPC{Id: int64(3), Pos: tmp53.(*Coord), Pattern: NewMovementPatternPatternStatic(), MoveCounter: int64(0), PatrolIndex: int64(0)}
+									_ = tmp54 // suppress unused
 									return func() interface{} {
-										var tmp54 interface{} = &Coord{X: int64(int64(1)), Y: int64(int64(1))}
-										_ = tmp54 // suppress unused
+										var tmp55 interface{} = &Coord{X: int64(1), Y: int64(1)}
+										_ = tmp55 // suppress unused
 										return func() interface{} {
-											var tmp55 interface{} = NewMovementPatternPatternPatrol(ConvertToDirectionSlice(patrolPath))
-											_ = tmp55 // suppress unused
+											var tmp56 interface{} = NewMovementPatternPatternPatrol(ConvertToDirectionSlice(patrolPath))
+											_ = tmp56 // suppress unused
 											return func() interface{} {
-												var tmp56 interface{} = &NPC{Id: int64(int64(4)), Pos: tmp54.(*Coord), Pattern: tmp55.(*MovementPattern), MoveCounter: int64(int64(0)), PatrolIndex: int64(int64(0))}
-												_ = tmp56 // suppress unused
-												return []interface{}{tmp48, tmp51, tmp53, tmp56}
+												var tmp57 interface{} = &NPC{Id: int64(4), Pos: tmp55.(*Coord), Pattern: tmp56.(*MovementPattern), MoveCounter: int64(0), PatrolIndex: int64(0)}
+												_ = tmp57 // suppress unused
+												return []interface{}{tmp49, tmp52, tmp54, tmp57}
 											}()
 										}()
 									}()
@@ -403,89 +398,115 @@ func initWorld_impl(seed interface{}) interface{} {
 			}()
 		}()
 	}()
-	_ = testNpcs // suppress unused
 	var tmp45 interface{} = &PlanetState{Width: w.(int64), Height: h.(int64), Tiles: ConvertToTileSlice(tiles)}
-	_ = tmp45 // suppress unused
-	return &World{Tick: int64(int64(0)), Planet: tmp45.(*PlanetState), Npcs: ConvertToNPCSlice(testNpcs), Selection: NewSelectionNone()}
+	var tmp46 interface{} = initBridge_impl(struct{}{})
+	return &World{Tick: int64(0), Planet: tmp45.(*PlanetState), Npcs: ConvertToNPCSlice(testNpcs), Selection: NewSelectionNone(), Bridge: tmp46.(*BridgeState), ViewMode: NewViewModeViewBridge()}
 }
 
 func InitWorld(seed int64) *World {
 	return initWorld_impl(seed).(*World)
 }
 
-func step_impl(world interface{}, input interface{}) interface{} {
-	var newSelection interface{} = processSelection_impl(input, world)
-	_ = newSelection // suppress unused
-	var newTick interface{} = func() interface{} {
-		var tmp71 interface{} = FieldGet(world, "tick")
-		_ = tmp71 // suppress unused
-		return AddInt(tmp71, int64(1))
-	}()
-	_ = newTick // suppress unused
-	var updatedNpcs interface{} = func() interface{} {
-		var tmp66 interface{} = FieldGet(world, "npcs")
-		_ = tmp66 // suppress unused
-		return func() interface{} {
-			var tmp67 interface{} = FieldGet(world, "planet")
-			_ = tmp67 // suppress unused
+func renderForView_impl(world interface{}) interface{} {
+	var tmp60 interface{} = FieldGet(world, "viewMode")
+	return func() interface{} {
+		_scrutinee := tmp60
+		_ = _scrutinee // suppress unused
+		switch _scrutinee {
+		default:
 			return func() interface{} {
-				var tmp68 interface{} = FieldGet(tmp67, "width")
-				_ = tmp68 // suppress unused
+				var tmp61 interface{} = FieldGet(world, "bridge")
+				_ = tmp61 // suppress unused
+				return renderBridge_impl(tmp61)
+			}()
+		}
+	}()
+}
+
+func renderForView(world *World) []*DrawCmd {
+	return ConvertToDrawCmdSlice(renderForView_impl(world))
+}
+
+func updateBridgeView_impl(world interface{}, newTick interface{}) interface{} {
+	var updatedBridge interface{} = func() interface{} {
+		var tmp69 interface{} = FieldGet(world, "bridge")
+		_ = tmp69 // suppress unused
+		return stepBridge_impl(tmp69, newTick)
+	}()
+	return RecordUpdate(world, map[string]interface{}{"bridge": updatedBridge, "tick": newTick})
+}
+
+func updateBridgeView(world *World, newTick int64) *World {
+	return updateBridgeView_impl(world, newTick).(*World)
+}
+
+func updatePlanetView_impl(world interface{}, input interface{}, newTick interface{}) interface{} {
+	var newSelection interface{} = processSelection_impl(input, world)
+	var updatedNpcs interface{} = func() interface{} {
+		var tmp70 interface{} = FieldGet(world, "npcs")
+		_ = tmp70 // suppress unused
+		return func() interface{} {
+			var tmp71 interface{} = FieldGet(world, "planet")
+			_ = tmp71 // suppress unused
+			return func() interface{} {
+				var tmp72 interface{} = FieldGet(tmp71, "width")
+				_ = tmp72 // suppress unused
 				return func() interface{} {
-					var tmp69 interface{} = FieldGet(world, "planet")
-					_ = tmp69 // suppress unused
+					var tmp73 interface{} = FieldGet(world, "planet")
+					_ = tmp73 // suppress unused
 					return func() interface{} {
-						var tmp70 interface{} = FieldGet(tmp69, "height")
-						_ = tmp70 // suppress unused
-						return updateAllNPCs_impl(tmp66, tmp68, tmp70)
+						var tmp74 interface{} = FieldGet(tmp73, "height")
+						_ = tmp74 // suppress unused
+						return updateAllNPCs_impl(tmp70, tmp72, tmp74)
 					}()
 				}()
 			}()
 		}()
 	}()
-	_ = updatedNpcs // suppress unused
-	var newWorld interface{} = RecordUpdate(world, map[string]interface{}{"tick": newTick, "npcs": updatedNpcs, "selection": newSelection})
-	_ = newWorld // suppress unused
-	var tileCmds interface{} = func() interface{} {
-		var tmp62 interface{} = FieldGet(world, "planet")
-		_ = tmp62 // suppress unused
+	return RecordUpdate(world, map[string]interface{}{"tick": newTick, "npcs": updatedNpcs, "selection": newSelection})
+}
+
+func updatePlanetView(world *World, input *FrameInput, newTick int64) *World {
+	return updatePlanetView_impl(world, input, newTick).(*World)
+}
+
+func updateGalaxyView_impl(world interface{}, newTick interface{}) interface{} {
+	return RecordUpdate(world, map[string]interface{}{"tick": newTick})
+}
+
+func updateGalaxyView(world *World, newTick int64) *World {
+	return updateGalaxyView_impl(world, newTick).(*World)
+}
+
+func step_impl(world interface{}, input interface{}) interface{} {
+	var newTick interface{} = func() interface{} {
+		var tmp78 interface{} = FieldGet(world, "tick")
+		_ = tmp78 // suppress unused
+		return AddInt(tmp78, int64(1))
+	}()
+	var newWorld interface{} = func() interface{} {
+		var tmp77 interface{} = FieldGet(world, "viewMode")
+		_ = tmp77 // suppress unused
 		return func() interface{} {
-			var tmp63 interface{} = FieldGet(tmp62, "tiles")
-			_ = tmp63 // suppress unused
-			return func() interface{} {
-				var tmp64 interface{} = FieldGet(world, "planet")
-				_ = tmp64 // suppress unused
-				return func() interface{} {
-					var tmp65 interface{} = FieldGet(tmp64, "width")
-					_ = tmp65 // suppress unused
-					return tilesToDraw_impl(tmp63, tmp65, int64(0))
-				}()
-			}()
+			_scrutinee := tmp77
+			_ = _scrutinee // suppress unused
+			switch _scrutinee {
+			default:
+				return updateBridgeView_impl(world, newTick)
+			}
 		}()
 	}()
-	_ = tileCmds // suppress unused
-	var npcCmds interface{} = npcsToDraw_impl(updatedNpcs)
-	_ = npcCmds // suppress unused
-	var selCmds interface{} = selectionToDraw_impl(newSelection)
-	_ = selCmds // suppress unused
-	var drawCmds interface{} = func() interface{} {
-		var tmp61 interface{} = concatDrawCmds_impl(tileCmds, npcCmds)
-		_ = tmp61 // suppress unused
-		return concatDrawCmds_impl(tmp61, selCmds)
-	}()
-	_ = drawCmds // suppress unused
-	var cam interface{} = &Camera{X: float64(float64(0)), Y: float64(float64(0)), Zoom: float64(float64(1))}
-	_ = cam // suppress unused
+	var drawCmds interface{} = renderForView_impl(newWorld)
+	var cam interface{} = &Camera{X: float64(0), Y: float64(0), Zoom: float64(1)}
 	var output interface{} = func() interface{} {
-		var tmp59 interface{} = []interface{}{}
-		_ = tmp59 // suppress unused
+		var tmp75 interface{} = []interface{}{}
+		_ = tmp75 // suppress unused
 		return func() interface{} {
-			var tmp60 interface{} = []interface{}{}
-			_ = tmp60 // suppress unused
-			return &FrameOutput{Draw: ConvertToDrawCmdSlice(drawCmds), Sounds: ConvertToInt64Slice(tmp59), Debug: ConvertToStringSlice(tmp60), Camera: cam.(*Camera)}
+			var tmp76 interface{} = []interface{}{}
+			_ = tmp76 // suppress unused
+			return &FrameOutput{Draw: ConvertToDrawCmdSlice(drawCmds), Sounds: ConvertToInt64Slice(tmp75), Debug: ConvertToStringSlice(tmp76), Camera: cam.(*Camera)}
 		}()
 	}()
-	_ = output // suppress unused
 	return []interface{}{newWorld, output}
 }
 

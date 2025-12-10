@@ -300,17 +300,18 @@ func (d *DomeRenderer) Draw(screen *ebiten.Image) {
 	// Layer 1: Starfield background (furthest - outside bubble)
 	d.spaceBackground.Draw(screen, nil)
 
-	// Layer 2: 3D planets (cruising through solar system)
-	if d.planetLayer != nil {
-		d.planetLayer.Draw(screen)
-	}
+	// Layer 2: 3D planets - DISABLED: Now rendered by AILANG as CircleRGBA
+	// AILANG owns planet positions and cruise animation (sim/bridge.ail)
+	// if d.planetLayer != nil {
+	// 	d.planetLayer.Draw(screen)
+	// }
 
 	// Layer 3: Bubble arc edge with plasma (shows we're inside dome)
 	if d.bubbleArc != nil {
 		d.bubbleArc.Draw(screen)
 	}
 
-	// The bridge interior will be rendered on top by BridgeView
+	// The bridge interior (including AILANG planets) will be rendered on top by BridgeView
 }
 
 // applyMask applies the elliptical mask to the space buffer.

@@ -1,7 +1,18 @@
 # View System Architecture
 
+> **DEFUNCT - ARCHIVED 2025-12-10**
+>
+> This document describes a Go-centric view system that violates the AILANG-first architecture.
+> It has been superseded by [view-layer-ailang-migration.md](../planned/next/view-layer-ailang-migration.md).
+>
+> **Why this was wrong:**
+> - Defines Go interfaces (View, BackgroundLayer, ContentLayer, UILayer) instead of AILANG types
+> - Views own state and have Update() methods - game logic should be in AILANG
+> - Duplicate types (Camera, Input, Dialogue) that should come from sim_gen
+> - Engine should be stateless - just render DrawCmds from AILANG
+
 ## Status
-- Status: Planned
+- Status: ~~Planned~~ **DEFUNCT**
 - Priority: P0 (Foundation)
 - Complexity: Medium
 - Estimated: 3-4 days

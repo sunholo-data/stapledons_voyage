@@ -602,6 +602,24 @@ type DomeViewState struct {
 	ViewAngle      float64
 }
 
+// DomeState is a record type
+type DomeState struct {
+	CruiseTime     float64
+	CruiseDuration float64
+	CruiseVelocity float64
+	CameraZ        float64
+	TargetPlanet   int64
+}
+
+// Planet is a record type
+type Planet struct {
+	Name      string
+	ColorRGBA int64
+	Distance  float64
+	Radius    float64
+	YOffset   float64
+}
+
 // MoveStateKind discriminates between variants of MoveState
 type MoveStateKind int
 
@@ -685,6 +703,8 @@ type BridgeState struct {
 	HoveredInteractable  *Option
 	SelectedInteractable *Option
 	DomeView             *DomeViewState
+	DomeState            *DomeState
+	Tick                 int64
 	DiscRadius           int64
 	DiscCenterX          int64
 	DiscCenterY          int64
@@ -779,6 +799,182 @@ func (v *BridgeInputResult) IsBridgeToDialogue() bool {
 // IsBridgeToDeck returns true if this is a BridgeToDeck variant
 func (v *BridgeInputResult) IsBridgeToDeck() bool {
 	return v.Kind == BridgeInputResultKindBridgeToDeck
+}
+
+// Strut is a record type
+type Strut struct {
+	X1       float64
+	Y1       float64
+	X2       float64
+	Y2       float64
+	Parallax float64
+	Color    int64
+}
+
+// DirectionKind discriminates between variants of Direction
+type DirectionKind int
+
+const (
+	DirectionKindNorth DirectionKind = iota
+	DirectionKindSouth
+	DirectionKindEast
+	DirectionKindWest
+)
+
+// DirectionNorth holds data for the North variant
+type DirectionNorth struct {
+}
+
+// DirectionSouth holds data for the South variant
+type DirectionSouth struct {
+}
+
+// DirectionEast holds data for the East variant
+type DirectionEast struct {
+}
+
+// DirectionWest holds data for the West variant
+type DirectionWest struct {
+}
+
+// Direction is a sum type (discriminated union)
+type Direction struct {
+	Kind  DirectionKind
+	North *DirectionNorth
+	South *DirectionSouth
+	East  *DirectionEast
+	West  *DirectionWest
+}
+
+// NewDirectionNorth creates a new North variant
+func NewDirectionNorth() *Direction {
+	return &Direction{
+		Kind:  DirectionKindNorth,
+		North: &DirectionNorth{},
+	}
+}
+
+// NewDirectionSouth creates a new South variant
+func NewDirectionSouth() *Direction {
+	return &Direction{
+		Kind:  DirectionKindSouth,
+		South: &DirectionSouth{},
+	}
+}
+
+// NewDirectionEast creates a new East variant
+func NewDirectionEast() *Direction {
+	return &Direction{
+		Kind: DirectionKindEast,
+		East: &DirectionEast{},
+	}
+}
+
+// NewDirectionWest creates a new West variant
+func NewDirectionWest() *Direction {
+	return &Direction{
+		Kind: DirectionKindWest,
+		West: &DirectionWest{},
+	}
+}
+
+// IsNorth returns true if this is a North variant
+func (v *Direction) IsNorth() bool {
+	return v.Kind == DirectionKindNorth
+}
+
+// IsSouth returns true if this is a South variant
+func (v *Direction) IsSouth() bool {
+	return v.Kind == DirectionKindSouth
+}
+
+// IsEast returns true if this is a East variant
+func (v *Direction) IsEast() bool {
+	return v.Kind == DirectionKindEast
+}
+
+// IsWest returns true if this is a West variant
+func (v *Direction) IsWest() bool {
+	return v.Kind == DirectionKindWest
+}
+
+// MovementPatternKind discriminates between variants of MovementPattern
+type MovementPatternKind int
+
+const (
+	MovementPatternKindPatternStatic MovementPatternKind = iota
+	MovementPatternKindPatternRandomWalk
+	MovementPatternKindPatternPatrol
+)
+
+// MovementPatternPatternStatic holds data for the PatternStatic variant
+type MovementPatternPatternStatic struct {
+}
+
+// MovementPatternPatternRandomWalk holds data for the PatternRandomWalk variant
+type MovementPatternPatternRandomWalk struct {
+	Value0 int64
+}
+
+// MovementPatternPatternPatrol holds data for the PatternPatrol variant
+type MovementPatternPatternPatrol struct {
+	Value0 []*Direction
+}
+
+// MovementPattern is a sum type (discriminated union)
+type MovementPattern struct {
+	Kind              MovementPatternKind
+	PatternStatic     *MovementPatternPatternStatic
+	PatternRandomWalk *MovementPatternPatternRandomWalk
+	PatternPatrol     *MovementPatternPatternPatrol
+}
+
+// NewMovementPatternPatternStatic creates a new PatternStatic variant
+func NewMovementPatternPatternStatic() *MovementPattern {
+	return &MovementPattern{
+		Kind:          MovementPatternKindPatternStatic,
+		PatternStatic: &MovementPatternPatternStatic{},
+	}
+}
+
+// NewMovementPatternPatternRandomWalk creates a new PatternRandomWalk variant
+func NewMovementPatternPatternRandomWalk(v0 int64) *MovementPattern {
+	return &MovementPattern{
+		Kind:              MovementPatternKindPatternRandomWalk,
+		PatternRandomWalk: &MovementPatternPatternRandomWalk{Value0: v0},
+	}
+}
+
+// NewMovementPatternPatternPatrol creates a new PatternPatrol variant
+func NewMovementPatternPatternPatrol(v0 []*Direction) *MovementPattern {
+	return &MovementPattern{
+		Kind:          MovementPatternKindPatternPatrol,
+		PatternPatrol: &MovementPatternPatternPatrol{Value0: v0},
+	}
+}
+
+// IsPatternStatic returns true if this is a PatternStatic variant
+func (v *MovementPattern) IsPatternStatic() bool {
+	return v.Kind == MovementPatternKindPatternStatic
+}
+
+// IsPatternRandomWalk returns true if this is a PatternRandomWalk variant
+func (v *MovementPattern) IsPatternRandomWalk() bool {
+	return v.Kind == MovementPatternKindPatternRandomWalk
+}
+
+// IsPatternPatrol returns true if this is a PatternPatrol variant
+func (v *MovementPattern) IsPatternPatrol() bool {
+	return v.Kind == MovementPatternKindPatternPatrol
+}
+
+// NPC is a record type
+type NPC struct {
+	Id          int64
+	Pos         *Coord
+	Pattern     *MovementPattern
+	MoveCounter int64
+	PatrolIndex int64
 }
 
 // Coord is a record type
@@ -1593,172 +1789,6 @@ func (v *Option) IsNone() bool {
 	return v.Kind == OptionKindNone
 }
 
-// DirectionKind discriminates between variants of Direction
-type DirectionKind int
-
-const (
-	DirectionKindNorth DirectionKind = iota
-	DirectionKindSouth
-	DirectionKindEast
-	DirectionKindWest
-)
-
-// DirectionNorth holds data for the North variant
-type DirectionNorth struct {
-}
-
-// DirectionSouth holds data for the South variant
-type DirectionSouth struct {
-}
-
-// DirectionEast holds data for the East variant
-type DirectionEast struct {
-}
-
-// DirectionWest holds data for the West variant
-type DirectionWest struct {
-}
-
-// Direction is a sum type (discriminated union)
-type Direction struct {
-	Kind  DirectionKind
-	North *DirectionNorth
-	South *DirectionSouth
-	East  *DirectionEast
-	West  *DirectionWest
-}
-
-// NewDirectionNorth creates a new North variant
-func NewDirectionNorth() *Direction {
-	return &Direction{
-		Kind:  DirectionKindNorth,
-		North: &DirectionNorth{},
-	}
-}
-
-// NewDirectionSouth creates a new South variant
-func NewDirectionSouth() *Direction {
-	return &Direction{
-		Kind:  DirectionKindSouth,
-		South: &DirectionSouth{},
-	}
-}
-
-// NewDirectionEast creates a new East variant
-func NewDirectionEast() *Direction {
-	return &Direction{
-		Kind: DirectionKindEast,
-		East: &DirectionEast{},
-	}
-}
-
-// NewDirectionWest creates a new West variant
-func NewDirectionWest() *Direction {
-	return &Direction{
-		Kind: DirectionKindWest,
-		West: &DirectionWest{},
-	}
-}
-
-// IsNorth returns true if this is a North variant
-func (v *Direction) IsNorth() bool {
-	return v.Kind == DirectionKindNorth
-}
-
-// IsSouth returns true if this is a South variant
-func (v *Direction) IsSouth() bool {
-	return v.Kind == DirectionKindSouth
-}
-
-// IsEast returns true if this is a East variant
-func (v *Direction) IsEast() bool {
-	return v.Kind == DirectionKindEast
-}
-
-// IsWest returns true if this is a West variant
-func (v *Direction) IsWest() bool {
-	return v.Kind == DirectionKindWest
-}
-
-// MovementPatternKind discriminates between variants of MovementPattern
-type MovementPatternKind int
-
-const (
-	MovementPatternKindPatternStatic MovementPatternKind = iota
-	MovementPatternKindPatternRandomWalk
-	MovementPatternKindPatternPatrol
-)
-
-// MovementPatternPatternStatic holds data for the PatternStatic variant
-type MovementPatternPatternStatic struct {
-}
-
-// MovementPatternPatternRandomWalk holds data for the PatternRandomWalk variant
-type MovementPatternPatternRandomWalk struct {
-	Value0 int64
-}
-
-// MovementPatternPatternPatrol holds data for the PatternPatrol variant
-type MovementPatternPatternPatrol struct {
-	Value0 []*Direction
-}
-
-// MovementPattern is a sum type (discriminated union)
-type MovementPattern struct {
-	Kind              MovementPatternKind
-	PatternStatic     *MovementPatternPatternStatic
-	PatternRandomWalk *MovementPatternPatternRandomWalk
-	PatternPatrol     *MovementPatternPatternPatrol
-}
-
-// NewMovementPatternPatternStatic creates a new PatternStatic variant
-func NewMovementPatternPatternStatic() *MovementPattern {
-	return &MovementPattern{
-		Kind:          MovementPatternKindPatternStatic,
-		PatternStatic: &MovementPatternPatternStatic{},
-	}
-}
-
-// NewMovementPatternPatternRandomWalk creates a new PatternRandomWalk variant
-func NewMovementPatternPatternRandomWalk(v0 int64) *MovementPattern {
-	return &MovementPattern{
-		Kind:              MovementPatternKindPatternRandomWalk,
-		PatternRandomWalk: &MovementPatternPatternRandomWalk{Value0: v0},
-	}
-}
-
-// NewMovementPatternPatternPatrol creates a new PatternPatrol variant
-func NewMovementPatternPatternPatrol(v0 []*Direction) *MovementPattern {
-	return &MovementPattern{
-		Kind:          MovementPatternKindPatternPatrol,
-		PatternPatrol: &MovementPatternPatternPatrol{Value0: v0},
-	}
-}
-
-// IsPatternStatic returns true if this is a PatternStatic variant
-func (v *MovementPattern) IsPatternStatic() bool {
-	return v.Kind == MovementPatternKindPatternStatic
-}
-
-// IsPatternRandomWalk returns true if this is a PatternRandomWalk variant
-func (v *MovementPattern) IsPatternRandomWalk() bool {
-	return v.Kind == MovementPatternKindPatternRandomWalk
-}
-
-// IsPatternPatrol returns true if this is a PatternPatrol variant
-func (v *MovementPattern) IsPatternPatrol() bool {
-	return v.Kind == MovementPatternKindPatternPatrol
-}
-
-// NPC is a record type
-type NPC struct {
-	Id          int64
-	Pos         *Coord
-	Pattern     *MovementPattern
-	MoveCounter int64
-	PatrolIndex int64
-}
-
 // Tile is a record type
 type Tile struct {
 	Biome int64
@@ -1822,10 +1852,80 @@ func (v *Selection) IsSelectionTile() bool {
 	return v.Kind == SelectionKindTile
 }
 
+// ViewModeKind discriminates between variants of ViewMode
+type ViewModeKind int
+
+const (
+	ViewModeKindViewBridge ViewModeKind = iota
+	ViewModeKindViewPlanet
+	ViewModeKindViewGalaxyMap
+)
+
+// ViewModeViewBridge holds data for the ViewBridge variant
+type ViewModeViewBridge struct {
+}
+
+// ViewModeViewPlanet holds data for the ViewPlanet variant
+type ViewModeViewPlanet struct {
+}
+
+// ViewModeViewGalaxyMap holds data for the ViewGalaxyMap variant
+type ViewModeViewGalaxyMap struct {
+}
+
+// ViewMode is a sum type (discriminated union)
+type ViewMode struct {
+	Kind          ViewModeKind
+	ViewBridge    *ViewModeViewBridge
+	ViewPlanet    *ViewModeViewPlanet
+	ViewGalaxyMap *ViewModeViewGalaxyMap
+}
+
+// NewViewModeViewBridge creates a new ViewBridge variant
+func NewViewModeViewBridge() *ViewMode {
+	return &ViewMode{
+		Kind:       ViewModeKindViewBridge,
+		ViewBridge: &ViewModeViewBridge{},
+	}
+}
+
+// NewViewModeViewPlanet creates a new ViewPlanet variant
+func NewViewModeViewPlanet() *ViewMode {
+	return &ViewMode{
+		Kind:       ViewModeKindViewPlanet,
+		ViewPlanet: &ViewModeViewPlanet{},
+	}
+}
+
+// NewViewModeViewGalaxyMap creates a new ViewGalaxyMap variant
+func NewViewModeViewGalaxyMap() *ViewMode {
+	return &ViewMode{
+		Kind:          ViewModeKindViewGalaxyMap,
+		ViewGalaxyMap: &ViewModeViewGalaxyMap{},
+	}
+}
+
+// IsViewBridge returns true if this is a ViewBridge variant
+func (v *ViewMode) IsViewBridge() bool {
+	return v.Kind == ViewModeKindViewBridge
+}
+
+// IsViewPlanet returns true if this is a ViewPlanet variant
+func (v *ViewMode) IsViewPlanet() bool {
+	return v.Kind == ViewModeKindViewPlanet
+}
+
+// IsViewGalaxyMap returns true if this is a ViewGalaxyMap variant
+func (v *ViewMode) IsViewGalaxyMap() bool {
+	return v.Kind == ViewModeKindViewGalaxyMap
+}
+
 // World is a record type
 type World struct {
 	Tick      int64
 	Planet    *PlanetState
 	Npcs      []*NPC
 	Selection *Selection
+	Bridge    *BridgeState
+	ViewMode  *ViewMode
 }

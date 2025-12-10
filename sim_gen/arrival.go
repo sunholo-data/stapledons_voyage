@@ -2,7 +2,7 @@
 package sim_gen
 
 func initArrival_impl(_unused0 interface{}) interface{} {
-	return &ArrivalState{Phase: NewArrivalPhasePhaseBlackHole(), PhaseTime: float64(float64(0)), TotalTime: float64(float64(0)), Velocity: float64(float64(0.99)), GrIntensity: float64(float64(1)), CurrentPlanet: NewCurrentPlanetNoPlanet(), ShipTimeYears: float64(float64(47.3)), GalaxyYear: int64(int64(2157))}
+	return &ArrivalState{Phase: NewArrivalPhasePhaseBlackHole(), PhaseTime: float64(0), TotalTime: float64(0), Velocity: float64(0.99), GrIntensity: float64(1), CurrentPlanet: NewCurrentPlanetNoPlanet(), ShipTimeYears: float64(47.3), GalaxyYear: int64(2157)}
 }
 
 func InitArrival() *ArrivalState {
@@ -131,7 +131,6 @@ func shouldTransition(phase *ArrivalPhase, phaseTime float64) bool {
 
 func isArrivalComplete_impl(state interface{}) interface{} {
 	var tmp1 interface{} = FieldGet(state, "phase")
-	_ = tmp1 // suppress unused
 	return func() interface{} {
 		_scrutinee := tmp1
 		_ = _scrutinee // suppress unused
@@ -159,7 +158,6 @@ func GetArrivalVelocity(state *ArrivalState) float64 {
 
 func getArrivalPlanetName_impl(state interface{}) interface{} {
 	var tmp2 interface{} = FieldGet(state, "currentPlanet")
-	_ = tmp2 // suppress unused
 	return func() interface{} {
 		_scrutinee := tmp2
 		_ = _scrutinee // suppress unused
@@ -187,7 +185,6 @@ func GetArrivalPlanetName(state *ArrivalState) string {
 
 func getArrivalPhaseName_impl(state interface{}) interface{} {
 	var tmp3 interface{} = FieldGet(state, "phase")
-	_ = tmp3 // suppress unused
 	return func() interface{} {
 		_scrutinee := tmp3
 		_ = _scrutinee // suppress unused
@@ -235,10 +232,10 @@ func calcGRDecay_impl(phase interface{}, phaseTime interface{}, currentGR interf
 		switch _adt.Kind {
 		case ArrivalPhaseKindPhaseBlackHole:
 			return func() interface{} {
-				var progress interface{} = DivInt(phaseTime, float64(8))
+				var progress interface{} = DivFloat(phaseTime, float64(8))
 				_ = progress // suppress unused
 				return func() interface{} {
-					var tmp4 interface{} = GtInt(progress, float64(1))
+					var tmp4 interface{} = GtFloat(progress, float64(1))
 					_ = tmp4 // suppress unused
 					return func() interface{} {
 						if tmp4.(bool) {
@@ -260,19 +257,16 @@ func calcGRDecay(phase *ArrivalPhase, phaseTime float64, currentGR float64) floa
 
 func stepArrival_impl(state interface{}, input interface{}) interface{} {
 	var dt interface{} = FieldGet(input, "dt")
-	_ = dt // suppress unused
 	var newPhaseTime interface{} = func() interface{} {
 		var tmp12 interface{} = FieldGet(state, "phaseTime")
 		_ = tmp12 // suppress unused
-		return AddInt(tmp12, dt)
+		return AddFloat(tmp12, dt)
 	}()
-	_ = newPhaseTime // suppress unused
 	var newTotalTime interface{} = func() interface{} {
 		var tmp11 interface{} = FieldGet(state, "totalTime")
 		_ = tmp11 // suppress unused
-		return AddInt(tmp11, dt)
+		return AddFloat(tmp11, dt)
 	}()
-	_ = newTotalTime // suppress unused
 	var newGR interface{} = func() interface{} {
 		var tmp9 interface{} = FieldGet(state, "phase")
 		_ = tmp9 // suppress unused
@@ -282,13 +276,11 @@ func stepArrival_impl(state interface{}, input interface{}) interface{} {
 			return calcGRDecay_impl(tmp9, newPhaseTime, tmp10)
 		}()
 	}()
-	_ = newGR // suppress unused
 	var transition interface{} = func() interface{} {
 		var tmp8 interface{} = FieldGet(state, "phase")
 		_ = tmp8 // suppress unused
 		return shouldTransition_impl(tmp8, newPhaseTime)
 	}()
-	_ = transition // suppress unused
 	return func() interface{} {
 		if transition.(bool) {
 			return func() interface{} {
@@ -310,7 +302,7 @@ func stepArrival_impl(state interface{}, input interface{}) interface{} {
 							return func() interface{} {
 								var tmp6 interface{} = FieldGet(state, "galaxyYear")
 								_ = tmp6 // suppress unused
-								return &ArrivalState{Phase: nextPh.(*ArrivalPhase), PhaseTime: float64(float64(0)), TotalTime: newTotalTime.(float64), Velocity: nextVel.(float64), GrIntensity: float64(float64(0)), CurrentPlanet: nextPlanet.(*CurrentPlanet), ShipTimeYears: tmp5.(float64), GalaxyYear: tmp6.(int64)}
+								return &ArrivalState{Phase: nextPh.(*ArrivalPhase), PhaseTime: float64(0), TotalTime: newTotalTime.(float64), Velocity: nextVel.(float64), GrIntensity: float64(0), CurrentPlanet: nextPlanet.(*CurrentPlanet), ShipTimeYears: tmp5.(float64), GalaxyYear: tmp6.(int64)}
 							}()
 						}()
 					}()

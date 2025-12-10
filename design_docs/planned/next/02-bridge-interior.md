@@ -1,9 +1,15 @@
 # Bridge Interior View
 
+> **NOTE (2025-12-10):** This doc contains some Go code sections that need revision.
+> The AILANG types (BridgeState, renderBridge, etc.) are correct.
+> The Go code sections (ObservationDome struct, BridgeView struct) should be
+> refactored to be stateless renderers that take DrawCmds from AILANG.
+> See [view-layer-ailang-migration.md](view-layer-ailang-migration.md) for the migration plan.
+
 **Status:** Planned
 **Priority:** P0 (Core Player Experience)
 **Complexity:** High
-**Depends On:** View System (90% done), Isometric Engine (done)
+**Depends On:** ~~View System (90% done)~~ View Layer Migration, Isometric Engine (done)
 **Enables:** Ship Exploration, Crew Dialogue, Galaxy Map Access
 **Sprint:** [sprints/bridge-interior-sprint.md](../../../sprints/bridge-interior-sprint.md)
 
@@ -35,7 +41,7 @@ This is the **first isometric interior** and sets the visual standard for all sh
 
 ### Three-Layer Composition
 
-Per [01-view-system.md](./01-view-system.md), the bridge view composes three layers:
+Per ~~[01-view-system.md](./01-view-system.md)~~ [view-layer-ailang-migration.md](./view-layer-ailang-migration.md), the bridge view composes three layers:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -555,7 +561,7 @@ func (v *BridgeView) Draw(screen *ebiten.Image, state BridgeState) {
 ## Dependencies
 
 **Requires:**
-- View System (01-view-system.md) - 90% done
+- View Layer Migration (view-layer-ailang-migration.md)
 - Isometric Engine - Done
 - Space Background rendering - Done
 - Planet 3D rendering - Done

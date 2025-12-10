@@ -495,45 +495,84 @@ make game
 
 **For any milestone involving visual output, YOU MUST take and verify screenshots.**
 
-### Why This Matters
-- Manual testing by the user may not reveal subtle issues
-- Screenshots provide proof that features work as expected
-- Catching visual bugs early saves debugging time later
-- Screenshots serve as visual documentation of progress
+### CRITICAL: Use In-Game Screenshots, NOT macOS screencapture
+
+**NEVER use macOS `screencapture` command** - it captures the entire desktop at native resolution (5K+ on Retina), producing huge files that crash Claude.
+
+**ALWAYS use the in-game screenshot functionality** - it captures the game's internal render buffer at 1280x960, producing consistent, small PNG files.
+
+### Screenshot Helper Script (Recommended)
+
+Use the dedicated screenshot helper for easy, reliable screenshots:
+
+```bash
+# Basic game screenshot at frame 30
+.claude/skills/sprint-executor/scripts/take_screenshot.sh
+
+# Bridge demo at frame 60
+.claude/skills/sprint-executor/scripts/take_screenshot.sh -c demo-bridge -f 60
+
+# Game with effects
+.claude/skills/sprint-executor/scripts/take_screenshot.sh --effects bloom,sr_warp --velocity 0.5
+
+# Arrival sequence at frame 120
+.claude/skills/sprint-executor/scripts/take_screenshot.sh --arrival -f 120
+
+# Custom output path
+.claude/skills/sprint-executor/scripts/take_screenshot.sh -o out/screenshots/my-test.png
+```
+
+### Direct Command Usage
+
+You can also use the screenshot flags directly on any game command:
+
+```bash
+# Main game
+go run ./cmd/game --screenshot 30 --output out/screenshots/game.png
+
+# Demo commands
+go run ./cmd/demo-bridge --screenshot 30 --output out/screenshots/bridge.png
+go run ./cmd/demo-saturn --screenshot 60 --output out/screenshots/saturn.png
+
+# With effects
+go run ./cmd/game --screenshot 60 --output out/test.png --effects bloom,sr_warp --velocity 0.5
+
+# Arrival sequence
+go run ./cmd/game --screenshot 120 --output out/arrival.png --arrival
+```
+
+### Why In-Game Screenshots?
+
+| Method | Resolution | File Size | Works? |
+|--------|------------|-----------|--------|
+| `--screenshot` flag | 1280x960 | ~50-200KB | YES |
+| macOS `screencapture` | 5120x2880+ | 5-20MB | NO (crashes) |
 
 ### Screenshot Workflow
 
-1. **Build Demo Commands with Screenshot Support**
-   ```go
-   // Add these flags to demo commands:
-   screenshotFrame = flag.Int("screenshot", 0, "Take screenshot after N frames")
-   outputPath = flag.String("output", "out/demo.png", "Screenshot output path")
-   ```
-
-2. **Take Screenshots at Key States**
+1. **Take Screenshots at Key States**
    ```bash
    # Initial state
-   ./bin/demo --screenshot 30 --output out/screenshots/initial.png
+   .claude/skills/sprint-executor/scripts/take_screenshot.sh -f 30 -o out/screenshots/initial.png
 
-   # During animation/transition (if applicable)
-   ./bin/demo --auto-transition 10 --screenshot 40 --output out/screenshots/mid-transition.png
+   # Mid-animation (if applicable)
+   .claude/skills/sprint-executor/scripts/take_screenshot.sh -f 60 -o out/screenshots/mid.png
 
    # Final state
-   ./bin/demo --screenshot 90 --output out/screenshots/final.png
+   .claude/skills/sprint-executor/scripts/take_screenshot.sh -f 90 -o out/screenshots/final.png
    ```
 
-3. **View Screenshots Using Read Tool**
+2. **View Screenshots Using Read Tool**
    ```bash
    # Claude Code can view PNG images directly
    # Use Read tool on screenshot path to verify visuals
    ```
 
-4. **Document What to Look For**
-   - Stars visible and distributed across screen
-   - Parallax effect showing camera offset in HUD
-   - Transition effects (fade/crossfade/wipe/zoom) clearly visible
-   - UI elements positioned correctly
-   - No visual artifacts or rendering errors
+3. **Document What to Look For**
+   - Visual elements positioned correctly
+   - No rendering artifacts
+   - Effects applied properly (if enabled)
+   - UI elements visible and readable
 
 ### Screenshot Verification Checklist
 
@@ -545,26 +584,83 @@ For each visual feature:
 - [ ] Issues found documented in sprint JSON
 - [ ] Visual artifacts investigated and fixed
 
-### Auto-Transition Testing
+### Available Commands for Screenshots
 
-For transition/animation features, add auto-trigger capability:
-```go
-autoTransition = flag.Int("auto-transition", 0, "Auto-trigger transition at frame N")
-autoEffect = flag.String("effect", "fade", "Transition effect type")
+| Command | Description |
+|---------|-------------|
+| `game` | Main game (bridge view, NPC, etc.) |
+| `demo-bridge` | Bridge interior only |
+| `demo-saturn` | Saturn with rings |
+| `demo-arrival` | Black hole arrival sequence |
+| `demo-sr-flyby` | SR effects flyby demo |
+| `demo-view` | View system demo |
+
+## Output File Organization (MANDATORY)
+
+**All generated output MUST go in the correct `out/` subdirectory.** See [out/README.md](../../../out/README.md) for full details.
+
+### Directory Structure
+
+```
+out/
+├── eval/           # Benchmarks, evaluation reports
+├── generated/      # Final GIFs, videos, animations
+├── scenarios/      # Scenario runner temp output
+├── screenshots/    # Demo screenshots from sprints  ← USE THIS
+└── test/           # Visual test golden files
 ```
 
-This allows capturing mid-transition states without manual input.
+### Where to Put Files
 
-### Example Visual Verification
+| Output Type | Location | Example |
+|-------------|----------|---------|
+| Demo screenshots | `out/screenshots/` | `out/screenshots/bridge-initial.png` |
+| Sprint verification | `out/screenshots/<sprint>/` | `out/screenshots/arrival-v1/mid-transition.png` |
+| Evaluation output | `out/eval/` | `out/eval/report.json` |
+| Generated videos/GIFs | `out/generated/` | `out/generated/flyby-demo.gif` |
+| Test scenario output | `out/test/<scenario>/` | `out/test/camera-pan/after-right.png` |
+
+### Rules
+
+1. **NEVER put files in `out/` root** - always use a subdirectory
+2. **Clean up intermediate files** - frame sequences for video generation should be deleted after the final video is created
+3. **Use descriptive names** - `bridge-initial.png` not `test1.png`
+4. **Organize by sprint** - for multi-screenshot verification, use `out/screenshots/<sprint-name>/`
+
+### Screenshot Commands
 
 ```bash
-# Test all transition types
-for effect in fade crossfade wipe zoom; do
-  ./bin/demo-view --auto-transition 10 --effect $effect \
-    --screenshot 40 --output out/view-screenshots/${effect}-mid.png
-done
+# Single screenshot
+./bin/demo --screenshot 30 --output out/screenshots/initial.png
 
-# Then use Read tool to view each screenshot
+# Sprint with multiple screenshots
+mkdir -p out/screenshots/arrival-v1
+./bin/demo --screenshot 30 --output out/screenshots/arrival-v1/initial.png
+./bin/demo --screenshot 60 --output out/screenshots/arrival-v1/mid.png
+./bin/demo --screenshot 90 --output out/screenshots/arrival-v1/final.png
+```
+
+### Video/Animation Generation
+
+```bash
+# Generate frames to temp directory
+mkdir -p /tmp/frames
+./bin/demo --capture-frames /tmp/frames/
+
+# Create final video
+ffmpeg -i /tmp/frames/frame_%05d.png out/generated/demo.mp4
+
+# Clean up intermediate frames
+rm -rf /tmp/frames
+```
+
+**Do NOT leave frame directories in `out/`** - they can grow to hundreds of MB.
+
+### Cleanup Command
+
+If `out/` gets cluttered during development:
+```bash
+make clean  # Removes bin/, out/* but preserves structure
 ```
 
 ## Resources

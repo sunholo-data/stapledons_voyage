@@ -2,8 +2,9 @@ module sim/step
 
 -- Import types from protocol and world modules (imports fixed in v0.4.9)
 import sim/protocol (FrameInput, FrameOutput, DrawCmd, Rect, Coord, PlayerAction, ActionNone, Camera)
-import sim/world (World, PlanetState, Tile, Selection, SelectionNone, SelectionTile)
+import sim/world (World, PlanetState, Tile, Selection, SelectionNone, SelectionTile, ViewMode, ViewBridge, ViewPlanet, ViewGalaxyMap)
 import sim/npc_ai (NPC, PatternStatic, PatternRandomWalk, PatternPatrol, Direction, North, South, East, West, updateAllNPCs)
+import sim/bridge (BridgeState, initBridge, renderBridge, stepBridge)
 
 -- Import effects (v0.5.0)
 import std/rand (rand_int)
@@ -87,28 +88,58 @@ export func init_world(seed: int) -> World {
         tick: 0,
         planet: { width: w, height: h, tiles: tiles },
         npcs: testNpcs,
-        selection: SelectionNone
+        selection: SelectionNone,
+        bridge: initBridge(),
+        viewMode: ViewBridge
     }
+}
+
+-- Render based on view mode
+pure func renderForView(world: World) -> [DrawCmd] {
+    match world.viewMode {
+        ViewBridge => renderBridge(world.bridge),
+        ViewPlanet => {
+            let tileCmds = tilesToDraw(world.planet.tiles, world.planet.width, 0);
+            let npcCmds = npcsToDraw(world.npcs);
+            let selCmds = selectionToDraw(world.selection);
+            concatDrawCmds(concatDrawCmds(tileCmds, npcCmds), selCmds)
+        },
+        ViewGalaxyMap => []
+    }
+}
+
+-- Helper: update world for bridge view
+pure func updateBridgeView(world: World, newTick: int) -> World {
+    let updatedBridge = stepBridge(world.bridge, newTick);
+    { world | tick: newTick, bridge: updatedBridge }
+}
+
+-- Helper: update world for planet view
+func updatePlanetView(world: World, input: FrameInput, newTick: int) -> World ! {Rand} {
+    let newSelection = processSelection(input, world);
+    let updatedNpcs = updateAllNPCs(world.npcs, world.planet.width, world.planet.height);
+    { world | tick: newTick, npcs: updatedNpcs, selection: newSelection }
+}
+
+-- Helper: update world for galaxy map view
+pure func updateGalaxyView(world: World, newTick: int) -> World {
+    { world | tick: newTick }
 }
 
 -- Step function: update world and produce draw commands
 -- Uses Rand for NPC movement (v0.5.0)
 export func step(world: World, input: FrameInput) -> (World, FrameOutput) ! {Rand} {
-    -- Process selection
-    let newSelection = processSelection(input, world);
-
-    -- Update NPCs (Rand effect propagates from updateAllNPCs)
     let newTick = world.tick + 1;
-    let updatedNpcs = updateAllNPCs(world.npcs, world.planet.width, world.planet.height);
 
-    -- Update world state using record update
-    let newWorld = { world | tick: newTick, npcs: updatedNpcs, selection: newSelection };
+    -- Update based on view mode (using helper functions to avoid syntax issues)
+    let newWorld = match world.viewMode {
+        ViewBridge => updateBridgeView(world, newTick),
+        ViewPlanet => updatePlanetView(world, input, newTick),
+        ViewGalaxyMap => updateGalaxyView(world, newTick)
+    };
 
-    -- Generate draw commands for tiles, NPCs, and selection
-    let tileCmds = tilesToDraw(world.planet.tiles, world.planet.width, 0);
-    let npcCmds = npcsToDraw(updatedNpcs);
-    let selCmds = selectionToDraw(newSelection);
-    let drawCmds = concatDrawCmds(concatDrawCmds(tileCmds, npcCmds), selCmds);
+    -- Render for current view mode
+    let drawCmds = renderForView(newWorld);
 
     let cam = { x: 0.0, y: 0.0, zoom: 1.0 };
     let output = { draw: drawCmds, sounds: [], debug: [], camera: cam };

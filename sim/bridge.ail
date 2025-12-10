@@ -5,10 +5,39 @@ module sim/bridge
 -- The bridge is the command center of the ship - the player's primary interface
 -- =============================================================================
 
-import sim/protocol (Coord, DrawCmd, IsoTile, IsoEntity, FrameInput, Rect, Sprite)
+import sim/protocol (Coord, DrawCmd, IsoTile, IsoEntity, FrameInput, Rect, Sprite, Line, RectRGBA, Circle, CircleRGBA, Text, GalaxyBg)
 import sim/npc_ai (Direction, North, South, East, West)
 import std/option (Option, Some, None)
 import std/list (concat)
+import std/math (sin, cos, PI)
+
+-- =============================================================================
+-- Color Constants (RGBA as decimal integers)
+-- =============================================================================
+
+-- Floor colors
+pure func colorFloor() -> int { 707406591 }         -- #2A3F4FFF - Blue-gray floor
+pure func colorFloorGlow() -> int { 858993919 }     -- #333F4FFF - Slightly glowing
+pure func colorDomeEdge() -> int { 439041279 }      -- #1A2F3FFF - Darker edge
+pure func colorWalkway() -> int { 1145324799 }      -- #445566FF - Walkway highlight
+pure func colorCaptainArea() -> int { 606348543 }   -- #242A30FF - Captain area
+pure func colorWall() -> int { 252645631 }          -- #0F0F0FFF - Almost black (void)
+
+-- Console colors
+pure func colorHelm() -> int { 4120593151 }         -- #F5A623FF - Amber/orange
+pure func colorComms() -> int { 14540799 }          -- #00D9FFFF - Cyan
+pure func colorStatus() -> int { 2566914303 }       -- #99CC33FF - Green
+pure func colorNav() -> int { 4294935039 }          -- #FF4757FF - Red-pink
+pure func colorScience() -> int { 16744447 }        -- #00FF88FF - Bright green
+pure func colorCaptain() -> int { 4294940415 }      -- #FFCC00FF - Gold
+
+-- Crew colors (by role)
+pure func colorCrewPilot() -> int { 4120593151 }    -- Matches helm (amber)
+pure func colorCrewComms() -> int { 14540799 }      -- Matches comms (cyan)
+pure func colorCrewEngineer() -> int { 2566914303 } -- Matches status (green)
+pure func colorCrewScientist() -> int { 16744447 }  -- Matches science (bright green)
+pure func colorCrewCaptain() -> int { 4294940415 }  -- Matches captain (gold)
+pure func colorPlayer() -> int { 65280 }            -- #00FF00FF - Pure green
 
 -- =============================================================================
 -- Bridge Station Types
@@ -72,6 +101,161 @@ export type DomeViewState = {
     viewAngle: float        -- Camera angle in radians
 }
 
+-- Create default dome view state (helper to avoid nested record literal bug)
+export pure func makeDomeViewState(planetId: int, velocity: float, angle: float) -> DomeViewState {
+    { targetPlanetId: planetId, shipVelocity: velocity, viewAngle: angle }
+}
+
+-- =============================================================================
+-- Full Dome State (AILANG-owned cruise animation)
+-- This replaces the Go dome_renderer state management
+-- =============================================================================
+
+-- Extended DomeState for full dome simulation
+export type DomeState = {
+    cruiseTime: float,        -- Current time in cruise animation (seconds)
+    cruiseDuration: float,    -- Total journey duration (seconds)
+    cruiseVelocity: float,    -- Ship velocity (0.0-0.99c)
+    cameraZ: float,           -- Camera position along cruise path
+    targetPlanet: int         -- Which planet we're approaching (index 0-4)
+}
+
+-- Planet data for flyby rendering
+export type Planet = {
+    name: string,
+    colorRGBA: int,           -- Packed RGBA color
+    distance: float,          -- Distance along cruise path from start
+    radius: float,            -- Visual radius (scaled by perspective)
+    yOffset: float            -- Vertical offset above cruise path
+}
+
+-- Initialize dome state for cruise animation
+export pure func initDomeState() -> DomeState {
+    {
+        cruiseTime: 0.0,
+        cruiseDuration: 60.0,   -- 60 second cruise loop
+        cruiseVelocity: 0.15,   -- 15% speed of light
+        cameraZ: 10.0,          -- Start 10 units from first planet
+        targetPlanet: 4         -- Approaching Earth (index 4)
+    }
+}
+
+-- Step the dome state forward (called each frame with delta time)
+export pure func stepDome(state: DomeState, dt: float) -> DomeState {
+    let newTime = state.cruiseTime + dt;
+    -- Loop the cruise animation
+    let loopedTime = if newTime > state.cruiseDuration then 0.0 else newTime;
+
+    -- Calculate progress (0.0 to 1.0)
+    let progress = loopedTime / state.cruiseDuration;
+    -- Smooth step easing: 3t² - 2t³
+    let eased = progress * progress * (3.0 - 2.0 * progress);
+
+    -- Camera moves from z=10 to z=-155 along cruise path
+    let startZ = 10.0;
+    let endZ = 0.0 - 155.0;
+    let newCamZ = startZ - (startZ - endZ) * eased;
+
+    {
+        cruiseTime: loopedTime,
+        cruiseDuration: state.cruiseDuration,
+        cruiseVelocity: state.cruiseVelocity,
+        cameraZ: newCamZ,
+        targetPlanet: state.targetPlanet
+    }
+}
+
+-- Get list of planets along the cruise path (outer to inner solar system)
+export pure func getPlanets() -> [Planet] {
+    [
+        { name: "Neptune", colorRGBA: 1350665471, distance: 15.0,  radius: 20.0, yOffset: 2.25 },
+        { name: "Saturn",  colorRGBA: 3535748351, distance: 50.0,  radius: 36.0, yOffset: 7.5 },
+        { name: "Jupiter", colorRGBA: 3702191359, distance: 90.0,  radius: 44.0, yOffset: 13.5 },
+        { name: "Mars",    colorRGBA: 3361734911, distance: 130.0, radius: 10.0, yOffset: 19.5 },
+        { name: "Earth",   colorRGBA: 1014743295, distance: 150.0, radius: 14.0, yOffset: 22.5 }
+    ]
+}
+
+-- Calculate velocity from dome state (for SR effects wiring)
+export pure func getDomeVelocity(state: DomeState) -> float {
+    state.cruiseVelocity
+}
+
+-- Calculate cruise progress (0.0 to 1.0)
+export pure func getDomeProgress(state: DomeState) -> float {
+    state.cruiseTime / state.cruiseDuration
+}
+
+-- =============================================================================
+-- Dome Planet Rendering (AILANG-owned)
+-- Renders planets as circles with perspective projection
+-- =============================================================================
+
+-- Layer for dome rendering (behind floor, behind struts)
+pure func layerDome() -> int { 0 - 10 }
+
+-- Render a single planet with perspective projection
+-- Returns empty list if planet is behind camera or too small
+-- Planets render in the DOME area (top of screen, above the floor)
+pure func renderPlanet(planet: Planet, cameraZ: float, scrW: float, scrH: float) -> [DrawCmd] {
+    let relZ = planet.distance + cameraZ;  -- Distance from camera
+    if relZ <= 0.5 then
+        []  -- Behind or too close to camera
+    else {
+        -- Simple perspective: scale = focalLength / distance
+        let scale = 100.0 / relZ;
+
+        -- Screen position: centered horizontally
+        let screenX = scrW / 2.0;
+
+        -- Y position: start at top of dome area (y=200), offset based on yOffset
+        -- Dome is upper 40% of screen (0 to ~380), floor is lower 60%
+        let baseY = 200.0;  -- High in the dome area
+        let screenY = baseY + planet.yOffset * scale * 5.0;
+
+        -- Visible radius scales with distance
+        let visibleRadius = planet.radius * scale;
+
+        if visibleRadius < 1.0 then
+            []  -- Too small to see
+        else
+            [CircleRGBA(screenX, screenY, visibleRadius, planet.colorRGBA, true, layerDome())]
+    }
+}
+
+-- Recursively render all planets
+pure func renderPlanetsRec(planets: [Planet], cameraZ: float, scrW: float, scrH: float) -> [DrawCmd] {
+    match planets {
+        [] => [],
+        p :: rest => concat(
+            renderPlanet(p, cameraZ, scrW, scrH),
+            renderPlanetsRec(rest, cameraZ, scrW, scrH)
+        )
+    }
+}
+
+-- Render all planets in the dome view
+export pure func renderDomePlanets(state: DomeState) -> [DrawCmd] {
+    let scrW = screenWidth();
+    let scrH = screenHeight();
+    renderPlanetsRec(getPlanets(), state.cameraZ, scrW, scrH)
+}
+
+-- Layer for dome background (furthest back)
+pure func layerDomeBg() -> int { 0 - 20 }
+
+-- Render full dome view (galaxy background + planets)
+export pure func renderDome(state: DomeState) -> [DrawCmd] {
+    -- Galaxy background first (behind everything)
+    -- GalaxyBg(opacity, z, skyViewMode, viewLon, viewLat, fov)
+    let bgCmd = GalaxyBg(0.8, layerDomeBg(), false, 0.0, 0.0, 1.57);
+
+    -- Then planets on top of background
+    let planetCmds = renderDomePlanets(state);
+
+    concat([bgCmd], planetCmds)
+}
+
 -- =============================================================================
 -- Bridge State
 -- =============================================================================
@@ -103,8 +287,14 @@ export type BridgeState = {
     hoveredInteractable: Option[InteractableID],
     selectedInteractable: Option[InteractableID],
 
-    -- Dome
+    -- Dome (legacy - for engine compatibility)
     domeView: DomeViewState,
+
+    -- Full Dome State (AILANG-owned cruise animation)
+    domeState: DomeState,
+
+    -- Animation tick (for frame counting)
+    tick: int,
 
     -- Disc configuration (procedural - no stored layout)
     discRadius: int,        -- Radius of the walkable disc
@@ -122,6 +312,107 @@ export type BridgeInputResult =
     | BridgeToGalaxyMap                     -- Transition to galaxy map
     | BridgeToDialogue(CrewID)              -- Start dialogue with crew
     | BridgeToDeck(int, Coord)              -- Transition to another deck
+
+-- =============================================================================
+-- Dome Struts (Structural supports with parallax)
+-- Struts are rendered as lines forming an arc around the dome viewport
+-- =============================================================================
+
+-- Strut configuration
+export type Strut = {
+    x1: float, y1: float,      -- Start position (screen coords)
+    x2: float, y2: float,      -- End position (screen coords)
+    parallax: float,           -- Parallax depth (0=fixed with stars, 1=fixed with bridge)
+    color: int                 -- RGBA color
+}
+
+-- Screen dimensions for strut positioning
+pure func screenWidth() -> float { 1280.0 }
+pure func screenHeight() -> float { 960.0 }
+
+-- Strut visual constants
+pure func strutColor() -> int { 1275068520 }      -- Dark metallic blue (0x4C5A6878 RGBA)
+pure func strutHighlight() -> int { 1887670408 }  -- Lighter highlight (0x708090FF RGBA)
+pure func layerStruts() -> int { -1 }             -- Behind floor (negative z)
+
+-- Number of struts on each side of dome
+pure func strutCount() -> int { 8 }
+
+-- Arc parameters: struts form curve from sides toward top
+-- Arc center Y is below screen, struts curve upward
+pure func arcCenterY() -> float { 1400.0 }   -- Below screen (960 height), pushed down to match floor
+pure func arcRadius() -> float { 900.0 }     -- Large radius for gentle curve
+
+-- Calculate strut base position on arc (bottom attachment point)
+-- Index 0 = leftmost, strutCount-1 = rightmost
+pure func strutBaseX(index: int, total: int) -> float {
+    let centerX = screenWidth() / 2.0;
+    -- Spread struts across lower portion of arc (roughly -60° to +60°)
+    let angleRange = PI() / 3.0;  -- 60 degrees each side
+    let angleStep = (angleRange * 2.0) / intToFloat(total - 1);
+    let angle = (0.0 - angleRange) + intToFloat(index) * angleStep;
+    centerX + arcRadius() * sin(angle)
+}
+
+pure func strutBaseY(index: int, total: int) -> float {
+    let angleRange = PI() / 3.0;
+    let angleStep = (angleRange * 2.0) / intToFloat(total - 1);
+    let angle = (0.0 - angleRange) + intToFloat(index) * angleStep;
+    arcCenterY() - arcRadius() * cos(angle)
+}
+
+-- Strut top position (extends toward screen edge/top)
+pure func strutTopX(index: int, total: int) -> float {
+    let baseX = strutBaseX(index, total);
+    let centerX = screenWidth() / 2.0;
+    -- Extend outward from center
+    let dx = baseX - centerX;
+    baseX + dx * 0.3
+}
+
+pure func strutTopY(index: int, total: int) -> float {
+    let baseY = strutBaseY(index, total);
+    -- Extend upward (toward top of screen)
+    baseY - 150.0
+}
+
+-- Calculate parallax offset for strut tops based on camera position
+-- Creates subtle sway as ship cruises through space
+pure func strutParallax(index: int, total: int, cameraZ: float) -> float {
+    -- Parallax varies by strut position (left struts move opposite to right)
+    let centerIndex = intToFloat(total - 1) / 2.0;
+    let offsetFromCenter = intToFloat(index) - centerIndex;
+    -- Map cameraZ (10 to -155) to parallax offset (-5 to 5 pixels per strut)
+    let progress = (10.0 - cameraZ) / 165.0;
+    offsetFromCenter * progress * 3.0
+}
+
+-- Render a single strut as a Line with parallax
+pure func renderStrutWithParallax(index: int, total: int, cameraZ: float) -> DrawCmd {
+    let parallax = strutParallax(index, total, cameraZ);
+    Line(
+        strutBaseX(index, total),
+        strutBaseY(index, total),
+        strutTopX(index, total) + parallax,  -- Top sways with parallax
+        strutTopY(index, total),
+        strutColor(),
+        2.0,
+        layerStruts()
+    )
+}
+
+-- Render struts recursively with parallax
+pure func renderStrutsRec(index: int, total: int, cameraZ: float) -> [DrawCmd] {
+    if index >= total then
+        []
+    else
+        renderStrutWithParallax(index, total, cameraZ) :: renderStrutsRec(index + 1, total, cameraZ)
+}
+
+-- Render all dome struts with parallax from dome state
+export pure func renderStruts(state: BridgeState) -> [DrawCmd] {
+    renderStrutsRec(0, strutCount(), state.domeState.cameraZ)
+}
 
 -- =============================================================================
 -- Tile IDs (Bridge-specific sprites)
@@ -349,12 +640,14 @@ export pure func initBridge() -> BridgeState {
         hoveredInteractable: None,
         selectedInteractable: None,
 
-        -- Dome showing generic space view
-        domeView: {
-            targetPlanetId: 0,
-            shipVelocity: 0.0,
-            viewAngle: 0.0
-        },
+        -- Dome showing generic space view (use helper to avoid nested record bug)
+        domeView: makeDomeViewState(0, 0.15, 0.0),
+
+        -- Full dome state with cruise animation
+        domeState: initDomeState(),
+
+        -- Animation tick
+        tick: 0,
 
         -- Disc configuration
         discRadius: radius,
@@ -380,11 +673,21 @@ pure func colorWhite() -> int { 4294967295 }
 -- Screen is 1280x960, we want the grid centered horizontally
 -- and positioned in the lower portion (below the dome)
 pure func screenOffsetX() -> float { 640.0 }  -- Center horizontally
-pure func screenOffsetY() -> float { 350.0 }  -- Lower portion, below dome
+pure func screenOffsetY() -> float { 550.0 }  -- Lower portion, below dome (pushed down to give planets space)
+
+-- Get color for tile type (placeholder rendering)
+pure func tileColor(tileType: int) -> int {
+    if tileType == tileWall() then colorWall()
+    else if tileType == tileDomeEdge() then colorDomeEdge()
+    else if tileType == tileCaptainArea() then colorCaptainArea()
+    else if tileType == tileFloorGlow() then colorFloorGlow()
+    else if tileType == tileWalkway() then colorWalkway()
+    else colorFloor()
+}
 
 -- Render a single floor tile at world position, relative to camera
--- NOTE: Using Sprite instead of IsoTile due to AILANG type alias bug
-pure func renderTileAt(worldX: int, worldY: int, camX: int, camY: int, sid: int) -> DrawCmd {
+-- Using RectRGBA for visible placeholder (isometric diamond approximated as rect)
+pure func renderTileAt(worldX: int, worldY: int, camX: int, camY: int, tileType: int) -> DrawCmd {
     -- Calculate position relative to camera (so camera is at screen center)
     let relX = worldX - camX;
     let relY = worldY - camY;
@@ -393,7 +696,8 @@ pure func renderTileAt(worldX: int, worldY: int, camX: int, camY: int, sid: int)
     let isoY = intToFloat((relX + relY) * 16);
     let screenX = isoX + screenOffsetX();
     let screenY = isoY + screenOffsetY();
-    Sprite(sid, screenX, screenY, layerFloor())
+    -- Render as small rectangle representing isometric tile
+    RectRGBA(screenX - 28.0, screenY - 12.0, 56.0, 28.0, tileColor(tileType), layerFloor())
 }
 
 -- Render tile row helper (recurses through x from start to maxX)
@@ -443,15 +747,43 @@ pure func inViewport(wx: int, wy: int, camX: int, camY: int) -> bool {
     dx >= 0 - vp - 2 && dx <= vp + 2 && dy >= 0 - vp - 2 && dy <= vp + 2
 }
 
--- Render a single console relative to camera
-pure func renderConsole(console: ConsoleState, camX: int, camY: int) -> DrawCmd {
+-- Get color for console station
+pure func consoleColor(station: BridgeStation) -> int {
+    match station {
+        StationHelm => colorHelm(),
+        StationComms => colorComms(),
+        StationStatus => colorStatus(),
+        StationNav => colorNav(),
+        StationScience => colorScience(),
+        StationCaptain => colorCaptain(),
+        StationNone => colorFloor()
+    }
+}
+
+-- Get color for crew member based on their station
+pure func crewColor(station: BridgeStation) -> int {
+    match station {
+        StationHelm => colorCrewPilot(),
+        StationComms => colorCrewComms(),
+        StationStatus => colorCrewEngineer(),
+        StationNav => colorCrewEngineer(),      -- Nav uses engineer color
+        StationScience => colorCrewScientist(),
+        StationCaptain => colorCrewCaptain(),
+        StationNone => colorPlayer()            -- Default
+    }
+}
+
+-- Render a single console relative to camera (colored rectangle placeholder)
+pure func renderConsole(console: ConsoleState, camX: int, camY: int) -> [DrawCmd] {
     let relX = console.pos.x - camX;
     let relY = console.pos.y - camY;
     let isoX = intToFloat((relX - relY) * 32);
     let isoY = intToFloat((relX + relY) * 16);
     let screenX = isoX + screenOffsetX();
     let screenY = isoY + screenOffsetY();
-    Sprite(console.spriteId, screenX, screenY, layerConsoles())
+    let color = consoleColor(console.station);
+    -- Console as colored rectangle (elevated above floor)
+    [RectRGBA(screenX - 24.0, screenY - 32.0, 48.0, 24.0, color, layerConsoles())]
 }
 
 -- Render all consoles recursively (only those in viewport)
@@ -460,7 +792,7 @@ pure func renderConsolesRec(consoles: [ConsoleState], camX: int, camY: int) -> [
         [] => [],
         c :: rest =>
             if inViewport(c.pos.x, c.pos.y, camX, camY) then
-                renderConsole(c, camX, camY) :: renderConsolesRec(rest, camX, camY)
+                concat(renderConsole(c, camX, camY), renderConsolesRec(rest, camX, camY))
             else
                 renderConsolesRec(rest, camX, camY)
     }
@@ -471,15 +803,20 @@ export pure func renderConsoles(state: BridgeState) -> [DrawCmd] {
     renderConsolesRec(state.consoles, state.cameraX, state.cameraY)
 }
 
--- Render a single crew member relative to camera
-pure func renderCrewMember(crew: CrewPosition, camX: int, camY: int) -> DrawCmd {
+-- Render a single crew member relative to camera (colored circle with name label)
+pure func renderCrewMember(crew: CrewPosition, camX: int, camY: int) -> [DrawCmd] {
     let relX = crew.pos.x - camX;
     let relY = crew.pos.y - camY;
     let isoX = intToFloat((relX - relY) * 32);
     let isoY = intToFloat((relX + relY) * 16);
     let screenX = isoX + screenOffsetX();
     let screenY = isoY + screenOffsetY();
-    Sprite(crewSprite(crew.station), screenX, screenY, layerCrew())
+    let color = crewColor(crew.station);
+    -- Circle at crew position + name label below
+    [
+        CircleRGBA(screenX, screenY - 8.0, 12.0, color, true, layerCrew()),
+        Text(crew.crew.name, screenX - 30.0, screenY + 8.0, 8, 4294967295, layerCrew() + 1)
+    ]
 }
 
 -- Render all crew recursively (only those in viewport)
@@ -488,7 +825,7 @@ pure func renderCrewRec(crew: [CrewPosition], camX: int, camY: int) -> [DrawCmd]
         [] => [],
         c :: rest =>
             if inViewport(c.pos.x, c.pos.y, camX, camY) then
-                renderCrewMember(c, camX, camY) :: renderCrewRec(rest, camX, camY)
+                concat(renderCrewMember(c, camX, camY), renderCrewRec(rest, camX, camY))
             else
                 renderCrewRec(rest, camX, camY)
     }
@@ -499,7 +836,7 @@ export pure func renderBridgeCrew(state: BridgeState) -> [DrawCmd] {
     renderCrewRec(state.crewPositions, state.cameraX, state.cameraY)
 }
 
--- Render the player entity (always at screen center since camera follows player)
+-- Render the player entity (green rectangle with "YOU" label)
 export pure func renderPlayer(state: BridgeState) -> [DrawCmd] {
     let relX = state.playerPos.x - state.cameraX;
     let relY = state.playerPos.y - state.cameraY;
@@ -507,17 +844,31 @@ export pure func renderPlayer(state: BridgeState) -> [DrawCmd] {
     let isoY = intToFloat((relX + relY) * 16);
     let screenX = isoX + screenOffsetX();
     let screenY = isoY + screenOffsetY();
-    [Sprite(spritePlayer(), screenX, screenY, layerPlayer())]
+    -- Green rectangle (slightly larger than crew circles) with "YOU" label
+    [
+        RectRGBA(screenX - 10.0, screenY - 18.0, 20.0, 20.0, colorPlayer(), layerPlayer()),
+        Text("YOU", screenX - 12.0, screenY + 8.0, 10, colorPlayer(), layerPlayer() + 1)
+    ]
 }
 
 -- Render entire bridge (combines all layers)
+-- Layer order: dome -> struts -> floor -> consoles -> crew -> player (front)
 export pure func renderBridge(state: BridgeState) -> [DrawCmd] {
     concat(
         concat(
-            concat(renderBridgeFloor(state), renderConsoles(state)),
-            renderBridgeCrew(state)
+            concat(
+                concat(
+                    concat(
+                        renderDome(state.domeState),  -- Dome planets (background)
+                        renderStruts(state)           -- Structural struts
+                    ),
+                    renderBridgeFloor(state)          -- Isometric floor tiles
+                ),
+                renderConsoles(state)                 -- Console stations
+            ),
+            renderBridgeCrew(state)                   -- Crew members
         ),
-        renderPlayer(state)
+        renderPlayer(state)                           -- Player character
     )
 }
 
@@ -561,7 +912,29 @@ pure func updateCrewRec(crew: [CrewPosition], frame: int, state: BridgeState) ->
 }
 
 -- Step the bridge state forward (called each frame)
+-- frame: current frame number (used for crew patrol timing)
 export pure func stepBridge(state: BridgeState, frame: int) -> BridgeState {
+    -- Delta time at 60 FPS
+    let dt = 1.0 / 60.0;
+
+    -- Step dome cruise animation
+    let updatedDome = stepDome(state.domeState, dt);
+
+    -- Update legacy domeView for engine compatibility
+    let updatedDomeView = makeDomeViewState(
+        updatedDome.targetPlanet,
+        updatedDome.cruiseVelocity,
+        state.domeView.viewAngle
+    );
+
+    -- Update crew patrol movement
     let updatedCrew = updateCrewRec(state.crewPositions, frame, state);
-    { state | crewPositions: updatedCrew }
+
+    -- Use record update syntax (chain updates)
+    { state |
+        crewPositions: updatedCrew,
+        domeState: updatedDome,
+        domeView: updatedDomeView,
+        tick: frame
+    }
 }

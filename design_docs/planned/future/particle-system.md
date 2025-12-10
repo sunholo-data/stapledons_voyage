@@ -1,11 +1,20 @@
 # Particle System
 
+> **REVIEWED 2025-12-10** - This approach is acceptable.
+>
+> Decorative particles (dust, sparks, debris) are purely visual and don't affect gameplay.
+> AILANG triggers particle spawns via DrawCmdParticle, engine handles animation.
+> This is similar to shaders - AILANG controls WHEN, engine controls HOW.
+>
+> **If particles become gameplay-relevant** (e.g., projectiles, damage areas),
+> they would need to be AILANG state. But decorative VFX are fine engine-side.
+
 **Version:** 0.5.0
 **Status:** Planned
 **Priority:** P2 (Polish)
 **Complexity:** Medium
 **Dependencies:** None
-**AILANG Impact:** None - AILANG spawns particles by ID, engine handles physics/rendering
+**AILANG Impact:** Minimal - AILANG spawns particles, engine animates them
 
 ## Problem Statement
 

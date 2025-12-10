@@ -1134,3 +1134,27 @@ func ConvertToUiKindSlice(v interface{}) []*UiKind {
 	}
 	return out
 }
+
+// ConvertToViewModeSlice converts []interface{} to []*ViewMode.
+// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
+func ConvertToViewModeSlice(v interface{}) []*ViewMode {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToViewModeSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*ViewMode{}
+	}
+	out := make([]*ViewMode, len(src))
+	for i, e := range src {
+		elem, ok := e.(*ViewMode)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToViewModeSlice: element %d: expected *ViewMode, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}

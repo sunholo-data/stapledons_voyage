@@ -148,9 +148,39 @@ golden/
     └── ...
 ```
 
+## Output Organization
+
+Test output follows the project's [out/ directory structure](../../../out/README.md):
+
+| Directory | Purpose |
+|-----------|---------|
+| `out/test/<scenario>/` | Current test output (screenshots) |
+| `out/test/<scenario>/diff/` | Diff images when tests fail |
+| `out/scenarios/` | Temporary scenario runner output |
+| `golden/<scenario>/` | Baseline golden files (committed to git) |
+
+**Important:**
+- Test output in `out/test/` is gitignored and ephemeral
+- Golden files in `golden/` are committed and versioned
+- Never put test output in `out/` root - always use `out/test/<scenario>/`
+
 ## Notes
 
 - Always run tests with `--test-mode` to strip UI elements
 - Golden files should be updated intentionally, not automatically
 - Use deterministic seeds for reproducible tests
-- Screenshots are at 640x480 internal resolution
+- Screenshots are at 1280x960 internal resolution
+
+## IMPORTANT: Screenshot Method
+
+**NEVER use macOS `screencapture`** - it captures the desktop at native resolution (5K+), producing huge files.
+
+**ALWAYS use in-game screenshot flags:**
+```bash
+go run ./cmd/game --screenshot 30 --output out/test.png
+```
+
+Or use the helper script:
+```bash
+.claude/skills/sprint-executor/scripts/take_screenshot.sh -f 30 -o out/test.png
+```

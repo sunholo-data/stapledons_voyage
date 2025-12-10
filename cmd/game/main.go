@@ -554,6 +554,9 @@ func main() {
 		clock:    clockHandler,
 		save:     saveMgr,
 		effects:  effects,
+		out: sim_gen.FrameOutput{
+			Camera: &sim_gen.Camera{X: 0, Y: 0, Zoom: 1.0},
+		},
 	}
 
 	// Initialize arrival state if starting in arrival mode

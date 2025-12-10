@@ -1,9 +1,9 @@
 {
   "version": "0.1.0",
-  "timestamp": 1765058829,
-  "play_time": 670.8333333330519,
+  "timestamp": 1765396512,
+  "play_time": 2358.750000002423,
   "world": {
-    "Tick": 24803,
+    "Tick": 141525,
     "Planet": {
       "Width": 8,
       "Height": 8,
@@ -202,11 +202,496 @@
         }
       ]
     },
-    "Npcs": [],
+    "Npcs": [
+      {
+        "Id": 1,
+        "Pos": {
+          "X": 2,
+          "Y": 2
+        },
+        "Pattern": {
+          "Kind": 1,
+          "PatternStatic": null,
+          "PatternRandomWalk": {
+            "Value0": 30
+          },
+          "PatternPatrol": null
+        },
+        "MoveCounter": 30,
+        "PatrolIndex": 0
+      },
+      {
+        "Id": 2,
+        "Pos": {
+          "X": 5,
+          "Y": 3
+        },
+        "Pattern": {
+          "Kind": 1,
+          "PatternStatic": null,
+          "PatternRandomWalk": {
+            "Value0": 45
+          },
+          "PatternPatrol": null
+        },
+        "MoveCounter": 45,
+        "PatrolIndex": 0
+      },
+      {
+        "Id": 3,
+        "Pos": {
+          "X": 4,
+          "Y": 4
+        },
+        "Pattern": {
+          "Kind": 0,
+          "PatternStatic": {},
+          "PatternRandomWalk": null,
+          "PatternPatrol": null
+        },
+        "MoveCounter": 0,
+        "PatrolIndex": 0
+      },
+      {
+        "Id": 4,
+        "Pos": {
+          "X": 1,
+          "Y": 1
+        },
+        "Pattern": {
+          "Kind": 2,
+          "PatternStatic": null,
+          "PatternRandomWalk": null,
+          "PatternPatrol": {
+            "Value0": [
+              {
+                "Kind": 2,
+                "North": null,
+                "South": null,
+                "East": {},
+                "West": null
+              },
+              {
+                "Kind": 2,
+                "North": null,
+                "South": null,
+                "East": {},
+                "West": null
+              },
+              {
+                "Kind": 1,
+                "North": null,
+                "South": {},
+                "East": null,
+                "West": null
+              },
+              {
+                "Kind": 1,
+                "North": null,
+                "South": {},
+                "East": null,
+                "West": null
+              },
+              {
+                "Kind": 3,
+                "North": null,
+                "South": null,
+                "East": null,
+                "West": {}
+              },
+              {
+                "Kind": 3,
+                "North": null,
+                "South": null,
+                "East": null,
+                "West": {}
+              },
+              {
+                "Kind": 0,
+                "North": {},
+                "South": null,
+                "East": null,
+                "West": null
+              },
+              {
+                "Kind": 0,
+                "North": {},
+                "South": null,
+                "East": null,
+                "West": null
+              }
+            ]
+          }
+        },
+        "MoveCounter": 0,
+        "PatrolIndex": 0
+      }
+    ],
     "Selection": {
       "Kind": 0,
       "SelectionNone": {},
       "SelectionTile": null
+    },
+    "Bridge": {
+      "PlayerPos": {
+        "X": 24,
+        "Y": 40
+      },
+      "PlayerFacing": {
+        "Kind": 0,
+        "North": {},
+        "South": null,
+        "East": null,
+        "West": null
+      },
+      "MoveState": {
+        "Kind": 0,
+        "MoveIdle": {},
+        "MoveWalking": null,
+        "MoveTransitioning": null
+      },
+      "CameraX": 24,
+      "CameraY": 40,
+      "CrewPositions": [
+        {
+          "Crew": {
+            "Id": 1,
+            "Name": "Pilot Chen"
+          },
+          "Station": {
+            "Kind": 0,
+            "StationHelm": {},
+            "StationComms": null,
+            "StationStatus": null,
+            "StationNav": null,
+            "StationScience": null,
+            "StationCaptain": null,
+            "StationNone": null
+          },
+          "Pos": {
+            "X": 24,
+            "Y": 1
+          },
+          "Facing": {
+            "Kind": 0,
+            "North": {},
+            "South": null,
+            "East": null,
+            "West": null
+          },
+          "Activity": {
+            "Kind": 1,
+            "ActivityIdle": null,
+            "ActivityWorking": {},
+            "ActivityTalking": null
+          }
+        },
+        {
+          "Crew": {
+            "Id": 2,
+            "Name": "Comms Officer Patel"
+          },
+          "Station": {
+            "Kind": 1,
+            "StationHelm": null,
+            "StationComms": {},
+            "StationStatus": null,
+            "StationNav": null,
+            "StationScience": null,
+            "StationCaptain": null,
+            "StationNone": null
+          },
+          "Pos": {
+            "X": 16,
+            "Y": 2
+          },
+          "Facing": {
+            "Kind": 3,
+            "North": null,
+            "South": null,
+            "East": null,
+            "West": {}
+          },
+          "Activity": {
+            "Kind": 1,
+            "ActivityIdle": null,
+            "ActivityWorking": {},
+            "ActivityTalking": null
+          }
+        },
+        {
+          "Crew": {
+            "Id": 3,
+            "Name": "Engineer Torres"
+          },
+          "Station": {
+            "Kind": 2,
+            "StationHelm": null,
+            "StationComms": null,
+            "StationStatus": {},
+            "StationNav": null,
+            "StationScience": null,
+            "StationCaptain": null,
+            "StationNone": null
+          },
+          "Pos": {
+            "X": 32,
+            "Y": 2
+          },
+          "Facing": {
+            "Kind": 1,
+            "North": null,
+            "South": {},
+            "East": null,
+            "West": null
+          },
+          "Activity": {
+            "Kind": 1,
+            "ActivityIdle": null,
+            "ActivityWorking": {},
+            "ActivityTalking": null
+          }
+        },
+        {
+          "Crew": {
+            "Id": 4,
+            "Name": "Navigator Kim"
+          },
+          "Station": {
+            "Kind": 3,
+            "StationHelm": null,
+            "StationComms": null,
+            "StationStatus": null,
+            "StationNav": {},
+            "StationScience": null,
+            "StationCaptain": null,
+            "StationNone": null
+          },
+          "Pos": {
+            "X": 13,
+            "Y": 3
+          },
+          "Facing": {
+            "Kind": 2,
+            "North": null,
+            "South": null,
+            "East": {},
+            "West": null
+          },
+          "Activity": {
+            "Kind": 1,
+            "ActivityIdle": null,
+            "ActivityWorking": {},
+            "ActivityTalking": null
+          }
+        },
+        {
+          "Crew": {
+            "Id": 5,
+            "Name": "Science Officer Okafor"
+          },
+          "Station": {
+            "Kind": 4,
+            "StationHelm": null,
+            "StationComms": null,
+            "StationStatus": null,
+            "StationNav": null,
+            "StationScience": {},
+            "StationCaptain": null,
+            "StationNone": null
+          },
+          "Pos": {
+            "X": 35,
+            "Y": 3
+          },
+          "Facing": {
+            "Kind": 0,
+            "North": {},
+            "South": null,
+            "East": null,
+            "West": null
+          },
+          "Activity": {
+            "Kind": 1,
+            "ActivityIdle": null,
+            "ActivityWorking": {},
+            "ActivityTalking": null
+          }
+        },
+        {
+          "Crew": {
+            "Id": 6,
+            "Name": "Captain Reyes"
+          },
+          "Station": {
+            "Kind": 5,
+            "StationHelm": null,
+            "StationComms": null,
+            "StationStatus": null,
+            "StationNav": null,
+            "StationScience": null,
+            "StationCaptain": {},
+            "StationNone": null
+          },
+          "Pos": {
+            "X": 24,
+            "Y": 1
+          },
+          "Facing": {
+            "Kind": 3,
+            "North": null,
+            "South": null,
+            "East": null,
+            "West": {}
+          },
+          "Activity": {
+            "Kind": 0,
+            "ActivityIdle": {},
+            "ActivityWorking": null,
+            "ActivityTalking": null
+          }
+        }
+      ],
+      "Consoles": [
+        {
+          "Station": {
+            "Kind": 0,
+            "StationHelm": {},
+            "StationComms": null,
+            "StationStatus": null,
+            "StationNav": null,
+            "StationScience": null,
+            "StationCaptain": null,
+            "StationNone": null
+          },
+          "Pos": {
+            "X": 24,
+            "Y": 14
+          },
+          "Active": true,
+          "HasAlert": false,
+          "SpriteId": 1100
+        },
+        {
+          "Station": {
+            "Kind": 1,
+            "StationHelm": null,
+            "StationComms": {},
+            "StationStatus": null,
+            "StationNav": null,
+            "StationScience": null,
+            "StationCaptain": null,
+            "StationNone": null
+          },
+          "Pos": {
+            "X": 16,
+            "Y": 16
+          },
+          "Active": true,
+          "HasAlert": false,
+          "SpriteId": 1101
+        },
+        {
+          "Station": {
+            "Kind": 2,
+            "StationHelm": null,
+            "StationComms": null,
+            "StationStatus": {},
+            "StationNav": null,
+            "StationScience": null,
+            "StationCaptain": null,
+            "StationNone": null
+          },
+          "Pos": {
+            "X": 32,
+            "Y": 16
+          },
+          "Active": true,
+          "HasAlert": false,
+          "SpriteId": 1102
+        },
+        {
+          "Station": {
+            "Kind": 5,
+            "StationHelm": null,
+            "StationComms": null,
+            "StationStatus": null,
+            "StationNav": null,
+            "StationScience": null,
+            "StationCaptain": {},
+            "StationNone": null
+          },
+          "Pos": {
+            "X": 24,
+            "Y": 24
+          },
+          "Active": true,
+          "HasAlert": false,
+          "SpriteId": 1105
+        },
+        {
+          "Station": {
+            "Kind": 3,
+            "StationHelm": null,
+            "StationComms": null,
+            "StationStatus": null,
+            "StationNav": {},
+            "StationScience": null,
+            "StationCaptain": null,
+            "StationNone": null
+          },
+          "Pos": {
+            "X": 12,
+            "Y": 24
+          },
+          "Active": true,
+          "HasAlert": false,
+          "SpriteId": 1103
+        },
+        {
+          "Station": {
+            "Kind": 4,
+            "StationHelm": null,
+            "StationComms": null,
+            "StationStatus": null,
+            "StationNav": null,
+            "StationScience": {},
+            "StationCaptain": null,
+            "StationNone": null
+          },
+          "Pos": {
+            "X": 36,
+            "Y": 24
+          },
+          "Active": true,
+          "HasAlert": false,
+          "SpriteId": 1104
+        }
+      ],
+      "HoveredInteractable": {
+        "Kind": 1,
+        "Some": null,
+        "None": {}
+      },
+      "SelectedInteractable": {
+        "Kind": 1,
+        "Some": null,
+        "None": {}
+      },
+      "DomeView": {
+        "TargetPlanetId": 0,
+        "ShipVelocity": 0,
+        "ViewAngle": 0
+      },
+      "DiscRadius": 24,
+      "DiscCenterX": 24,
+      "DiscCenterY": 24
+    },
+    "ViewMode": {
+      "Kind": 0,
+      "ViewBridge": {},
+      "ViewPlanet": null,
+      "ViewGalaxyMap": null
     }
   }
 }
