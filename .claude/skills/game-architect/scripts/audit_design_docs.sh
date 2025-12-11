@@ -177,13 +177,28 @@ audit_doc() {
     echo ""
 }
 
-# Process all docs in planned/next/
-echo "Scanning design_docs/planned/next/..."
-echo ""
+# Process all docs in phased folders (in dependency order)
+PHASES=(
+    "phase0-architecture"
+    "phase1-data-models"
+    "phase2-core-views"
+    "phase3-gameplay"
+    "phase4-polish"
+)
 
-for doc in design_docs/planned/next/*.md; do
-    if [ -f "$doc" ]; then
-        audit_doc "$doc"
+for phase in "${PHASES[@]}"; do
+    phase_dir="design_docs/planned/$phase"
+    if [ -d "$phase_dir" ]; then
+        echo "=========================================="
+        echo "Scanning $phase_dir..."
+        echo "=========================================="
+        echo ""
+
+        for doc in "$phase_dir"/*.md; do
+            if [ -f "$doc" ] && [[ "$(basename "$doc")" != "README.md" ]]; then
+                audit_doc "$doc"
+            fi
+        done
     fi
 done
 
@@ -240,9 +255,16 @@ if [ ${#ORPHAN_SPRINTS[@]} -gt 0 ]; then
 fi
 
 echo "=========================================="
+echo "Phased Implementation Order:"
+echo "  Phase 0: Architecture (MUST DO FIRST) - blocks all other phases"
+echo "  Phase 1: Data Models - galaxy, planet, ship structures"
+echo "  Phase 2: Core Views - galaxy map, ship exploration, bridge"
+echo "  Phase 3: Gameplay - journey system (core mechanic)"
+echo "  Phase 4: Polish - arrival cinematics, camera systems"
+echo ""
 echo "Workflow:"
-echo "  1. Create design doc in design_docs/planned/next/"
-echo "  2. Use sprint-planner to create sprint plan"
+echo "  1. Work through phases in order (0 → 1 → 2 → 3 → 4)"
+echo "  2. Use sprint-planner to create sprint plan for each doc"
 echo "  3. Execute sprint (tracks implementation)"
 echo "  4. When complete, move doc to design_docs/implemented/vX_Y_Z/"
 echo "=========================================="

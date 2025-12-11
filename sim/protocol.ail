@@ -98,6 +98,12 @@ export type DrawCmd =
     | GalaxyBg(opacity: float, z: int, skyViewMode: bool, viewLon: float, viewLat: float, fov: float)
     | Star(x: float, y: float, spriteId: int, scale: float, alpha: float, z: int)
 
+    -- 3D rendering commands (Tetra3D integration)
+    -- These tell the Go engine WHEN to render 3D elements (AILANG controls layer order)
+    | SpaceBg(z: int)       -- Render starfield/galaxy background
+    | Planets3D(z: int)     -- Render 3D textured planets (Tetra3D)
+    | BubbleArc(z: int)     -- Render bubble arc edge effect
+
 -- =============================================================================
 -- Output Types
 -- =============================================================================

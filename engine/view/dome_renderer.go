@@ -192,10 +192,9 @@ func (d *DomeRenderer) createSolarSystem() {
 	// Set initial camera position (ahead of first planet)
 	d.planetLayer.SetCameraPosition(0, 2, 10)
 
-	// Position sun behind camera to illuminate planet faces we see
-	// Sun at positive Z (behind us) shining toward negative Z (planets ahead)
-	d.planetLayer.SetSunPosition(0, 5, 20)
-	d.planetLayer.SetSunTarget(0, 0, -50) // Point toward planets
+	// Sun position - use same as working demo-solar-system
+	// NOTE: Don't use SetSunTarget/LookAt - it breaks the directional light
+	d.planetLayer.SetSunPosition(5, 3, 15)
 }
 
 // Update updates the dome animations (planet rotations, bubble arc).
@@ -217,12 +216,18 @@ func (d *DomeRenderer) Update(dt float64) {
 // SetCameraFromState updates the camera position from AILANG's DomeState.
 // This allows AILANG to control the cruise animation while Go handles rendering.
 func (d *DomeRenderer) SetCameraFromState(cameraZ float64, velocity float64) {
-	// Camera position matches original working code
-	// Camera at Y=-3 looks UP at planets above (they have positive Y offset)
-	camY := -3.0
-	d.planetLayer.SetCameraPosition(0, camY, cameraZ)
-	// NOTE: No LookAt call - original working code didn't use it
+	// Camera at Y=0 to match working demo-solar-system
+	// Planets have positive Y offsets so they appear in upper half of screen
+	d.planetLayer.SetCameraPosition(0, 0, cameraZ)
 	d.cruiseVelocity = velocity
+	// Update cruiseTime for HUD (estimate from cameraZ position)
+	// Camera goes from Z=10 to Z=-155, so progress = (10 - cameraZ) / 165
+	if cameraZ <= 10.0 {
+		progress := (10.0 - cameraZ) / 165.0
+		d.cruiseTime = progress * d.cruiseDuration
+	}
+	// Debug: uncomment to verify this is being called
+	// log.Printf("SetCameraFromState: cameraZ=%.2f, velocity=%.2f", cameraZ, velocity)
 }
 
 // GetCruiseInfo returns current cruise state for HUD display.
@@ -281,27 +286,37 @@ func (d *DomeRenderer) UpdateFromState(state *sim_gen.DomeViewState) {
 }
 
 // Draw renders the dome viewport to the given screen at the configured position.
+// This is the full composite render (background + planets + bubble arc).
+// For layered rendering with floor tiles between, use DrawBackground, DrawPlanets, DrawBubbleArc.
 func (d *DomeRenderer) Draw(screen *ebiten.Image) {
+	d.DrawBackground(screen)
+	d.DrawPlanets(screen)
+	d.DrawBubbleArc(screen)
+}
+
+// DrawBackground renders just the starfield/galaxy background.
+// Call this FIRST, before floor tiles.
+func (d *DomeRenderer) DrawBackground(screen *ebiten.Image) {
 	if d.spaceBackground == nil {
 		return
 	}
-
-	// For full-screen bubble ship, render space directly to screen
-	// Layer 1: Starfield background (furthest - outside bubble)
 	d.spaceBackground.Draw(screen, nil)
+}
 
-	// Layer 2: 3D textured planets (Tetra3D)
-	// Camera position controlled by AILANG's DomeState.CameraZ
+// DrawPlanets renders the 3D textured planets.
+// Call this AFTER floor tiles so planets appear in front.
+func (d *DomeRenderer) DrawPlanets(screen *ebiten.Image) {
 	if d.planetLayer != nil {
 		d.planetLayer.Draw(screen)
 	}
+}
 
-	// Layer 3: Bubble arc edge with plasma (shows we're inside dome)
+// DrawBubbleArc renders the bubble arc edge with plasma effect.
+// Call this after planets.
+func (d *DomeRenderer) DrawBubbleArc(screen *ebiten.Image) {
 	if d.bubbleArc != nil {
 		d.bubbleArc.Draw(screen)
 	}
-
-	// The bridge interior is rendered on top by BridgeView via AILANG DrawCmds
 }
 
 // applyMask applies the elliptical mask to the space buffer.

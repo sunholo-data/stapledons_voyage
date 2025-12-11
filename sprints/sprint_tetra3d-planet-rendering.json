@@ -1,0 +1,78 @@
+{
+  "sprint_id": "tetra3d-planet-rendering",
+  "created": "2025-12-11T15:00:00Z",
+  "status": "in_progress",
+  "design_doc": "design_docs/planned/next/tetra3d-planet-rendering.md",
+  "features": [
+    {
+      "id": "demo-binary",
+      "description": "Create cmd/demo-solar-system demo binary",
+      "estimated_loc": 200,
+      "actual_loc": null,
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Demo binary builds and runs",
+        "Shows starfield background",
+        "Shows 3D planets composited over starfield"
+      ],
+      "passes": null,
+      "started": "2025-12-11T15:00:00Z",
+      "completed": null,
+      "notes": null
+    },
+    {
+      "id": "debug-compositing",
+      "description": "Debug and fix Tetra3D compositing over background",
+      "estimated_loc": 50,
+      "actual_loc": null,
+      "dependencies": ["demo-binary"],
+      "acceptance_criteria": [
+        "Identify root cause (alpha/camera/lighting)",
+        "Planets visible over starfield",
+        "Screenshot verification passes"
+      ],
+      "passes": null,
+      "started": null,
+      "completed": null,
+      "notes": null
+    },
+    {
+      "id": "full-solar-system",
+      "description": "Add all planets with textures and Saturn's rings",
+      "estimated_loc": 100,
+      "actual_loc": null,
+      "dependencies": ["debug-compositing"],
+      "acceptance_criteria": [
+        "All 5 planets render",
+        "Saturn's rings visible",
+        "Textures load and display",
+        "Camera cruise animation works"
+      ],
+      "passes": null,
+      "started": null,
+      "completed": null,
+      "notes": null
+    },
+    {
+      "id": "dome-integration",
+      "description": "Re-enable Tetra3D planets in dome_renderer.go",
+      "estimated_loc": 20,
+      "actual_loc": null,
+      "dependencies": ["full-solar-system"],
+      "acceptance_criteria": [
+        "planetLayer.Draw() uncommented",
+        "Main game shows 3D planets",
+        "60 FPS maintained"
+      ],
+      "passes": null,
+      "started": null,
+      "completed": null,
+      "notes": null
+    }
+  ],
+  "velocity": { "target_loc_per_day": 200, "actual_loc_per_day": 0 },
+  "ailang_issues": [],
+  "dx_issues_discovered": [],
+  "lessons_learned": [],
+  "last_updated": "2025-12-11T15:00:00Z"
+}

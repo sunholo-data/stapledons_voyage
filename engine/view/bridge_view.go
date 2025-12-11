@@ -3,6 +3,7 @@ package view
 import (
 	"image/color"
 	"log"
+	"sort"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"stapledons_voyage/engine/assets"
@@ -111,46 +112,83 @@ func (v *BridgeView) Update(dt float64) *ViewTransition {
 }
 
 // Draw renders the view to the screen.
+// AILANG controls the render order via Z values on DrawCmd variants.
+// 3D commands (SpaceBg, Planets3D, BubbleArc) trigger domeRenderer calls.
 func (v *BridgeView) Draw(screen *ebiten.Image) {
 	if v.state == nil || v.renderer == nil {
 		return
 	}
 
-	// 1. Draw the full-screen space background (bubble ship dome)
-	if v.domeRenderer != nil {
-		// Update dome from AILANG state (velocity for SR effects)
-		v.domeRenderer.UpdateFromState(v.state.DomeView)
-		// Draw space starfield as full background
-		v.domeRenderer.Draw(screen)
-		// Note: No outline for full-screen bubble ship design
-	}
-
-	// 2. Floor is rendered by AILANG as isometric tiles - NOT drawn here
-	// The dome takes up the top portion, AILANG tiles fill the lower portion
-
-	// 3. Get draw commands from AILANG for bridge interior
-	cmds := sim_gen.RenderBridge(v.state)
-	// DEBUG: Print cmd count every 60 frames
-	if v.frameCount%60 == 0 {
-		log.Printf("AILANG generated %d draw commands", len(cmds))
-	}
-
-	// Simple pass-through: AILANG outputs coordinates, Go renders directly
-	// Camera at (screenW/2, screenH/2) with zoom 1 = no transform (origin at screen center)
-	// AILANG handles positioning - we just render what it outputs
 	screenW := float64(screen.Bounds().Dx())
 	screenH := float64(screen.Bounds().Dy())
 
-	out := sim_gen.FrameOutput{
-		Draw:   cmds,
-		Sounds: nil,
-		Camera: &sim_gen.Camera{X: screenW / 2, Y: screenH / 2, Zoom: 1.0},
+	// Get draw commands from AILANG for bridge interior
+	cmds := sim_gen.RenderBridge(v.state)
+
+	// Update dome from AILANG state (velocity for SR effects)
+	if v.domeRenderer != nil {
+		v.domeRenderer.UpdateFromState(v.state.DomeView)
 	}
 
-	// 4. Render bridge consoles, crew, player on top of floor
-	v.renderer.RenderFrame(screen, out)
+	// Sort ALL commands by Z (AILANG controls render order)
+	sort.Slice(cmds, func(i, j int) bool {
+		return getCommandLayer(cmds[i]) < getCommandLayer(cmds[j])
+	})
 
-	// 5. Draw UI panels on top of everything
+	// DEBUG: Print cmd count every 60 frames
+	if v.frameCount%60 == 0 {
+		log.Printf("AILANG: %d total cmds (sorted by Z)", len(cmds))
+	}
+
+	// Process commands in Z order - AILANG controls when 3D renders
+	var batch []*sim_gen.DrawCmd
+	for _, cmd := range cmds {
+		switch cmd.Kind {
+		case sim_gen.DrawCmdKindSpaceBg:
+			// Flush any pending 2D commands first
+			if len(batch) > 0 {
+				v.renderBatch(screen, batch, screenW, screenH)
+				batch = nil
+			}
+			// Render space background (starfield + galaxy)
+			if v.domeRenderer != nil {
+				v.domeRenderer.DrawBackground(screen)
+			}
+
+		case sim_gen.DrawCmdKindPlanets3D:
+			// Flush any pending 2D commands first
+			if len(batch) > 0 {
+				v.renderBatch(screen, batch, screenW, screenH)
+				batch = nil
+			}
+			// Render 3D textured planets (Tetra3D)
+			if v.domeRenderer != nil {
+				v.domeRenderer.DrawPlanets(screen)
+			}
+
+		case sim_gen.DrawCmdKindBubbleArc:
+			// Flush any pending 2D commands first
+			if len(batch) > 0 {
+				v.renderBatch(screen, batch, screenW, screenH)
+				batch = nil
+			}
+			// Render bubble arc edge effect
+			if v.domeRenderer != nil {
+				v.domeRenderer.DrawBubbleArc(screen)
+			}
+
+		default:
+			// Batch 2D commands for efficient rendering
+			batch = append(batch, cmd)
+		}
+	}
+
+	// Flush any remaining 2D commands
+	if len(batch) > 0 {
+		v.renderBatch(screen, batch, screenW, screenH)
+	}
+
+	// UI panels on top of everything
 	for _, panel := range v.uiPanels {
 		if !panel.Visible {
 			continue
@@ -159,6 +197,51 @@ func (v *BridgeView) Draw(screen *ebiten.Image) {
 		if panel.DrawFunc != nil {
 			panel.DrawFunc(screen, bounds)
 		}
+	}
+}
+
+// renderBatch renders a batch of 2D draw commands.
+func (v *BridgeView) renderBatch(screen *ebiten.Image, cmds []*sim_gen.DrawCmd, screenW, screenH float64) {
+	out := sim_gen.FrameOutput{
+		Draw:   cmds,
+		Camera: &sim_gen.Camera{X: screenW / 2, Y: screenH / 2, Zoom: 1.0},
+	}
+	v.renderer.RenderFrame(screen, out)
+}
+
+// getCommandLayer extracts the layer/Z value from a DrawCmd.
+// Used for sorting all commands by Z (AILANG controls render order).
+func getCommandLayer(cmd *sim_gen.DrawCmd) int64 {
+	if cmd == nil {
+		return 0
+	}
+	switch cmd.Kind {
+	case sim_gen.DrawCmdKindRectRGBA:
+		return cmd.RectRGBA.Z
+	case sim_gen.DrawCmdKindCircleRGBA:
+		return cmd.CircleRGBA.Z
+	case sim_gen.DrawCmdKindIsoTile:
+		return cmd.IsoTile.Layer
+	case sim_gen.DrawCmdKindIsoEntity:
+		return cmd.IsoEntity.Layer
+	case sim_gen.DrawCmdKindRect:
+		return cmd.Rect.Z
+	case sim_gen.DrawCmdKindText:
+		return cmd.Text.Z
+	case sim_gen.DrawCmdKindLine:
+		return cmd.Line.Z
+	case sim_gen.DrawCmdKindCircle:
+		return cmd.Circle.Z
+	case sim_gen.DrawCmdKindSpaceBg:
+		return cmd.SpaceBg.Z
+	case sim_gen.DrawCmdKindPlanets3D:
+		return cmd.Planets3D.Z
+	case sim_gen.DrawCmdKindBubbleArc:
+		return cmd.BubbleArc.Z
+	case sim_gen.DrawCmdKindGalaxyBg:
+		return cmd.GalaxyBg.Z
+	default:
+		return 0 // Default to floor layer
 	}
 }
 

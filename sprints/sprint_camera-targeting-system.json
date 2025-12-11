@@ -1,0 +1,58 @@
+{
+  "sprint_id": "camera-targeting-system",
+  "name": "Camera & Targeting System",
+  "status": "in_progress",
+  "type": "engine",
+  "started": "2025-12-11",
+  "design_doc": "design_docs/planned/camera-targeting-system.md",
+  "phases": [
+    {
+      "id": "phase1",
+      "name": "Diagnostic Demo",
+      "status": "pending",
+      "tasks": [
+        {"id": "1.1", "name": "Create demo-lookat binary structure", "status": "pending", "notes": ""},
+        {"id": "1.2", "name": "Test Mode: sun-lookat", "status": "pending", "notes": ""},
+        {"id": "1.3", "name": "Test Mode: sun-position", "status": "pending", "notes": ""},
+        {"id": "1.4", "name": "Test Mode: camera-track", "status": "pending", "notes": ""},
+        {"id": "1.5", "name": "Test Mode: dome-replica", "status": "pending", "notes": ""}
+      ]
+    },
+    {
+      "id": "phase2",
+      "name": "Fix LookAt Implementation",
+      "status": "pending",
+      "tasks": [
+        {"id": "2.1", "name": "Investigate Tetra3D built-in LookAt", "status": "pending", "notes": ""},
+        {"id": "2.2", "name": "Fix SunLight.LookAt", "status": "pending", "notes": ""},
+        {"id": "2.3", "name": "Fix Scene.LookAt if needed", "status": "pending", "notes": ""},
+        {"id": "2.4", "name": "Verify demo-lookat passes all modes", "status": "pending", "notes": ""}
+      ]
+    },
+    {
+      "id": "phase3",
+      "name": "Dome Integration",
+      "status": "pending",
+      "tasks": [
+        {"id": "3.1", "name": "Update dome_renderer if needed", "status": "pending", "notes": ""},
+        {"id": "3.2", "name": "Test bridge demo", "status": "pending", "notes": ""},
+        {"id": "3.3", "name": "Test cruise animation", "status": "pending", "notes": ""}
+      ]
+    },
+    {
+      "id": "phase4",
+      "name": "Documentation & Cleanup",
+      "status": "pending",
+      "tasks": [
+        {"id": "4.1", "name": "Update design doc status", "status": "pending", "notes": ""},
+        {"id": "4.2", "name": "Update tetra3d-planet-rendering sprint", "status": "pending", "notes": ""},
+        {"id": "4.3", "name": "Collect all screenshots", "status": "pending", "notes": ""},
+        {"id": "4.4", "name": "Clean up debug code", "status": "pending", "notes": ""}
+      ]
+    }
+  ],
+  "ailang_issues": [],
+  "dx_issues_discovered": [],
+  "lessons_learned": [],
+  "notes": ["This is primarily an engine sprint - camera/targeting is Go code"]
+}

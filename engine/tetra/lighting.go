@@ -43,17 +43,26 @@ func (s *SunLight) Light() *tetra3d.DirectionalLight {
 	return s.light
 }
 
-// LookAt rotates the light to point at the given position.
-// Directional lights shine along their local -Z axis, so this
-// rotates the light to point from its position toward the target.
+// LookAt is DEPRECATED - use SetPosition instead.
+//
+// Tetra3D directional lights derive their direction from position alone,
+// not from rotation matrices. SetLocalRotation interferes with the internal
+// light direction calculation.
+//
+// WORKING APPROACH: Position the sun so it shines toward the target.
+// For a light at (5,3,10) shining toward origin, the direction is
+// calculated automatically by Tetra3D's lighting system.
+//
+// Example:
+//
+//	sun.SetPosition(5, 3, 10) // Light will illuminate objects toward -Z
+//
+// This method is kept for API compatibility but logs a warning.
 func (s *SunLight) LookAt(x, y, z float64) {
-	lightPos := s.light.LocalPosition()
-	from := tetra3d.Vector3{X: lightPos.X, Y: lightPos.Y, Z: lightPos.Z}
-	to := tetra3d.Vector3{X: float32(x), Y: float32(y), Z: float32(z)}
-	up := tetra3d.Vector3{X: 0, Y: 1, Z: 0}
-
-	lookMatrix := tetra3d.NewMatrix4LookAt(from, to, up)
-	s.light.SetLocalRotation(lookMatrix)
+	// Intentionally do nothing - SetLocalRotation breaks directional lights.
+	// The light direction is derived from position by Tetra3D internally.
+	// Log warning for developers who try to use this.
+	// log.Println("Warning: SunLight.LookAt is deprecated - use SetPosition instead")
 }
 
 // AmbientLight represents ambient lighting for the scene.

@@ -5,7 +5,7 @@ module sim/bridge
 -- The bridge is the command center of the ship - the player's primary interface
 -- =============================================================================
 
-import sim/protocol (Coord, DrawCmd, IsoTile, IsoEntity, FrameInput, Rect, Sprite, Line, RectRGBA, Circle, CircleRGBA, Text, GalaxyBg)
+import sim/protocol (Coord, DrawCmd, IsoTile, IsoEntity, FrameInput, Rect, Sprite, Line, RectRGBA, Circle, CircleRGBA, Text, GalaxyBg, SpaceBg, Planets3D, BubbleArc)
 import sim/npc_ai (Direction, North, South, East, West)
 import std/option (Option, Some, None)
 import std/list (concat)
@@ -244,15 +244,18 @@ export pure func renderDomePlanets(state: DomeState) -> [DrawCmd] {
 -- Layer for dome background (furthest back)
 pure func layerDomeBg() -> int { 0 - 20 }
 
--- Render dome view with galaxy background and planets
--- AILANG owns the cruise animation state (cameraZ, velocity)
--- Using CircleRGBA for now until Tetra3D rendering is fixed
+-- Render dome view with all 3D elements
+-- AILANG controls WHEN each 3D layer renders via DrawCmd z-ordering
+-- Go engine interprets these commands and calls dome_renderer methods
 export pure func renderDome(state: DomeState) -> [DrawCmd] {
-    -- Galaxy background first (Milky Way starfield)
-    let bgCmd = GalaxyBg(0.8, layerDomeBg(), false, 0.0, 0.0, 1.57);
-    -- Planets as circles with perspective projection
-    let planetCmds = renderDomePlanets(state);
-    concat([bgCmd], planetCmds)
+    -- Layer 1: Space background (starfield + galaxy) - furthest back
+    -- Layer 2: 3D planets (Tetra3D) - after floor tiles
+    -- Layer 3: Bubble arc (dome edge effect) - on top
+    [
+        SpaceBg(layerDomeBg()),           -- Starfield at z=-20
+        Planets3D(layerPlanets3D()),      -- 3D planets at z=4 (after floor/player)
+        BubbleArc(layerBubbleArc3D())     -- Bubble arc at z=5 (topmost)
+    ]
 }
 
 -- =============================================================================
@@ -664,6 +667,11 @@ pure func layerFloor() -> int { 0 }
 pure func layerConsoles() -> int { 1 }
 pure func layerCrew() -> int { 2 }
 pure func layerPlayer() -> int { 3 }
+
+-- 3D rendering layer constants (AILANG controls when Tetra3D renders)
+-- These layers ensure 3D elements render at correct times relative to 2D elements
+pure func layerPlanets3D() -> int { 4 }   -- 3D planets render AFTER player (above floor)
+pure func layerBubbleArc3D() -> int { 5 } -- Bubble arc renders on top
 
 -- Default color (white, no tint) - 0xFFFFFFFF as decimal
 pure func colorWhite() -> int { 4294967295 }

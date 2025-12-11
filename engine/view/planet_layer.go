@@ -31,10 +31,9 @@ func NewPlanetLayer(screenW, screenH int) *PlanetLayer {
 	pl.scene = tetra.NewScene(screenW, screenH)
 
 	// Add lighting
-	// Sun positioned behind/below camera to illuminate planet faces we see
-	// (camera is below planets looking up)
+	// Sun positioned behind camera to illuminate planet faces we see
 	pl.sun = tetra.NewSunLight()
-	pl.sun.SetPosition(0, -5, 8) // Behind and below camera
+	pl.sun.SetPosition(5, 3, 15) // Behind camera, shining forward (matches working demo)
 	pl.sun.AddToScene(pl.scene)
 
 	// Brighter ambient light for better overall visibility
@@ -110,12 +109,18 @@ func (pl *PlanetLayer) Update(dt float64) {
 
 // Draw renders the 3D planets to the screen.
 func (pl *PlanetLayer) Draw(screen *ebiten.Image) {
-	if pl.scene == nil || len(pl.planets) == 0 {
+	if pl.scene == nil {
+		return
+	}
+	if len(pl.planets) == 0 {
 		return
 	}
 
 	// Render 3D scene
 	img3d := pl.scene.Render()
+	if img3d == nil {
+		return
+	}
 
 	// Composite over existing content
 	screen.DrawImage(img3d, nil)

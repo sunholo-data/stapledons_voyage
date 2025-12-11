@@ -2,140 +2,204 @@
 
 This directory is the **source of truth** for feature planning and implementation status.
 
+## Implementation Order
+
+Features are organized into **phases** based on dependencies. Work through phases in order.
+
+```
+Phase 0 (Architecture)  ──►  Phase 1 (Data Models)  ──►  Phase 2 (Core Views)
+         │                           │                          │
+         │                           ▼                          ▼
+         │                   Phase 3 (Gameplay)  ◄────────────────
+         │                           │
+         │                           ▼
+         └───────────────►  Phase 4 (Polish)
+```
+
 ## Quick Reference
 
-| Category | Count | Location | Purpose |
-|----------|-------|----------|---------|
-| Implemented | 16 | [implemented/](implemented/) | Completed features |
-| Planned (Next) | 4 | [planned/next/](planned/next/) | Active development |
-| Planned (Future) | 33 | [planned/future/](planned/future/) | Backlog |
-| Planned (Sprint) | 1 | [planned/](planned/) | Sprint plan |
-| Reference | 12 | [reference/](reference/) | Architecture & system docs |
-| Input | 4 | [input/](input/) | Research & concept notes |
-
-See [CHANGELOG.md](../CHANGELOG.md) for release history with dates.
+| Phase | Status | Count | Location | Purpose |
+|-------|--------|-------|----------|---------|
+| **Phase 0** | **IN PROGRESS (50%)** | 2 | [planned/phase0-architecture/](planned/phase0-architecture/) | Fix AILANG-first architecture |
+| Phase 1 | Planned | 3 | [planned/phase1-data-models/](planned/phase1-data-models/) | Galaxy, planet, ship data |
+| Phase 2 | Planned | 3 | [planned/phase2-core-views/](planned/phase2-core-views/) | Navigation & exploration UIs |
+| Phase 3 | Planned | 1 | [planned/phase3-gameplay/](planned/phase3-gameplay/) | Journey system (core mechanic) |
+| Phase 4 | Planned | 7 | [planned/phase4-polish/](planned/phase4-polish/) | Cinematics & polish |
+| Future | Backlog | 33 | [planned/future/](planned/future/) | Long-term features |
+| Implemented | Done | 19 | [implemented/](implemented/) | Completed features |
+| Reference | N/A | 13 | [reference/](reference/) | Architecture docs |
 
 ## Directory Structure
 
 ```
 design_docs/
-├── implemented/          # Completed features
-│   └── v0_X_Y/           # Organized by release version
-├── planned/              # Features not yet implemented
-│   ├── next/             # Active development (v0.2.0 target)
-│   └── future/           # Backlog (no version assigned)
-├── reference/            # Architecture, system design docs
-├── input/                # Research notes, concept docs
-└── README.md             # This index
-```
-
-## Validation
-
-Run the validation script to check doc organization:
-
-```bash
-./scripts/validate_design_docs.sh
+├── planned/
+│   ├── phase0-architecture/   # MUST DO FIRST - blocks everything
+│   ├── phase1-data-models/    # Galaxy, planet, ship structures
+│   ├── phase2-core-views/     # Galaxy map, ship exploration, bridge
+│   ├── phase3-gameplay/       # Journey system (the heart of the game)
+│   ├── phase4-polish/         # Arrival cinematics, camera systems
+│   └── future/                # Backlog (no phase assigned)
+├── implemented/
+│   ├── v0_1_0/                # Engine, shaders, audio, save system
+│   └── v0_2_0/                # Tetra3D, 3D planets
+├── reference/                 # Architecture & system docs
+├── input/                     # Research notes, concepts
+└── archive/                   # Superseded docs
 ```
 
 ---
 
-## Implemented Features (v0.1.0)
+## Phase 0: Architecture (BLOCKING)
 
-| Feature | Description | Doc |
-|---------|-------------|-----|
-| **SR Effects** | Special relativity: aberration, Doppler, beaming | [sr-effects.md](implemented/v0_1_0/sr-effects.md) |
-| **GR Effects** | Gravitational lensing, redshift near massive objects | [gr-effects.md](implemented/v0_1_0/gr-effects.md) |
-| **Relativistic Sprint** | Combined SR+GR implementation sprint | [sprint-relativistic-effects.md](implemented/v0_1_0/sprint-relativistic-effects.md) |
-| **Shader Pipeline** | Bloom, vignette, CRT, chromatic aberration | [shader-system.md](implemented/v0_1_0/shader-system.md) |
-| **Audio System** | OGG/WAV loading, PlaySound API | [audio-system.md](implemented/v0_1_0/audio-system.md) |
-| **Screenshot Mode** | Headless capture for visual testing | [screenshot-mode.md](implemented/v0_1_0/screenshot-mode.md) |
-| **Test Scenarios** | Golden file comparison for regressions | [test-scenarios.md](implemented/v0_1_0/test-scenarios.md) |
-| **Save/Load** | Single-file save system (Pillar 1 compliant) | [save-load-system.md](implemented/v0_1_0/save-load-system.md) |
-| **Isometric Engine** | Tile projection, sorting, view culling | [isometric-engine.md](implemented/v0_1_0/isometric-engine.md) |
-| **Animation System** | Frame-based sprite animation | [animation-system.md](implemented/v0_1_0/animation-system.md) |
-| **Camera/Viewport** | World transforms, viewport culling | [camera-viewport.md](implemented/v0_1_0/camera-viewport.md) |
-| **Display Config** | Resolution, fullscreen, persistence | [display-config.md](implemented/v0_1_0/display-config.md) |
-| **Asset Management** | Sprites, audio, fonts with manifests | [asset-management.md](implemented/v0_1_0/asset-management.md) |
-| **Player Input** | Mouse handling, keyboard events | [player-interaction.md](implemented/v0_1_0/player-interaction.md) |
-| **AI Handler System** | Claude, Gemini, multimodal (text/image/TTS) | [ai-handler-system.md](implemented/v0_1_0/ai-handler-system.md) |
-| **CLI Dev Tools** | voyage CLI, granimation, asset generators | [cli-dev-tools.md](implemented/v0_1_0/cli-dev-tools.md) |
+**Status:** IN PROGRESS (50%)
+**Sprint:** [bridge-dome-migration-sprint.md](../sprints/bridge-dome-migration-sprint.md)
+
+This phase fixes the architectural debt where game logic exists in both Go and AILANG.
+
+| Doc | Description | Sprint? |
+|-----|-------------|---------|
+| [view-layer-ailang-migration](planned/phase0-architecture/view-layer-ailang-migration.md) | Move view state to AILANG | YES (50%) |
+| [view-types-cleanup](planned/phase0-architecture/view-types-cleanup.md) | Delete duplicate types | NO |
+
+**Why first?** Until this is complete, new features get implemented in the wrong layer.
 
 ---
 
-## Planned Features
+## Phase 1: Data Models
 
-### Next (v0.2.0 target)
+**Status:** Planned
+**Depends on:** Phase 0 complete
 
-| Feature | Description | Doc |
-|---------|-------------|-----|
-| **Starmap Data Model** | Galaxy structure, star systems | [starmap-data-model.md](planned/next/starmap-data-model.md) |
-| **Galaxy Map** | Navigation UI, star selection | [galaxy-map.md](planned/next/galaxy-map.md) |
-| **Ship Exploration** | Interior navigation, crew interaction | [ship-exploration.md](planned/next/ship-exploration.md) |
-| **Journey System** | Time dilation, travel mechanics | [journey-system.md](planned/next/journey-system.md) |
+| Doc | Description | Sprint? |
+|-----|-------------|---------|
+| [starmap-data-model](planned/phase1-data-models/starmap-data-model.md) | Galaxy structure, star systems | NO |
+| [planet-data-migration](planned/phase1-data-models/planet-data-migration.md) | Planet properties, orbits | NO |
+| [ship-structure](planned/phase1-data-models/ship-structure.md) | Deck layouts, rooms | NO |
 
-### Vision Integration Sprint
+**Why second?** These are the "nouns" - you can't build views without data.
 
-Core game mechanics from 2025-12-06 vision interviews. See [sprint-vision-integration.md](planned/sprint-vision-integration.md).
+---
 
-| Sprint | Focus | Docs |
-|--------|-------|------|
-| **Sprint 1** | Core Narrative | [black-hole-mechanics](planned/future/black-hole-mechanics.md), [opening-sequence](planned/future/opening-sequence.md) |
-| **Sprint 2** | Ship Foundation | [bubble-constraint](planned/future/bubble-constraint.md), [bubble-ship-layout](planned/future/bubble-ship-layout.md), [mass-budget](planned/future/mass-budget.md) |
-| **Sprint 3** | Society Sim | [bubble-society](planned/future/bubble-society.md), [archive-crew-trust](planned/future/archive-crew-trust.md) |
-| **Sprint 4** | AI Systems | [archive-system](planned/future/archive-system.md), [narrative-orchestrator](planned/future/narrative-orchestrator.md), [spire-mystery](planned/future/spire-mystery.md) |
+## Phase 2: Core Views
 
-### Future (Backlog)
+**Status:** Planned
+**Depends on:** Phase 1 complete
 
-See [planned/future/](planned/future/) for all backlog items including:
-- Crew psychology, dialogue system, black holes
-- UI systems, particle effects, screen transitions
-- Civilization mechanics, exploration modes
-- Endgame and legacy features
+| Doc | Description | Sprint? |
+|-----|-------------|---------|
+| [galaxy-map](planned/phase2-core-views/galaxy-map.md) | Star navigation, pan/zoom | NO |
+| [ship-exploration](planned/phase2-core-views/ship-exploration.md) | Deck traversal | NO |
+| [02-bridge-interior](planned/phase2-core-views/02-bridge-interior.md) | Bridge layout, consoles | YES (0%) |
+
+**Why third?** These are the interfaces players interact with.
+
+---
+
+## Phase 3: Core Gameplay
+
+**Status:** Planned
+**Depends on:** Phase 2 complete (galaxy map)
+
+| Doc | Description | Sprint? |
+|-----|-------------|---------|
+| [journey-system](planned/phase3-gameplay/journey-system.md) | Time dilation, commits | NO |
+
+**Why here?** This is the **heart of Stapledon's Voyage** - the unique mechanic.
+
+---
+
+## Phase 4: Polish
+
+**Status:** Planned
+**Depends on:** Phase 3 complete
+
+| Doc | Description | Sprint? |
+|-----|-------------|---------|
+| [arrival-sequence](planned/phase4-polish/arrival-sequence.md) | Planet approach | YES (40%) |
+| [cinematic-arrival-system](planned/phase4-polish/cinematic-arrival-system.md) | Cinematic framework | NO |
+| [tetra3d-planet-rendering](planned/phase4-polish/tetra3d-planet-rendering.md) | 3D planets | YES (0%) |
+| [camera-*](planned/phase4-polish/) | Camera systems | NO |
+
+**Why last?** Polish comes after core gameplay works.
+
+---
+
+## Implemented Features
+
+### v0.2.0
+| Feature | Doc |
+|---------|-----|
+| Tetra3D Integration | [02-tetra3d-integration](implemented/v0_2_0/02-tetra3d-integration.md) |
+| 3D Sphere Planets | [03-3d-sphere-planets](implemented/v0_2_0/03-3d-sphere-planets.md) |
+| Dome State Migration | [dome-state-migration](implemented/v0_2_0/dome-state-migration.md) |
+
+### v0.1.0
+| Feature | Doc |
+|---------|-----|
+| SR/GR Effects | [sr-effects](implemented/v0_1_0/sr-effects.md), [gr-effects](implemented/v0_1_0/gr-effects.md) |
+| Shader Pipeline | [shader-system](implemented/v0_1_0/shader-system.md) |
+| Audio System | [audio-system](implemented/v0_1_0/audio-system.md) |
+| Save/Load | [save-load-system](implemented/v0_1_0/save-load-system.md) |
+| Isometric Engine | [isometric-engine](implemented/v0_1_0/isometric-engine.md) |
+| AI Handlers | [ai-handler-system](implemented/v0_1_0/ai-handler-system.md) |
+| CLI Dev Tools | [cli-dev-tools](implemented/v0_1_0/cli-dev-tools.md) |
+
+See [implemented/](implemented/) for all 19 completed feature docs.
 
 ---
 
 ## Reference Documents
 
-Architecture and system design documentation:
-
 | Document | Description |
 |----------|-------------|
-| [architecture.md](reference/architecture.md) | Overall system architecture |
-| [engine-layer.md](reference/engine-layer.md) | Go/Ebiten engine design |
-| [ailang-integration.md](reference/ailang-integration.md) | AILANG language integration |
+| [architecture](reference/architecture.md) | System architecture |
+| [engine-layer](reference/engine-layer.md) | Go/Ebiten engine design |
+| [ailang-integration](reference/ailang-integration.md) | AILANG integration patterns |
+| [engine-capabilities](reference/engine-capabilities.md) | What the engine can do |
+| [sprint-vision-integration](reference/sprint-vision-integration.md) | Vision-aligned sprint plan |
 
-See [reference/](reference/) for all 12 reference documents.
+See [reference/](reference/) for all 13 reference documents.
 
 ---
 
-## Input Documents
+## Future Backlog
 
-Research notes and concept documents (feed into planned docs):
+33 features planned for future phases. Highlights:
+- Crew psychology, dialogue system
+- Black holes, civilization trade
+- Endgame legacy, narrative orchestrator
+- Archive AI system
 
-| Document | Description |
-|----------|-------------|
-| [game_loop_origin.md](input/game_loop_origin.md) | Original game loop concept |
-| [bubble-ship-design.md](input/bubble-ship-design.md) | Ship design inspiration |
-| [ai-the-archive.md](input/ai-the-archive.md) | Archive AI and orchestrator concepts |
+See [planned/future/](planned/future/) for full backlog.
 
 ---
 
 ## Workflow
 
-1. **Input docs** capture ideas and research
-2. When ready to implement, create a **planned doc** in `next/` or `future/`
-3. When implemented, move to `implemented/vX_Y_Z/` and update status
-4. Run `./scripts/validate_design_docs.sh` to verify organization
+1. **Work through phases in order** (0 → 1 → 2 → 3 → 4)
+2. **Create sprint** with `sprint-planner` skill before implementing
+3. **Execute sprint** with `sprint-executor` skill
+4. **Move to implemented/** when complete:
+   ```bash
+   git mv design_docs/planned/phaseX/feature.md design_docs/implemented/vX_Y_Z/
+   ```
+
+## Validation
+
+```bash
+# Audit design docs and sprints
+.claude/skills/game-architect/scripts/audit_design_docs.sh
+
+# Check architecture
+.claude/skills/game-architect/scripts/validate_all.sh
+```
 
 ## Creating Design Documents
 
-```bash
-# Validate current state
-./scripts/validate_design_docs.sh
-
-# Move to implemented after completion
-git mv design_docs/planned/next/feature.md design_docs/implemented/v0_2_0/
-# Update Status: Planned → Implemented in the doc
+Use the `design-doc-creator` skill:
+```
+invoke design-doc-creator skill
 ```
 
-See [.claude/skills/design-doc-creator/](../.claude/skills/design-doc-creator/) for the skill and templates.
+See [.claude/skills/design-doc-creator/](../.claude/skills/design-doc-creator/) for templates.
