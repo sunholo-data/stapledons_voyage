@@ -320,12 +320,28 @@ make run          # Test rendering
    make sim   # Generates sim_gen/*.go
    ```
 
-2. **Test Game**
+2. **Check Codegen Quality (MANDATORY)**
+   ```bash
+   # Run quality check on generated Go code
+   .claude/skills/sprint-executor/scripts/check_codegen_quality.sh
+   ```
+
+   **What it checks:**
+   - Excessive nesting (>20 chars indentation)
+   - Too many closure wrappers (>10 consecutive)
+   - Patterns that indicate AILANG codegen issues
+
+   **If issues found:**
+   - Report to AILANG via `ailang messages send user "..." --type bug --github`
+   - Consider refactoring AILANG source to reduce nesting (helper functions)
+   - Document workarounds in sprint JSON
+
+3. **Test Game**
    ```bash
    make run   # Run with Ebiten
    ```
 
-3. **Fix Integration Issues**
+4. **Fix Integration Issues**
    - Check generated Go code
    - Update engine/ if needed
 

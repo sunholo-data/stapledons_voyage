@@ -1,11 +1,18 @@
 # View Layer Duplicate Types Cleanup
 
 ## Status
-- Status: Planned
+- Status: **Implemented** (2025-12-11)
 - Priority: P1 (Architecture)
 - Complexity: Low
 - Part of: [view-layer-ailang-migration.md](view-layer-ailang-migration.md)
-- Estimated: 0.5 days
+- Sprint: [phase0-architecture-completion-sprint.md](../../../sprints/phase0-architecture-completion-sprint.md)
+
+### Implementation Summary
+- **layer.go DELETED** - All duplicate types removed
+- **Camera migration**: `view.Camera` → `background.CameraOffset` (for parallax only)
+- **Input migration**: `view.Input` → `sim_gen.FrameInput`
+- **Dialogue types**: Kept in ui_helpers.go for future AILANG dialogue system
+- **UIPanel**: Moved to ui_helpers.go (used for layout math only)
 
 ## Problem Statement
 
@@ -160,11 +167,11 @@ Each needs updating to use `sim_gen.*` types.
 
 ## Success Criteria
 
-- [ ] No types defined in `engine/view/layer.go`
-- [ ] All views use `sim_gen.Camera`
-- [ ] No `view.Input` usage (input via AILANG)
-- [ ] `layer.go` deleted or contains only helpers
-- [ ] Code compiles and runs correctly
+- [x] No types defined in `engine/view/layer.go` - **DELETED**
+- [x] All views use `sim_gen.Camera` - **Converted to background.CameraOffset**
+- [x] No `view.Input` usage (input via AILANG) - **Uses sim_gen.FrameInput**
+- [x] `layer.go` deleted or contains only helpers - **DELETED** (helpers moved to ui_helpers.go)
+- [x] Code compiles and runs correctly - **Verified with demo-bridge**
 
 ## Testing
 

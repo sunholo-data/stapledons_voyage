@@ -1063,6 +1063,54 @@ func ConvertToSelectionSlice(v interface{}) []*Selection {
 	return out
 }
 
+// ConvertToSpectralTypeSlice converts []interface{} to []*SpectralType.
+// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
+func ConvertToSpectralTypeSlice(v interface{}) []*SpectralType {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToSpectralTypeSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*SpectralType{}
+	}
+	out := make([]*SpectralType, len(src))
+	for i, e := range src {
+		elem, ok := e.(*SpectralType)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToSpectralTypeSlice: element %d: expected *SpectralType, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToStarSlice converts []interface{} to []*Star.
+// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
+func ConvertToStarSlice(v interface{}) []*Star {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToStarSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*Star{}
+	}
+	out := make([]*Star, len(src))
+	for i, e := range src {
+		elem, ok := e.(*Star)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToStarSlice: element %d: expected *Star, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
 // ConvertToStructureTypeSlice converts []interface{} to []*StructureType.
 // M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
 func ConvertToStructureTypeSlice(v interface{}) []*StructureType {

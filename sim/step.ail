@@ -1,10 +1,11 @@
 module sim/step
 
 -- Import types from protocol and world modules (imports fixed in v0.4.9)
-import sim/protocol (FrameInput, FrameOutput, DrawCmd, Rect, Coord, PlayerAction, ActionNone, Camera)
+import sim/protocol (FrameInput, FrameOutput, DrawCmd, Rect, Coord, PlayerAction, ActionNone, Camera, CircleRGBA, Text)
 import sim/world (World, PlanetState, Tile, Selection, SelectionNone, SelectionTile, ViewMode, ViewBridge, ViewPlanet, ViewGalaxyMap)
 import sim/npc_ai (NPC, PatternStatic, PatternRandomWalk, PatternPatrol, Direction, North, South, East, West, updateAllNPCs)
 import sim/bridge (BridgeState, initBridge, renderBridge, stepBridge)
+import sim/starmap (initLocalCatalog, Star, Vec3, spectralColor, StarCatalog)
 
 -- Import effects (v0.5.0)
 import std/rand (rand_int)
@@ -57,6 +58,68 @@ pure func concatDrawCmds(a: [DrawCmd], b: [DrawCmd]) -> [DrawCmd] {
     }
 }
 
+-- =============================================================================
+-- Galaxy Map Rendering
+-- =============================================================================
+
+-- Convert star 3D position to 2D screen position (simple top-down view)
+-- Center: 320, 240 (assuming 640x480), scale: 20 pixels per light-year
+pure func starToScreen(pos: Vec3) -> (float, float) {
+    let centerX = 320.0;
+    let centerY = 240.0;
+    let scale = 20.0;
+    -- Top-down view: X → screen X, Y → screen Y (ignore Z for now)
+    (centerX + pos.x * scale, centerY + pos.y * scale)
+}
+
+-- Calculate star radius based on luminosity (brighter = larger)
+pure func starRadius(luminosity: float) -> float {
+    -- Clamp between 2 and 8 pixels based on log of luminosity
+    -- Sol (1.0) = 4 pixels, Sirius (25) = 6 pixels, dim M-dwarfs = 2 pixels
+    let logLum = match luminosity > 0.0 {
+        true => match luminosity > 100.0 {
+            true => 4.0,   -- Very bright stars capped
+            false => match luminosity > 1.0 {
+                true => 3.0 + luminosity / 50.0,
+                false => 2.0 + luminosity * 2.0
+            }
+        },
+        false => 2.0
+    };
+    logLum
+}
+
+-- Render a single star as a CircleRGBA
+pure func renderStar(star: Star) -> DrawCmd {
+    let pos = starToScreen(star.pos);
+    let radius = starRadius(star.luminosity);
+    let color = spectralColor(star.spectral);
+    match pos {
+        (sx, sy) => CircleRGBA(sx, sy, radius, color, true, 5)
+    }
+}
+
+-- Render all stars in the catalog
+pure func renderStars(stars: [Star]) -> [DrawCmd] {
+    match stars {
+        [] => [],
+        s :: rest => renderStar(s) :: renderStars(rest)
+    }
+}
+
+-- Render the galaxy map view
+pure func renderGalaxyMap(catalog: StarCatalog) -> [DrawCmd] {
+    -- Background rectangle (dark blue)
+    let bg = Rect(0.0, 0.0, 640.0, 480.0, 1052688, 0);
+    -- Title
+    let title = Text("Galaxy Map - Local Stars", 200.0, 20.0, 16, 16777215, 10);
+    -- Sol marker label
+    let solLabel = Text("Sol", 325.0, 245.0, 12, 16777215, 10);
+    -- Draw stars
+    let starCmds = renderStars(catalog.stars);
+    bg :: title :: solLabel :: concatDrawCmds(starCmds, [])
+}
+
 -- Process click to update selection (tileSize=8 inlined, TVar2 fix v0.5.0)
 pure func processSelection(input: FrameInput, world: World) -> Selection {
     if input.clickedThisFrame then {
@@ -84,13 +147,16 @@ export func init_world(seed: int) -> World {
         { id: 3, pos: { x: 4, y: 4 }, pattern: PatternStatic, moveCounter: 0, patrolIndex: 0 },
         { id: 4, pos: { x: 1, y: 1 }, pattern: PatternPatrol(patrolPath), moveCounter: 0, patrolIndex: 0 }
     ];
+    -- Initialize star catalog with 21 local stars (Sol + 20 nearest)
+    let catalog = initLocalCatalog();
     {
         tick: 0,
         planet: { width: w, height: h, tiles: tiles },
         npcs: testNpcs,
         selection: SelectionNone,
         bridge: initBridge(),
-        viewMode: ViewBridge
+        viewMode: ViewBridge,
+        starCatalog: catalog
     }
 }
 
@@ -104,7 +170,7 @@ pure func renderForView(world: World) -> [DrawCmd] {
             let selCmds = selectionToDraw(world.selection);
             concatDrawCmds(concatDrawCmds(tileCmds, npcCmds), selCmds)
         },
-        ViewGalaxyMap => []
+        ViewGalaxyMap => renderGalaxyMap(world.starCatalog)
     }
 }
 

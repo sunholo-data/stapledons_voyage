@@ -154,20 +154,16 @@ func tryMoveDirection_impl(npc interface{}, dir interface{}, width interface{}, 
 	var newX interface{} = func() interface{} {
 		var tmp13 interface{} = FieldGet(npc, "pos")
 		_ = tmp13 // suppress unused
-		return func() interface{} {
-			var tmp14 interface{} = FieldGet(tmp13, "x")
-			_ = tmp14 // suppress unused
-			return AddInt(tmp14, dx)
-		}()
+		var tmp14 interface{} = FieldGet(tmp13, "x")
+		_ = tmp14 // suppress unused
+		return AddInt(tmp14, dx)
 	}()
 	var newY interface{} = func() interface{} {
 		var tmp11 interface{} = FieldGet(npc, "pos")
 		_ = tmp11 // suppress unused
-		return func() interface{} {
-			var tmp12 interface{} = FieldGet(tmp11, "y")
-			_ = tmp12 // suppress unused
-			return AddInt(tmp12, dy)
-		}()
+		var tmp12 interface{} = FieldGet(tmp11, "y")
+		_ = tmp12 // suppress unused
+		return AddInt(tmp12, dy)
 	}()
 	var tmp10 interface{} = isInBounds_impl(newX, newY, width, height)
 	return func() interface{} {
@@ -190,25 +186,19 @@ func updateRandomWalk_impl(npc interface{}, interval interface{}, width interfac
 			return func() interface{} {
 				var dirIndex interface{} = requireRand().RandInt(int64(0), int64(3))
 				_ = dirIndex // suppress unused
-				return func() interface{} {
-					var dir interface{} = indexToDirection_impl(dirIndex)
-					_ = dir // suppress unused
-					return func() interface{} {
-						var movedNpc interface{} = tryMoveDirection_impl(npc, dir, width, height)
-						_ = movedNpc // suppress unused
-						return npcWithCounter_impl(movedNpc, interval)
-					}()
-				}()
+				var dir interface{} = indexToDirection_impl(dirIndex)
+				_ = dir // suppress unused
+				var movedNpc interface{} = tryMoveDirection_impl(npc, dir, width, height)
+				_ = movedNpc // suppress unused
+				return npcWithCounter_impl(movedNpc, interval)
 			}()
 		}
 		return func() interface{} {
 			var tmp17 interface{} = FieldGet(npc, "moveCounter")
 			_ = tmp17 // suppress unused
-			return func() interface{} {
-				var tmp18 interface{} = SubInt(tmp17, int64(1))
-				_ = tmp18 // suppress unused
-				return npcWithCounter_impl(npc, tmp18)
-			}()
+			var tmp18 interface{} = SubInt(tmp17, int64(1))
+			_ = tmp18 // suppress unused
+			return npcWithCounter_impl(npc, tmp18)
 		}()
 	}()
 }
@@ -250,7 +240,7 @@ func updatePatrol_impl(npc interface{}, path interface{}, width interface{}, hei
 							}()
 						}()
 						_ = nextIndex // suppress unused
-						return RecordUpdate(movedNpc, map[string]interface{}{"patrolIndex": nextIndex, "moveCounter": int64(20)})
+						return RecordUpdate(movedNpc, map[string]interface{}{"moveCounter": int64(20), "patrolIndex": nextIndex})
 					}()
 				}()
 			}()
@@ -312,11 +302,9 @@ func updateAllNPCs_impl(npcs interface{}, width interface{}, height interface{})
 			return func() interface{} {
 				var tmp28 interface{} = updateNPC_impl(npc, width, height)
 				_ = tmp28 // suppress unused
-				return func() interface{} {
-					var tmp29 interface{} = updateAllNPCs_impl(rest, width, height)
-					_ = tmp29 // suppress unused
-					return Cons(tmp28, tmp29)
-				}()
+				var tmp29 interface{} = updateAllNPCs_impl(rest, width, height)
+				_ = tmp29 // suppress unused
+				return Cons(tmp28, tmp29)
 			}()
 		} else {
 			panic("non-exhaustive match")

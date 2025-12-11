@@ -234,15 +234,13 @@ func calcGRDecay_impl(phase interface{}, phaseTime interface{}, currentGR interf
 			return func() interface{} {
 				var progress interface{} = DivFloat(phaseTime, float64(8))
 				_ = progress // suppress unused
+				var tmp4 interface{} = GtFloat(progress, float64(1))
+				_ = tmp4 // suppress unused
 				return func() interface{} {
-					var tmp4 interface{} = GtFloat(progress, float64(1))
-					_ = tmp4 // suppress unused
-					return func() interface{} {
-						if tmp4.(bool) {
-							return float64(0)
-						}
-						return SubFloat(float64(1), progress)
-					}()
+					if tmp4.(bool) {
+						return float64(0)
+					}
+					return SubFloat(float64(1), progress)
 				}()
 			}()
 		default:
@@ -270,11 +268,9 @@ func stepArrival_impl(state interface{}, input interface{}) interface{} {
 	var newGR interface{} = func() interface{} {
 		var tmp9 interface{} = FieldGet(state, "phase")
 		_ = tmp9 // suppress unused
-		return func() interface{} {
-			var tmp10 interface{} = FieldGet(state, "grIntensity")
-			_ = tmp10 // suppress unused
-			return calcGRDecay_impl(tmp9, newPhaseTime, tmp10)
-		}()
+		var tmp10 interface{} = FieldGet(state, "grIntensity")
+		_ = tmp10 // suppress unused
+		return calcGRDecay_impl(tmp9, newPhaseTime, tmp10)
 	}()
 	var transition interface{} = func() interface{} {
 		var tmp8 interface{} = FieldGet(state, "phase")
@@ -290,26 +286,18 @@ func stepArrival_impl(state interface{}, input interface{}) interface{} {
 					return nextPhase_impl(tmp7)
 				}()
 				_ = nextPh // suppress unused
-				return func() interface{} {
-					var nextVel interface{} = phaseTargetVelocity_impl(nextPh)
-					_ = nextVel // suppress unused
-					return func() interface{} {
-						var nextPlanet interface{} = phasePlanet_impl(nextPh)
-						_ = nextPlanet // suppress unused
-						return func() interface{} {
-							var tmp5 interface{} = FieldGet(state, "shipTimeYears")
-							_ = tmp5 // suppress unused
-							return func() interface{} {
-								var tmp6 interface{} = FieldGet(state, "galaxyYear")
-								_ = tmp6 // suppress unused
-								return &ArrivalState{Phase: nextPh.(*ArrivalPhase), PhaseTime: float64(0), TotalTime: newTotalTime.(float64), Velocity: nextVel.(float64), GrIntensity: float64(0), CurrentPlanet: nextPlanet.(*CurrentPlanet), ShipTimeYears: tmp5.(float64), GalaxyYear: tmp6.(int64)}
-							}()
-						}()
-					}()
-				}()
+				var nextVel interface{} = phaseTargetVelocity_impl(nextPh)
+				_ = nextVel // suppress unused
+				var nextPlanet interface{} = phasePlanet_impl(nextPh)
+				_ = nextPlanet // suppress unused
+				var tmp5 interface{} = FieldGet(state, "shipTimeYears")
+				_ = tmp5 // suppress unused
+				var tmp6 interface{} = FieldGet(state, "galaxyYear")
+				_ = tmp6 // suppress unused
+				return &ArrivalState{Phase: nextPh.(*ArrivalPhase), PhaseTime: float64(0), TotalTime: newTotalTime.(float64), Velocity: nextVel.(float64), GrIntensity: float64(0), CurrentPlanet: nextPlanet.(*CurrentPlanet), ShipTimeYears: tmp5.(float64), GalaxyYear: tmp6.(int64)}
 			}()
 		}
-		return RecordUpdate(state, map[string]interface{}{"phaseTime": newPhaseTime, "totalTime": newTotalTime, "grIntensity": newGR})
+		return RecordUpdate(state, map[string]interface{}{"grIntensity": newGR, "phaseTime": newPhaseTime, "totalTime": newTotalTime})
 	}()
 }
 

@@ -25,9 +25,6 @@ type DomeRenderer struct {
 	planets     []*tetra.Planet
 	rings       []*tetra.Ring
 
-	// Bubble arc (visible edge of protective dome)
-	bubbleArc *BubbleArc
-
 	// Cruise state (slow flyby through solar system)
 	cruiseTime     float64 // Time elapsed
 	cruiseVelocity float64 // Current velocity (fraction of c)
@@ -98,9 +95,6 @@ func NewDomeRenderer(config DomeConfig) *DomeRenderer {
 
 	// Create the solar system
 	d.createSolarSystem()
-
-	// Create bubble arc (visible dome edge with plasma)
-	d.bubbleArc = NewBubbleArc(config.BufferWidth, config.BufferHeight)
 
 	// Generate the elliptical mask
 	d.generateMask()
@@ -205,12 +199,6 @@ func (d *DomeRenderer) Update(dt float64) {
 
 	// Update velocity for starfield parallax
 	d.spaceBackground.SetVelocity(d.cruiseVelocity)
-
-	// Update bubble arc (plasma particles)
-	if d.bubbleArc != nil {
-		d.bubbleArc.SetVelocity(d.cruiseVelocity)
-		d.bubbleArc.Update(dt)
-	}
 }
 
 // SetCameraFromState updates the camera position from AILANG's DomeState.
@@ -312,11 +300,11 @@ func (d *DomeRenderer) DrawPlanets(screen *ebiten.Image) {
 }
 
 // DrawBubbleArc renders the bubble arc edge with plasma effect.
-// Call this after planets.
+// NOTE: BubbleArc rendering moved to AILANG - this is now a placeholder.
+// The actual bubble arc visual can be rendered via AILANG DrawCmds if desired.
 func (d *DomeRenderer) DrawBubbleArc(screen *ebiten.Image) {
-	if d.bubbleArc != nil {
-		d.bubbleArc.Draw(screen)
-	}
+	// No-op: bubble arc visual rendering is now controlled by AILANG
+	// AILANG can emit CircleRGBA or custom DrawCmds for the arc effect
 }
 
 // applyMask applies the elliptical mask to the space buffer.

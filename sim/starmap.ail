@@ -1,0 +1,287 @@
+module sim/starmap
+
+-- =============================================================================
+-- Starmap Data Model
+-- Core types for the galaxy star map
+-- =============================================================================
+
+import std/math (sqrt)
+import std/option (Option, Some, None)
+
+-- =============================================================================
+-- Local List Helpers
+-- std/list filter/length have codegen issues, so we implement locally
+-- =============================================================================
+
+-- Filter stars by predicate
+pure func filterStars(predicate: Star -> bool, stars: [Star]) -> [Star] {
+    match stars {
+        [] => [],
+        s :: rest => match predicate(s) {
+            true => s :: filterStars(predicate, rest),
+            false => filterStars(predicate, rest)
+        }
+    }
+}
+
+-- Count stars in a list
+pure func countStars(stars: [Star]) -> int {
+    match stars {
+        [] => 0,
+        _ :: rest => 1 + countStars(rest)
+    }
+}
+
+-- =============================================================================
+-- Core Types
+-- =============================================================================
+
+-- Note: Using plain int for IDs to avoid AILANG codegen bug with
+-- single-variant newtypes like `type StarID = StarID(int)` which generates
+-- duplicate Go type definitions.
+
+-- 3D position in light-years (Sol-centered galactocentric coordinates)
+export type Vec3 = { x: float, y: float, z: float }
+
+-- Spectral type classification
+-- Distribution: M 76%, K 12%, G 7.5%, F 3%, A 0.6%, B 0.13%, O 0.00003%
+export type SpectralType = O | B | A | F | G | K | M
+
+-- Star data (id is plain int to avoid codegen bug)
+export type Star = {
+    id: int,
+    name: string,
+    pos: Vec3,
+    spectral: SpectralType,
+    luminosity: float,
+    hasHZPlanet: bool
+}
+
+-- Star catalog containing all known stars
+export type StarCatalog = {
+    stars: [Star],
+    solIndex: int
+}
+
+-- =============================================================================
+-- Vector Math
+-- =============================================================================
+
+-- Calculate distance between two 3D points
+export pure func distance(a: Vec3, b: Vec3) -> float {
+    let dx = a.x - b.x;
+    let dy = a.y - b.y;
+    let dz = a.z - b.z;
+    sqrt(dx * dx + dy * dy + dz * dz)
+}
+
+-- Zero vector (origin)
+export pure func vec3Zero() -> Vec3 {
+    { x: 0.0, y: 0.0, z: 0.0 }
+}
+
+-- Create a Vec3
+export pure func makeVec3(x: float, y: float, z: float) -> Vec3 {
+    { x: x, y: y, z: z }
+}
+
+-- =============================================================================
+-- Catalog Operations
+-- =============================================================================
+
+-- Create an empty catalog
+export pure func emptyCatalog() -> StarCatalog {
+    { stars: [], solIndex: 0 }
+}
+
+-- Add a star to the catalog
+export pure func addStar(cat: StarCatalog, star: Star) -> StarCatalog {
+    { stars: star :: cat.stars, solIndex: cat.solIndex }
+}
+
+-- Get number of stars in catalog
+export pure func starCount(cat: StarCatalog) -> int {
+    countStars(cat.stars)
+}
+
+-- =============================================================================
+-- Query Functions
+-- =============================================================================
+
+-- Filter helper for radius query
+pure func withinRadius(center: Vec3, radius: float, star: Star) -> bool {
+    distance(star.pos, center) <= radius
+}
+
+-- Get all stars within a given radius of a position
+export pure func starsWithinRadius(cat: StarCatalog, center: Vec3, radius: float) -> [Star] {
+    filterStars(\s. withinRadius(center, radius, s), cat.stars)
+}
+
+-- Find minimum by distance (helper for nearestStar)
+pure func minByDistanceHelper(pos: Vec3, best: Star, rest: [Star]) -> Star {
+    match rest {
+        [] => best,
+        s :: remaining => {
+            let bestDist = distance(best.pos, pos);
+            let sDist = distance(s.pos, pos);
+            match sDist < bestDist {
+                true => minByDistanceHelper(pos, s, remaining),
+                false => minByDistanceHelper(pos, best, remaining)
+            }
+        }
+    }
+}
+
+-- Find the nearest star to a position
+export pure func nearestStar(cat: StarCatalog, pos: Vec3) -> Star {
+    match cat.stars {
+        [] => {
+            -- Return a dummy star if catalog is empty
+            {
+                id: 0 - 1,
+                name: "NONE",
+                pos: vec3Zero(),
+                spectral: M,
+                luminosity: 0.0,
+                hasHZPlanet: false
+            }
+        },
+        first :: rest => minByDistanceHelper(pos, first, rest)
+    }
+}
+
+-- =============================================================================
+-- Spectral Type Utilities
+-- =============================================================================
+
+-- Get spectral type from random roll (0.0 to 1.0)
+-- Based on realistic stellar population distribution
+export pure func spectralFromRoll(roll: float) -> SpectralType {
+    match roll < 0.76 {
+        true => M,
+        false => match roll < 0.88 {
+            true => K,
+            false => match roll < 0.955 {
+                true => G,
+                false => match roll < 0.985 {
+                    true => F,
+                    false => match roll < 0.991 {
+                        true => A,
+                        false => match roll < 0.99913 {
+                            true => B,
+                            false => O
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+-- Get typical luminosity for a spectral type (in solar luminosities)
+export pure func luminosityForSpectral(spec: SpectralType) -> float {
+    match spec {
+        O => 30000.0,
+        B => 1000.0,
+        A => 20.0,
+        F => 3.0,
+        G => 1.0,
+        K => 0.4,
+        M => 0.04
+    }
+}
+
+-- Get color packed as RGBA decimal for a spectral type
+-- Format: 0xRRGGBBAA as decimal integer
+export pure func spectralColor(spec: SpectralType) -> int {
+    match spec {
+        O => 2611347455,  -- Blue-white
+        B => 2864414719,  -- Blue-white
+        A => 3403726847,  -- White
+        F => 4177461247,  -- Yellow-white
+        G => 4294311679,  -- Yellow
+        K => 4292124159,  -- Orange
+        M => 4291716095   -- Red-orange
+    }
+}
+
+-- =============================================================================
+-- Star Factory Functions
+-- =============================================================================
+
+-- Create a star with given properties
+export pure func makeStar(id: int, name: string, x: float, y: float, z: float, spec: SpectralType, hasHZ: bool) -> Star {
+    {
+        id: id,
+        name: name,
+        pos: makeVec3(x, y, z),
+        spectral: spec,
+        luminosity: luminosityForSpectral(spec),
+        hasHZPlanet: hasHZ
+    }
+}
+
+-- Sol (our Sun) at origin
+export pure func makeSol() -> Star {
+    makeStar(0, "Sol", 0.0, 0.0, 0.0, G, true)
+}
+
+-- =============================================================================
+-- Local Stellar Neighborhood
+-- 20 nearest stars with accurate positions (Sol-centered coordinates in ly)
+-- Data from: Gaia DR3, RECONS, various stellar databases
+-- =============================================================================
+
+-- Create catalog with Sol and nearest 20 stars
+export pure func initLocalCatalog() -> StarCatalog {
+    let stars = [
+        makeSol(),
+        -- Proxima Centauri (4.24 ly) - M dwarf, closest star
+        makeStar(1, "Proxima Centauri", -1.55, -1.32, -3.77, M, true),
+        -- Alpha Centauri A (4.37 ly) - G-type like Sun
+        makeStar(2, "Alpha Centauri A", -1.64, -1.36, -3.84, G, true),
+        -- Alpha Centauri B (4.37 ly) - K-type
+        makeStar(3, "Alpha Centauri B", -1.64, -1.36, -3.84, K, true),
+        -- Barnard's Star (5.96 ly) - M dwarf, high proper motion
+        makeStar(4, "Barnard's Star", -0.06, 5.94, 0.49, M, false),
+        -- Wolf 359 (7.86 ly) - M dwarf, flare star
+        makeStar(5, "Wolf 359", -7.43, 2.11, -0.66, M, false),
+        -- Lalande 21185 (8.29 ly) - M dwarf
+        makeStar(6, "Lalande 21185", -6.52, -1.90, 4.88, M, true),
+        -- Sirius A (8.60 ly) - A-type, brightest star in sky
+        makeStar(7, "Sirius A", -1.61, 8.06, -2.47, A, false),
+        -- Sirius B (8.60 ly) - White dwarf companion
+        makeStar(8, "Sirius B", -1.61, 8.06, -2.47, A, false),
+        -- Luyten 726-8 A / UV Ceti (8.73 ly) - M dwarf, flare star
+        makeStar(9, "Luyten 726-8 A", 8.56, -0.80, 1.28, M, false),
+        -- Ross 154 (9.69 ly) - M dwarf
+        makeStar(10, "Ross 154", 1.91, -8.87, -3.32, M, false),
+        -- Ross 248 (10.32 ly) - M dwarf
+        makeStar(11, "Ross 248", 7.38, -0.59, 7.19, M, false),
+        -- Epsilon Eridani (10.52 ly) - K dwarf with known planets
+        makeStar(12, "Epsilon Eridani", -6.22, 8.31, -1.73, K, true),
+        -- Lacaille 9352 (10.74 ly) - M dwarf
+        makeStar(13, "Lacaille 9352", -8.46, -2.00, -6.30, M, false),
+        -- Ross 128 (11.01 ly) - M dwarf with Earth-mass planet
+        makeStar(14, "Ross 128", -10.90, 0.58, -1.35, M, true),
+        -- EZ Aquarii A (11.27 ly) - M dwarf triple system
+        makeStar(15, "EZ Aquarii A", 10.19, 3.79, -2.97, M, false),
+        -- Procyon A (11.46 ly) - F-type, bright star
+        makeStar(16, "Procyon A", -4.77, 10.31, -0.39, F, false),
+        -- 61 Cygni A (11.40 ly) - K dwarf binary
+        makeStar(17, "61 Cygni A", 6.40, -6.06, 7.14, K, false),
+        -- 61 Cygni B (11.40 ly) - K dwarf companion
+        makeStar(18, "61 Cygni B", 6.40, -6.06, 7.14, K, false),
+        -- Struve 2398 A (11.52 ly) - M dwarf binary
+        makeStar(19, "Struve 2398 A", 7.02, -7.59, 4.73, M, false),
+        -- Groombridge 34 A (11.62 ly) - M dwarf
+        makeStar(20, "Groombridge 34 A", 0.05, 4.18, -10.84, M, false)
+    ];
+    { stars: stars, solIndex: 0 }
+}
+
+-- Get Sol's position (convenience function)
+export pure func solPosition() -> Vec3 {
+    vec3Zero()
+}

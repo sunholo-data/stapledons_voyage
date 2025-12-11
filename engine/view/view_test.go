@@ -4,34 +4,7 @@ package view
 
 import (
 	"testing"
-
-	"github.com/hajimehoshi/ebiten/v2"
 )
-
-// mockView is a simple test view implementation.
-type mockView struct {
-	viewType    ViewType
-	initialized bool
-	entered     bool
-	exited      bool
-	updateCount int
-	drawCount   int
-}
-
-func newMockView(vt ViewType) *mockView {
-	return &mockView{viewType: vt}
-}
-
-func (m *mockView) Type() ViewType { return m.viewType }
-func (m *mockView) Init() error    { m.initialized = true; return nil }
-func (m *mockView) Enter(from ViewType) { m.entered = true }
-func (m *mockView) Exit(to ViewType)    { m.exited = true }
-func (m *mockView) Update(dt float64) *ViewTransition {
-	m.updateCount++
-	return nil
-}
-func (m *mockView) Draw(screen *ebiten.Image) { m.drawCount++ }
-func (m *mockView) Layers() ViewLayers        { return ViewLayers{} }
 
 func TestViewTypeString(t *testing.T) {
 	tests := []struct {
@@ -73,66 +46,7 @@ func TestTransitionEffectString(t *testing.T) {
 	}
 }
 
-func TestManagerRegisterAndSetCurrent(t *testing.T) {
-	mgr := NewManager(1280, 960)
-
-	// Create mock views
-	space := newMockView(ViewSpace)
-	bridge := newMockView(ViewBridge)
-
-	// Register views
-	if err := mgr.Register(space); err != nil {
-		t.Fatalf("Register(space) failed: %v", err)
-	}
-	if err := mgr.Register(bridge); err != nil {
-		t.Fatalf("Register(bridge) failed: %v", err)
-	}
-
-	// Set current view
-	if err := mgr.SetCurrent(ViewSpace); err != nil {
-		t.Fatalf("SetCurrent(ViewSpace) failed: %v", err)
-	}
-
-	// Verify initialization and enter
-	if !space.initialized {
-		t.Error("space.Init() was not called")
-	}
-	if !space.entered {
-		t.Error("space.Enter() was not called")
-	}
-
-	// Verify current
-	if mgr.Current() != space {
-		t.Error("Current() should return space view")
-	}
-
-	// Switch to bridge
-	if err := mgr.SetCurrent(ViewBridge); err != nil {
-		t.Fatalf("SetCurrent(ViewBridge) failed: %v", err)
-	}
-
-	// Verify exit and enter
-	if !space.exited {
-		t.Error("space.Exit() was not called")
-	}
-	if !bridge.entered {
-		t.Error("bridge.Enter() was not called")
-	}
-}
-
-func TestManagerErrors(t *testing.T) {
-	mgr := NewManager(1280, 960)
-
-	// Register nil view should fail
-	if err := mgr.Register(nil); err == nil {
-		t.Error("Register(nil) should return error")
-	}
-
-	// SetCurrent for unregistered view should fail
-	if err := mgr.SetCurrent(ViewSpace); err == nil {
-		t.Error("SetCurrent for unregistered view should return error")
-	}
-}
+// NOTE: Manager tests removed - Manager was deleted as part of Phase 0 architecture cleanup
 
 func TestComputePanelBounds(t *testing.T) {
 	screenW, screenH := 1280.0, 960.0

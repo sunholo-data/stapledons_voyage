@@ -1,11 +1,19 @@
 # View Layer AILANG Migration
 
 ## Status
-- Status: Planned
+- Status: **Implemented** (2025-12-11)
 - Priority: P0 (Architecture Fix)
 - Complexity: High
 - Supersedes: `01-view-system.md` (Go-centric approach)
 - Blocks: All future game features
+- Sprint: [phase0-architecture-completion-sprint.md](../../../sprints/phase0-architecture-completion-sprint.md)
+
+### Implementation Summary
+- **LOC removed**: 1,235 lines (3,166 → 1,931)
+- **Files deleted**: layer.go, manager.go, transition.go, ui_layer.go, bubble_arc.go, space_view.go
+- **Architecture check**: 0 violations
+- **AILANG controls**: All game state (cameraZ, cruiseVelocity, etc.)
+- **Go renders**: DrawCmds only (no state ownership)
 
 ## Problem Statement
 

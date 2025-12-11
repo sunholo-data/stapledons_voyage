@@ -1,0 +1,193 @@
+module sim/galaxy_model
+
+-- =============================================================================
+-- Galaxy Density Model for Procedural Star Generation
+-- Implements exponential disk model for stellar density
+-- =============================================================================
+
+import std/math (sqrt, exp, sin, cos)
+import std/rand (rand_float, rand_int)
+import sim/starmap (Star, Vec3, SpectralType, O, B, A, F, G, K, M, makeStar, spectralFromRoll, makeVec3)
+
+-- =============================================================================
+-- Galaxy Parameters (Milky Way-like)
+-- =============================================================================
+
+-- Scale length of the galactic disk (light-years)
+-- Stars become e times less dense every ~10,000 ly from center
+pure func diskScaleLength() -> float { 10000.0 }
+
+-- Scale height of the galactic disk (light-years)
+-- Disk is much thinner vertically
+pure func diskScaleHeight() -> float { 1000.0 }
+
+-- Sun's distance from galactic center (light-years)
+pure func sunGalacticRadius() -> float { 26000.0 }
+
+-- Local stellar density near the Sun (stars per cubic light-year)
+-- Approximately 0.14 stars per cubic parsec = 0.004 per cubic ly
+pure func localStellarDensity() -> float { 0.004 }
+
+-- =============================================================================
+-- Stellar Density Model
+-- =============================================================================
+
+-- Calculate galactocentric radius from Sol-centered position
+pure func galactocentricRadius(pos: Vec3) -> float {
+    -- Sun is at ~26,000 ly from galactic center
+    -- Simplified: assume X points toward galactic center
+    let r = sunGalacticRadius() - pos.x;
+    -- Include Y component for full radius
+    sqrt(r * r + pos.y * pos.y)
+}
+
+-- Calculate stellar density at a position using exponential disk model
+-- Returns density relative to local solar neighborhood
+export pure func stellarDensity(pos: Vec3) -> float {
+    let r = galactocentricRadius(pos);
+    let z = pos.z;  -- Height above galactic plane
+
+    -- Exponential disk: density = exp(-r/h_r) * exp(-|z|/h_z)
+    let radialFactor = exp((sunGalacticRadius() - r) / diskScaleLength());
+
+    -- Vertical factor using absolute value approximation
+    let absZ = match z < 0.0 { true => 0.0 - z, false => z };
+    let verticalFactor = exp(0.0 - absZ / diskScaleHeight());
+
+    radialFactor * verticalFactor
+}
+
+-- =============================================================================
+-- Procedural Star Generation
+-- =============================================================================
+
+-- Simple hash function for deterministic randomness from position
+pure func positionHash(x: int, y: int, z: int, seed: int) -> int {
+    let h1 = x * 374761393;
+    let h2 = y * 668265263;
+    let h3 = z * 1274126177;
+    let h4 = seed * 1911520717;
+    let combined = h1 + h2 + h3 + h4;
+    -- Mix the bits
+    let mixed = combined * 2654435769;
+    match mixed < 0 { true => 0 - mixed, false => mixed }
+}
+
+-- Convert hash to float in range [0, 1)
+pure func hashToFloat(hash: int) -> float {
+    let maxInt = 2147483647;
+    intToFloat(hash % maxInt) / intToFloat(maxInt)
+}
+
+-- Generate a deterministic procedural star at a grid cell
+-- seed: global seed for reproducibility
+-- cellX, cellY, cellZ: grid cell coordinates
+-- cellSize: size of each grid cell in light-years
+export pure func generateStar(seed: int, cellX: int, cellY: int, cellZ: int, cellSize: float) -> Star {
+    -- Hash for this cell
+    let hash = positionHash(cellX, cellY, cellZ, seed);
+
+    -- Position within cell (jittered)
+    let jitterX = hashToFloat(positionHash(cellX, cellY, cellZ, seed + 1));
+    let jitterY = hashToFloat(positionHash(cellX, cellY, cellZ, seed + 2));
+    let jitterZ = hashToFloat(positionHash(cellX, cellY, cellZ, seed + 3));
+
+    let x = (intToFloat(cellX) + jitterX) * cellSize;
+    let y = (intToFloat(cellY) + jitterY) * cellSize;
+    let z = (intToFloat(cellZ) + jitterZ) * cellSize;
+
+    -- Spectral type from hash
+    let spectralRoll = hashToFloat(positionHash(cellX + 100, cellY, cellZ, seed));
+    let spectral = spectralFromRoll(spectralRoll);
+
+    -- Habitable zone probability (G and K stars more likely)
+    let hzRoll = hashToFloat(positionHash(cellX, cellY + 100, cellZ, seed));
+    let hasHZ = match spectral {
+        G => hzRoll < 0.22,   -- ~22% of G stars
+        K => hzRoll < 0.15,   -- ~15% of K stars
+        M => hzRoll < 0.05,   -- ~5% of M stars (flare issues)
+        _ => false
+    };
+
+    -- Generate unique ID from cell position
+    let starId = hash % 1000000000;
+
+    -- Generate name (procedural catalog number)
+    let name = "PStar-" ++ intToString(starId);
+
+    makeStar(starId, name, x, y, z, spectral, hasHZ)
+}
+
+-- =============================================================================
+-- Real/Procedural Blending
+-- =============================================================================
+
+-- Calculate blend weight for transitioning between real and procedural stars
+-- At distance 0-20 ly: use only real stars (weight 0)
+-- At distance 20-100 ly: blend (weight 0 to 1)
+-- Beyond 100 ly: use only procedural stars (weight 1)
+export pure func blendWeight(distanceFromSol: float) -> float {
+    let innerRadius = 20.0;   -- Within this: all real
+    let outerRadius = 100.0;  -- Beyond this: all procedural
+
+    match distanceFromSol < innerRadius {
+        true => 0.0,
+        false => match distanceFromSol > outerRadius {
+            true => 1.0,
+            false => {
+                -- Linear interpolation in blend zone
+                (distanceFromSol - innerRadius) / (outerRadius - innerRadius)
+            }
+        }
+    }
+}
+
+-- Check if a grid cell should generate a star based on density
+-- Returns true if a star should be placed in this cell
+export pure func shouldGenerateStar(seed: int, cellX: int, cellY: int, cellZ: int, cellSize: float) -> bool {
+    -- Get position at cell center
+    let x = intToFloat(cellX) * cellSize + cellSize / 2.0;
+    let y = intToFloat(cellY) * cellSize + cellSize / 2.0;
+    let z = intToFloat(cellZ) * cellSize + cellSize / 2.0;
+    let pos = makeVec3(x, y, z);
+
+    -- Get density at this position
+    let density = stellarDensity(pos);
+
+    -- Expected stars in this cell volume
+    let cellVolume = cellSize * cellSize * cellSize;
+    let expectedStars = density * localStellarDensity() * cellVolume;
+
+    -- Use hash to decide if this cell has a star
+    let roll = hashToFloat(positionHash(cellX, cellY, cellZ, seed + 999));
+    roll < expectedStars
+}
+
+-- =============================================================================
+-- Helper: int to string (for star names)
+-- =============================================================================
+
+pure func intToString(n: int) -> string {
+    match n < 0 {
+        true => "-" ++ intToStringPositive(0 - n),
+        false => match n == 0 {
+            true => "0",
+            false => intToStringPositive(n)
+        }
+    }
+}
+
+pure func intToStringPositive(n: int) -> string {
+    match n == 0 {
+        true => "",
+        false => {
+            let digit = n % 10;
+            let rest = n / 10;
+            let digitChar = match digit {
+                0 => "0", 1 => "1", 2 => "2", 3 => "3", 4 => "4",
+                5 => "5", 6 => "6", 7 => "7", 8 => "8", _ => "9"
+            };
+            intToStringPositive(rest) ++ digitChar
+        }
+    }
+}

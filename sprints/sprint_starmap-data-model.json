@@ -1,0 +1,189 @@
+{
+  "sprint_id": "starmap-data-model",
+  "created": "2025-12-11T19:00:00Z",
+  "status": "in_progress",
+  "design_doc": "design_docs/planned/phase1-data-models/starmap-data-model.md",
+  "related_docs": [
+    "design_docs/planned/phase1-data-models/README.md"
+  ],
+  "markdown_plan": "sprints/starmap-data-model-sprint.md",
+  "features": [
+    {
+      "id": "day1-core-types",
+      "description": "Core AILANG types (Star, Vec3, StarCatalog, SpectralType)",
+      "estimated_loc": 100,
+      "actual_loc": 208,
+      "dependencies": [],
+      "acceptance_criteria": [
+        "sim/starmap.ail compiles",
+        "Vec3, Star, SpectralType types defined",
+        "distance(), starsWithinRadius(), nearestStar() functions work"
+      ],
+      "passes": true,
+      "started": "2025-12-11T18:49:17Z",
+      "completed": "2025-12-11T18:51:34Z",
+      "notes": null
+    },
+    {
+      "id": "day2-sol-local",
+      "description": "Sol system and 20 nearest real stars",
+      "estimated_loc": 80,
+      "actual_loc": 72,
+      "dependencies": [
+        "day1-core-types"
+      ],
+      "acceptance_criteria": [
+        "Sol at origin with correct properties",
+        "20 nearest stars with accurate positions",
+        "spectralFromRoll() matches realistic distribution"
+      ],
+      "passes": true,
+      "started": "2025-12-11T18:51:34Z",
+      "completed": "2025-12-11T19:38:45Z",
+      "notes": "AILANG compiles OK. Go build blocked by codegen nesting issue (GitHub #31, #32). Waiting for fix."
+    },
+    {
+      "id": "day3-gaia-import",
+      "description": "Go Gaia CSV import and coordinate conversion",
+      "estimated_loc": 230,
+      "actual_loc": 280,
+      "dependencies": [
+        "day1-core-types"
+      ],
+      "acceptance_criteria": [
+        "engine/stardata/ package created",
+        "LoadGaiaCatalog() parses CSV",
+        "ToGalactocentric() converts coordinates correctly",
+        "Alpha Centauri position verifiable"
+      ],
+      "passes": true,
+      "started": null,
+      "completed": "2025-12-11T19:30:24Z",
+      "notes": null
+    },
+    {
+      "id": "day4-catalog-build",
+      "description": "Combined Gaia + local catalog with AILANG bridge",
+      "estimated_loc": 100,
+      "actual_loc": null,
+      "dependencies": [
+        "day2-sol-local",
+        "day3-gaia-import"
+      ],
+      "acceptance_criteria": [
+        "Gaia subset downloaded to assets/data/starmap/",
+        "BuildCatalog() merges Gaia + manual stars",
+        "extern func loadGaiaCatalog() wired up",
+        "Stars load at game init"
+      ],
+      "passes": true,
+      "started": "2025-12-11T20:45:00Z",
+      "completed": "2025-12-11T20:55:00Z",
+      "notes": "StarCatalog added to World, initLocalCatalog() wired up, renderGalaxyMap() renders stars with spectral colors. GitHub #33 blocked briefly, fixed quickly."
+    },
+    {
+      "id": "day5-procedural",
+      "description": "Procedural generation with galaxy density model",
+      "estimated_loc": 150,
+      "actual_loc": null,
+      "dependencies": [
+        "day2-sol-local"
+      ],
+      "acceptance_criteria": [
+        "sim/galaxy_model.ail compiles",
+        "stellarDensity() implements exponential disk",
+        "generateStar() creates deterministic procedural stars",
+        "blendWeight() smooths real/procedural transition"
+      ],
+      "passes": null,
+      "started": null,
+      "completed": null,
+      "notes": null
+    },
+    {
+      "id": "day6-octree",
+      "description": "Spatial indexing with Go octree",
+      "estimated_loc": 200,
+      "actual_loc": null,
+      "dependencies": [
+        "day4-catalog-build"
+      ],
+      "acceptance_criteria": [
+        "Octree struct with Build() and Query()",
+        "extern func octreeQuery() declared in AILANG",
+        "Radius query <100ms for 5000 ly",
+        "nearestNStars() function works"
+      ],
+      "passes": null,
+      "started": null,
+      "completed": null,
+      "notes": null
+    },
+    {
+      "id": "day7-integration",
+      "description": "Visual verification and demo command",
+      "estimated_loc": 200,
+      "actual_loc": null,
+      "dependencies": [
+        "day5-procedural",
+        "day6-octree"
+      ],
+      "acceptance_criteria": [
+        "renderStarmap() generates DrawCmds",
+        "demo-starmap command shows star field",
+        "Sol at center, Alpha Centauri visible nearby",
+        "Spectral colors correct (M=red, G=yellow, B=blue)"
+      ],
+      "passes": null,
+      "started": null,
+      "completed": null,
+      "notes": null
+    }
+  ],
+  "velocity": {
+    "target_loc_per_day": 150,
+    "actual_loc_per_day": null
+  },
+  "metrics": {
+    "start_loc": 0,
+    "target_loc": 1060,
+    "actual_loc": null
+  },
+  "ailang_issues": [
+    {
+      "github": 31,
+      "title": "Go codegen excessive nesting in list literals and bool matches",
+      "status": "fixed"
+    },
+    {
+      "github": 32,
+      "title": "Go codegen nesting causes compiler hang (details for #31)",
+      "status": "fixed"
+    },
+    {
+      "github": 33,
+      "title": "Go codegen: tuple pattern matching generates undefined variables",
+      "status": "fixed"
+    },
+    {
+      "github": 34,
+      "title": "Go codegen: let bindings produce interface{} instead of typed variables",
+      "status": "fixed"
+    },
+    {
+      "github": 35,
+      "title": "Go codegen: std library _impl functions not generated",
+      "status": "open"
+    }
+  ],
+  "dx_issues_discovered": [
+    "List literals with negative numbers create O(n) nested closures",
+    "Chained match on booleans creates nested closure per branch",
+    "Created check_codegen_quality.sh to detect these issues before go build"
+  ],
+  "lessons_learned": [
+    "Always run codegen quality check before go build",
+    "Can work around by doing pure Go work (Day 3) while waiting for AILANG fix"
+  ],
+  "last_updated": "2025-12-11T18:49:17Z"
+}

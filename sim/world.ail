@@ -9,6 +9,9 @@ import sim/npc_ai (NPC, MovementPattern, PatternStatic, PatternRandomWalk, Patte
 -- Import BridgeState from bridge module
 import sim/bridge (BridgeState)
 
+-- Import StarCatalog for galaxy map
+import sim/starmap (StarCatalog)
+
 -- Re-export NPC type for consumers
 export type Tile = { biome: int }
 
@@ -37,5 +40,6 @@ export type World = {
     npcs: [NPC],
     selection: Selection,
     bridge: BridgeState,
-    viewMode: ViewMode
+    viewMode: ViewMode,
+    starCatalog: StarCatalog
 }

@@ -375,6 +375,12 @@ When working on this project, follow this iterative process:
 - **Debug effect** - `std/debug` with `Debug.log(msg)`, `Debug.check(cond, msg)`
 - **AI effect** - `std/ai` with `ai_call(input)` for LLM integration
 - **Game clock** - `std/game` with `delta_time()`, `frame_count()`, `total_time()`
+- **Extern functions** - Call Go from AILANG for performance-critical code:
+  ```ailang
+  -- Declare in AILANG
+  extern func octreeQuery(center: Vec3, radius: float) -> [Star]
+  ```
+  Compiler generates `extern_stubs.go` with panic stubs; implement in your own Go file.
 
 ### Syntax Notes
 
@@ -432,8 +438,8 @@ This project targets **AILANG v0.5.x**. See [ailang_resources/consumer-contract-
 
 | Version | Status | Features |
 |---------|--------|----------|
-| v0.5.0 | **Current** | Go codegen, Arrays, Rand/Debug/AI effects |
-| v0.5.1 | Planned | Extern functions, additional CLI flags |
+| v0.5.0 | **Current** | Go codegen, Arrays, Rand/Debug/AI effects, Extern functions |
+| v0.5.1 | Planned | Additional CLI flags, performance improvements |
 | v0.5.2 | Planned | ABI "stable preview" |
 
 ## Integration Testing & Feedback Loop

@@ -68,10 +68,12 @@ type View interface {
 }
 
 // ViewLayers holds references to a view's layer components.
+// Note: These are interface{} because the concrete layer types vary by view.
+// Most views return nil for layers they don't use.
 type ViewLayers struct {
-	Background BackgroundLayer
-	Content    ContentLayer
-	UI         UILayer
+	Background interface{}
+	Content    interface{}
+	UI         interface{}
 }
 
 // ViewTransition describes a requested transition to another view.

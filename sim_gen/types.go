@@ -811,6 +811,172 @@ type Strut struct {
 	Color    int64
 }
 
+// DirectionKind discriminates between variants of Direction
+type DirectionKind int
+
+const (
+	DirectionKindNorth DirectionKind = iota
+	DirectionKindSouth
+	DirectionKindEast
+	DirectionKindWest
+)
+
+// DirectionNorth holds data for the North variant
+type DirectionNorth struct {
+}
+
+// DirectionSouth holds data for the South variant
+type DirectionSouth struct {
+}
+
+// DirectionEast holds data for the East variant
+type DirectionEast struct {
+}
+
+// DirectionWest holds data for the West variant
+type DirectionWest struct {
+}
+
+// Direction is a sum type (discriminated union)
+type Direction struct {
+	Kind  DirectionKind
+	North *DirectionNorth
+	South *DirectionSouth
+	East  *DirectionEast
+	West  *DirectionWest
+}
+
+// NewDirectionNorth creates a new North variant
+func NewDirectionNorth() *Direction {
+	return &Direction{
+		Kind:  DirectionKindNorth,
+		North: &DirectionNorth{},
+	}
+}
+
+// NewDirectionSouth creates a new South variant
+func NewDirectionSouth() *Direction {
+	return &Direction{
+		Kind:  DirectionKindSouth,
+		South: &DirectionSouth{},
+	}
+}
+
+// NewDirectionEast creates a new East variant
+func NewDirectionEast() *Direction {
+	return &Direction{
+		Kind: DirectionKindEast,
+		East: &DirectionEast{},
+	}
+}
+
+// NewDirectionWest creates a new West variant
+func NewDirectionWest() *Direction {
+	return &Direction{
+		Kind: DirectionKindWest,
+		West: &DirectionWest{},
+	}
+}
+
+// IsNorth returns true if this is a North variant
+func (v *Direction) IsNorth() bool {
+	return v.Kind == DirectionKindNorth
+}
+
+// IsSouth returns true if this is a South variant
+func (v *Direction) IsSouth() bool {
+	return v.Kind == DirectionKindSouth
+}
+
+// IsEast returns true if this is a East variant
+func (v *Direction) IsEast() bool {
+	return v.Kind == DirectionKindEast
+}
+
+// IsWest returns true if this is a West variant
+func (v *Direction) IsWest() bool {
+	return v.Kind == DirectionKindWest
+}
+
+// MovementPatternKind discriminates between variants of MovementPattern
+type MovementPatternKind int
+
+const (
+	MovementPatternKindPatternStatic MovementPatternKind = iota
+	MovementPatternKindPatternRandomWalk
+	MovementPatternKindPatternPatrol
+)
+
+// MovementPatternPatternStatic holds data for the PatternStatic variant
+type MovementPatternPatternStatic struct {
+}
+
+// MovementPatternPatternRandomWalk holds data for the PatternRandomWalk variant
+type MovementPatternPatternRandomWalk struct {
+	Value0 int64
+}
+
+// MovementPatternPatternPatrol holds data for the PatternPatrol variant
+type MovementPatternPatternPatrol struct {
+	Value0 []*Direction
+}
+
+// MovementPattern is a sum type (discriminated union)
+type MovementPattern struct {
+	Kind              MovementPatternKind
+	PatternStatic     *MovementPatternPatternStatic
+	PatternRandomWalk *MovementPatternPatternRandomWalk
+	PatternPatrol     *MovementPatternPatternPatrol
+}
+
+// NewMovementPatternPatternStatic creates a new PatternStatic variant
+func NewMovementPatternPatternStatic() *MovementPattern {
+	return &MovementPattern{
+		Kind:          MovementPatternKindPatternStatic,
+		PatternStatic: &MovementPatternPatternStatic{},
+	}
+}
+
+// NewMovementPatternPatternRandomWalk creates a new PatternRandomWalk variant
+func NewMovementPatternPatternRandomWalk(v0 int64) *MovementPattern {
+	return &MovementPattern{
+		Kind:              MovementPatternKindPatternRandomWalk,
+		PatternRandomWalk: &MovementPatternPatternRandomWalk{Value0: v0},
+	}
+}
+
+// NewMovementPatternPatternPatrol creates a new PatternPatrol variant
+func NewMovementPatternPatternPatrol(v0 []*Direction) *MovementPattern {
+	return &MovementPattern{
+		Kind:          MovementPatternKindPatternPatrol,
+		PatternPatrol: &MovementPatternPatternPatrol{Value0: v0},
+	}
+}
+
+// IsPatternStatic returns true if this is a PatternStatic variant
+func (v *MovementPattern) IsPatternStatic() bool {
+	return v.Kind == MovementPatternKindPatternStatic
+}
+
+// IsPatternRandomWalk returns true if this is a PatternRandomWalk variant
+func (v *MovementPattern) IsPatternRandomWalk() bool {
+	return v.Kind == MovementPatternKindPatternRandomWalk
+}
+
+// IsPatternPatrol returns true if this is a PatternPatrol variant
+func (v *MovementPattern) IsPatternPatrol() bool {
+	return v.Kind == MovementPatternKindPatternPatrol
+}
+
+// NPC is a record type
+type NPC struct {
+	Id          int64
+	Pos         *Coord
+	Pattern     *MovementPattern
+	MoveCounter int64
+	PatrolIndex int64
+}
+
 // Coord is a record type
 type Coord struct {
 	X int64
@@ -1683,170 +1849,171 @@ func (v *Option) IsNone() bool {
 	return v.Kind == OptionKindNone
 }
 
-// DirectionKind discriminates between variants of Direction
-type DirectionKind int
+// Vec3 is a record type
+type Vec3 struct {
+	X float64
+	Y float64
+	Z float64
+}
+
+// SpectralTypeKind discriminates between variants of SpectralType
+type SpectralTypeKind int
 
 const (
-	DirectionKindNorth DirectionKind = iota
-	DirectionKindSouth
-	DirectionKindEast
-	DirectionKindWest
+	SpectralTypeKindO SpectralTypeKind = iota
+	SpectralTypeKindB
+	SpectralTypeKindA
+	SpectralTypeKindF
+	SpectralTypeKindG
+	SpectralTypeKindK
+	SpectralTypeKindM
 )
 
-// DirectionNorth holds data for the North variant
-type DirectionNorth struct {
+// SpectralTypeO holds data for the O variant
+type SpectralTypeO struct {
 }
 
-// DirectionSouth holds data for the South variant
-type DirectionSouth struct {
+// SpectralTypeB holds data for the B variant
+type SpectralTypeB struct {
 }
 
-// DirectionEast holds data for the East variant
-type DirectionEast struct {
+// SpectralTypeA holds data for the A variant
+type SpectralTypeA struct {
 }
 
-// DirectionWest holds data for the West variant
-type DirectionWest struct {
+// SpectralTypeF holds data for the F variant
+type SpectralTypeF struct {
 }
 
-// Direction is a sum type (discriminated union)
-type Direction struct {
-	Kind  DirectionKind
-	North *DirectionNorth
-	South *DirectionSouth
-	East  *DirectionEast
-	West  *DirectionWest
+// SpectralTypeG holds data for the G variant
+type SpectralTypeG struct {
 }
 
-// NewDirectionNorth creates a new North variant
-func NewDirectionNorth() *Direction {
-	return &Direction{
-		Kind:  DirectionKindNorth,
-		North: &DirectionNorth{},
+// SpectralTypeK holds data for the K variant
+type SpectralTypeK struct {
+}
+
+// SpectralTypeM holds data for the M variant
+type SpectralTypeM struct {
+}
+
+// SpectralType is a sum type (discriminated union)
+type SpectralType struct {
+	Kind SpectralTypeKind
+	O    *SpectralTypeO
+	B    *SpectralTypeB
+	A    *SpectralTypeA
+	F    *SpectralTypeF
+	G    *SpectralTypeG
+	K    *SpectralTypeK
+	M    *SpectralTypeM
+}
+
+// NewSpectralTypeO creates a new O variant
+func NewSpectralTypeO() *SpectralType {
+	return &SpectralType{
+		Kind: SpectralTypeKindO,
+		O:    &SpectralTypeO{},
 	}
 }
 
-// NewDirectionSouth creates a new South variant
-func NewDirectionSouth() *Direction {
-	return &Direction{
-		Kind:  DirectionKindSouth,
-		South: &DirectionSouth{},
+// NewSpectralTypeB creates a new B variant
+func NewSpectralTypeB() *SpectralType {
+	return &SpectralType{
+		Kind: SpectralTypeKindB,
+		B:    &SpectralTypeB{},
 	}
 }
 
-// NewDirectionEast creates a new East variant
-func NewDirectionEast() *Direction {
-	return &Direction{
-		Kind: DirectionKindEast,
-		East: &DirectionEast{},
+// NewSpectralTypeA creates a new A variant
+func NewSpectralTypeA() *SpectralType {
+	return &SpectralType{
+		Kind: SpectralTypeKindA,
+		A:    &SpectralTypeA{},
 	}
 }
 
-// NewDirectionWest creates a new West variant
-func NewDirectionWest() *Direction {
-	return &Direction{
-		Kind: DirectionKindWest,
-		West: &DirectionWest{},
+// NewSpectralTypeF creates a new F variant
+func NewSpectralTypeF() *SpectralType {
+	return &SpectralType{
+		Kind: SpectralTypeKindF,
+		F:    &SpectralTypeF{},
 	}
 }
 
-// IsNorth returns true if this is a North variant
-func (v *Direction) IsNorth() bool {
-	return v.Kind == DirectionKindNorth
-}
-
-// IsSouth returns true if this is a South variant
-func (v *Direction) IsSouth() bool {
-	return v.Kind == DirectionKindSouth
-}
-
-// IsEast returns true if this is a East variant
-func (v *Direction) IsEast() bool {
-	return v.Kind == DirectionKindEast
-}
-
-// IsWest returns true if this is a West variant
-func (v *Direction) IsWest() bool {
-	return v.Kind == DirectionKindWest
-}
-
-// MovementPatternKind discriminates between variants of MovementPattern
-type MovementPatternKind int
-
-const (
-	MovementPatternKindPatternStatic MovementPatternKind = iota
-	MovementPatternKindPatternRandomWalk
-	MovementPatternKindPatternPatrol
-)
-
-// MovementPatternPatternStatic holds data for the PatternStatic variant
-type MovementPatternPatternStatic struct {
-}
-
-// MovementPatternPatternRandomWalk holds data for the PatternRandomWalk variant
-type MovementPatternPatternRandomWalk struct {
-	Value0 int64
-}
-
-// MovementPatternPatternPatrol holds data for the PatternPatrol variant
-type MovementPatternPatternPatrol struct {
-	Value0 []*Direction
-}
-
-// MovementPattern is a sum type (discriminated union)
-type MovementPattern struct {
-	Kind              MovementPatternKind
-	PatternStatic     *MovementPatternPatternStatic
-	PatternRandomWalk *MovementPatternPatternRandomWalk
-	PatternPatrol     *MovementPatternPatternPatrol
-}
-
-// NewMovementPatternPatternStatic creates a new PatternStatic variant
-func NewMovementPatternPatternStatic() *MovementPattern {
-	return &MovementPattern{
-		Kind:          MovementPatternKindPatternStatic,
-		PatternStatic: &MovementPatternPatternStatic{},
+// NewSpectralTypeG creates a new G variant
+func NewSpectralTypeG() *SpectralType {
+	return &SpectralType{
+		Kind: SpectralTypeKindG,
+		G:    &SpectralTypeG{},
 	}
 }
 
-// NewMovementPatternPatternRandomWalk creates a new PatternRandomWalk variant
-func NewMovementPatternPatternRandomWalk(v0 int64) *MovementPattern {
-	return &MovementPattern{
-		Kind:              MovementPatternKindPatternRandomWalk,
-		PatternRandomWalk: &MovementPatternPatternRandomWalk{Value0: v0},
+// NewSpectralTypeK creates a new K variant
+func NewSpectralTypeK() *SpectralType {
+	return &SpectralType{
+		Kind: SpectralTypeKindK,
+		K:    &SpectralTypeK{},
 	}
 }
 
-// NewMovementPatternPatternPatrol creates a new PatternPatrol variant
-func NewMovementPatternPatternPatrol(v0 []*Direction) *MovementPattern {
-	return &MovementPattern{
-		Kind:          MovementPatternKindPatternPatrol,
-		PatternPatrol: &MovementPatternPatternPatrol{Value0: v0},
+// NewSpectralTypeM creates a new M variant
+func NewSpectralTypeM() *SpectralType {
+	return &SpectralType{
+		Kind: SpectralTypeKindM,
+		M:    &SpectralTypeM{},
 	}
 }
 
-// IsPatternStatic returns true if this is a PatternStatic variant
-func (v *MovementPattern) IsPatternStatic() bool {
-	return v.Kind == MovementPatternKindPatternStatic
+// IsO returns true if this is a O variant
+func (v *SpectralType) IsO() bool {
+	return v.Kind == SpectralTypeKindO
 }
 
-// IsPatternRandomWalk returns true if this is a PatternRandomWalk variant
-func (v *MovementPattern) IsPatternRandomWalk() bool {
-	return v.Kind == MovementPatternKindPatternRandomWalk
+// IsB returns true if this is a B variant
+func (v *SpectralType) IsB() bool {
+	return v.Kind == SpectralTypeKindB
 }
 
-// IsPatternPatrol returns true if this is a PatternPatrol variant
-func (v *MovementPattern) IsPatternPatrol() bool {
-	return v.Kind == MovementPatternKindPatternPatrol
+// IsA returns true if this is a A variant
+func (v *SpectralType) IsA() bool {
+	return v.Kind == SpectralTypeKindA
 }
 
-// NPC is a record type
-type NPC struct {
+// IsF returns true if this is a F variant
+func (v *SpectralType) IsF() bool {
+	return v.Kind == SpectralTypeKindF
+}
+
+// IsG returns true if this is a G variant
+func (v *SpectralType) IsG() bool {
+	return v.Kind == SpectralTypeKindG
+}
+
+// IsK returns true if this is a K variant
+func (v *SpectralType) IsK() bool {
+	return v.Kind == SpectralTypeKindK
+}
+
+// IsM returns true if this is a M variant
+func (v *SpectralType) IsM() bool {
+	return v.Kind == SpectralTypeKindM
+}
+
+// Star is a record type
+type Star struct {
 	Id          int64
-	Pos         *Coord
-	Pattern     *MovementPattern
-	MoveCounter int64
-	PatrolIndex int64
+	Name        string
+	Pos         *Vec3
+	Spectral    *SpectralType
+	Luminosity  float64
+	HasHZPlanet bool
+}
+
+// StarCatalog is a record type
+type StarCatalog struct {
+	Stars    []*Star
+	SolIndex int64
 }
 
 // Tile is a record type
@@ -1982,10 +2149,11 @@ func (v *ViewMode) IsViewGalaxyMap() bool {
 
 // World is a record type
 type World struct {
-	Tick      int64
-	Planet    *PlanetState
-	Npcs      []*NPC
-	Selection *Selection
-	Bridge    *BridgeState
-	ViewMode  *ViewMode
+	Tick        int64
+	Planet      *PlanetState
+	Npcs        []*NPC
+	Selection   *Selection
+	Bridge      *BridgeState
+	ViewMode    *ViewMode
+	StarCatalog *StarCatalog
 }
