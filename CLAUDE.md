@@ -10,7 +10,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - `planned/next/` - Features to implement next (need sprints)
   - `implemented/vX_Y_Z/` - Completed features by version
 - [sprints/](sprints/) - Sprint plans tracking implementation
-- [design_docs/reference/engine-capabilities.md](design_docs/reference/engine-capabilities.md) - Complete engine reference (DrawCmd, effects, shaders, physics)
+- [design_docs/reference/engine-capabilities.md](design_docs/reference/engine-capabilities.md) - Go engine reference (DrawCmd, effects, shaders, physics)
+- [design_docs/reference/game-capabilities.md](design_docs/reference/game-capabilities.md) - AILANG game features (sim/*.ail)
+- [design_docs/reference/ai-capabilities.md](design_docs/reference/ai-capabilities.md) - AI features (text, image gen/edit, TTS with 30 voices)
+- [design_docs/reference/demos.md](design_docs/reference/demos.md) - Demo & CLI index (demo-engine-*, demo-game-*)
 
 ## Project Overview
 
@@ -79,10 +82,12 @@ Engine owns HOW it looks (rendering, animation, polish)
 - Go workarounds violate the architecture (all game logic in AILANG)
 - The AILANG team responds quickly via the messaging system
 
-**Current blockers:**
-- #42: Codegen generates `s.(bool)` on bool variable (OPEN) - Blocks viewport AILANG types
+**Current blockers:** None! All recent issues fixed.
 
-**Recently fixed (2025-12-10):**
+**Recently fixed (2025-12-12):**
+- #42: Codegen generates `s.(bool)` on bool variable (FIXED)
+
+**Previously fixed (2025-12-10):**
 - #28: math codegen type assertions (FIXED)
 - #27: math import missing (FIXED)
 - #26: math codegen builtins (FIXED)
@@ -149,7 +154,7 @@ make run-mock    # Run game using mock sim_gen
 
 ```bash
 bin/game         # Main game executable
-bin/demo-*       # Demo/test executables (e.g., bin/demo-bridge)
+bin/demo-*       # Demo/test executables (e.g., bin/demo-game-bridge)
 out/             # Reports, screenshots, test output
 ```
 

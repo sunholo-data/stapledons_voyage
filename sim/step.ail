@@ -7,6 +7,7 @@ import sim/npc_ai (NPC, PatternStatic, PatternRandomWalk, PatternPatrol, Directi
 import sim/bridge (BridgeState, initBridge, renderBridge, stepBridge)
 import sim/starmap (initLocalCatalog, Star, Vec3, spectralColor, StarCatalog)
 import sim/celestial (initSolSystem, stepSystem, StarSystem, renderSolarSystem)
+import sim/ship_levels (init_ship_levels, ShipLevels)
 
 -- Import effects (v0.5.0)
 import std/rand (rand_int)
@@ -160,7 +161,8 @@ export func init_world(seed: int) -> World {
         bridge: initBridge(),
         viewMode: ViewBridge,
         starCatalog: catalog,
-        currentSystem: solSystem
+        currentSystem: solSystem,
+        shipLevels: init_ship_levels()
     }
 }
 

@@ -134,7 +134,7 @@ The immediate blocker. Fix the current broken implementation.
 3. Tetra3D has built-in node LookAt we should use instead
 
 **Tasks:**
-- [ ] Create `cmd/demo-lookat/main.go` diagnostic demo
+- [ ] Create `cmd/demo-engine-lookat/main.go` diagnostic demo
 - [ ] Test hypothesis 1: Extract rotation from view matrix
 - [ ] Test hypothesis 2: Use Tetra3D's node.LookAt() if available
 - [ ] Fix `SunLight.LookAt()` in `engine/tetra/lighting.go`
@@ -179,7 +179,7 @@ Wire everything together.
 - `sim/targeting.ail` - AILANG targeting types (~50 LOC)
 - `engine/camera/lookat.go` - LookAt math (~100 LOC)
 - `engine/camera/smooth.go` - Smooth follow (~50 LOC)
-- `cmd/demo-lookat/main.go` - Diagnostic demo (~200 LOC)
+- `cmd/demo-engine-lookat/main.go` - Diagnostic demo (~200 LOC)
 
 **Modified files:**
 - `engine/tetra/lighting.go` - Fix SunLight.LookAt (~20 LOC)
@@ -253,7 +253,7 @@ pure func startDialogue(npc: NPC, player: Entity) -> NPC {
 ## Success Criteria
 
 - [ ] Tetra3D LookAt works (sun lights illuminate correct planet faces)
-- [ ] demo-lookat shows all test cases passing
+- [ ] demo-engine-lookat shows all test cases passing
 - [ ] Bridge demo shows 3D textured planets
 - [ ] Camera smoothly follows player in isometric mode (if implemented)
 - [ ] AILANG can specify camera targets
@@ -262,9 +262,9 @@ pure func startDialogue(npc: NPC, player: Entity) -> NPC {
 ## Testing Strategy
 
 **Demo tests:**
-- `demo-lookat` - Comprehensive LookAt testing
-- `demo-solar-system` - Regression test
-- `demo-bridge` - Integration test
+- `demo-engine-lookat` - Comprehensive LookAt testing
+- `demo-engine-solar` - Regression test
+- `demo-game-bridge` - Integration test
 
 **Visual tests:**
 - Screenshot comparisons before/after fix

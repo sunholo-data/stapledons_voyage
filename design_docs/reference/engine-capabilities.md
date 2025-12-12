@@ -1,6 +1,6 @@
 # Engine Capabilities Reference
 
-**Status**: Active (Updated 2025-12-12)
+**Status**: Active (Updated 2025-12-12 - Multi-Level Ship)
 **Purpose**: Comprehensive reference for all Go/Ebiten engine capabilities
 **Audience**: Sprint executor, design docs, AI agents working on the game
 
@@ -13,6 +13,8 @@
 | Asset loading | `engine/assets/` | Working |
 | Camera/viewport | `engine/camera/` | Working |
 | **Parallax layers** | `engine/depth/` | **Working** |
+| **Viewport compositing** | `engine/render/viewport*.go` | **Working** |
+| **Multi-level ship** | `engine/render/deck*.go, spire.go` | **Working** |
 | **Celestial system** | `sim/celestial.ail` | **Working** |
 | SR/GR physics | `engine/relativity/` | Working |
 | Shader effects | `engine/shader/` | Working |
@@ -201,7 +203,8 @@ func smooth_move(pos: float, target: float) -> float ! {Clock} {
 **Implementations:** `engine/handlers/`
 - `ai.go` - `StubAIHandler` (testing)
 - `ai_claude.go` - Claude API
-- `ai_gemini.go` - Gemini API (multimodal)
+- `ai_gemini.go` - Gemini API (multimodal, text/image/TTS)
+- `ai_gemini_tts.go` - TTS-specific handling (uses separate us-central1 client)
 - `ai_factory.go` - Auto-detection
 
 ```go
@@ -238,9 +241,14 @@ type AIHandler interface {
 
 **Gemini Multimodal Features:**
 - Image generation: `"generate image"`, `"draw"`, `"imagen:"`
+  - Model: `gemini-2.5-flash-image`
 - Image editing: `"edit:"`, `"modify:"` + reference image
 - Text-to-speech: `"speak:"`, `"say:"`, `"tts:"`
-- Voices: Aoede, Charon, Fenrir, Kore, Puck, Zephyr
+  - Model: `gemini-2.5-flash-tts` (default), `gemini-2.5-pro-tts` (higher quality)
+  - **Region: Requires us-central1** (separate client auto-created)
+  - 30 voices available with style/emotion control
+
+**📖 See [ai-capabilities.md](ai-capabilities.md) for complete reference** (all voices, image ratios, SSML, voice variation).
 
 **AILANG Usage:**
 ```ailang
@@ -490,13 +498,283 @@ renderer.ResizeLayers(screenW, screenH)  // Handle resize
 ### Demo
 
 ```bash
-go run ./cmd/demo-parallax                    # Interactive demo
-go run ./cmd/demo-parallax -camx 400 --screenshot 5 --output test.png
+go run ./cmd/demo-game-parallax                    # Interactive demo
+go run ./cmd/demo-game-parallax -camx 400 --screenshot 5 --output test.png
 ```
 
 ---
 
-## 6. Relativity Physics
+## 6. Viewport Compositing
+
+**Files:** `engine/render/viewport.go`, `viewport_render.go`, `viewport_compositor.go`
+
+The viewport compositing system enables rendering content through shaped viewports (domes, windows, portholes) with masking and edge blending.
+
+### Viewport Shapes
+
+| Shape | Parameters | Use Case |
+|-------|------------|----------|
+| `EllipseShape` | centerX, centerY, radiusX, radiusY | Porthole variations |
+| `CircleShape` | centerX, centerY, radius | Round portholes |
+| `RectShape` | x, y, width, height | Rectangular windows |
+| `DomeShape` | centerX, centerY, width, height, archHeight | Bridge observation dome |
+
+```go
+type ViewportShape interface {
+    GenerateMask(w, h int) *ebiten.Image
+    Contains(x, y float64) bool
+    Bounds() (x, y, w, h float64)
+}
+```
+
+### Content Types
+
+| Type | Parameters | Description |
+|------|------------|-------------|
+| `ContentSpaceView` | velocity, viewAngle | Space background with SR effects |
+| `ContentStarfield` | density, scroll | Simple parallax stars |
+| `ContentSolid` | rgba | Solid color fill |
+| `ContentNone` | - | Transparent |
+
+### Viewport Effects
+
+| Effect | Parameters | Description |
+|--------|------------|-------------|
+| `EffectNone` | - | No effect |
+| `EffectSRWarp` | velocity | SR warp within viewport bounds |
+| `EffectGRLensing` | mass, distance | Gravitational lensing |
+| `EffectTint` | rgba, intensity | Color overlay |
+| `EffectBlur` | radius | Blur effect |
+
+### ViewportCompositor
+
+The compositor manages multiple viewports and integrates with the depth layer system:
+
+```go
+compositor := render.NewViewportCompositor(shaderMgr, screenW, screenH)
+compositor.SetSRWarp(srWarp)
+
+// Add viewports (sorted by layer automatically)
+compositor.SetViewports([]ViewportConfig{
+    {ID: "dome", Shape: domeShape, Content: spaceContent, Layer: 90},
+    {ID: "porthole", Shape: circleShape, Content: starfieldContent, Layer: 15},
+})
+
+// Composite to screen
+compositor.Composite(screen, spaceDrawFunc)
+
+// Or composite to existing layer manager
+compositor.CompositeToLayers(layerManager, spaceDrawFunc)
+```
+
+### Layer Mapping
+
+Viewport `Layer` field (0-100) maps to depth layers:
+
+| Viewport Layer | Depth Layer | Purpose |
+|----------------|-------------|---------|
+| 0-24 | DeepBackground | Space, distant stars |
+| 25-49 | MidBackground | Nebulae, far objects |
+| 50-74 | Scene | Main game content |
+| 75-100 | Foreground | UI, overlays |
+
+### Edge Blend Shader
+
+The `edge_blend.kage` shader provides smooth viewport edge transitions:
+
+```kage
+var BlendAmount float  // 0.0 = hard edge, 1.0 = very soft
+
+func Fragment(dstPos vec4, srcPos vec2, color vec4) vec4 {
+    content := imageSrc0At(srcPos)
+    maskValue := imageSrc1At(srcPos).r
+    edge := smoothstep(0.0, BlendAmount+0.001, maskValue)
+    return vec4(content.rgb, content.a*edge)
+}
+```
+
+### AILANG Integration
+
+Viewport types defined in `sim/viewport.ail`:
+
+```ailang
+export type ViewportShape =
+    | ShapeEllipse(centerX: float, centerY: float, radiusX: float, radiusY: float)
+    | ShapeCircle(centerX: float, centerY: float, radius: float)
+    | ShapeRect(x: float, y: float, width: float, height: float)
+    | ShapeDome(centerX: float, centerY: float, width: float, height: float, archHeight: float)
+
+export type ViewportContent =
+    | ContentSpaceView(velocity: float, viewAngle: float)
+    | ContentStarfield(density: float, scroll: bool)
+    | ContentSolid(rgba: int)
+    | ContentNone
+
+export type ViewportEffect =
+    | EffectNone
+    | EffectSRWarp(velocity: float)
+    | EffectGRLensing(mass: float, distance: float)
+    | EffectTint(rgba: int, intensity: float)
+    | EffectBlur(radius: float)
+
+-- Factory functions
+export pure func bridgeDome(...) -> ViewportDef
+export pure func cabinWindow(...) -> ViewportDef
+export pure func porthole(...) -> ViewportDef
+
+-- Convert to DrawCmd
+export pure func viewportToDrawCmd(vp: ViewportDef, z: int) -> DrawCmd
+```
+
+### DrawCmd: Viewport
+
+Added to `sim/protocol.ail`:
+
+```ailang
+| Viewport(
+    id: string,
+    shapeType: int, shapeParams: [float],
+    contentType: int, contentParams: [float],
+    effectType: int, effectParams: [float],
+    layer: int, edgeBlend: float, opacity: float,
+    screenX: float, screenY: float, z: int
+)
+```
+
+---
+
+## 7. Multi-Level Ship System
+
+**Files:** `engine/render/deck_stack.go`, `deck_preview.go`, `deck_transition.go`, `spire.go`
+**AILANG:** `sim/ship_levels.ail`
+
+The multi-level ship system enables navigation between 5 ship decks with the Higgs Spire as central anchor.
+
+### Deck Types
+
+| Index | Deck | Description | Color |
+|-------|------|-------------|-------|
+| 0 | Core | Antimatter containment | Red |
+| 1 | Engineering | Propulsion & power | Orange |
+| 2 | Culture | Recreation & social | Green |
+| 3 | Habitat | Crew quarters | Blue |
+| 4 | Bridge | Command center | Purple |
+
+### DeckStackRenderer
+
+Renders multiple decks with parallax based on current position:
+
+```go
+renderer := render.NewDeckStackRenderer(screenW, screenH)
+
+// Render with parallax effect
+result := renderer.RenderDeckStack(
+    currentDeck,        // 0-4
+    transitionProgress, // 0.0-1.0
+    targetDeck,         // Target during transition
+    func(deckIndex int, buffer *ebiten.Image) {
+        // Render deck content to buffer
+    },
+)
+```
+
+**Parallax Behavior:**
+- Current deck: Full opacity (1.0)
+- Adjacent decks: Reduced opacity (0.6)
+- Distant decks: Faded (0.3-0.1)
+- Y offset: 50px per deck level
+
+### HiggsSpire
+
+Central visual anchor showing current deck position:
+
+```go
+spire := render.NewHiggsSpire(screenW, screenH)
+spire.SetGlowIntensity(0.5) // 0.0-1.0
+
+// Render spire with deck indication
+spire.Render(screen, currentDeck, transitionProgress, targetDeck)
+```
+
+**Visual Features:**
+- 5 segments (one per deck)
+- Active segment glows based on current deck
+- Color interpolation during transitions
+- Positioned at right edge of screen
+
+### DeckPreview
+
+Shows adjacent decks at screen edges:
+
+```go
+preview := render.NewDeckPreview(screenW, screenH)
+
+// Render top (deck above) and bottom (deck below) previews
+preview.RenderPreviews(screen, currentDeck, transitionProgress, targetDeck)
+```
+
+**Features:**
+- Deck above visible at top of screen
+- Deck below visible at bottom
+- Gradient fade into main view
+- Color-coded per deck
+
+### DeckTransition
+
+Smooth animated transitions between decks:
+
+```go
+transition := render.NewDeckTransition(screenW, screenH)
+
+// Start transition
+transition.StartTransition(fromDeck, toDeck, 0.5) // 0.5 second duration
+
+// Update each frame
+if transition.Update(deltaTime) {
+    // Still transitioning
+    progress := transition.GetProgress()
+    slideOffset := transition.GetSlideOffset()
+}
+
+// Apply fade overlay effect
+transition.ApplyTransitionEffect(screen)
+```
+
+**Transition Effects:**
+- Cubic ease-in-out easing
+- Fade overlay peaking at mid-transition
+- Direction indicator arrows
+- Configurable duration and slide amount
+
+### AILANG Integration
+
+```ailang
+import sim/ship_levels (
+    DeckType, DeckCore, DeckEngineering, DeckCulture, DeckHabitat, DeckBridge,
+    DeckInfo, ShipLevels, TransitionState, TransitionIdle, Transitioning,
+    init_ship_levels, get_deck_info, deck_index, deck_above, deck_below,
+    start_deck_transition, update_transition, get_transition_progress
+)
+
+-- Initialize in World
+let levels = init_ship_levels()  -- Starts on Bridge
+
+-- Transition to new deck
+let newLevels = start_deck_transition(levels, DeckEngineering)
+
+-- Update each frame
+let updatedLevels = update_transition(newLevels, deltaTime)
+```
+
+### Demo
+
+```bash
+go run ./cmd/demo-deck-nav    # Interactive deck navigation demo
+```
+
+---
+
+## 8. Relativity Physics
 
 ### Special Relativity (SR)
 
@@ -588,7 +866,7 @@ Photon sphere: r = 1.5 r_s (black holes only)
 
 ---
 
-## 7. Shader Effects
+## 9. Shader Effects
 
 **File:** `engine/shader/`
 
@@ -663,7 +941,7 @@ grWarp.SetEnabled(true)
 
 ---
 
-## 8. Input System
+## 10. Input System
 
 **File:** `engine/input/`
 
@@ -707,7 +985,7 @@ type PlayerAction =
 
 ---
 
-## 9. Save System
+## 11. Save System
 
 **File:** `engine/save/save.go`
 
@@ -736,7 +1014,7 @@ type SaveManager interface {
 
 ---
 
-## 10. Screenshot & Testing
+## 12. Screenshot & Testing
 
 ### Screenshot Capture
 
@@ -779,7 +1057,7 @@ func CaptureToFile(cfg Config) error
 
 ---
 
-## 11. Coordinate Systems
+## 13. Coordinate Systems
 
 | System | Range | Transform | Use |
 |--------|-------|-----------|-----|
@@ -791,7 +1069,7 @@ func CaptureToFile(cfg Config) error
 
 ---
 
-## 12. Initialization Sequence
+## 14. Initialization Sequence
 
 **Order matters:**
 
@@ -826,7 +1104,7 @@ effects := shader.NewEffects()
 
 ---
 
-## 13. Z-Ordering & Depth
+## 15. Z-Ordering & Depth
 
 ### Z-Value Ranges
 
@@ -850,4 +1128,4 @@ sortKey = layer × 10000 + screenY
 ---
 
 **Document created**: 2025-12-06
-**Last updated**: 2025-12-12
+**Last updated**: 2025-12-12 (Multi-level ship system)

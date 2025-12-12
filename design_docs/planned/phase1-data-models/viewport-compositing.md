@@ -547,10 +547,10 @@ pure func renderBridgeFull(state: BridgeState) -> [DrawCmd] {
 **Test Scenarios:**
 ```bash
 # Dome viewport test
-./bin/demo-bridge --dome-test
+./bin/demo-game-bridge --dome-test
 
 # Multiple viewports
-./bin/demo-bridge --viewport-count 3
+./bin/demo-game-bridge --viewport-count 3
 
 # Edge blend comparison
 ./bin/demo-viewport --blend 0.0 0.1 0.2 0.3

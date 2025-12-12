@@ -156,10 +156,13 @@ See [implemented/](implemented/) for all 19 completed feature docs.
 | [architecture](reference/architecture.md) | System architecture |
 | [engine-layer](reference/engine-layer.md) | Go/Ebiten engine design |
 | [ailang-integration](reference/ailang-integration.md) | AILANG integration patterns |
-| [engine-capabilities](reference/engine-capabilities.md) | What the engine can do |
+| [engine-capabilities](reference/engine-capabilities.md) | Go engine features (DrawCmd, shaders, physics) |
+| [game-capabilities](reference/game-capabilities.md) | AILANG game features (sim/*.ail) |
+| [ai-capabilities](reference/ai-capabilities.md) | AI features (text, image, TTS) |
+| [demos](reference/demos.md) | Demo & CLI index |
 | [sprint-vision-integration](reference/sprint-vision-integration.md) | Vision-aligned sprint plan |
 
-See [reference/](reference/) for all 13 reference documents.
+See [reference/](reference/) for all reference documents.
 
 ---
 

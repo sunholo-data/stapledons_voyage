@@ -171,7 +171,7 @@ Each needs updating to use `sim_gen.*` types.
 - [x] All views use `sim_gen.Camera` - **Converted to background.CameraOffset**
 - [x] No `view.Input` usage (input via AILANG) - **Uses sim_gen.FrameInput**
 - [x] `layer.go` deleted or contains only helpers - **DELETED** (helpers moved to ui_helpers.go)
-- [x] Code compiles and runs correctly - **Verified with demo-bridge**
+- [x] Code compiles and runs correctly - **Verified with demo-game-bridge**
 
 ## Testing
 

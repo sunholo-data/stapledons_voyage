@@ -517,19 +517,19 @@ func (v *BridgeView) Draw(screen *ebiten.Image, state BridgeState) {
 | 7.2 | Add console interaction (triggers mode change) |
 | 7.3 | Add transition animation to/from bridge |
 | 7.4 | Performance testing (60 FPS) |
-| 7.5 | Create `demo-bridge` command |
+| 7.5 | Create `demo-game-bridge` command |
 
 ## Demo Command
 
 ```bash
 # Run bridge demo
-./bin/demo-bridge
+./bin/demo-game-bridge
 
 # With specific planet in dome
-./bin/demo-bridge --planet earth --velocity 0.3
+./bin/demo-game-bridge --planet earth --velocity 0.3
 
 # With crew at stations
-./bin/demo-bridge --crew 5
+./bin/demo-game-bridge --crew 5
 ```
 
 ## Success Criteria

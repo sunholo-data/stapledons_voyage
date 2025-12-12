@@ -1850,7 +1850,7 @@ func stepBridge_impl(state interface{}, frame interface{}) interface{} {
 		_ = tmp315 // suppress unused
 		return updateCrewRec_impl(tmp315, frame, state)
 	}()
-	return RecordUpdate(state, map[string]interface{}{"crewPositions": updatedCrew, "domeState": updatedDome, "domeView": updatedDomeView, "tick": frame})
+	return RecordUpdate(state, map[string]interface{}{"domeView": updatedDomeView, "tick": frame, "crewPositions": updatedCrew, "domeState": updatedDome})
 }
 
 func StepBridge(state *BridgeState, frame int64) *BridgeState {

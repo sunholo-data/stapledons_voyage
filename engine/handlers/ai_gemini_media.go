@@ -2,11 +2,14 @@
 package handlers
 
 import (
+	"bytes"
 	"encoding/base64"
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -106,7 +109,13 @@ func (h *GeminiAIHandler) saveInlineMedia(data *genai.Blob) (string, ContentType
 	filename := fmt.Sprintf("response_%d%s", time.Now().UnixNano(), ext)
 	mediaPath := filepath.Join(h.assetsDir, filename)
 
-	if err := os.WriteFile(mediaPath, data.Data, 0644); err != nil {
+	// Convert raw PCM audio to WAV format
+	outputData := data.Data
+	if contentType == ContentTypeAudio && isRawPCMAudio(data.MIMEType) {
+		outputData = convertToWav(data.Data, data.MIMEType)
+	}
+
+	if err := os.WriteFile(mediaPath, outputData, 0644); err != nil {
 		return "", "", err
 	}
 
@@ -127,6 +136,69 @@ func mimeTypeFromExt(ext string) string {
 	default:
 		return "image/png"
 	}
+}
+
+// parseAudioMimeType extracts sample rate and bits per sample from MIME type.
+// Example: "audio/L16;rate=24000" -> bitsPerSample=16, sampleRate=24000
+func parseAudioMimeType(mimeType string) (bitsPerSample, sampleRate int) {
+	bitsPerSample = 16
+	sampleRate = 24000
+
+	parts := strings.Split(mimeType, ";")
+	for _, param := range parts {
+		param = strings.TrimSpace(param)
+		if strings.HasPrefix(strings.ToLower(param), "rate=") {
+			if rate, err := strconv.Atoi(strings.TrimPrefix(strings.ToLower(param), "rate=")); err == nil {
+				sampleRate = rate
+			}
+		} else if strings.HasPrefix(param, "audio/L") {
+			if bits, err := strconv.Atoi(strings.TrimPrefix(param, "audio/L")); err == nil {
+				bitsPerSample = bits
+			}
+		}
+	}
+	return
+}
+
+// convertToWav wraps raw PCM audio data with a WAV header.
+func convertToWav(audioData []byte, mimeType string) []byte {
+	bitsPerSample, sampleRate := parseAudioMimeType(mimeType)
+	numChannels := 1
+	dataSize := len(audioData)
+	bytesPerSample := bitsPerSample / 8
+	blockAlign := numChannels * bytesPerSample
+	byteRate := sampleRate * blockAlign
+	chunkSize := 36 + dataSize
+
+	buf := new(bytes.Buffer)
+
+	// RIFF header
+	buf.WriteString("RIFF")
+	binary.Write(buf, binary.LittleEndian, uint32(chunkSize))
+	buf.WriteString("WAVE")
+
+	// fmt subchunk
+	buf.WriteString("fmt ")
+	binary.Write(buf, binary.LittleEndian, uint32(16))           // Subchunk1Size (16 for PCM)
+	binary.Write(buf, binary.LittleEndian, uint16(1))            // AudioFormat (1 = PCM)
+	binary.Write(buf, binary.LittleEndian, uint16(numChannels))  // NumChannels
+	binary.Write(buf, binary.LittleEndian, uint32(sampleRate))   // SampleRate
+	binary.Write(buf, binary.LittleEndian, uint32(byteRate))     // ByteRate
+	binary.Write(buf, binary.LittleEndian, uint16(blockAlign))   // BlockAlign
+	binary.Write(buf, binary.LittleEndian, uint16(bitsPerSample)) // BitsPerSample
+
+	// data subchunk
+	buf.WriteString("data")
+	binary.Write(buf, binary.LittleEndian, uint32(dataSize))
+	buf.Write(audioData)
+
+	return buf.Bytes()
+}
+
+// isRawPCMAudio checks if the MIME type indicates raw PCM audio that needs WAV conversion.
+func isRawPCMAudio(mimeType string) bool {
+	// Gemini returns raw PCM as "audio/L16;rate=24000" or similar
+	return strings.Contains(mimeType, "audio/L")
 }
 
 // errorResponse creates a JSON error response.

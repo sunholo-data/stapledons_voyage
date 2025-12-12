@@ -163,9 +163,9 @@ Each design doc includes demo commands to validate incrementally:
 | 2 | `--demo-planet saturn` | Rings work |
 | 3 | `--demo-planet earth --velocity 0.3` | SR shaders + Tetra3D |
 | 4 | `--demo-planet earth --gr 0.5` | GR shaders + Tetra3D |
-| 5 | `--demo-solar-system` | Multiple planets, orbital view |
-| 6 | `--demo-bridge` | Isometric + space background |
-| 7 | `--demo-bridge --planet earth` | Full composition |
+| 5 | `--demo-engine-solar` | Multiple planets, orbital view |
+| 6 | `--demo-game-bridge` | Isometric + space background |
+| 7 | `--demo-game-bridge --planet earth` | Full composition |
 | 8 | `--demo-arrival` | Complete arrival sequence |
 
 **Key validation**: Each demo proves the next layer works before building on top.

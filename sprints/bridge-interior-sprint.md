@@ -125,18 +125,18 @@ sim/step.ail            # Add bridge mode handling
 - [ ] Implement `View` interface (Init, Enter, Exit, Update, Draw)
 - [ ] Wire bridge state from sim_gen to renderer
 - [ ] Add BridgeView to ViewManager registration
-- [ ] Create `cmd/demo-bridge/main.go` for testing
+- [ ] Create `cmd/demo-game-bridge/main.go` for testing
 
 ### Files to Create/Modify
 ```
 engine/view/bridge_view.go    # NEW - BridgeView implementation
 engine/view/manager.go        # MODIFY - Register BridgeView
-cmd/demo-bridge/main.go       # NEW - Demo command
-Makefile                      # MODIFY - Add demo-bridge target
+cmd/demo-game-bridge/main.go       # NEW - Demo command
+Makefile                      # MODIFY - Add demo-game-bridge target
 ```
 
 ### Acceptance Criteria
-- [ ] `make demo-bridge` builds and runs
+- [ ] `make demo-game-bridge` builds and runs
 - [ ] Bridge floor tiles render as isometric grid
 - [ ] Placeholder diamonds visible for tiles without sprites
 
@@ -312,7 +312,7 @@ After implementing input handling, report any issues with:
 - [ ] Consoles are interactable
 - [ ] 60 FPS maintained
 - [ ] All assets AI-generated (no placeholders)
-- [ ] Demo command works: `make demo-bridge`
+- [ ] Demo command works: `make demo-game-bridge`
 
 ---
 

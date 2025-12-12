@@ -103,13 +103,13 @@ Run the parallax demo to see the system in action:
 
 ```bash
 # Interactive mode (arrow keys to pan, +/- to zoom)
-go run ./cmd/demo-parallax
+go run ./cmd/demo-game-parallax
 
 # Take a screenshot
-go run ./cmd/demo-parallax --screenshot 30 --output out/screenshots/parallax.png
+go run ./cmd/demo-game-parallax --screenshot 30 --output out/screenshots/parallax.png
 
 # Screenshot with specific camera position
-go run ./cmd/demo-parallax -camx 300 --screenshot 1 --output test.png
+go run ./cmd/demo-game-parallax -camx 300 --screenshot 1 --output test.png
 ```
 
 The demo shows:
@@ -143,7 +143,7 @@ AILANG doesn't need to know about parallax - it emits DrawCmds, the engine appli
 ## References
 
 - Sprint: [sprints/isometric-depth-parallax-sprint.md](../../../sprints/isometric-depth-parallax-sprint.md)
-- Demo: [cmd/demo-parallax/main.go](../../../cmd/demo-parallax/main.go)
+- Demo: [cmd/demo-game-parallax/main.go](../../../cmd/demo-game-parallax/main.go)
 - Demo utility: [demo-screenshot-utility.md](demo-screenshot-utility.md)
 
 ---

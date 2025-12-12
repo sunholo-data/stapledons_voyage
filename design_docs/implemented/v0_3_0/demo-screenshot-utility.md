@@ -67,13 +67,13 @@ func main() {
 
 ```bash
 # Interactive mode
-go run ./cmd/demo-parallax
+go run ./cmd/demo-game-parallax
 
 # Take screenshot at frame 30
-go run ./cmd/demo-parallax --screenshot 30 --output out/screenshots/parallax.png
+go run ./cmd/demo-game-parallax --screenshot 30 --output out/screenshots/parallax.png
 
 # With custom camera position (demo-specific flags)
-go run ./cmd/demo-parallax -camx 300 --screenshot 1 --output test.png
+go run ./cmd/demo-game-parallax -camx 300 --screenshot 1 --output test.png
 ```
 
 ## How It Works
@@ -88,14 +88,14 @@ go run ./cmd/demo-parallax -camx 300 --screenshot 1 --output test.png
 
 Works with existing screenshot script:
 ```bash
-.claude/skills/sprint-executor/scripts/take_screenshot.sh -c demo-parallax -f 30
+.claude/skills/sprint-executor/scripts/take_screenshot.sh -c demo-game-parallax -f 30
 ```
 
 ## Success Criteria - All Met
 
 - [x] `engine/demo` package created with `Run()` function
-- [x] `demo-parallax` migrated to use it
-- [x] `take_screenshot.sh -c demo-parallax` works
+- [x] `demo-game-parallax` migrated to use it
+- [x] `take_screenshot.sh -c demo-game-parallax` works
 - [x] Screenshot captured at correct frame
 - [x] Output path respected
 - [x] Clean exit after capture
@@ -107,5 +107,5 @@ This is purely **engine infrastructure** - it handles HOW demos are run and capt
 ## References
 
 - Implementation: [engine/demo/run.go](../../../engine/demo/run.go)
-- Example usage: [cmd/demo-parallax/main.go](../../../cmd/demo-parallax/main.go)
+- Example usage: [cmd/demo-game-parallax/main.go](../../../cmd/demo-game-parallax/main.go)
 - Screenshot script: [.claude/skills/sprint-executor/scripts/take_screenshot.sh](../../../.claude/skills/sprint-executor/scripts/take_screenshot.sh)

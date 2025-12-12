@@ -1,7 +1,7 @@
 {
   "sprint_id": "starmap-data-model",
   "created": "2025-12-11T19:00:00Z",
-  "status": "in_progress",
+  "status": "completed",
   "design_doc": "design_docs/planned/phase1-data-models/starmap-data-model.md",
   "related_docs": [
     "design_docs/planned/phase1-data-models/README.md"
@@ -85,7 +85,7 @@
       "id": "day5-procedural",
       "description": "Procedural generation with galaxy density model",
       "estimated_loc": 150,
-      "actual_loc": null,
+      "actual_loc": 193,
       "dependencies": [
         "day2-sol-local"
       ],
@@ -95,16 +95,16 @@
         "generateStar() creates deterministic procedural stars",
         "blendWeight() smooths real/procedural transition"
       ],
-      "passes": null,
-      "started": null,
-      "completed": null,
-      "notes": null
+      "passes": true,
+      "started": "2025-12-12T22:00:00Z",
+      "completed": "2025-12-12T22:10:00Z",
+      "notes": "Full galaxy density model with exponential disk, procedural star generation, and blend weighting"
     },
     {
       "id": "day6-octree",
       "description": "Spatial indexing with Go octree",
       "estimated_loc": 200,
-      "actual_loc": null,
+      "actual_loc": 347,
       "dependencies": [
         "day4-catalog-build"
       ],
@@ -114,16 +114,16 @@
         "Radius query <100ms for 5000 ly",
         "nearestNStars() function works"
       ],
-      "passes": null,
-      "started": null,
-      "completed": null,
-      "notes": null
+      "passes": true,
+      "started": "2025-12-12T22:00:00Z",
+      "completed": "2025-12-12T22:10:00Z",
+      "notes": "Full octree with BuildOctree, Query, QueryNearest, and GetStats"
     },
     {
       "id": "day7-integration",
       "description": "Visual verification and demo command",
       "estimated_loc": 200,
-      "actual_loc": null,
+      "actual_loc": 398,
       "dependencies": [
         "day5-procedural",
         "day6-octree"
@@ -134,10 +134,10 @@
         "Sol at center, Alpha Centauri visible nearby",
         "Spectral colors correct (M=red, G=yellow, B=blue)"
       ],
-      "passes": null,
-      "started": null,
-      "completed": null,
-      "notes": null
+      "passes": true,
+      "started": "2025-12-12T22:00:00Z",
+      "completed": "2025-12-12T22:10:00Z",
+      "notes": "demo-game-starmap with pan/zoom, octree integration, spectral colors verified"
     }
   ],
   "velocity": {
@@ -185,5 +185,5 @@
     "Always run codegen quality check before go build",
     "Can work around by doing pure Go work (Day 3) while waiting for AILANG fix"
   ],
-  "last_updated": "2025-12-11T18:49:17Z"
+  "last_updated": "2025-12-12T22:10:00Z"
 }

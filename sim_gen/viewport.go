@@ -300,7 +300,7 @@ func contentToParams_impl(content interface{}) interface{} {
 			_ = s // suppress unused
 			return func() interface{} {
 				var tmp19 interface{} = func() interface{} {
-					if s.(bool) {
+					if s {
 						return float64(1)
 					} else {
 						return float64(0)

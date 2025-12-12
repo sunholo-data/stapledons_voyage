@@ -7,12 +7,12 @@
 
 ## Goal
 
-Enable 3D textured planet rendering using Tetra3D for the dome view. Create a dedicated demo binary (`cmd/demo-solar-system`) to isolate, debug, and showcase the solar system flyby. The demo will be screenshot-driven to iterate on visuals before integrating with the main game.
+Enable 3D textured planet rendering using Tetra3D for the dome view. Create a dedicated demo binary (`cmd/demo-engine-solar`) to isolate, debug, and showcase the solar system flyby. The demo will be screenshot-driven to iterate on visuals before integrating with the main game.
 
 ## Investigation Summary
 
 ### What Works
-- **Tetra3D rendering in isolation** - `demo-tetra` produces visible 3D sphere with lighting
+- **Tetra3D rendering in isolation** - `demo-engine-tetra` produces visible 3D sphere with lighting
 - **AILANG CircleRGBA fallback** - 2D planet circles render correctly
 - **Galaxy background** - GalaxyBg DrawCmd works through AILANG
 - **DomeState migration** - AILANG controls camera position (cameraZ, velocity)
@@ -24,7 +24,7 @@ Enable 3D textured planet rendering using Tetra3D for the dome view. Create a de
 ### Root Cause Hypothesis
 Based on investigation, likely issues:
 1. **Transparent clear** - `camera.ClearWithColor(0,0,0,0)` may cause compositing issues
-2. **Camera orientation** - Camera in PlanetLayer differs from working demo-tetra
+2. **Camera orientation** - Camera in PlanetLayer differs from working demo-engine-tetra
 3. **Lighting position** - Sun position for dome view differs from isolated test
 4. **Scene graph hierarchy** - Planets may not be properly attached
 
@@ -32,14 +32,14 @@ Based on investigation, likely issues:
 
 ### Day 1: Create Solar System Demo Binary
 
-#### Task 1.1: Create cmd/demo-solar-system/main.go
-- [ ] Copy structure from cmd/demo-tetra/main.go
+#### Task 1.1: Create cmd/demo-engine-solar/main.go
+- [ ] Copy structure from cmd/demo-engine-tetra/main.go
 - [ ] Add all 5 planets (Neptune, Saturn, Jupiter, Mars, Earth)
 - [ ] Add Saturn's rings
 - [ ] Include starfield background layer
 - [ ] Support --screenshot flag for automated testing
 
-**Key differences from demo-tetra:**
+**Key differences from demo-engine-tetra:**
 - Multiple planets at varying distances
 - Background starfield (not just black)
 - Camera movement (cruise simulation)
@@ -65,10 +65,10 @@ The transparent clear may cause issues. Test:
 - [ ] If yes, issue is alpha blending
 
 #### Task 2.2: Test Camera Configurations
-The PlanetLayer uses different camera setup than demo-tetra:
+The PlanetLayer uses different camera setup than demo-engine-tetra:
 - [ ] Demo-tetra: camera at (0,0,4), planet at origin
 - [ ] PlanetLayer: camera at (0,-3,cameraZ), planets at negative Z
-- [ ] Test with demo-tetra camera settings
+- [ ] Test with demo-engine-tetra camera settings
 - [ ] Test explicit LookAt vs implicit orientation
 
 #### Task 2.3: Test Lighting Configurations
@@ -87,7 +87,7 @@ The PlanetLayer uses different camera setup than demo-tetra:
 #### Task 3.1: Fix Identified Issue
 Based on Day 2 findings:
 - [ ] Apply fix to engine/tetra/scene.go or engine/view/planet_layer.go
-- [ ] Verify fix in demo-solar-system
+- [ ] Verify fix in demo-engine-solar
 - [ ] Screenshot before/after
 
 #### Task 3.2: Re-enable in Dome Renderer
@@ -112,7 +112,7 @@ Based on Day 2 findings:
 ### Demo Binary Structure
 
 ```go
-// cmd/demo-solar-system/main.go
+// cmd/demo-engine-solar/main.go
 type DemoGame struct {
     // Background layer
     spaceBackground *background.SpaceBackground
@@ -139,7 +139,7 @@ func (g *DemoGame) Draw(screen *ebiten.Image) {
 
 ### Camera Configuration Matrix
 
-| Setting | demo-tetra (works) | PlanetLayer (broken) |
+| Setting | demo-engine-tetra (works) | PlanetLayer (broken) |
 |---------|-------------------|---------------------|
 | Camera Z | 4 | 10 → varies |
 | Camera Y | 0 | -3 |
@@ -161,7 +161,7 @@ func (g *DemoGame) Draw(screen *ebiten.Image) {
 ## Files to Create/Modify
 
 ### New Files
-- `cmd/demo-solar-system/main.go` - Solar system demo binary
+- `cmd/demo-engine-solar/main.go` - Solar system demo binary
 
 ### Files to Modify
 - `engine/tetra/scene.go` - Potential fixes to Render()
@@ -190,7 +190,7 @@ All screenshots saved to `out/` for iteration:
 
 ## Success Criteria
 
-- [ ] `cmd/demo-solar-system` builds and runs
+- [ ] `cmd/demo-engine-solar` builds and runs
 - [ ] Screenshot shows 3D planets on starfield background
 - [ ] Planets have visible lighting/shading
 - [ ] Saturn's rings render with transparency

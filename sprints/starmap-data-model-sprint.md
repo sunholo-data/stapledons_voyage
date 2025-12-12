@@ -481,14 +481,14 @@ pure func starToDrawCmd(star: Star, viewCenter: Vec3, w: float, h: float) -> Dra
 - [ ] Generate DrawCmds for visible stars
 
 ### Task 7.2: Demo Command
-**File:** `cmd/demo-starmap/main.go` (NEW)
+**File:** `cmd/demo-game-starmap/main.go` (NEW)
 
 ```go
 // Simple demo showing starmap centered on Sol
 // Arrow keys to pan, scroll to zoom
 ```
 
-- [ ] Create demo-starmap command
+- [ ] Create demo-game-starmap command
 - [ ] Load catalog at startup
 - [ ] Render stars with panning/zoom
 - [ ] Display Sol neighborhood
@@ -502,8 +502,8 @@ pure func starToDrawCmd(star: Star, viewCenter: Vec3, w: float, h: float) -> Dra
 
 **Day 7 Test:**
 ```bash
-go build -o bin/demo-starmap ./cmd/demo-starmap
-bin/demo-starmap
+go build -o bin/demo-game-starmap ./cmd/demo-game-starmap
+bin/demo-game-starmap
 # Visual inspection of star field
 ```
 
@@ -547,7 +547,7 @@ ailang messages send user "Starmap sprint complete. Issues: ..." \
 | `engine/stardata/coords.go` | ~80 | Coordinate conversion |
 | `engine/stardata/catalog.go` | ~100 | Catalog building |
 | `engine/stardata/octree.go` | ~200 | Spatial indexing |
-| `cmd/demo-starmap/main.go` | ~150 | Visual demo |
+| `cmd/demo-game-starmap/main.go` | ~150 | Visual demo |
 
 ### Data Files
 | File | Size | Purpose |

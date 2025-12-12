@@ -468,12 +468,12 @@ Incremental demos to validate each system:
 ./bin/game --demo-planet earth --gr 0.5         # Earth with GR lensing
 
 # Stage 5: Full solar system view
-./bin/game --demo-solar-system                  # Orbiting planets from ship POV
-./bin/game --demo-solar-system --velocity 0.3   # With SR effects
+./bin/game --demo-engine-solar                  # Orbiting planets from ship POV
+./bin/game --demo-engine-solar --velocity 0.3   # With SR effects
 
 # Stage 6: Combined with isometric
-./bin/game --demo-bridge                        # Isometric bridge + space view
-./bin/game --demo-bridge --planet earth         # Bridge looking at Earth
+./bin/game --demo-game-bridge                        # Isometric bridge + space view
+./bin/game --demo-game-bridge --planet earth         # Bridge looking at Earth
 ```
 
 ## Tech Demo Milestones
@@ -483,8 +483,8 @@ Incremental demos to validate each system:
 | `--demo-planet` | Tetra3D renders textured spheres | Everything |
 | `--demo-planet --velocity` | SR shaders work with 3D | Arrival sequence |
 | `--demo-planet --gr` | GR shaders work with 3D | Black hole sequence |
-| `--demo-solar-system` | Multiple planets, orbital view | Solar system navigation |
-| `--demo-bridge` | Isometric + space background composite | Main game view |
+| `--demo-engine-solar` | Multiple planets, orbital view | Solar system navigation |
+| `--demo-game-bridge` | Isometric + space background composite | Main game view |
 
 ## Related Design Docs
 

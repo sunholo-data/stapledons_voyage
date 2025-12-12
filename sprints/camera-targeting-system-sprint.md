@@ -10,20 +10,20 @@ Fix the camera/targeting system so Tetra3D 3D planets render correctly in the do
 
 ## Success Criteria
 
-- [ ] `demo-lookat` proves all LookAt modes work
+- [ ] `demo-engine-lookat` proves all LookAt modes work
 - [ ] Bridge demo shows 3D textured planets through dome
 - [ ] Saturn's rings render with proper alpha
-- [ ] No regression in demo-solar-system
+- [ ] No regression in demo-engine-solar
 - [ ] Screenshots captured for all test cases
 
 ## Phase 1: Diagnostic Demo (~2 hours)
 
-Create `cmd/demo-lookat/main.go` to isolate and test camera/targeting behaviors.
+Create `cmd/demo-engine-lookat/main.go` to isolate and test camera/targeting behaviors.
 
 ### Tasks
 
-- [ ] **1.1** Create demo-lookat binary structure
-  - New file: `cmd/demo-lookat/main.go`
+- [ ] **1.1** Create demo-engine-lookat binary structure
+  - New file: `cmd/demo-engine-lookat/main.go`
   - Support multiple test modes via --mode flag
 
 - [ ] **1.2** Test Mode: "sun-lookat"
@@ -50,7 +50,7 @@ Create `cmd/demo-lookat/main.go` to isolate and test camera/targeting behaviors.
   - Screenshot: `out/screenshots/lookat-dome-replica.png`
 
 ### Files
-- `cmd/demo-lookat/main.go` (~300 LOC)
+- `cmd/demo-engine-lookat/main.go` (~300 LOC)
 
 ## Phase 2: Fix LookAt Implementation (~2 hours)
 
@@ -70,7 +70,7 @@ Based on diagnostics, fix the broken implementation.
 - [ ] **2.3** Fix Scene.LookAt in `engine/tetra/scene.go` (if needed)
   - Same approach as SunLight fix
 
-- [ ] **2.4** Verify demo-lookat passes all modes
+- [ ] **2.4** Verify demo-engine-lookat passes all modes
   - Re-run all test modes
   - Capture new screenshots showing fix works
 
@@ -89,7 +89,7 @@ Apply fix to dome renderer and verify full integration.
   - Ensure SetCameraFromState uses corrected code
 
 - [ ] **3.2** Test bridge demo
-  - Run `demo-bridge --screenshot 60`
+  - Run `demo-game-bridge --screenshot 60`
   - Verify 3D planets visible
   - Screenshot: `out/screenshots/bridge-planets.png`
 
@@ -126,18 +126,18 @@ Apply fix to dome renderer and verify full integration.
 
 | Test | Command | Expected |
 |------|---------|----------|
-| Sun LookAt | `demo-lookat --mode sun-lookat --screenshot 30` | Planet lit on facing side |
-| Sun Position | `demo-lookat --mode sun-position --screenshot 30` | Same as above |
-| Camera Track | `demo-lookat --mode camera-track --screenshot 30` | Planet centered |
-| Dome Replica | `demo-lookat --mode dome-replica --screenshot 30` | Planets visible |
-| Bridge Full | `demo-bridge --screenshot 60` | 3D planets in dome |
+| Sun LookAt | `demo-engine-lookat --mode sun-lookat --screenshot 30` | Planet lit on facing side |
+| Sun Position | `demo-engine-lookat --mode sun-position --screenshot 30` | Same as above |
+| Camera Track | `demo-engine-lookat --mode camera-track --screenshot 30` | Planet centered |
+| Dome Replica | `demo-engine-lookat --mode dome-replica --screenshot 30` | Planets visible |
+| Bridge Full | `demo-game-bridge --screenshot 60` | 3D planets in dome |
 
 ### Regression Tests
 
 | Test | Command | Expected |
 |------|---------|----------|
-| demo-solar-system | `demo-solar-system --mode full --screenshot 30` | Still works |
-| demo-tetra | `demo-tetra --screenshot 30` | Still works |
+| demo-engine-solar | `demo-engine-solar --mode full --screenshot 30` | Still works |
+| demo-engine-tetra | `demo-engine-tetra --screenshot 30` | Still works |
 
 ## Risk Mitigation
 

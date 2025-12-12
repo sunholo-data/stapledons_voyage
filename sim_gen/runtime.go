@@ -847,6 +847,30 @@ func ConvertToCurrentPlanetSlice(v interface{}) []*CurrentPlanet {
 	return out
 }
 
+// ConvertToDeckTypeSlice converts []interface{} to []*DeckType.
+// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
+func ConvertToDeckTypeSlice(v interface{}) []*DeckType {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToDeckTypeSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*DeckType{}
+	}
+	out := make([]*DeckType, len(src))
+	for i, e := range src {
+		elem, ok := e.(*DeckType)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToDeckTypeSlice: element %d: expected *DeckType, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
 // ConvertToDepthLayerSlice converts []interface{} to []*DepthLayer.
 // M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
 func ConvertToDepthLayerSlice(v interface{}) []*DepthLayer {
@@ -1249,6 +1273,30 @@ func ConvertToTileSlice(v interface{}) []*Tile {
 		elem, ok := e.(*Tile)
 		if !ok {
 			panic(fmt.Sprintf("ConvertToTileSlice: element %d: expected *Tile, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToTransitionStateSlice converts []interface{} to []*TransitionState.
+// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
+func ConvertToTransitionStateSlice(v interface{}) []*TransitionState {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToTransitionStateSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*TransitionState{}
+	}
+	out := make([]*TransitionState, len(src))
+	for i, e := range src {
+		elem, ok := e.(*TransitionState)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToTransitionStateSlice: element %d: expected *TransitionState, got %T", i, e))
 		}
 		out[i] = elem
 	}

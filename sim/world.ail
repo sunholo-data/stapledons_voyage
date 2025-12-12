@@ -15,6 +15,9 @@ import sim/starmap (StarCatalog)
 -- Import StarSystem for solar system view
 import sim/celestial (StarSystem)
 
+-- Import ShipLevels for multi-deck navigation
+import sim/ship_levels (ShipLevels)
+
 -- Re-export NPC type for consumers
 export type Tile = { biome: int }
 
@@ -45,5 +48,6 @@ export type World = {
     bridge: BridgeState,
     viewMode: ViewMode,
     starCatalog: StarCatalog,
-    currentSystem: StarSystem  -- The star system we're currently in
+    currentSystem: StarSystem,
+    shipLevels: ShipLevels  -- Multi-deck ship navigation state
 }

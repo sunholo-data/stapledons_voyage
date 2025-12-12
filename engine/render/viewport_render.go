@@ -227,11 +227,22 @@ func (vr *ViewportRenderer) drawSolid(dst *ebiten.Image, w, h int, rgba uint32) 
 func (vr *ViewportRenderer) applyEffect(dst *ebiten.Image, effect ViewportEffect, w, h int) {
 	switch effect.Type {
 	case EffectSRWarp:
-		// Apply SR warp if available
+		// Apply SR warp shader within viewport bounds
 		if vr.srWarp != nil && effect.Velocity > 0 {
+			// Configure SR warp with the viewport's velocity
 			vr.srWarp.SetForwardVelocity(effect.Velocity)
-			// SR warp is typically applied to the final composited frame,
-			// but here we could apply it per-viewport
+			vr.srWarp.SetEnabled(true)
+
+			// Create temp buffer for warped content
+			tempBuf := ebiten.NewImage(w, h)
+			tempBuf.DrawImage(dst, nil)
+
+			// Clear dst and apply warp
+			dst.Clear()
+			if !vr.srWarp.Apply(dst, tempBuf) {
+				// If warp failed (velocity too low), just copy back
+				dst.DrawImage(tempBuf, nil)
+			}
 		}
 
 	case EffectTint:

@@ -21,10 +21,14 @@ demo-bridge: sim
 
 # CLI tool
 cli:
-	go build -o bin/voyage ./cmd/cli
+	go build -o bin/voyage ./cmd/voyage
 
 cli-mock:
-	go build -o bin/voyage ./cmd/cli
+	go build -o bin/voyage ./cmd/voyage
+
+# Install voyage CLI globally
+install:
+	go install ./cmd/voyage
 
 # Performance testing with threshold checks
 perf: cli
@@ -153,4 +157,4 @@ clean:
 clean-all:
 	rm -rf sim_gen bin out/*
 
-.PHONY: sim game eval run demo-bridge cli cli-mock game-mock eval-mock run-mock sprites build engine test test-all test-visual test-golden update-golden lint clean clean-all screenshot screenshot-zoomed screenshot-panned screenshots scenario-pan scenario-zoom scenario-npc scenarios
+.PHONY: sim game eval run demo-bridge cli cli-mock install game-mock eval-mock run-mock sprites build engine test test-all test-visual test-golden update-golden lint clean clean-all screenshot screenshot-zoomed screenshot-panned screenshots scenario-pan scenario-zoom scenario-npc scenarios

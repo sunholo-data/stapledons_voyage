@@ -554,7 +554,7 @@ Use the dedicated screenshot helper for easy, reliable screenshots:
 .claude/skills/sprint-executor/scripts/take_screenshot.sh
 
 # Bridge demo at frame 60
-.claude/skills/sprint-executor/scripts/take_screenshot.sh -c demo-bridge -f 60
+.claude/skills/sprint-executor/scripts/take_screenshot.sh -c demo-game-bridge -f 60
 
 # Game with effects
 .claude/skills/sprint-executor/scripts/take_screenshot.sh --effects bloom,sr_warp --velocity 0.5
@@ -575,7 +575,7 @@ You can also use the screenshot flags directly on any game command:
 go run ./cmd/game --screenshot 30 --output out/screenshots/game.png
 
 # Demo commands
-go run ./cmd/demo-bridge --screenshot 30 --output out/screenshots/bridge.png
+go run ./cmd/demo-game-bridge --screenshot 30 --output out/screenshots/bridge.png
 go run ./cmd/demo-saturn --screenshot 60 --output out/screenshots/saturn.png
 
 # With effects
@@ -633,7 +633,7 @@ For each visual feature:
 | Command | Description |
 |---------|-------------|
 | `game` | Main game (bridge view, NPC, etc.) |
-| `demo-bridge` | Bridge interior only |
+| `demo-game-bridge` | Bridge interior only |
 | `demo-saturn` | Saturn with rings |
 | `demo-arrival` | Black hole arrival sequence |
 | `demo-sr-flyby` | SR effects flyby demo |
@@ -716,6 +716,9 @@ make clean  # Removes bin/, out/* but preserves structure
 | Document | Contents | When to Use |
 |----------|----------|-------------|
 | [engine-capabilities.md](../../../design_docs/reference/engine-capabilities.md) | All DrawCmd types, effect handlers, assets, shaders, physics | Any sprint involving rendering or engine features |
+| [game-capabilities.md](../../../design_docs/reference/game-capabilities.md) | AILANG game features (celestial, starmap, bridge, viewport) | Any sprint involving game logic in sim/*.ail |
+| [ai-capabilities.md](../../../design_docs/reference/ai-capabilities.md) | AI text/image/TTS, 30 voices, SSML, style control | NPC dialogue, voice generation, AI-driven content |
+| [demos.md](../../../design_docs/reference/demos.md) | Demo index (demo-engine-*, demo-game-*) | Creating or running feature demos |
 | [gr-effects.md](../../../design_docs/implemented/v0_1_0/gr-effects.md) | GR physics formulas, shader uniforms, danger levels | Black hole/neutron star features |
 | [ai-handler-system.md](../../../design_docs/implemented/v0_1_0/ai-handler-system.md) | AI effect, multimodal APIs, provider config | NPC dialogue, AI-driven decisions |
 

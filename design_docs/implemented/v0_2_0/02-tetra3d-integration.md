@@ -442,7 +442,7 @@ After implementation, add demo command:
 ### Demo Commands
 
 ```bash
-./bin/demo-tetra              # Basic Tetra3D test
+./bin/demo-engine-tetra              # Basic Tetra3D test
 ./bin/demo-planet-view        # Planet over starfield
 ./bin/demo-planets-benchmark  # Multiple planets + SR shader
 ./bin/demo-saturn             # Saturn with rings

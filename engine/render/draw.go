@@ -4,6 +4,7 @@ import (
 	"image"
 	"image/color"
 	_ "image/jpeg"
+	"log"
 	"math"
 	"os"
 	"sort"
@@ -14,6 +15,7 @@ import (
 	"stapledons_voyage/engine/assets"
 	"stapledons_voyage/engine/camera"
 	"stapledons_voyage/engine/depth"
+	"stapledons_voyage/engine/tetra"
 	"stapledons_voyage/sim_gen"
 )
 
@@ -36,6 +38,15 @@ var biomeColors = []color.RGBA{
 	{255, 0, 255, 255},   // 14: NPC 4 (magenta)
 }
 
+// planet3DCache holds a reusable Tetra3D scene for rendering a single planet
+type planet3DCache struct {
+	scene   *tetra.Scene
+	planet  *tetra.Planet
+	ring    *tetra.Ring // Optional ring (for Saturn, Uranus)
+	sun     *tetra.SunLight
+	ambient *tetra.AmbientLight
+}
+
 // Renderer handles drawing FrameOutput to the screen.
 type Renderer struct {
 	assets         *assets.Manager
@@ -52,6 +63,9 @@ type Renderer struct {
 	// Planet texture cache for TexturedPlanet DrawCmd
 	planetTextures       map[string]*ebiten.Image
 	planetTexturesLoaded bool
+
+	// Tetra3D cached scenes for 3D planet rendering (one per planet for reuse)
+	planet3DScenes map[string]*planet3DCache
 }
 
 // NewRenderer creates a renderer with the given asset manager.
@@ -591,22 +605,27 @@ func (r *Renderer) loadPlanetTextures() {
 		return
 	}
 	r.planetTextures = make(map[string]*ebiten.Image)
+	loaded := 0
 	for name, path := range planetTexturePaths {
 		f, err := os.Open(path)
 		if err != nil {
+			log.Printf("Failed to open texture %s: %v", path, err)
 			continue // Skip missing textures
 		}
 		img, _, err := image.Decode(f)
 		f.Close()
 		if err != nil {
+			log.Printf("Failed to decode texture %s: %v", path, err)
 			continue
 		}
 		r.planetTextures[name] = ebiten.NewImageFromImage(img)
+		loaded++
 	}
+	log.Printf("Loaded %d/%d planet textures", loaded, len(planetTexturePaths))
 	r.planetTexturesLoaded = true
 }
 
-// drawTexturedPlanet draws a planet with texture at the given screen position
+// drawTexturedPlanet draws a planet as a 3D sphere using Tetra3D
 func (r *Renderer) drawTexturedPlanet(screen *ebiten.Image, name string, x, y, radius, rotation float64, hasRings bool, ringRgba int64) {
 	// Ensure textures are loaded
 	r.loadPlanetTextures()
@@ -614,30 +633,125 @@ func (r *Renderer) drawTexturedPlanet(screen *ebiten.Image, name string, x, y, r
 	// Normalize name to lowercase for texture lookup (AILANG uses "Mercury", map uses "mercury")
 	normalizedName := strings.ToLower(name)
 
-	// Get texture for this planet
-	tex := r.planetTextures[normalizedName]
-	if tex == nil {
-		// Fallback to colored circle if no texture
+	// Get or create cached 3D scene for this planet (includes rings if hasRings=true)
+	cache := r.getOrCreatePlanet3D(normalizedName, hasRings)
+	if cache == nil {
+		// Fallback to 2D circle
 		col := planetFallbackColor(normalizedName)
 		r.drawCircleRGBA(screen, x, y, radius, col, true)
 		return
 	}
 
-	// Draw textured planet as a circular crop of the texture
-	r.drawTexturedCircle(screen, tex, x, y, radius, rotation)
+	// Update planet rotation
+	cache.planet.SetRotation(rotation)
 
-	// Draw rings if present
-	if hasRings {
-		ringCol := unpackRGBA(ringRgba)
-		if ringCol.A == 0 {
-			// Default ring color if none specified
-			ringCol = color.RGBA{210, 190, 150, 180}
-		}
-		innerR := radius * 1.3
-		outerR := radius * 2.2
-		r.drawCircleRGBA(screen, x, y, outerR, ringCol, false)
-		r.drawCircleRGBA(screen, x, y, innerR, ringCol, false)
+	// Update ring rotation if present (synced with planet)
+	if cache.ring != nil {
+		cache.ring.Update(0.016) // Approximate 60fps delta
 	}
+
+	// Render the 3D scene
+	rendered := cache.scene.Render()
+	if rendered == nil {
+		col := planetFallbackColor(normalizedName)
+		r.drawCircleRGBA(screen, x, y, radius, col, true)
+		return
+	}
+
+	// Composite the 3D render onto the screen at the specified position
+	// The scene is 512x512, planet fills ~75% of it (diameter ~384px)
+	// We need to scale so that 384px becomes radius*2
+	sceneSize := 512.0
+	planetVisualDiameter := 384.0 // Approximate diameter in scene pixels
+	scale := (radius * 2) / planetVisualDiameter
+
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Scale(scale, scale)
+	// Center the scaled image at x, y
+	scaledSize := sceneSize * scale
+	op.GeoM.Translate(x-scaledSize/2, y-scaledSize/2)
+	screen.DrawImage(rendered, op)
+}
+
+// getOrCreatePlanet3D returns a cached Tetra3D scene for the given planet, creating it if needed.
+// If hasRings is true, a 3D ring is added to the scene for ringed planets like Saturn.
+func (r *Renderer) getOrCreatePlanet3D(name string, hasRings bool) *planet3DCache {
+	// Initialize cache map if needed
+	if r.planet3DScenes == nil {
+		r.planet3DScenes = make(map[string]*planet3DCache)
+	}
+
+	// Cache key includes ring status since scene structure differs
+	cacheKey := name
+	if hasRings {
+		cacheKey = name + "_ringed"
+	}
+
+	// Return existing cache if available
+	if cache, ok := r.planet3DScenes[cacheKey]; ok {
+		return cache
+	}
+
+	// Create new cached scene for this planet
+	// Use larger scene for better 3D quality (like demo-solar-system)
+	sceneSize := 512
+	scene := tetra.NewScene(sceneSize, sceneSize)
+
+	// Get texture
+	tex := r.planetTextures[name]
+
+	// Create planet - 1.5 radius matches demo-solar-system
+	var planet *tetra.Planet
+	if tex != nil {
+		planet = tetra.NewTexturedPlanet(name, 1.5, tex)
+		log.Printf("Created 3D textured planet: %s", name)
+	} else {
+		col := planetFallbackColor(name)
+		planet = tetra.NewPlanet(name, 1.5, col)
+		log.Printf("Created 3D solid planet: %s (no texture)", name)
+	}
+
+	// Add planet to scene at origin
+	planet.AddToScene(scene)
+	planet.SetPosition(0, 0, 0)
+
+	// Add 3D rings if this is a ringed planet
+	var ring *tetra.Ring
+	if hasRings {
+		// Ring dimensions relative to planet radius (1.5)
+		// Saturn's rings extend from ~1.1 to ~2.3 planet radii
+		innerRadius := 1.5 * 1.2 // Just outside the planet surface
+		outerRadius := 1.5 * 2.3 // Classic Saturn ring proportions
+		ring = tetra.NewRing(name, innerRadius, outerRadius, nil)
+		ring.AddToScene(scene)
+		ring.SetPosition(0, 0, 0)
+		// Tilt rings ~27 degrees (Saturn's axial tilt) for visual interest
+		ring.SetTilt(0.47) // ~27 degrees in radians
+		log.Printf("Added 3D rings to planet: %s", name)
+	}
+
+	// Add lighting - same as demo-solar-system
+	sun := tetra.NewSunLight()
+	sun.SetPosition(5, 3, 15)
+	sun.AddToScene(scene)
+
+	ambient := tetra.NewAmbientLight(0.5, 0.5, 0.6, 0.8)
+	ambient.AddToScene(scene)
+
+	// Position camera - z=4 with 1.5 radius sphere fills ~75% of viewport
+	// NOTE: Don't call LookAt - default camera direction works correctly
+	scene.SetCameraPosition(0, 0, 4)
+
+	cache := &planet3DCache{
+		scene:   scene,
+		planet:  planet,
+		ring:    ring,
+		sun:     sun,
+		ambient: ambient,
+	}
+	r.planet3DScenes[cacheKey] = cache
+
+	return cache
 }
 
 // planetFallbackColor returns a fallback color for planets without textures

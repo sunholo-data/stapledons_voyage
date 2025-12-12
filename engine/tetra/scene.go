@@ -75,6 +75,12 @@ func (s *Scene) RotateCamera(axisX, axisY, axisZ, angle float64) {
 }
 
 // LookAt makes the camera look at the given world position.
+//
+// WARNING: This function currently has a bug - the rotation matrix calculation
+// may invert the view direction, making objects invisible. For simple cases
+// where the camera is on the +Z axis looking at origin, just use SetCameraPosition
+// without LookAt - the default camera direction works correctly.
+// TODO: Fix LookAt matrix calculation for proper view orientation.
 func (s *Scene) LookAt(x, y, z float64) {
 	camPos := s.camera.LocalPosition()
 	from := tetra3d.Vector3{X: camPos.X, Y: camPos.Y, Z: camPos.Z}

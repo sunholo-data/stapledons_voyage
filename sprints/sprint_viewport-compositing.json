@@ -1,7 +1,7 @@
 {
   "sprint_id": "viewport-compositing",
   "created": "2025-12-12T00:00:00Z",
-  "status": "in_progress",
+  "status": "completed",
   "design_doc": "design_docs/planned/phase1-data-models/viewport-compositing.md",
   "features": [
     {
@@ -44,7 +44,7 @@
       "id": "ailang-types",
       "description": "AILANG viewport types and DrawCmdViewport",
       "estimated_loc": 100,
-      "actual_loc": null,
+      "actual_loc": 257,
       "dependencies": [
         "viewport-renderer"
       ],
@@ -54,16 +54,16 @@
         "Viewport record type defined",
         "DrawCmdViewport added to protocol"
       ],
-      "passes": false,
+      "passes": true,
       "started": "2025-12-12T19:01:41Z",
-      "completed": null,
-      "notes": null
+      "completed": "2025-12-12T21:30:00Z",
+      "notes": "Blocked by GitHub #42 (codegen bool type assertion), fixed same day"
     },
     {
       "id": "viewport-compositor",
       "description": "Multi-viewport compositing with layer integration",
       "estimated_loc": 80,
-      "actual_loc": null,
+      "actual_loc": 170,
       "dependencies": [
         "ailang-types"
       ],
@@ -72,16 +72,16 @@
         "Z-ordering works correctly",
         "Integrates with depth layer system"
       ],
-      "passes": null,
-      "started": null,
-      "completed": null,
+      "passes": true,
+      "started": "2025-12-12T21:30:00Z",
+      "completed": "2025-12-12T21:45:00Z",
       "notes": null
     },
     {
       "id": "sr-viewport-effect",
       "description": "SR warp shader as viewport-specific effect",
       "estimated_loc": 30,
-      "actual_loc": null,
+      "actual_loc": 20,
       "dependencies": [
         "viewport-compositor"
       ],
@@ -89,18 +89,28 @@
         "SR warp applies only within viewport bounds",
         "Effect intensity configurable per viewport"
       ],
-      "passes": null,
-      "started": null,
-      "completed": null,
-      "notes": null
+      "passes": true,
+      "started": "2025-12-12T21:45:00Z",
+      "completed": "2025-12-12T21:50:00Z",
+      "notes": "Updated applyEffect to use SRWarp shader"
     }
   ],
   "velocity": {
     "target_loc_per_day": 200,
-    "actual_loc_per_day": 0
+    "actual_loc_per_day": 250
   },
-  "ailang_issues": [],
+  "ailang_issues": [
+    {
+      "id": 42,
+      "description": "Codegen generates s.(bool) on bool variable",
+      "status": "fixed",
+      "blocked_hours": 2
+    }
+  ],
   "dx_issues_discovered": [],
-  "lessons_learned": [],
-  "last_updated": "2025-12-12T00:00:00Z"
+  "lessons_learned": [
+    "make build target catches sim_gen errors and provides clear instructions",
+    "AILANG bool match codegen fixed quickly after reporting"
+  ],
+  "last_updated": "2025-12-12T21:50:00Z"
 }
