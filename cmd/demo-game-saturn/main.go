@@ -60,10 +60,10 @@ type SaturnGame struct {
 	// Background
 	spaceBackground *background.SpaceBackground
 
-	// Camera/Saturn orbit (we orbit Saturn around the camera due to LookAt bug)
-	orbitAngle     float64 // Current angle of Saturn around camera (radians)
+	// Camera orbit around Saturn (using fixed LookAt)
+	orbitAngle     float64 // Current angle of camera around Saturn (radians)
 	cameraDistance float64 // Distance from camera to Saturn
-	cameraHeight   float64 // Camera Y offset above the plane
+	cameraHeight   float64 // Camera Y offset above the ring plane
 	orbitSpeed     float64
 
 	// Animation
@@ -127,7 +127,7 @@ func (g *SaturnGame) setup3DScene(screenW, screenH int) {
 	// Saturn radius for scene - large enough to appreciate the details
 	saturnRadius := 3.0
 
-	// Create Saturn
+	// Create Saturn at origin
 	if saturnTex != nil {
 		g.saturn = tetra.NewTexturedPlanet("saturn", saturnRadius, saturnTex)
 		log.Printf("Created textured Saturn")
@@ -136,9 +136,8 @@ func (g *SaturnGame) setup3DScene(screenW, screenH int) {
 		log.Printf("Created solid Saturn (no texture)")
 	}
 	g.saturn.AddToScene(g.scene3D)
-	// Position Saturn in front of camera on -Z axis (camera looks at -Z due to LookAt bug)
-	g.saturn.SetPosition(0, 0, -g.cameraDistance)
-	g.saturn.SetRotationSpeed(0.0) // We'll manually control rotation for orbit effect
+	g.saturn.SetPosition(0, 0, 0) // Saturn at origin
+	g.saturn.SetRotationSpeed(0.1) // Slow self-rotation
 
 	// Create rings using command-line parameters (generated mesh, no texture needed)
 	ringInnerR := saturnRadius * *ringInner
@@ -148,24 +147,35 @@ func (g *SaturnGame) setup3DScene(screenW, screenH int) {
 	// Use nil texture - NewRing generates solid colored ring mesh
 	g.ring = tetra.NewRing("saturn_ring", ringInnerR, ringOuterR, nil)
 	g.ring.AddToScene(g.scene3D)
-	g.ring.SetPosition(0, 0, -g.cameraDistance) // Same position as Saturn
+	g.ring.SetPosition(0, 0, 0) // Same position as Saturn (origin)
 	g.ring.SetTilt(tiltRadians)
 
 	log.Printf("Ring parameters: inner=%.2f, outer=%.2f, tilt=%.1f deg",
 		ringInnerR, ringOuterR, *ringTilt)
 
-	// Add lighting - from behind/above camera for good ring visibility
+	// Add lighting - from above/side for good ring visibility
 	g.sun = tetra.NewSunLight()
-	g.sun.SetPosition(20, 30, 50) // Light from camera side
+	g.sun.SetPosition(30, 20, 30) // Light from above-right
 	g.sun.AddToScene(g.scene3D)
 
 	g.ambient = tetra.NewAmbientLight(0.4, 0.4, 0.45, 0.6)
 	g.ambient.AddToScene(g.scene3D)
 
-	// Position camera at origin with slight height, looking toward -Z (where Saturn is)
-	g.scene3D.SetCameraPosition(0, g.cameraHeight, 0)
+	// Initial camera position - will be updated in updateCameraOrbit
+	g.updateCameraOrbit()
 
-	log.Printf("Camera at (0, %.1f, 0), Saturn at (0, 0, -%.1f)", g.cameraHeight, g.cameraDistance)
+	log.Printf("Saturn at origin, camera orbiting at distance %.1f", g.cameraDistance)
+}
+
+// updateCameraOrbit positions the camera in orbit around Saturn and points it at Saturn
+func (g *SaturnGame) updateCameraOrbit() {
+	// Camera position on orbit circle around Saturn (at origin)
+	x := g.cameraDistance * math.Cos(g.orbitAngle)
+	z := g.cameraDistance * math.Sin(g.orbitAngle)
+	y := g.cameraHeight
+
+	g.scene3D.SetCameraPosition(x, y, z)
+	g.scene3D.LookAt(0, 0, 0) // Look at Saturn at origin
 }
 
 func loadTexture(path string) *ebiten.Image {
@@ -188,20 +198,20 @@ func (g *SaturnGame) Update() error {
 	g.time += dt
 	g.frameCount++
 
-	// Update orbit angle - this represents our position around Saturn
+	// Update camera orbit angle
 	g.orbitAngle += g.orbitSpeed * dt
 	if g.orbitAngle > 2*math.Pi {
 		g.orbitAngle -= 2 * math.Pi
 	}
 
-	// To simulate orbiting around Saturn without the LookAt function,
-	// we rotate Saturn (and ring) around Y axis. This gives the visual
-	// effect of the camera moving around Saturn.
-	g.saturn.SetRotation(g.orbitAngle)
+	// Move camera in orbit around Saturn (now using fixed LookAt!)
+	g.updateCameraOrbit()
 
-	// Ring rotates with Saturn (they're on the same axis)
-	// The ring's Update() just rotates it slightly around Y
-	g.ring.Update(dt * 0.1) // Very slow ring rotation for visual interest
+	// Saturn rotates on its axis
+	g.saturn.Update(dt)
+
+	// Ring rotates slowly with Saturn
+	g.ring.Update(dt * 0.05)
 
 	return nil
 }

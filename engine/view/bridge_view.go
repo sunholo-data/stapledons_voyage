@@ -6,6 +6,7 @@ import (
 	"sort"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"stapledons_voyage/engine/assets"
 	"stapledons_voyage/engine/display"
 	"stapledons_voyage/engine/render"
@@ -89,7 +90,15 @@ func (v *BridgeView) Exit(to ViewType) {
 
 // Update updates the view state.
 func (v *BridgeView) Update(dt float64) *ViewTransition {
-	// Step AILANG bridge state first (crew movement, dome animation)
+	// Capture keyboard input for AILANG
+	input := v.captureInput()
+
+	// Process player input through AILANG
+	if v.state != nil {
+		v.state = sim_gen.ProcessBridgeInput(v.state, input)
+	}
+
+	// Step AILANG bridge state (crew movement, dome animation)
 	if v.state != nil {
 		v.state = sim_gen.StepBridge(v.state, v.frameCount)
 		v.frameCount++
@@ -109,6 +118,38 @@ func (v *BridgeView) Update(dt float64) *ViewTransition {
 	}
 
 	return nil
+}
+
+// captureInput captures keyboard state and builds FrameInput for AILANG.
+func (v *BridgeView) captureInput() *sim_gen.FrameInput {
+	var keys []*sim_gen.KeyEvent
+
+	// Check movement keys (WASD and arrows)
+	movementKeys := []ebiten.Key{
+		ebiten.KeyW, ebiten.KeyA, ebiten.KeyS, ebiten.KeyD,
+		ebiten.KeyUp, ebiten.KeyDown, ebiten.KeyLeft, ebiten.KeyRight,
+	}
+
+	for _, key := range movementKeys {
+		if inpututil.IsKeyJustPressed(key) {
+			keys = append(keys, &sim_gen.KeyEvent{
+				Key:  int64(key),
+				Kind: "pressed",
+			})
+		}
+	}
+
+	return &sim_gen.FrameInput{
+		Mouse:            &sim_gen.MouseState{X: 0, Y: 0, Buttons: []int64{}},
+		Keys:             keys,
+		ClickedThisFrame: false,
+		WorldMouseX:      0,
+		WorldMouseY:      0,
+		TileMouseX:       0,
+		TileMouseY:       0,
+		ActionRequested:  &sim_gen.PlayerAction{Kind: sim_gen.PlayerActionKindActionNone},
+		TestMode:         false,
+	}
 }
 
 // Draw renders the view to the screen.

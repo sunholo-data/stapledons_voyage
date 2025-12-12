@@ -1725,15 +1725,269 @@ func RenderBridge(state *BridgeState) []*DrawCmd {
 	return ConvertToDrawCmdSlice(renderBridge_impl(state))
 }
 
+func keyW_impl(_unused0 interface{}) interface{} {
+	return int64(87)
+}
+
+func keyW() int64 {
+	return keyW_impl(struct{}{}).(int64)
+}
+
+func keyA_impl(_unused0 interface{}) interface{} {
+	return int64(65)
+}
+
+func keyA() int64 {
+	return keyA_impl(struct{}{}).(int64)
+}
+
+func keyS_impl(_unused0 interface{}) interface{} {
+	return int64(83)
+}
+
+func keyS() int64 {
+	return keyS_impl(struct{}{}).(int64)
+}
+
+func keyD_impl(_unused0 interface{}) interface{} {
+	return int64(68)
+}
+
+func keyD() int64 {
+	return keyD_impl(struct{}{}).(int64)
+}
+
+func keyUp_impl(_unused0 interface{}) interface{} {
+	return int64(265)
+}
+
+func keyUp() int64 {
+	return keyUp_impl(struct{}{}).(int64)
+}
+
+func keyDown_impl(_unused0 interface{}) interface{} {
+	return int64(264)
+}
+
+func keyDown() int64 {
+	return keyDown_impl(struct{}{}).(int64)
+}
+
+func keyLeft_impl(_unused0 interface{}) interface{} {
+	return int64(263)
+}
+
+func keyLeft() int64 {
+	return keyLeft_impl(struct{}{}).(int64)
+}
+
+func keyRight_impl(_unused0 interface{}) interface{} {
+	return int64(262)
+}
+
+func keyRight() int64 {
+	return keyRight_impl(struct{}{}).(int64)
+}
+
+func hasKeyRec_impl(keyCode interface{}, keys interface{}) interface{} {
+	return func() interface{} {
+		_scrutinee := keys
+		_ = _scrutinee // suppress unused
+		if ListLen(_scrutinee) == 0 {
+			return false
+		} else if ListLen(_scrutinee) >= 1 {
+			k := ListHead(_scrutinee)
+			_ = k // suppress unused
+			rest := ListTail(_scrutinee)
+			_ = rest // suppress unused
+			return func() interface{} {
+				var tmp301 interface{} = FieldGet(k, "key")
+				_ = tmp301 // suppress unused
+				var tmp302 interface{} = EqInt(tmp301, keyCode)
+				_ = tmp302 // suppress unused
+				var tmp303 interface{} = FieldGet(k, "kind")
+				_ = tmp303 // suppress unused
+				var tmp304 interface{} = EqString(tmp303, "pressed")
+				_ = tmp304 // suppress unused
+				var tmp305 interface{} = func() interface{} {
+					if tmp302.(bool) {
+						return tmp304
+					}
+					return false
+				}()
+				_ = tmp305 // suppress unused
+				return func() interface{} {
+					if tmp305.(bool) {
+						return true
+					}
+					return hasKeyRec_impl(keyCode, rest)
+				}()
+			}()
+		} else {
+			panic("non-exhaustive match")
+		}
+	}()
+}
+
+func hasKeyRec(keyCode int64, keys []*KeyEvent) bool {
+	return hasKeyRec_impl(keyCode, keys).(bool)
+}
+
+func hasKey_impl(keyCode interface{}, input interface{}) interface{} {
+	var tmp306 interface{} = FieldGet(input, "keys")
+	return hasKeyRec_impl(keyCode, tmp306)
+}
+
+func hasKey(keyCode int64, input *FrameInput) bool {
+	return hasKey_impl(keyCode, input).(bool)
+}
+
+func getInputDirection_impl(input interface{}) interface{} {
+	var tmp307 interface{} = keyW_impl(struct{}{})
+	var tmp308 interface{} = hasKey_impl(tmp307, input)
+	var tmp309 interface{} = keyUp_impl(struct{}{})
+	var tmp310 interface{} = hasKey_impl(tmp309, input)
+	var tmp311 interface{} = func() interface{} {
+		if tmp308.(bool) {
+			return true
+		}
+		return tmp310
+	}()
+	return func() interface{} {
+		var tmp312 interface{} = keyS_impl(struct{}{})
+		_ = tmp312 // suppress unused
+		var tmp313 interface{} = hasKey_impl(tmp312, input)
+		_ = tmp313 // suppress unused
+		var tmp314 interface{} = keyDown_impl(struct{}{})
+		_ = tmp314 // suppress unused
+		var tmp315 interface{} = hasKey_impl(tmp314, input)
+		_ = tmp315 // suppress unused
+		var tmp316 interface{} = func() interface{} {
+			if tmp313.(bool) {
+				return true
+			}
+			return tmp315
+		}()
+		_ = tmp316 // suppress unused
+		var tmp317 interface{} = keyA_impl(struct{}{})
+		_ = tmp317 // suppress unused
+		var tmp318 interface{} = hasKey_impl(tmp317, input)
+		_ = tmp318 // suppress unused
+		var tmp319 interface{} = keyLeft_impl(struct{}{})
+		_ = tmp319 // suppress unused
+		var tmp320 interface{} = hasKey_impl(tmp319, input)
+		_ = tmp320 // suppress unused
+		var tmp321 interface{} = func() interface{} {
+			if tmp318.(bool) {
+				return true
+			}
+			return tmp320
+		}()
+		_ = tmp321 // suppress unused
+		var tmp322 interface{} = keyD_impl(struct{}{})
+		_ = tmp322 // suppress unused
+		var tmp323 interface{} = hasKey_impl(tmp322, input)
+		_ = tmp323 // suppress unused
+		var tmp324 interface{} = keyRight_impl(struct{}{})
+		_ = tmp324 // suppress unused
+		var tmp325 interface{} = hasKey_impl(tmp324, input)
+		_ = tmp325 // suppress unused
+		var tmp326 interface{} = func() interface{} {
+			if tmp323.(bool) {
+				return true
+			}
+			return tmp325
+		}()
+		_ = tmp326 // suppress unused
+		if tmp311.(bool) {
+			return NewOptionSome(NewDirectionNorth())
+		}
+		if tmp316.(bool) {
+			return NewOptionSome(NewDirectionSouth())
+		}
+		if tmp321.(bool) {
+			return NewOptionSome(NewDirectionWest())
+		}
+		if tmp326.(bool) {
+			return NewOptionSome(NewDirectionEast())
+		}
+		return NewOptionNone()
+	}()
+}
+
+func getInputDirection(input *FrameInput) *Option {
+	return getInputDirection_impl(input).(*Option)
+}
+
+func tryMovePlayer_impl(state interface{}, dir interface{}) interface{} {
+	var newPos interface{} = func() interface{} {
+		var tmp333 interface{} = FieldGet(state, "playerPos")
+		_ = tmp333 // suppress unused
+		return moveInDirection_impl(tmp333, dir)
+	}()
+	var tmp327 interface{} = FieldGet(newPos, "x")
+	var tmp328 interface{} = FieldGet(newPos, "y")
+	var tmp329 interface{} = isWalkable_impl(state, tmp327, tmp328)
+	return func() interface{} {
+		if tmp329.(bool) {
+			return func() interface{} {
+				var tmp330 interface{} = NewMoveStateMoveWalking(dir.(*Direction))
+				_ = tmp330 // suppress unused
+				var tmp331 interface{} = FieldGet(newPos, "x")
+				_ = tmp331 // suppress unused
+				var tmp332 interface{} = FieldGet(newPos, "y")
+				_ = tmp332 // suppress unused
+				return RecordUpdate(state, map[string]interface{}{"cameraY": tmp332, "playerPos": newPos, "playerFacing": dir, "moveState": tmp330, "cameraX": tmp331})
+			}()
+		}
+		return RecordUpdate(state, map[string]interface{}{"playerFacing": dir, "moveState": NewMoveStateMoveIdle()})
+	}()
+}
+
+func tryMovePlayer(state *BridgeState, dir *Direction) *BridgeState {
+	return tryMovePlayer_impl(state, dir).(*BridgeState)
+}
+
+func setPlayerIdle_impl(state interface{}) interface{} {
+	return RecordUpdate(state, map[string]interface{}{"moveState": NewMoveStateMoveIdle()})
+}
+
+func setPlayerIdle(state *BridgeState) *BridgeState {
+	return setPlayerIdle_impl(state).(*BridgeState)
+}
+
+func processBridgeInput_impl(state interface{}, input interface{}) interface{} {
+	var tmp334 interface{} = getInputDirection_impl(input)
+	return func() interface{} {
+		_scrutinee := tmp334
+		_ = _scrutinee // suppress unused
+		_adt := _scrutinee.(*Option)
+		switch _adt.Kind {
+		case OptionKindSome:
+			dir := _adt.Some.Value0
+			_ = dir // suppress unused
+			return tryMovePlayer_impl(state, dir)
+		default:
+			none := _adt
+			_ = none // suppress unused
+			return setPlayerIdle_impl(state)
+		}
+	}()
+}
+
+func ProcessBridgeInput(state *BridgeState, input *FrameInput) *BridgeState {
+	return processBridgeInput_impl(state, input).(*BridgeState)
+}
+
 func getPatrolDirection_impl(crewId interface{}, frame interface{}) interface{} {
 	var phase interface{} = func() interface{} {
-		var tmp301 interface{} = DivInt(frame, int64(30))
-		_ = tmp301 // suppress unused
-		var tmp302 interface{} = MulInt(crewId, int64(7))
-		_ = tmp302 // suppress unused
-		var tmp303 interface{} = AddInt(tmp301, tmp302)
-		_ = tmp303 // suppress unused
-		return ModInt(tmp303, int64(4))
+		var tmp335 interface{} = DivInt(frame, int64(30))
+		_ = tmp335 // suppress unused
+		var tmp336 interface{} = MulInt(crewId, int64(7))
+		_ = tmp336 // suppress unused
+		var tmp337 interface{} = AddInt(tmp335, tmp336)
+		_ = tmp337 // suppress unused
+		return ModInt(tmp337, int64(4))
 	}()
 	return func() interface{} {
 		_scrutinee := phase
@@ -1757,15 +2011,15 @@ func getPatrolDirection(crewId int64, frame int64) *Direction {
 
 func tryMoveCrew_impl(crew interface{}, dir interface{}, state interface{}) interface{} {
 	var newPos interface{} = func() interface{} {
-		var tmp307 interface{} = FieldGet(crew, "pos")
-		_ = tmp307 // suppress unused
-		return moveInDirection_impl(tmp307, dir)
+		var tmp341 interface{} = FieldGet(crew, "pos")
+		_ = tmp341 // suppress unused
+		return moveInDirection_impl(tmp341, dir)
 	}()
-	var tmp304 interface{} = FieldGet(newPos, "x")
-	var tmp305 interface{} = FieldGet(newPos, "y")
-	var tmp306 interface{} = isWalkable_impl(state, tmp304, tmp305)
+	var tmp338 interface{} = FieldGet(newPos, "x")
+	var tmp339 interface{} = FieldGet(newPos, "y")
+	var tmp340 interface{} = isWalkable_impl(state, tmp338, tmp339)
 	return func() interface{} {
-		if tmp306.(bool) {
+		if tmp340.(bool) {
 			return RecordUpdate(crew, map[string]interface{}{"pos": newPos, "facing": dir})
 		}
 		return RecordUpdate(crew, map[string]interface{}{"facing": dir})
@@ -1777,18 +2031,18 @@ func tryMoveCrew(crew *CrewPosition, dir *Direction, state *BridgeState) *CrewPo
 }
 
 func updateCrewMember_impl(crew interface{}, frame interface{}, state interface{}) interface{} {
-	var tmp308 interface{} = ModInt(frame, int64(30))
-	var tmp309 interface{} = EqInt(tmp308, int64(0))
+	var tmp342 interface{} = ModInt(frame, int64(30))
+	var tmp343 interface{} = EqInt(tmp342, int64(0))
 	return func() interface{} {
-		if tmp309.(bool) {
+		if tmp343.(bool) {
 			return func() interface{} {
-				var tmp310 interface{} = FieldGet(crew, "crew")
-				_ = tmp310 // suppress unused
-				var tmp311 interface{} = FieldGet(tmp310, "id")
-				_ = tmp311 // suppress unused
-				var tmp312 interface{} = getPatrolDirection_impl(tmp311, frame)
-				_ = tmp312 // suppress unused
-				return tryMoveCrew_impl(crew, tmp312, state)
+				var tmp344 interface{} = FieldGet(crew, "crew")
+				_ = tmp344 // suppress unused
+				var tmp345 interface{} = FieldGet(tmp344, "id")
+				_ = tmp345 // suppress unused
+				var tmp346 interface{} = getPatrolDirection_impl(tmp345, frame)
+				_ = tmp346 // suppress unused
+				return tryMoveCrew_impl(crew, tmp346, state)
 			}()
 		}
 		return crew
@@ -1811,11 +2065,11 @@ func updateCrewRec_impl(crew interface{}, frame interface{}, state interface{}) 
 			rest := ListTail(_scrutinee)
 			_ = rest // suppress unused
 			return func() interface{} {
-				var tmp313 interface{} = updateCrewMember_impl(c, frame, state)
-				_ = tmp313 // suppress unused
-				var tmp314 interface{} = updateCrewRec_impl(rest, frame, state)
-				_ = tmp314 // suppress unused
-				return Cons(tmp313, tmp314)
+				var tmp347 interface{} = updateCrewMember_impl(c, frame, state)
+				_ = tmp347 // suppress unused
+				var tmp348 interface{} = updateCrewRec_impl(rest, frame, state)
+				_ = tmp348 // suppress unused
+				return Cons(tmp347, tmp348)
 			}()
 		} else {
 			panic("non-exhaustive match")
@@ -1830,27 +2084,27 @@ func updateCrewRec(crew []*CrewPosition, frame int64, state *BridgeState) []*Cre
 func stepBridge_impl(state interface{}, frame interface{}) interface{} {
 	var dt interface{} = DivFloat(float64(1), float64(60))
 	var updatedDome interface{} = func() interface{} {
-		var tmp320 interface{} = FieldGet(state, "domeState")
-		_ = tmp320 // suppress unused
-		return stepDome_impl(tmp320, dt)
+		var tmp354 interface{} = FieldGet(state, "domeState")
+		_ = tmp354 // suppress unused
+		return stepDome_impl(tmp354, dt)
 	}()
 	var updatedDomeView interface{} = func() interface{} {
-		var tmp316 interface{} = FieldGet(updatedDome, "targetPlanet")
-		_ = tmp316 // suppress unused
-		var tmp317 interface{} = FieldGet(updatedDome, "cruiseVelocity")
-		_ = tmp317 // suppress unused
-		var tmp318 interface{} = FieldGet(state, "domeView")
-		_ = tmp318 // suppress unused
-		var tmp319 interface{} = FieldGet(tmp318, "viewAngle")
-		_ = tmp319 // suppress unused
-		return makeDomeViewState_impl(tmp316, tmp317, tmp319)
+		var tmp350 interface{} = FieldGet(updatedDome, "targetPlanet")
+		_ = tmp350 // suppress unused
+		var tmp351 interface{} = FieldGet(updatedDome, "cruiseVelocity")
+		_ = tmp351 // suppress unused
+		var tmp352 interface{} = FieldGet(state, "domeView")
+		_ = tmp352 // suppress unused
+		var tmp353 interface{} = FieldGet(tmp352, "viewAngle")
+		_ = tmp353 // suppress unused
+		return makeDomeViewState_impl(tmp350, tmp351, tmp353)
 	}()
 	var updatedCrew interface{} = func() interface{} {
-		var tmp315 interface{} = FieldGet(state, "crewPositions")
-		_ = tmp315 // suppress unused
-		return updateCrewRec_impl(tmp315, frame, state)
+		var tmp349 interface{} = FieldGet(state, "crewPositions")
+		_ = tmp349 // suppress unused
+		return updateCrewRec_impl(tmp349, frame, state)
 	}()
-	return RecordUpdate(state, map[string]interface{}{"domeView": updatedDomeView, "tick": frame, "crewPositions": updatedCrew, "domeState": updatedDome})
+	return RecordUpdate(state, map[string]interface{}{"crewPositions": updatedCrew, "domeState": updatedDome, "domeView": updatedDomeView, "tick": frame})
 }
 
 func StepBridge(state *BridgeState, frame int64) *BridgeState {

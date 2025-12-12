@@ -251,6 +251,21 @@ func EqInt(a, b interface{}) interface{} {
 	return toInt64(a) == toInt64(b)
 }
 
+// EqString compares two strings for equality.
+func EqString(a, b interface{}) interface{} {
+	return toString(a) == toString(b)
+}
+
+// toString converts interface{} to string.
+func toString(v interface{}) string {
+	switch x := v.(type) {
+	case string:
+		return x
+	default:
+		return fmt.Sprintf("%v", x)
+	}
+}
+
 // LtInt compares two integers (less than).
 func LtInt(a, b interface{}) interface{} {
 	return toInt64(a) < toInt64(b)

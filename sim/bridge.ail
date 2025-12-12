@@ -5,7 +5,7 @@ module sim/bridge
 -- The bridge is the command center of the ship - the player's primary interface
 -- =============================================================================
 
-import sim/protocol (Coord, DrawCmd, IsoTile, IsoEntity, FrameInput, Rect, Sprite, Line, RectRGBA, Circle, CircleRGBA, Text, GalaxyBg, SpaceBg, Planets3D, BubbleArc)
+import sim/protocol (Coord, DrawCmd, IsoTile, IsoEntity, FrameInput, KeyEvent, Rect, Sprite, Line, RectRGBA, Circle, CircleRGBA, Text, GalaxyBg, SpaceBg, Planets3D, BubbleArc)
 import sim/npc_ai (Direction, North, South, East, West)
 import std/option (Option, Some, None)
 import std/list (concat)
@@ -878,6 +878,70 @@ export pure func renderBridge(state: BridgeState) -> [DrawCmd] {
         ),
         renderPlayer(state)                           -- Player character
     )
+}
+
+-- =============================================================================
+-- Player Input Processing
+-- =============================================================================
+
+-- Key codes for WASD (matching Ebiten key codes)
+pure func keyW() -> int { 87 }
+pure func keyA() -> int { 65 }
+pure func keyS() -> int { 83 }
+pure func keyD() -> int { 68 }
+pure func keyUp() -> int { 265 }
+pure func keyDown() -> int { 264 }
+pure func keyLeft() -> int { 263 }
+pure func keyRight() -> int { 262 }
+
+-- Check if a key is in the key list (recursive)
+pure func hasKeyRec(keyCode: int, keys: [KeyEvent]) -> bool {
+    match keys {
+        [] => false,
+        k :: rest => if k.key == keyCode && k.kind == "pressed" then true else hasKeyRec(keyCode, rest)
+    }
+}
+
+-- Check if a key is pressed this frame
+pure func hasKey(keyCode: int, input: FrameInput) -> bool {
+    hasKeyRec(keyCode, input.keys)
+}
+
+-- Get movement direction from input (returns None if no movement key pressed)
+pure func getInputDirection(input: FrameInput) -> Option[Direction] {
+    if hasKey(keyW(), input) || hasKey(keyUp(), input) then Some(North)
+    else if hasKey(keyS(), input) || hasKey(keyDown(), input) then Some(South)
+    else if hasKey(keyA(), input) || hasKey(keyLeft(), input) then Some(West)
+    else if hasKey(keyD(), input) || hasKey(keyRight(), input) then Some(East)
+    else None
+}
+
+-- Try to move player in a direction, checking walkability
+pure func tryMovePlayer(state: BridgeState, dir: Direction) -> BridgeState {
+    let newPos = moveInDirection(state.playerPos, dir);
+    if isWalkable(state, newPos.x, newPos.y) then
+        { state |
+            playerPos: newPos,
+            playerFacing: dir,
+            moveState: MoveWalking(dir),
+            cameraX: newPos.x,
+            cameraY: newPos.y
+        }
+    else
+        { state | playerFacing: dir, moveState: MoveIdle }
+}
+
+-- Helper: set player to idle
+pure func setPlayerIdle(state: BridgeState) -> BridgeState {
+    { state | moveState: MoveIdle }
+}
+
+-- Process player input and update state
+export pure func processBridgeInput(state: BridgeState, input: FrameInput) -> BridgeState {
+    match getInputDirection(input) {
+        Some(dir) => tryMovePlayer(state, dir),
+        None => setPlayerIdle(state)
+    }
 }
 
 -- =============================================================================
