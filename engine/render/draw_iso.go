@@ -49,6 +49,65 @@ func (r *Renderer) drawIsoTile(screen *ebiten.Image, c *sim_gen.DrawCmdIsoTile, 
 	drawIsoDiamond(screen, sx, sy, tileW, tileH, col)
 }
 
+// drawIsoTileAlpha renders a transparent isometric tile with alpha blending.
+func (r *Renderer) drawIsoTileAlpha(screen *ebiten.Image, c *sim_gen.DrawCmdIsoTileAlpha, cam sim_gen.Camera, screenW, screenH int) {
+	// Dereference tile coord pointer
+	tile := *c.Tile
+
+	// Check if tile is in view
+	if !TileInView(tile, int(c.Height), cam, screenW, screenH) {
+		return
+	}
+
+	// Convert tile to screen coordinates
+	sx, sy := TileToScreen(tile, int(c.Height), cam, screenW, screenH)
+
+	// Calculate tile size in screen space
+	tileW := TileWidth * cam.Zoom
+	tileH := TileHeight * cam.Zoom
+
+	// Draw sprite if available
+	if r.assets != nil && c.SpriteId > 0 {
+		sprite := r.assets.GetSprite(int(c.SpriteId))
+		if sprite != nil {
+			op := &ebiten.DrawImageOptions{}
+			op.GeoM.Scale(cam.Zoom, cam.Zoom)
+			// Center sprite on tile position
+			op.GeoM.Translate(sx-tileW/2, sy-tileH/2)
+
+			// Apply alpha
+			op.ColorScale.ScaleAlpha(float32(c.Alpha))
+
+			// Apply tint if specified
+			if c.TintRgba != 0 {
+				tintCol := unpackRGBA(c.TintRgba)
+				// Multiply with tint color
+				op.ColorScale.ScaleWithColor(tintCol)
+			}
+
+			screen.DrawImage(sprite, op)
+			return
+		}
+	}
+
+	// Fallback: draw semi-transparent colored diamond
+	baseCol := color.RGBA{100, 150, 200, 255} // Blue-ish default
+
+	// Apply tint if specified
+	if c.TintRgba != 0 {
+		baseCol = unpackRGBA(c.TintRgba)
+	}
+
+	// Apply alpha to the color
+	finalCol := color.RGBA{
+		R: baseCol.R,
+		G: baseCol.G,
+		B: baseCol.B,
+		A: uint8(float64(baseCol.A) * c.Alpha),
+	}
+	drawIsoDiamond(screen, sx, sy, tileW, tileH, finalCol)
+}
+
 // drawIsoEntity renders an isometric entity with sub-tile positioning.
 func (r *Renderer) drawIsoEntity(screen *ebiten.Image, c *sim_gen.DrawCmdIsoEntity, cam sim_gen.Camera, screenW, screenH int) {
 	// Dereference tile coord pointer
@@ -150,6 +209,11 @@ func getIsoSortKey(cmd *sim_gen.DrawCmd, cam sim_gen.Camera, screenW, screenH in
 	switch cmd.Kind {
 	case sim_gen.DrawCmdKindIsoTile:
 		c := cmd.IsoTile
+		_, sy := TileToScreen(*c.Tile, int(c.Height), cam, screenW, screenH)
+		return IsoDepth(int(c.Layer), sy)
+
+	case sim_gen.DrawCmdKindIsoTileAlpha:
+		c := cmd.IsoTileAlpha
 		_, sy := TileToScreen(*c.Tile, int(c.Height), cam, screenW, screenH)
 		return IsoDepth(int(c.Layer), sy)
 

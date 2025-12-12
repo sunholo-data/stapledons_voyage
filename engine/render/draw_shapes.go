@@ -8,6 +8,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"golang.org/x/image/font"
+	"stapledons_voyage/engine/camera"
 	"stapledons_voyage/sim_gen"
 )
 
@@ -127,6 +128,95 @@ func (r *Renderer) drawCircle(screen *ebiten.Image, c *sim_gen.DrawCmdCircle) {
 		// Draw circle outline using StrokeCircle
 		vector.StrokeCircle(screen, float32(c.X), float32(c.Y), radius, 1, col, true)
 	}
+}
+
+// drawSpireBg renders a placeholder spire silhouette for the MidBackground layer.
+// The spire is the central structural element running vertically through the bubble ship.
+// In the final game, this would be a proper sprite; this placeholder shows the parallax effect.
+func (r *Renderer) drawSpireBg(screen *ebiten.Image, screenW, screenH int) {
+	// Spire is a tall, narrow vertical structure in the center of the screen
+	// It uses MidBackground parallax (0.3x), so it moves slower than the scene
+
+	// Dark silhouette color with slight transparency
+	spireColor := color.RGBA{30, 35, 50, 200}
+	highlightColor := color.RGBA{50, 60, 80, 180}
+
+	// Center the spire
+	centerX := float32(screenW) / 2
+
+	// Main spire body - tall narrow rectangle
+	spireWidth := float32(60)
+	spireHeight := float32(screenH) * 1.5 // Taller than screen
+	spireTop := float32(screenH)/2 - spireHeight/2
+
+	// Draw main spire body
+	vector.DrawFilledRect(screen,
+		centerX-spireWidth/2, spireTop,
+		spireWidth, spireHeight,
+		spireColor, true)
+
+	// Add some structural details (horizontal bands)
+	bandColor := color.RGBA{40, 45, 60, 220}
+	bandHeight := float32(8)
+	bandSpacing := float32(80)
+
+	for y := spireTop; y < spireTop+spireHeight; y += bandSpacing {
+		vector.DrawFilledRect(screen,
+			centerX-spireWidth/2-5, y,
+			spireWidth+10, bandHeight,
+			bandColor, true)
+	}
+
+	// Add slight glow/edge highlight on one side
+	vector.DrawFilledRect(screen,
+		centerX-spireWidth/2, spireTop,
+		3, spireHeight,
+		highlightColor, true)
+}
+
+// drawSpireBgParallax renders the spire silhouette with parallax offset.
+// The transform contains the parallax-adjusted camera offset for this layer.
+func (r *Renderer) drawSpireBgParallax(screen *ebiten.Image, screenW, screenH int, transform camera.Transform) {
+	// Calculate parallax shift from transform
+	// transform.OffsetX = screenW/2 - camera.X * parallaxFactor * zoom
+	// So the shift from center is: transform.OffsetX - screenW/2
+	parallaxShiftX := float32(transform.OffsetX - float64(screenW)/2)
+
+	// Dark silhouette color with slight transparency
+	spireColor := color.RGBA{30, 35, 50, 200}
+	highlightColor := color.RGBA{50, 60, 80, 180}
+
+	// Center the spire with parallax offset
+	centerX := float32(screenW)/2 + parallaxShiftX
+
+	// Main spire body - tall narrow rectangle
+	spireWidth := float32(60)
+	spireHeight := float32(screenH) * 1.5 // Taller than screen
+	spireTop := float32(screenH)/2 - spireHeight/2
+
+	// Draw main spire body
+	vector.DrawFilledRect(screen,
+		centerX-spireWidth/2, spireTop,
+		spireWidth, spireHeight,
+		spireColor, true)
+
+	// Add some structural details (horizontal bands)
+	bandColor := color.RGBA{40, 45, 60, 220}
+	bandHeight := float32(8)
+	bandSpacing := float32(80)
+
+	for y := spireTop; y < spireTop+spireHeight; y += bandSpacing {
+		vector.DrawFilledRect(screen,
+			centerX-spireWidth/2-5, y,
+			spireWidth+10, bandHeight,
+			bandColor, true)
+	}
+
+	// Add slight glow/edge highlight on one side
+	vector.DrawFilledRect(screen,
+		centerX-spireWidth/2, spireTop,
+		3, spireHeight,
+		highlightColor, true)
 }
 
 // drawText draws text with specified font size and color.

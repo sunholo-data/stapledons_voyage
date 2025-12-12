@@ -81,6 +81,11 @@ export type DrawCmd =
     | IsoTile(tile: Coord, height: int, spriteId: int, layer: int, color: int)
     | IsoEntity(id: string, tile: Coord, offsetX: float, offsetY: float, height: int, spriteId: int, layer: int)
 
+    -- Transparent isometric tile (for glass floors, dome edges, etc.)
+    -- alpha: 0.0 = invisible, 1.0 = opaque
+    -- tintRgba: Color tint in 0xRRGGBBAA format (0 = no tint)
+    | IsoTileAlpha(tile: Coord, height: int, spriteId: int, layer: int, alpha: float, tintRgba: int)
+
     -- UI draw commands (screen space, not affected by camera)
     | Ui(id: string, kind: UiKind, x: float, y: float, w: float, h: float, text: string, spriteId: int, z: int, color: int, value: float)
 
@@ -100,9 +105,15 @@ export type DrawCmd =
 
     -- 3D rendering commands (Tetra3D integration)
     -- These tell the Go engine WHEN to render 3D elements (AILANG controls layer order)
-    | SpaceBg(z: int)       -- Render starfield/galaxy background
+    | SpaceBg(z: int)       -- Render starfield/galaxy background (DeepBackground layer)
+    | SpireBg(z: int)       -- Render spire silhouette background (MidBackground layer, 0.3x parallax)
     | Planets3D(z: int)     -- Render 3D textured planets (Tetra3D)
     | BubbleArc(z: int)     -- Render bubble arc edge effect
+
+    -- Parallax layer marker (for testing/debugging depth layers)
+    -- parallaxLayer: 0-19, selects which parallax layer to render on
+    -- Marker renders a colored shape at screen position with parallax applied
+    | Marker(x: float, y: float, w: float, h: float, rgba: int, parallaxLayer: int, z: int)
 
 -- =============================================================================
 -- Output Types

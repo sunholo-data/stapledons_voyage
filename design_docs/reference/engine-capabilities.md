@@ -1,6 +1,6 @@
 # Engine Capabilities Reference
 
-**Status**: Active (Updated 2025-12-06)
+**Status**: Active (Updated 2025-12-12)
 **Purpose**: Comprehensive reference for all Go/Ebiten engine capabilities
 **Audience**: Sprint executor, design docs, AI agents working on the game
 
@@ -12,6 +12,7 @@
 | Effect handlers | `engine/handlers/` | Working |
 | Asset loading | `engine/assets/` | Working |
 | Camera/viewport | `engine/camera/` | Working |
+| **Parallax layers** | `engine/depth/` | **Working** |
 | SR/GR physics | `engine/relativity/` | Working |
 | Shader effects | `engine/shader/` | Working |
 | Input capture | `engine/input/` | Working |
@@ -55,6 +56,15 @@ All defined in `sim/protocol.ail`, rendered by `engine/render/draw.go`.
 |---------|-----------|---------|
 | `GalaxyBg` | `(opacity, z, skyViewMode, viewLon, viewLat, fov)` | Galaxy background with scrolling |
 | `Star` | `(x, y, spriteId, scale, alpha, z)` | Individual star with scale/alpha |
+| `SpireBg` | `(z)` | Spire silhouette background (Layer 6, 0.3x parallax) |
+
+### Parallax Layer Commands
+
+| Command | Signature | Purpose |
+|---------|-----------|---------|
+| `Marker` | `(x, y, w, h, rgba, parallaxLayer, z)` | Rectangle on selectable parallax layer (0-19) |
+
+**Marker Usage:** Place visual elements on any of the 20 depth layers. AILANG controls which layer via `parallaxLayer` field.
 
 ### UI Commands
 
@@ -379,7 +389,95 @@ type Config struct {
 
 ---
 
-## 5. Relativity Physics
+## 5. Parallax Depth Layers
+
+**File:** `engine/depth/layer.go`
+
+The engine supports **20 depth layers (0-19)** for parallax rendering. Each layer has a configurable parallax factor that determines how fast it moves relative to the camera.
+
+### Layer Definitions
+
+| Layer | Parallax | Purpose |
+|-------|----------|---------|
+| L0 | 0.00 | Fixed at infinity (galaxy/space) |
+| L1 | 0.05 | Very distant stars |
+| L2 | 0.10 | Far spire segment |
+| L3 | 0.15 | Distant ship structure |
+| L4 | 0.20 | Opposite hull |
+| L5 | 0.25 | Far deck (5+ decks away) |
+| L6 | 0.30 | Mid-distance structure |
+| L7 | 0.40 | 4 decks away |
+| L8 | 0.50 | 3 decks away |
+| L9 | 0.60 | 2 decks away |
+| L10 | 0.70 | Adjacent deck |
+| L11 | 0.75 | Near background |
+| L12 | 0.80 | Same deck distant |
+| L13 | 0.85 | Same deck mid |
+| L14 | 0.90 | Same deck near |
+| L15 | 0.95 | Current deck background |
+| L16 | 1.00 | Main scene layer |
+| L17 | 1.00 | Scene overlay |
+| L18 | 1.00 | Foreground effects |
+| L19 | 1.00 | UI (screen-fixed) |
+
+### Convenience Aliases
+
+```go
+LayerDeepBackground = Layer0   // Galaxy, fixed at infinity
+LayerMidBackground  = Layer6   // Mid-distance, 0.3x
+LayerScene          = Layer16  // Main content, 1.0x
+LayerForeground     = Layer19  // UI, screen-fixed
+```
+
+### Parallax Math
+
+```
+parallax_offset = camera_position × parallax_factor × zoom
+```
+
+- **0.0x**: Fixed (doesn't move with camera) - stars at infinity
+- **0.5x**: Moves half as fast as camera - distant objects
+- **1.0x**: Moves with camera - scene layer
+
+### Runtime Configuration
+
+```go
+// Change parallax factor at runtime (e.g., for zoom-dependent effects)
+depth.SetParallax(depth.Layer5, 0.35)
+
+// Get all current factors
+factors := depth.GetAllParallax()
+```
+
+### AILANG Integration
+
+DrawCmds are routed to layers by type OR by explicit `parallaxLayer` field:
+
+| DrawCmd | Default Layer |
+|---------|---------------|
+| `GalaxyBg`, `SpaceBg`, `Star` | Layer0 (0.0x) |
+| `SpireBg` | Layer6 (0.3x) |
+| `IsoTile`, `IsoEntity`, `Sprite` | Layer16 (1.0x) |
+| `Ui`, `Text`, `RectScreen` | Layer19 (UI) |
+| `Marker(parallaxLayer=N)` | LayerN (selectable) |
+
+### Enable Layer Rendering
+
+```go
+renderer.EnableLayers(screenW, screenH)  // Enable layer system
+renderer.ResizeLayers(screenW, screenH)  // Handle resize
+```
+
+### Demo
+
+```bash
+go run ./cmd/demo-parallax                    # Interactive demo
+go run ./cmd/demo-parallax -camx 400 --screenshot 5 --output test.png
+```
+
+---
+
+## 6. Relativity Physics
 
 ### Special Relativity (SR)
 
@@ -471,7 +569,7 @@ Photon sphere: r = 1.5 r_s (black holes only)
 
 ---
 
-## 6. Shader Effects
+## 7. Shader Effects
 
 **File:** `engine/shader/`
 
@@ -546,7 +644,7 @@ grWarp.SetEnabled(true)
 
 ---
 
-## 7. Input System
+## 8. Input System
 
 **File:** `engine/input/`
 
@@ -590,7 +688,7 @@ type PlayerAction =
 
 ---
 
-## 8. Save System
+## 9. Save System
 
 **File:** `engine/save/save.go`
 
@@ -619,7 +717,7 @@ type SaveManager interface {
 
 ---
 
-## 9. Screenshot & Testing
+## 10. Screenshot & Testing
 
 ### Screenshot Capture
 
@@ -662,7 +760,7 @@ func CaptureToFile(cfg Config) error
 
 ---
 
-## 10. Coordinate Systems
+## 11. Coordinate Systems
 
 | System | Range | Transform | Use |
 |--------|-------|-----------|-----|
@@ -674,7 +772,7 @@ func CaptureToFile(cfg Config) error
 
 ---
 
-## 11. Initialization Sequence
+## 12. Initialization Sequence
 
 **Order matters:**
 
@@ -709,7 +807,7 @@ effects := shader.NewEffects()
 
 ---
 
-## 12. Z-Ordering & Depth
+## 13. Z-Ordering & Depth
 
 ### Z-Value Ranges
 
@@ -733,4 +831,4 @@ sortKey = layer × 10000 + screenY
 ---
 
 **Document created**: 2025-12-06
-**Last updated**: 2025-12-06
+**Last updated**: 2025-12-12

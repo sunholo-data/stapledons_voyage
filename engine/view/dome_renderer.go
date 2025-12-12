@@ -119,8 +119,9 @@ func loadTexture(path string) *ebiten.Image {
 }
 
 // createSolarSystem sets up planets for the cruise view.
-// NOTE: Tetra3D 3D rendering is currently disabled - AILANG renders placeholder circles
-// Keeping this code for future debugging of Tetra3D pipeline.
+// DEPRECATED: Planet data is now defined in AILANG (sim/celestial.ail).
+// Planets are rendered via CircleRGBA DrawCmds from renderSolarSystem().
+// This Tetra3D code is kept for potential future 3D upgrade but is not used.
 func (d *DomeRenderer) createSolarSystem() {
 	// Planet configurations for cruise view
 	// Slower, more scenic - we're cruising, not racing

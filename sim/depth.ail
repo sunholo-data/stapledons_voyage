@@ -1,0 +1,96 @@
+module sim/depth
+
+-- =============================================================================
+-- Depth Layer System
+-- =============================================================================
+-- Defines rendering layers for parallax and transparency effects.
+-- Lower layers are further away (background), higher are closer (foreground).
+
+-- Depth layer for rendering with parallax
+-- Each layer has a different parallax factor:
+--   DeepBackground: 0.1x (space, distant stars)
+--   MidBackground:  0.3x (spire, distant structures)
+--   Scene:          1.0x (current deck, entities)
+--   Foreground:     1.0x (UI, screen-fixed effects)
+export type DepthLayer =
+    | LayerDeepBackground
+    | LayerMidBackground
+    | LayerScene
+    | LayerForeground
+
+-- Get the parallax factor for a depth layer
+-- Lower values = moves less = appears further away
+export pure func layerParallax(layer: DepthLayer) -> float {
+    match layer {
+        LayerDeepBackground => 0.1,
+        LayerMidBackground => 0.3,
+        LayerScene => 1.0,
+        LayerForeground => 1.0
+    }
+}
+
+-- Get layer name for debugging
+export pure func layerName(layer: DepthLayer) -> string {
+    match layer {
+        LayerDeepBackground => "DeepBackground",
+        LayerMidBackground => "MidBackground",
+        LayerScene => "Scene",
+        LayerForeground => "Foreground"
+    }
+}
+
+-- Convert layer to z-order base value
+-- Each layer gets a range of z values to work within
+export pure func layerZBase(layer: DepthLayer) -> int {
+    match layer {
+        LayerDeepBackground => 0,
+        LayerMidBackground => 1000,
+        LayerScene => 2000,
+        LayerForeground => 3000
+    }
+}
+
+-- =============================================================================
+-- Transparent Tile System
+-- =============================================================================
+-- Enables tiles with alpha transparency that reveal layers behind them.
+-- Used for glass floors, dome edges, and other see-through surfaces.
+
+-- Transparent tile configuration
+-- baseId: The sprite ID for this tile
+-- alpha: Opacity from 0.0 (invisible) to 1.0 (opaque)
+-- seeThroughLayer: Which layer is visible through this tile
+-- tintRgba: Optional color tint (0xRRGGBBAA format, 0 = no tint)
+export type TransparentTile = {
+    baseId: int,
+    alpha: float,
+    seeThroughLayer: DepthLayer,
+    tintRgba: int
+}
+
+-- Create a simple transparent tile (no tint)
+export pure func makeTransparentTile(baseId: int, alpha: float, seeThroughLayer: DepthLayer) -> TransparentTile {
+    { baseId: baseId, alpha: alpha, seeThroughLayer: seeThroughLayer, tintRgba: 0 }
+}
+
+-- Create a tinted transparent tile
+export pure func makeTintedTile(baseId: int, alpha: float, seeThroughLayer: DepthLayer, tintRgba: int) -> TransparentTile {
+    { baseId: baseId, alpha: alpha, seeThroughLayer: seeThroughLayer, tintRgba: tintRgba }
+}
+
+-- Common tile presets for the bubble ship
+-- Glass floor: mostly transparent, shows deep background (space)
+export pure func glassFloorTile(baseId: int) -> TransparentTile {
+    makeTransparentTile(baseId, 0.3, LayerDeepBackground)
+}
+
+-- Dome edge: semi-transparent with blue tint, shows space
+-- Tint: RGBA(64, 128, 192, 160) = 0x4080C0A0 = 1082654880
+export pure func domeEdgeTile(baseId: int) -> TransparentTile {
+    makeTintedTile(baseId, 0.5, LayerDeepBackground, 1082654880)
+}
+
+-- Frosted panel: more opaque, shows mid-background (spire)
+export pure func frostedPanelTile(baseId: int) -> TransparentTile {
+    makeTransparentTile(baseId, 0.7, LayerMidBackground)
+}

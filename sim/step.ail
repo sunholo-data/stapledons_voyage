@@ -6,6 +6,7 @@ import sim/world (World, PlanetState, Tile, Selection, SelectionNone, SelectionT
 import sim/npc_ai (NPC, PatternStatic, PatternRandomWalk, PatternPatrol, Direction, North, South, East, West, updateAllNPCs)
 import sim/bridge (BridgeState, initBridge, renderBridge, stepBridge)
 import sim/starmap (initLocalCatalog, Star, Vec3, spectralColor, StarCatalog)
+import sim/celestial (initSolSystem, stepSystem, StarSystem, renderSolarSystem)
 
 -- Import effects (v0.5.0)
 import std/rand (rand_int)
@@ -149,6 +150,8 @@ export func init_world(seed: int) -> World {
     ];
     -- Initialize star catalog with 21 local stars (Sol + 20 nearest)
     let catalog = initLocalCatalog();
+    -- Initialize Sol system for planet rendering
+    let solSystem = initSolSystem();
     {
         tick: 0,
         planet: { width: w, height: h, tiles: tiles },
@@ -156,14 +159,20 @@ export func init_world(seed: int) -> World {
         selection: SelectionNone,
         bridge: initBridge(),
         viewMode: ViewBridge,
-        starCatalog: catalog
+        starCatalog: catalog,
+        currentSystem: solSystem
     }
 }
 
 -- Render based on view mode
 pure func renderForView(world: World) -> [DrawCmd] {
     match world.viewMode {
-        ViewBridge => renderBridge(world.bridge),
+        ViewBridge => {
+            -- Render bridge first, then overlay solar system planets
+            let bridgeCmds = renderBridge(world.bridge);
+            let planetCmds = renderSolarSystem(world.currentSystem);
+            concatDrawCmds(bridgeCmds, planetCmds)
+        },
         ViewPlanet => {
             let tileCmds = tilesToDraw(world.planet.tiles, world.planet.width, 0);
             let npcCmds = npcsToDraw(world.npcs);
@@ -177,7 +186,9 @@ pure func renderForView(world: World) -> [DrawCmd] {
 -- Helper: update world for bridge view
 pure func updateBridgeView(world: World, newTick: int) -> World {
     let updatedBridge = stepBridge(world.bridge, newTick);
-    { world | tick: newTick, bridge: updatedBridge }
+    -- Step orbital mechanics (dt = 0.001 years per frame ~= 8.7 hours)
+    let updatedSystem = stepSystem(world.currentSystem, 0.001);
+    { world | tick: newTick, bridge: updatedBridge, currentSystem: updatedSystem }
 }
 
 -- Helper: update world for planet view

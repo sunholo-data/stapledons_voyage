@@ -381,14 +381,6 @@ func layerDomeBg() int64 {
 	return layerDomeBg_impl(struct{}{}).(int64)
 }
 
-func layerPlanets3D_impl(_unused0 interface{}) interface{} {
-	return int64(4)
-}
-
-func layerPlanets3D() int64 {
-	return layerPlanets3D_impl(struct{}{}).(int64)
-}
-
 func layerBubbleArc3D_impl(_unused0 interface{}) interface{} {
 	return int64(5)
 }
@@ -400,11 +392,9 @@ func layerBubbleArc3D() int64 {
 func renderDome_impl(state interface{}) interface{} {
 	var tmp34 interface{} = layerDomeBg_impl(struct{}{})
 	var tmp35 interface{} = NewDrawCmdSpaceBg(tmp34.(int64))
-	var tmp36 interface{} = layerPlanets3D_impl(struct{}{})
-	var tmp37 interface{} = NewDrawCmdPlanets3D(tmp36.(int64))
-	var tmp38 interface{} = layerBubbleArc3D_impl(struct{}{})
-	var tmp39 interface{} = NewDrawCmdBubbleArc(tmp38.(int64))
-	return []interface{}{tmp35, tmp37, tmp39}
+	var tmp36 interface{} = layerBubbleArc3D_impl(struct{}{})
+	var tmp37 interface{} = NewDrawCmdBubbleArc(tmp36.(int64))
+	return []interface{}{tmp35, tmp37}
 }
 
 func RenderDome(state *DomeState) []*DrawCmd {
@@ -461,37 +451,37 @@ func arcRadius() float64 {
 
 func strutBaseX_impl(index interface{}, total interface{}) interface{} {
 	var centerX interface{} = func() interface{} {
-		var tmp50 interface{} = screenWidth_impl(struct{}{})
-		_ = tmp50 // suppress unused
-		return DivFloat(tmp50, float64(2))
+		var tmp48 interface{} = screenWidth_impl(struct{}{})
+		_ = tmp48 // suppress unused
+		return DivFloat(tmp48, float64(2))
 	}()
 	var angleRange interface{} = func() interface{} {
-		var tmp49 interface{} = math.Pi
-		_ = tmp49 // suppress unused
-		return DivFloat(tmp49, float64(3))
+		var tmp47 interface{} = math.Pi
+		_ = tmp47 // suppress unused
+		return DivFloat(tmp47, float64(3))
 	}()
 	var angleStep interface{} = func() interface{} {
-		var tmp46 interface{} = MulFloat(angleRange, float64(2))
+		var tmp44 interface{} = MulFloat(angleRange, float64(2))
+		_ = tmp44 // suppress unused
+		var tmp45 interface{} = SubInt(total, int64(1))
+		_ = tmp45 // suppress unused
+		var tmp46 interface{} = IntToFloat(tmp45)
 		_ = tmp46 // suppress unused
-		var tmp47 interface{} = SubInt(total, int64(1))
-		_ = tmp47 // suppress unused
-		var tmp48 interface{} = IntToFloat(tmp47)
-		_ = tmp48 // suppress unused
-		return DivFloat(tmp46, tmp48)
+		return DivFloat(tmp44, tmp46)
 	}()
 	var angle interface{} = func() interface{} {
-		var tmp43 interface{} = SubFloat(float64(0), angleRange)
+		var tmp41 interface{} = SubFloat(float64(0), angleRange)
+		_ = tmp41 // suppress unused
+		var tmp42 interface{} = IntToFloat(index)
+		_ = tmp42 // suppress unused
+		var tmp43 interface{} = MulFloat(tmp42, angleStep)
 		_ = tmp43 // suppress unused
-		var tmp44 interface{} = IntToFloat(index)
-		_ = tmp44 // suppress unused
-		var tmp45 interface{} = MulFloat(tmp44, angleStep)
-		_ = tmp45 // suppress unused
-		return AddFloat(tmp43, tmp45)
+		return AddFloat(tmp41, tmp43)
 	}()
-	var tmp40 interface{} = arcRadius_impl(struct{}{})
-	var tmp41 interface{} = math.Sin(angle.(float64))
-	var tmp42 interface{} = MulFloat(tmp40, tmp41)
-	return AddFloat(centerX, tmp42)
+	var tmp38 interface{} = arcRadius_impl(struct{}{})
+	var tmp39 interface{} = math.Sin(angle.(float64))
+	var tmp40 interface{} = MulFloat(tmp38, tmp39)
+	return AddFloat(centerX, tmp40)
 }
 
 func strutBaseX(index int64, total int64) float64 {
@@ -500,33 +490,33 @@ func strutBaseX(index int64, total int64) float64 {
 
 func strutBaseY_impl(index interface{}, total interface{}) interface{} {
 	var angleRange interface{} = func() interface{} {
-		var tmp61 interface{} = math.Pi
-		_ = tmp61 // suppress unused
-		return DivFloat(tmp61, float64(3))
+		var tmp59 interface{} = math.Pi
+		_ = tmp59 // suppress unused
+		return DivFloat(tmp59, float64(3))
 	}()
 	var angleStep interface{} = func() interface{} {
-		var tmp58 interface{} = MulFloat(angleRange, float64(2))
+		var tmp56 interface{} = MulFloat(angleRange, float64(2))
+		_ = tmp56 // suppress unused
+		var tmp57 interface{} = SubInt(total, int64(1))
+		_ = tmp57 // suppress unused
+		var tmp58 interface{} = IntToFloat(tmp57)
 		_ = tmp58 // suppress unused
-		var tmp59 interface{} = SubInt(total, int64(1))
-		_ = tmp59 // suppress unused
-		var tmp60 interface{} = IntToFloat(tmp59)
-		_ = tmp60 // suppress unused
-		return DivFloat(tmp58, tmp60)
+		return DivFloat(tmp56, tmp58)
 	}()
 	var angle interface{} = func() interface{} {
-		var tmp55 interface{} = SubFloat(float64(0), angleRange)
+		var tmp53 interface{} = SubFloat(float64(0), angleRange)
+		_ = tmp53 // suppress unused
+		var tmp54 interface{} = IntToFloat(index)
+		_ = tmp54 // suppress unused
+		var tmp55 interface{} = MulFloat(tmp54, angleStep)
 		_ = tmp55 // suppress unused
-		var tmp56 interface{} = IntToFloat(index)
-		_ = tmp56 // suppress unused
-		var tmp57 interface{} = MulFloat(tmp56, angleStep)
-		_ = tmp57 // suppress unused
-		return AddFloat(tmp55, tmp57)
+		return AddFloat(tmp53, tmp55)
 	}()
-	var tmp51 interface{} = arcCenterY_impl(struct{}{})
-	var tmp52 interface{} = arcRadius_impl(struct{}{})
-	var tmp53 interface{} = math.Cos(angle.(float64))
-	var tmp54 interface{} = MulFloat(tmp52, tmp53)
-	return SubFloat(tmp51, tmp54)
+	var tmp49 interface{} = arcCenterY_impl(struct{}{})
+	var tmp50 interface{} = arcRadius_impl(struct{}{})
+	var tmp51 interface{} = math.Cos(angle.(float64))
+	var tmp52 interface{} = MulFloat(tmp50, tmp51)
+	return SubFloat(tmp49, tmp52)
 }
 
 func strutBaseY(index int64, total int64) float64 {
@@ -536,13 +526,13 @@ func strutBaseY(index int64, total int64) float64 {
 func strutTopX_impl(index interface{}, total interface{}) interface{} {
 	var baseX interface{} = strutBaseX_impl(index, total)
 	var centerX interface{} = func() interface{} {
-		var tmp63 interface{} = screenWidth_impl(struct{}{})
-		_ = tmp63 // suppress unused
-		return DivFloat(tmp63, float64(2))
+		var tmp61 interface{} = screenWidth_impl(struct{}{})
+		_ = tmp61 // suppress unused
+		return DivFloat(tmp61, float64(2))
 	}()
 	var dx interface{} = SubFloat(baseX, centerX)
-	var tmp62 interface{} = MulFloat(dx, float64(0.3))
-	return AddFloat(baseX, tmp62)
+	var tmp60 interface{} = MulFloat(dx, float64(0.3))
+	return AddFloat(baseX, tmp60)
 }
 
 func strutTopX(index int64, total int64) float64 {
@@ -560,24 +550,24 @@ func strutTopY(index int64, total int64) float64 {
 
 func strutParallax_impl(index interface{}, total interface{}, cameraZ interface{}) interface{} {
 	var centerIndex interface{} = func() interface{} {
-		var tmp67 interface{} = SubInt(total, int64(1))
-		_ = tmp67 // suppress unused
-		var tmp68 interface{} = IntToFloat(tmp67)
-		_ = tmp68 // suppress unused
-		return DivFloat(tmp68, float64(2))
+		var tmp65 interface{} = SubInt(total, int64(1))
+		_ = tmp65 // suppress unused
+		var tmp66 interface{} = IntToFloat(tmp65)
+		_ = tmp66 // suppress unused
+		return DivFloat(tmp66, float64(2))
 	}()
 	var offsetFromCenter interface{} = func() interface{} {
-		var tmp66 interface{} = IntToFloat(index)
-		_ = tmp66 // suppress unused
-		return SubFloat(tmp66, centerIndex)
+		var tmp64 interface{} = IntToFloat(index)
+		_ = tmp64 // suppress unused
+		return SubFloat(tmp64, centerIndex)
 	}()
 	var progress interface{} = func() interface{} {
-		var tmp65 interface{} = SubFloat(float64(10), cameraZ)
-		_ = tmp65 // suppress unused
-		return DivFloat(tmp65, float64(165))
+		var tmp63 interface{} = SubFloat(float64(10), cameraZ)
+		_ = tmp63 // suppress unused
+		return DivFloat(tmp63, float64(165))
 	}()
-	var tmp64 interface{} = MulFloat(offsetFromCenter, progress)
-	return MulFloat(tmp64, float64(3))
+	var tmp62 interface{} = MulFloat(offsetFromCenter, progress)
+	return MulFloat(tmp62, float64(3))
 }
 
 func strutParallax(index int64, total int64, cameraZ float64) float64 {
@@ -586,14 +576,14 @@ func strutParallax(index int64, total int64, cameraZ float64) float64 {
 
 func renderStrutWithParallax_impl(index interface{}, total interface{}, cameraZ interface{}) interface{} {
 	var parallax interface{} = strutParallax_impl(index, total, cameraZ)
-	var tmp69 interface{} = strutBaseX_impl(index, total)
-	var tmp70 interface{} = strutBaseY_impl(index, total)
-	var tmp71 interface{} = strutTopX_impl(index, total)
-	var tmp72 interface{} = AddFloat(tmp71, parallax)
-	var tmp73 interface{} = strutTopY_impl(index, total)
-	var tmp74 interface{} = strutColor_impl(struct{}{})
-	var tmp75 interface{} = layerStruts_impl(struct{}{})
-	return NewDrawCmdLine(tmp69.(float64), tmp70.(float64), tmp72.(float64), tmp73.(float64), tmp74.(int64), float64(2), tmp75.(int64))
+	var tmp67 interface{} = strutBaseX_impl(index, total)
+	var tmp68 interface{} = strutBaseY_impl(index, total)
+	var tmp69 interface{} = strutTopX_impl(index, total)
+	var tmp70 interface{} = AddFloat(tmp69, parallax)
+	var tmp71 interface{} = strutTopY_impl(index, total)
+	var tmp72 interface{} = strutColor_impl(struct{}{})
+	var tmp73 interface{} = layerStruts_impl(struct{}{})
+	return NewDrawCmdLine(tmp67.(float64), tmp68.(float64), tmp70.(float64), tmp71.(float64), tmp72.(int64), float64(2), tmp73.(int64))
 }
 
 func renderStrutWithParallax(index int64, total int64, cameraZ float64) *DrawCmd {
@@ -601,19 +591,19 @@ func renderStrutWithParallax(index int64, total int64, cameraZ float64) *DrawCmd
 }
 
 func renderStrutsRec_impl(index interface{}, total interface{}, cameraZ interface{}) interface{} {
-	var tmp76 interface{} = GeInt(index, total)
+	var tmp74 interface{} = GeInt(index, total)
 	return func() interface{} {
-		if tmp76.(bool) {
+		if tmp74.(bool) {
 			return []interface{}{}
 		}
 		return func() interface{} {
-			var tmp77 interface{} = renderStrutWithParallax_impl(index, total, cameraZ)
+			var tmp75 interface{} = renderStrutWithParallax_impl(index, total, cameraZ)
+			_ = tmp75 // suppress unused
+			var tmp76 interface{} = AddInt(index, int64(1))
+			_ = tmp76 // suppress unused
+			var tmp77 interface{} = renderStrutsRec_impl(tmp76, total, cameraZ)
 			_ = tmp77 // suppress unused
-			var tmp78 interface{} = AddInt(index, int64(1))
-			_ = tmp78 // suppress unused
-			var tmp79 interface{} = renderStrutsRec_impl(tmp78, total, cameraZ)
-			_ = tmp79 // suppress unused
-			return Cons(tmp77, tmp79)
+			return Cons(tmp75, tmp77)
 		}()
 	}()
 }
@@ -623,10 +613,10 @@ func renderStrutsRec(index int64, total int64, cameraZ float64) []*DrawCmd {
 }
 
 func renderStruts_impl(state interface{}) interface{} {
-	var tmp80 interface{} = strutCount_impl(struct{}{})
-	var tmp81 interface{} = FieldGet(state, "domeState")
-	var tmp82 interface{} = FieldGet(tmp81, "cameraZ")
-	return renderStrutsRec_impl(int64(0), tmp80, tmp82)
+	var tmp78 interface{} = strutCount_impl(struct{}{})
+	var tmp79 interface{} = FieldGet(state, "domeState")
+	var tmp80 interface{} = FieldGet(tmp79, "cameraZ")
+	return renderStrutsRec_impl(int64(0), tmp78, tmp80)
 }
 
 func RenderStruts(state *BridgeState) []*DrawCmd {
@@ -804,9 +794,9 @@ func makeCoord(x int64, y int64) *Coord {
 func distSq_impl(x interface{}, y interface{}, cx interface{}, cy interface{}) interface{} {
 	var dx interface{} = SubInt(x, cx)
 	var dy interface{} = SubInt(y, cy)
-	var tmp83 interface{} = MulInt(dx, dx)
-	var tmp84 interface{} = MulInt(dy, dy)
-	return AddInt(tmp83, tmp84)
+	var tmp81 interface{} = MulInt(dx, dx)
+	var tmp82 interface{} = MulInt(dy, dy)
+	return AddInt(tmp81, tmp82)
 }
 
 func distSq(x int64, y int64, cx int64, cy int64) int64 {
@@ -814,9 +804,9 @@ func distSq(x int64, y int64, cx int64, cy int64) int64 {
 }
 
 func isOnDisc_impl(x interface{}, y interface{}, cx interface{}, cy interface{}, radius interface{}) interface{} {
-	var tmp85 interface{} = distSq_impl(x, y, cx, cy)
-	var tmp86 interface{} = MulInt(radius, radius)
-	return LeInt(tmp85, tmp86)
+	var tmp83 interface{} = distSq_impl(x, y, cx, cy)
+	var tmp84 interface{} = MulInt(radius, radius)
+	return LeInt(tmp83, tmp84)
 }
 
 func IsOnDisc(x int64, y int64, cx int64, cy int64, radius int64) bool {
@@ -825,18 +815,18 @@ func IsOnDisc(x int64, y int64, cx int64, cy int64, radius int64) bool {
 
 func isWalkable_impl(state interface{}, x interface{}, y interface{}) interface{} {
 	var dSq interface{} = func() interface{} {
-		var tmp89 interface{} = FieldGet(state, "discCenterX")
-		_ = tmp89 // suppress unused
-		var tmp90 interface{} = FieldGet(state, "discCenterY")
-		_ = tmp90 // suppress unused
-		return distSq_impl(x, y, tmp89, tmp90)
+		var tmp87 interface{} = FieldGet(state, "discCenterX")
+		_ = tmp87 // suppress unused
+		var tmp88 interface{} = FieldGet(state, "discCenterY")
+		_ = tmp88 // suppress unused
+		return distSq_impl(x, y, tmp87, tmp88)
 	}()
 	var radiusSq interface{} = func() interface{} {
-		var tmp87 interface{} = FieldGet(state, "discRadius")
-		_ = tmp87 // suppress unused
-		var tmp88 interface{} = FieldGet(state, "discRadius")
-		_ = tmp88 // suppress unused
-		return MulInt(tmp87, tmp88)
+		var tmp85 interface{} = FieldGet(state, "discRadius")
+		_ = tmp85 // suppress unused
+		var tmp86 interface{} = FieldGet(state, "discRadius")
+		_ = tmp86 // suppress unused
+		return MulInt(tmp85, tmp86)
 	}()
 	return LtInt(dSq, radiusSq)
 }
@@ -849,39 +839,39 @@ func getTileType_impl(x interface{}, y interface{}, cx interface{}, cy interface
 	var dSq interface{} = distSq_impl(x, y, cx, cy)
 	var radiusSq interface{} = MulInt(radius, radius)
 	var edgeSq interface{} = func() interface{} {
-		var tmp98 interface{} = SubInt(radius, int64(1))
-		_ = tmp98 // suppress unused
-		var tmp99 interface{} = SubInt(radius, int64(1))
-		_ = tmp99 // suppress unused
-		return MulInt(tmp98, tmp99)
-	}()
-	var tmp91 interface{} = GeInt(dSq, radiusSq)
-	return func() interface{} {
-		var tmp92 interface{} = GeInt(dSq, edgeSq)
-		_ = tmp92 // suppress unused
-		var tmp93 interface{} = LeInt(dSq, int64(9))
-		_ = tmp93 // suppress unused
-		var tmp94 interface{} = LeInt(dSq, int64(36))
-		_ = tmp94 // suppress unused
-		var tmp95 interface{} = AddInt(x, y)
-		_ = tmp95 // suppress unused
-		var tmp96 interface{} = ModInt(tmp95, int64(8))
+		var tmp96 interface{} = SubInt(radius, int64(1))
 		_ = tmp96 // suppress unused
-		var tmp97 interface{} = EqInt(tmp96, int64(0))
+		var tmp97 interface{} = SubInt(radius, int64(1))
 		_ = tmp97 // suppress unused
-		if tmp91.(bool) {
+		return MulInt(tmp96, tmp97)
+	}()
+	var tmp89 interface{} = GeInt(dSq, radiusSq)
+	return func() interface{} {
+		var tmp90 interface{} = GeInt(dSq, edgeSq)
+		_ = tmp90 // suppress unused
+		var tmp91 interface{} = LeInt(dSq, int64(9))
+		_ = tmp91 // suppress unused
+		var tmp92 interface{} = LeInt(dSq, int64(36))
+		_ = tmp92 // suppress unused
+		var tmp93 interface{} = AddInt(x, y)
+		_ = tmp93 // suppress unused
+		var tmp94 interface{} = ModInt(tmp93, int64(8))
+		_ = tmp94 // suppress unused
+		var tmp95 interface{} = EqInt(tmp94, int64(0))
+		_ = tmp95 // suppress unused
+		if tmp89.(bool) {
 			return tileWall_impl(struct{}{})
 		}
-		if tmp92.(bool) {
+		if tmp90.(bool) {
 			return tileDomeEdge_impl(struct{}{})
 		}
-		if tmp93.(bool) {
+		if tmp91.(bool) {
 			return tileCaptainArea_impl(struct{}{})
 		}
-		if tmp94.(bool) {
+		if tmp92.(bool) {
 			return tileFloorGlow_impl(struct{}{})
 		}
-		if tmp97.(bool) {
+		if tmp95.(bool) {
 			return tileWalkway_impl(struct{}{})
 		}
 		return tileFloor_impl(struct{}{})
@@ -969,9 +959,9 @@ func moveInDirection_impl(pos interface{}, dir interface{}) interface{} {
 		switch _scrutinee {
 		default:
 			return func() interface{} {
-				var tmp100 interface{} = SubInt(py, int64(1))
-				_ = tmp100 // suppress unused
-				return makeCoord_impl(px, tmp100)
+				var tmp98 interface{} = SubInt(py, int64(1))
+				_ = tmp98 // suppress unused
+				return makeCoord_impl(px, tmp98)
 			}()
 		}
 	}()
@@ -1000,32 +990,32 @@ func DiscCenterDefault() int64 {
 func createConsoles_impl(_unused0 interface{}) interface{} {
 	var cx interface{} = discCenterDefault_impl(struct{}{})
 	var cy interface{} = discCenterDefault_impl(struct{}{})
-	var tmp104 interface{} = SubInt(cy, int64(10))
-	var tmp105 interface{} = makeCoord_impl(cx, tmp104)
-	var tmp106 interface{} = spriteConsoleHelm_impl(struct{}{})
-	var tmp107 interface{} = &ConsoleState{Station: NewBridgeStationStationHelm(), Pos: tmp105.(*Coord), Active: true, HasAlert: false, SpriteId: tmp106.(int64)}
-	var tmp108 interface{} = SubInt(cx, int64(8))
-	var tmp109 interface{} = SubInt(cy, int64(8))
-	var tmp110 interface{} = makeCoord_impl(tmp108, tmp109)
-	var tmp111 interface{} = spriteConsoleComms_impl(struct{}{})
-	var tmp112 interface{} = &ConsoleState{Station: NewBridgeStationStationComms(), Pos: tmp110.(*Coord), Active: true, HasAlert: false, SpriteId: tmp111.(int64)}
-	var tmp113 interface{} = AddInt(cx, int64(8))
-	var tmp114 interface{} = SubInt(cy, int64(8))
-	var tmp115 interface{} = makeCoord_impl(tmp113, tmp114)
-	var tmp116 interface{} = spriteConsoleStatus_impl(struct{}{})
-	var tmp117 interface{} = &ConsoleState{Station: NewBridgeStationStationStatus(), Pos: tmp115.(*Coord), Active: true, HasAlert: false, SpriteId: tmp116.(int64)}
-	var tmp118 interface{} = makeCoord_impl(cx, cy)
-	var tmp119 interface{} = spriteConsoleCaptain_impl(struct{}{})
-	var tmp120 interface{} = &ConsoleState{Station: NewBridgeStationStationCaptain(), Pos: tmp118.(*Coord), Active: true, HasAlert: false, SpriteId: tmp119.(int64)}
-	var tmp121 interface{} = SubInt(cx, int64(12))
-	var tmp122 interface{} = makeCoord_impl(tmp121, cy)
-	var tmp123 interface{} = spriteConsoleNav_impl(struct{}{})
-	var tmp124 interface{} = &ConsoleState{Station: NewBridgeStationStationNav(), Pos: tmp122.(*Coord), Active: true, HasAlert: false, SpriteId: tmp123.(int64)}
-	var tmp125 interface{} = AddInt(cx, int64(12))
-	var tmp126 interface{} = makeCoord_impl(tmp125, cy)
-	var tmp127 interface{} = spriteConsoleScience_impl(struct{}{})
-	var tmp128 interface{} = &ConsoleState{Station: NewBridgeStationStationScience(), Pos: tmp126.(*Coord), Active: true, HasAlert: false, SpriteId: tmp127.(int64)}
-	return []interface{}{tmp107, tmp112, tmp117, tmp120, tmp124, tmp128}
+	var tmp102 interface{} = SubInt(cy, int64(10))
+	var tmp103 interface{} = makeCoord_impl(cx, tmp102)
+	var tmp104 interface{} = spriteConsoleHelm_impl(struct{}{})
+	var tmp105 interface{} = &ConsoleState{Station: NewBridgeStationStationHelm(), Pos: tmp103.(*Coord), Active: true, HasAlert: false, SpriteId: tmp104.(int64)}
+	var tmp106 interface{} = SubInt(cx, int64(8))
+	var tmp107 interface{} = SubInt(cy, int64(8))
+	var tmp108 interface{} = makeCoord_impl(tmp106, tmp107)
+	var tmp109 interface{} = spriteConsoleComms_impl(struct{}{})
+	var tmp110 interface{} = &ConsoleState{Station: NewBridgeStationStationComms(), Pos: tmp108.(*Coord), Active: true, HasAlert: false, SpriteId: tmp109.(int64)}
+	var tmp111 interface{} = AddInt(cx, int64(8))
+	var tmp112 interface{} = SubInt(cy, int64(8))
+	var tmp113 interface{} = makeCoord_impl(tmp111, tmp112)
+	var tmp114 interface{} = spriteConsoleStatus_impl(struct{}{})
+	var tmp115 interface{} = &ConsoleState{Station: NewBridgeStationStationStatus(), Pos: tmp113.(*Coord), Active: true, HasAlert: false, SpriteId: tmp114.(int64)}
+	var tmp116 interface{} = makeCoord_impl(cx, cy)
+	var tmp117 interface{} = spriteConsoleCaptain_impl(struct{}{})
+	var tmp118 interface{} = &ConsoleState{Station: NewBridgeStationStationCaptain(), Pos: tmp116.(*Coord), Active: true, HasAlert: false, SpriteId: tmp117.(int64)}
+	var tmp119 interface{} = SubInt(cx, int64(12))
+	var tmp120 interface{} = makeCoord_impl(tmp119, cy)
+	var tmp121 interface{} = spriteConsoleNav_impl(struct{}{})
+	var tmp122 interface{} = &ConsoleState{Station: NewBridgeStationStationNav(), Pos: tmp120.(*Coord), Active: true, HasAlert: false, SpriteId: tmp121.(int64)}
+	var tmp123 interface{} = AddInt(cx, int64(12))
+	var tmp124 interface{} = makeCoord_impl(tmp123, cy)
+	var tmp125 interface{} = spriteConsoleScience_impl(struct{}{})
+	var tmp126 interface{} = &ConsoleState{Station: NewBridgeStationStationScience(), Pos: tmp124.(*Coord), Active: true, HasAlert: false, SpriteId: tmp125.(int64)}
+	return []interface{}{tmp105, tmp110, tmp115, tmp118, tmp122, tmp126}
 }
 
 func CreateConsoles() []*ConsoleState {
@@ -1035,33 +1025,33 @@ func CreateConsoles() []*ConsoleState {
 func createDefaultCrew_impl(_unused0 interface{}) interface{} {
 	var cx interface{} = discCenterDefault_impl(struct{}{})
 	var cy interface{} = discCenterDefault_impl(struct{}{})
-	var tmp129 interface{} = &CrewID{Id: int64(1), Name: "Pilot Chen"}
-	var tmp130 interface{} = SubInt(cy, int64(9))
-	var tmp131 interface{} = makeCoord_impl(cx, tmp130)
-	var tmp132 interface{} = &CrewPosition{Crew: tmp129.(*CrewID), Station: NewBridgeStationStationHelm(), Pos: tmp131.(*Coord), Facing: NewDirectionNorth(), Activity: NewCrewActivityActivityWorking()}
-	var tmp133 interface{} = &CrewID{Id: int64(2), Name: "Comms Officer Patel"}
-	var tmp134 interface{} = SubInt(cx, int64(8))
-	var tmp135 interface{} = SubInt(cy, int64(7))
-	var tmp136 interface{} = makeCoord_impl(tmp134, tmp135)
-	var tmp137 interface{} = &CrewPosition{Crew: tmp133.(*CrewID), Station: NewBridgeStationStationComms(), Pos: tmp136.(*Coord), Facing: NewDirectionNorth(), Activity: NewCrewActivityActivityWorking()}
-	var tmp138 interface{} = &CrewID{Id: int64(3), Name: "Engineer Torres"}
-	var tmp139 interface{} = AddInt(cx, int64(8))
-	var tmp140 interface{} = SubInt(cy, int64(7))
-	var tmp141 interface{} = makeCoord_impl(tmp139, tmp140)
-	var tmp142 interface{} = &CrewPosition{Crew: tmp138.(*CrewID), Station: NewBridgeStationStationStatus(), Pos: tmp141.(*Coord), Facing: NewDirectionNorth(), Activity: NewCrewActivityActivityWorking()}
-	var tmp143 interface{} = &CrewID{Id: int64(4), Name: "Navigator Kim"}
-	var tmp144 interface{} = SubInt(cx, int64(11))
-	var tmp145 interface{} = makeCoord_impl(tmp144, cy)
-	var tmp146 interface{} = &CrewPosition{Crew: tmp143.(*CrewID), Station: NewBridgeStationStationNav(), Pos: tmp145.(*Coord), Facing: NewDirectionEast(), Activity: NewCrewActivityActivityWorking()}
-	var tmp147 interface{} = &CrewID{Id: int64(5), Name: "Science Officer Okafor"}
-	var tmp148 interface{} = AddInt(cx, int64(11))
-	var tmp149 interface{} = makeCoord_impl(tmp148, cy)
-	var tmp150 interface{} = &CrewPosition{Crew: tmp147.(*CrewID), Station: NewBridgeStationStationScience(), Pos: tmp149.(*Coord), Facing: NewDirectionWest(), Activity: NewCrewActivityActivityWorking()}
-	var tmp151 interface{} = &CrewID{Id: int64(6), Name: "Captain Reyes"}
-	var tmp152 interface{} = AddInt(cy, int64(1))
-	var tmp153 interface{} = makeCoord_impl(cx, tmp152)
-	var tmp154 interface{} = &CrewPosition{Crew: tmp151.(*CrewID), Station: NewBridgeStationStationCaptain(), Pos: tmp153.(*Coord), Facing: NewDirectionNorth(), Activity: NewCrewActivityActivityIdle()}
-	return []interface{}{tmp132, tmp137, tmp142, tmp146, tmp150, tmp154}
+	var tmp127 interface{} = &CrewID{Id: int64(1), Name: "Pilot Chen"}
+	var tmp128 interface{} = SubInt(cy, int64(9))
+	var tmp129 interface{} = makeCoord_impl(cx, tmp128)
+	var tmp130 interface{} = &CrewPosition{Crew: tmp127.(*CrewID), Station: NewBridgeStationStationHelm(), Pos: tmp129.(*Coord), Facing: NewDirectionNorth(), Activity: NewCrewActivityActivityWorking()}
+	var tmp131 interface{} = &CrewID{Id: int64(2), Name: "Comms Officer Patel"}
+	var tmp132 interface{} = SubInt(cx, int64(8))
+	var tmp133 interface{} = SubInt(cy, int64(7))
+	var tmp134 interface{} = makeCoord_impl(tmp132, tmp133)
+	var tmp135 interface{} = &CrewPosition{Crew: tmp131.(*CrewID), Station: NewBridgeStationStationComms(), Pos: tmp134.(*Coord), Facing: NewDirectionNorth(), Activity: NewCrewActivityActivityWorking()}
+	var tmp136 interface{} = &CrewID{Id: int64(3), Name: "Engineer Torres"}
+	var tmp137 interface{} = AddInt(cx, int64(8))
+	var tmp138 interface{} = SubInt(cy, int64(7))
+	var tmp139 interface{} = makeCoord_impl(tmp137, tmp138)
+	var tmp140 interface{} = &CrewPosition{Crew: tmp136.(*CrewID), Station: NewBridgeStationStationStatus(), Pos: tmp139.(*Coord), Facing: NewDirectionNorth(), Activity: NewCrewActivityActivityWorking()}
+	var tmp141 interface{} = &CrewID{Id: int64(4), Name: "Navigator Kim"}
+	var tmp142 interface{} = SubInt(cx, int64(11))
+	var tmp143 interface{} = makeCoord_impl(tmp142, cy)
+	var tmp144 interface{} = &CrewPosition{Crew: tmp141.(*CrewID), Station: NewBridgeStationStationNav(), Pos: tmp143.(*Coord), Facing: NewDirectionEast(), Activity: NewCrewActivityActivityWorking()}
+	var tmp145 interface{} = &CrewID{Id: int64(5), Name: "Science Officer Okafor"}
+	var tmp146 interface{} = AddInt(cx, int64(11))
+	var tmp147 interface{} = makeCoord_impl(tmp146, cy)
+	var tmp148 interface{} = &CrewPosition{Crew: tmp145.(*CrewID), Station: NewBridgeStationStationScience(), Pos: tmp147.(*Coord), Facing: NewDirectionWest(), Activity: NewCrewActivityActivityWorking()}
+	var tmp149 interface{} = &CrewID{Id: int64(6), Name: "Captain Reyes"}
+	var tmp150 interface{} = AddInt(cy, int64(1))
+	var tmp151 interface{} = makeCoord_impl(cx, tmp150)
+	var tmp152 interface{} = &CrewPosition{Crew: tmp149.(*CrewID), Station: NewBridgeStationStationCaptain(), Pos: tmp151.(*Coord), Facing: NewDirectionNorth(), Activity: NewCrewActivityActivityIdle()}
+	return []interface{}{tmp130, tmp135, tmp140, tmp144, tmp148, tmp152}
 }
 
 func CreateDefaultCrew() []*CrewPosition {
@@ -1072,14 +1062,14 @@ func initBridge_impl(_unused0 interface{}) interface{} {
 	var cx interface{} = discCenterDefault_impl(struct{}{})
 	var cy interface{} = discCenterDefault_impl(struct{}{})
 	var radius interface{} = discRadiusDefault_impl(struct{}{})
+	var tmp153 interface{} = AddInt(cy, int64(16))
+	var tmp154 interface{} = makeCoord_impl(cx, tmp153)
 	var tmp155 interface{} = AddInt(cy, int64(16))
-	var tmp156 interface{} = makeCoord_impl(cx, tmp155)
-	var tmp157 interface{} = AddInt(cy, int64(16))
-	var tmp158 interface{} = createDefaultCrew_impl(struct{}{})
-	var tmp159 interface{} = createConsoles_impl(struct{}{})
-	var tmp160 interface{} = makeDomeViewState_impl(int64(0), float64(0.15), float64(0))
-	var tmp161 interface{} = initDomeState_impl(struct{}{})
-	return &BridgeState{PlayerPos: tmp156.(*Coord), PlayerFacing: NewDirectionNorth(), MoveState: NewMoveStateMoveIdle(), CameraX: cx.(int64), CameraY: tmp157.(int64), CrewPositions: ConvertToCrewPositionSlice(tmp158), Consoles: ConvertToConsoleStateSlice(tmp159), HoveredInteractable: NewOptionNone(), SelectedInteractable: NewOptionNone(), DomeView: tmp160.(*DomeViewState), DomeState: tmp161.(*DomeState), Tick: int64(0), DiscRadius: radius.(int64), DiscCenterX: cx.(int64), DiscCenterY: cy.(int64)}
+	var tmp156 interface{} = createDefaultCrew_impl(struct{}{})
+	var tmp157 interface{} = createConsoles_impl(struct{}{})
+	var tmp158 interface{} = makeDomeViewState_impl(int64(0), float64(0.15), float64(0))
+	var tmp159 interface{} = initDomeState_impl(struct{}{})
+	return &BridgeState{PlayerPos: tmp154.(*Coord), PlayerFacing: NewDirectionNorth(), MoveState: NewMoveStateMoveIdle(), CameraX: cx.(int64), CameraY: tmp155.(int64), CrewPositions: ConvertToCrewPositionSlice(tmp156), Consoles: ConvertToConsoleStateSlice(tmp157), HoveredInteractable: NewOptionNone(), SelectedInteractable: NewOptionNone(), DomeView: tmp158.(*DomeViewState), DomeState: tmp159.(*DomeState), Tick: int64(0), DiscRadius: radius.(int64), DiscCenterX: cx.(int64), DiscCenterY: cy.(int64)}
 }
 
 func InitBridge() *BridgeState {
@@ -1118,6 +1108,14 @@ func layerPlayer() int64 {
 	return layerPlayer_impl(struct{}{}).(int64)
 }
 
+func layerPlanets3D_impl(_unused0 interface{}) interface{} {
+	return int64(4)
+}
+
+func layerPlanets3D() int64 {
+	return layerPlanets3D_impl(struct{}{}).(int64)
+}
+
 func colorWhite_impl(_unused0 interface{}) interface{} {
 	return int64(4294967295)
 }
@@ -1143,38 +1141,38 @@ func screenOffsetY() float64 {
 }
 
 func tileColor_impl(tileType interface{}) interface{} {
-	var tmp162 interface{} = tileWall_impl(struct{}{})
-	var tmp163 interface{} = EqInt(tileType, tmp162)
+	var tmp160 interface{} = tileWall_impl(struct{}{})
+	var tmp161 interface{} = EqInt(tileType, tmp160)
 	return func() interface{} {
-		var tmp164 interface{} = tileDomeEdge_impl(struct{}{})
+		var tmp162 interface{} = tileDomeEdge_impl(struct{}{})
+		_ = tmp162 // suppress unused
+		var tmp163 interface{} = EqInt(tileType, tmp162)
+		_ = tmp163 // suppress unused
+		var tmp164 interface{} = tileCaptainArea_impl(struct{}{})
 		_ = tmp164 // suppress unused
 		var tmp165 interface{} = EqInt(tileType, tmp164)
 		_ = tmp165 // suppress unused
-		var tmp166 interface{} = tileCaptainArea_impl(struct{}{})
+		var tmp166 interface{} = tileFloorGlow_impl(struct{}{})
 		_ = tmp166 // suppress unused
 		var tmp167 interface{} = EqInt(tileType, tmp166)
 		_ = tmp167 // suppress unused
-		var tmp168 interface{} = tileFloorGlow_impl(struct{}{})
+		var tmp168 interface{} = tileWalkway_impl(struct{}{})
 		_ = tmp168 // suppress unused
 		var tmp169 interface{} = EqInt(tileType, tmp168)
 		_ = tmp169 // suppress unused
-		var tmp170 interface{} = tileWalkway_impl(struct{}{})
-		_ = tmp170 // suppress unused
-		var tmp171 interface{} = EqInt(tileType, tmp170)
-		_ = tmp171 // suppress unused
-		if tmp163.(bool) {
+		if tmp161.(bool) {
 			return colorWall_impl(struct{}{})
 		}
-		if tmp165.(bool) {
+		if tmp163.(bool) {
 			return colorDomeEdge_impl(struct{}{})
 		}
-		if tmp167.(bool) {
+		if tmp165.(bool) {
 			return colorCaptainArea_impl(struct{}{})
 		}
-		if tmp169.(bool) {
+		if tmp167.(bool) {
 			return colorFloorGlow_impl(struct{}{})
 		}
-		if tmp171.(bool) {
+		if tmp169.(bool) {
 			return colorWalkway_impl(struct{}{})
 		}
 		return colorFloor_impl(struct{}{})
@@ -1189,34 +1187,34 @@ func renderTileAt_impl(worldX interface{}, worldY interface{}, camX interface{},
 	var relX interface{} = SubInt(worldX, camX)
 	var relY interface{} = SubInt(worldY, camY)
 	var isoX interface{} = func() interface{} {
-		var tmp180 interface{} = SubInt(relX, relY)
-		_ = tmp180 // suppress unused
-		var tmp181 interface{} = MulInt(tmp180, int64(32))
-		_ = tmp181 // suppress unused
-		return IntToFloat(tmp181)
-	}()
-	var isoY interface{} = func() interface{} {
-		var tmp178 interface{} = AddInt(relX, relY)
+		var tmp178 interface{} = SubInt(relX, relY)
 		_ = tmp178 // suppress unused
-		var tmp179 interface{} = MulInt(tmp178, int64(16))
+		var tmp179 interface{} = MulInt(tmp178, int64(32))
 		_ = tmp179 // suppress unused
 		return IntToFloat(tmp179)
 	}()
-	var screenX interface{} = func() interface{} {
-		var tmp177 interface{} = screenOffsetX_impl(struct{}{})
+	var isoY interface{} = func() interface{} {
+		var tmp176 interface{} = AddInt(relX, relY)
+		_ = tmp176 // suppress unused
+		var tmp177 interface{} = MulInt(tmp176, int64(16))
 		_ = tmp177 // suppress unused
-		return AddFloat(isoX, tmp177)
+		return IntToFloat(tmp177)
+	}()
+	var screenX interface{} = func() interface{} {
+		var tmp175 interface{} = screenOffsetX_impl(struct{}{})
+		_ = tmp175 // suppress unused
+		return AddFloat(isoX, tmp175)
 	}()
 	var screenY interface{} = func() interface{} {
-		var tmp176 interface{} = screenOffsetY_impl(struct{}{})
-		_ = tmp176 // suppress unused
-		return AddFloat(isoY, tmp176)
+		var tmp174 interface{} = screenOffsetY_impl(struct{}{})
+		_ = tmp174 // suppress unused
+		return AddFloat(isoY, tmp174)
 	}()
-	var tmp172 interface{} = SubFloat(screenX, float64(28))
-	var tmp173 interface{} = SubFloat(screenY, float64(12))
-	var tmp174 interface{} = tileColor_impl(tileType)
-	var tmp175 interface{} = layerFloor_impl(struct{}{})
-	return NewDrawCmdRectRGBA(tmp172.(float64), tmp173.(float64), float64(56), float64(28), tmp174.(int64), tmp175.(int64))
+	var tmp170 interface{} = SubFloat(screenX, float64(28))
+	var tmp171 interface{} = SubFloat(screenY, float64(12))
+	var tmp172 interface{} = tileColor_impl(tileType)
+	var tmp173 interface{} = layerFloor_impl(struct{}{})
+	return NewDrawCmdRectRGBA(tmp170.(float64), tmp171.(float64), float64(56), float64(28), tmp172.(int64), tmp173.(int64))
 }
 
 func renderTileAt(worldX int64, worldY int64, camX int64, camY int64, tileType int64) *DrawCmd {
@@ -1224,31 +1222,31 @@ func renderTileAt(worldX int64, worldY int64, camX int64, camY int64, tileType i
 }
 
 func renderFloorRowViewportRec_impl(state interface{}, x interface{}, y interface{}, maxX interface{}, acc interface{}) interface{} {
-	var tmp182 interface{} = GtInt(x, maxX)
+	var tmp180 interface{} = GtInt(x, maxX)
 	return func() interface{} {
-		if tmp182.(bool) {
+		if tmp180.(bool) {
 			return acc
 		}
 		return func() interface{} {
-			var tmp183 interface{} = AddInt(x, int64(1))
+			var tmp181 interface{} = AddInt(x, int64(1))
+			_ = tmp181 // suppress unused
+			var tmp182 interface{} = FieldGet(state, "cameraX")
+			_ = tmp182 // suppress unused
+			var tmp183 interface{} = FieldGet(state, "cameraY")
 			_ = tmp183 // suppress unused
-			var tmp184 interface{} = FieldGet(state, "cameraX")
+			var tmp184 interface{} = FieldGet(state, "discCenterX")
 			_ = tmp184 // suppress unused
-			var tmp185 interface{} = FieldGet(state, "cameraY")
+			var tmp185 interface{} = FieldGet(state, "discCenterY")
 			_ = tmp185 // suppress unused
-			var tmp186 interface{} = FieldGet(state, "discCenterX")
+			var tmp186 interface{} = FieldGet(state, "discRadius")
 			_ = tmp186 // suppress unused
-			var tmp187 interface{} = FieldGet(state, "discCenterY")
+			var tmp187 interface{} = getTileType_impl(x, y, tmp184, tmp185, tmp186)
 			_ = tmp187 // suppress unused
-			var tmp188 interface{} = FieldGet(state, "discRadius")
+			var tmp188 interface{} = renderTileAt_impl(x, y, tmp182, tmp183, tmp187)
 			_ = tmp188 // suppress unused
-			var tmp189 interface{} = getTileType_impl(x, y, tmp186, tmp187, tmp188)
+			var tmp189 interface{} = Cons(tmp188, acc)
 			_ = tmp189 // suppress unused
-			var tmp190 interface{} = renderTileAt_impl(x, y, tmp184, tmp185, tmp189)
-			_ = tmp190 // suppress unused
-			var tmp191 interface{} = Cons(tmp190, acc)
-			_ = tmp191 // suppress unused
-			return renderFloorRowViewportRec_impl(state, tmp183, y, maxX, tmp191)
+			return renderFloorRowViewportRec_impl(state, tmp181, y, maxX, tmp189)
 		}()
 	}()
 }
@@ -1258,8 +1256,8 @@ func renderFloorRowViewportRec(state *BridgeState, x int64, y int64, maxX int64,
 }
 
 func renderFloorRowViewport_impl(state interface{}, x interface{}, y interface{}, maxX interface{}) interface{} {
-	var tmp192 interface{} = []interface{}{}
-	return renderFloorRowViewportRec_impl(state, x, y, maxX, tmp192)
+	var tmp190 interface{} = []interface{}{}
+	return renderFloorRowViewportRec_impl(state, x, y, maxX, tmp190)
 }
 
 func renderFloorRowViewport(state *BridgeState, x int64, y int64, maxX int64) []*DrawCmd {
@@ -1267,19 +1265,19 @@ func renderFloorRowViewport(state *BridgeState, x int64, y int64, maxX int64) []
 }
 
 func renderFloorRowsViewport_impl(state interface{}, y interface{}, maxY interface{}, minX interface{}, maxX interface{}) interface{} {
-	var tmp193 interface{} = GtInt(y, maxY)
+	var tmp191 interface{} = GtInt(y, maxY)
 	return func() interface{} {
-		if tmp193.(bool) {
+		if tmp191.(bool) {
 			return []interface{}{}
 		}
 		return func() interface{} {
-			var tmp194 interface{} = renderFloorRowViewport_impl(state, minX, y, maxX)
+			var tmp192 interface{} = renderFloorRowViewport_impl(state, minX, y, maxX)
+			_ = tmp192 // suppress unused
+			var tmp193 interface{} = AddInt(y, int64(1))
+			_ = tmp193 // suppress unused
+			var tmp194 interface{} = renderFloorRowsViewport_impl(state, tmp193, maxY, minX, maxX)
 			_ = tmp194 // suppress unused
-			var tmp195 interface{} = AddInt(y, int64(1))
-			_ = tmp195 // suppress unused
-			var tmp196 interface{} = renderFloorRowsViewport_impl(state, tmp195, maxY, minX, maxX)
-			_ = tmp196 // suppress unused
-			return Concat(tmp194, tmp196)
+			return Concat(tmp192, tmp194)
 		}()
 	}()
 }
@@ -1291,24 +1289,24 @@ func renderFloorRowsViewport(state *BridgeState, y int64, maxY int64, minX int64
 func renderBridgeFloor_impl(state interface{}) interface{} {
 	var vp interface{} = viewportSize_impl(struct{}{})
 	var minX interface{} = func() interface{} {
-		var tmp200 interface{} = FieldGet(state, "cameraX")
-		_ = tmp200 // suppress unused
-		return SubInt(tmp200, vp)
-	}()
-	var maxX interface{} = func() interface{} {
-		var tmp199 interface{} = FieldGet(state, "cameraX")
-		_ = tmp199 // suppress unused
-		return AddInt(tmp199, vp)
-	}()
-	var minY interface{} = func() interface{} {
-		var tmp198 interface{} = FieldGet(state, "cameraY")
+		var tmp198 interface{} = FieldGet(state, "cameraX")
 		_ = tmp198 // suppress unused
 		return SubInt(tmp198, vp)
 	}()
-	var maxY interface{} = func() interface{} {
-		var tmp197 interface{} = FieldGet(state, "cameraY")
+	var maxX interface{} = func() interface{} {
+		var tmp197 interface{} = FieldGet(state, "cameraX")
 		_ = tmp197 // suppress unused
 		return AddInt(tmp197, vp)
+	}()
+	var minY interface{} = func() interface{} {
+		var tmp196 interface{} = FieldGet(state, "cameraY")
+		_ = tmp196 // suppress unused
+		return SubInt(tmp196, vp)
+	}()
+	var maxY interface{} = func() interface{} {
+		var tmp195 interface{} = FieldGet(state, "cameraY")
+		_ = tmp195 // suppress unused
+		return AddInt(tmp195, vp)
 	}()
 	return renderFloorRowsViewport_impl(state, minY, maxY, minX, maxX)
 }
@@ -1321,31 +1319,31 @@ func inViewport_impl(wx interface{}, wy interface{}, camX interface{}, camY inte
 	var vp interface{} = viewportSize_impl(struct{}{})
 	var dx interface{} = SubInt(wx, camX)
 	var dy interface{} = SubInt(wy, camY)
-	var tmp201 interface{} = SubInt(int64(0), vp)
-	var tmp202 interface{} = SubInt(tmp201, int64(2))
-	var tmp203 interface{} = GeInt(dx, tmp202)
-	var tmp204 interface{} = AddInt(vp, int64(2))
-	var tmp205 interface{} = LeInt(dx, tmp204)
-	var tmp206 interface{} = func() interface{} {
-		if tmp203.(bool) {
-			return tmp205
+	var tmp199 interface{} = SubInt(int64(0), vp)
+	var tmp200 interface{} = SubInt(tmp199, int64(2))
+	var tmp201 interface{} = GeInt(dx, tmp200)
+	var tmp202 interface{} = AddInt(vp, int64(2))
+	var tmp203 interface{} = LeInt(dx, tmp202)
+	var tmp204 interface{} = func() interface{} {
+		if tmp201.(bool) {
+			return tmp203
 		}
 		return false
 	}()
-	var tmp207 interface{} = SubInt(int64(0), vp)
-	var tmp208 interface{} = SubInt(tmp207, int64(2))
-	var tmp209 interface{} = GeInt(dy, tmp208)
-	var tmp210 interface{} = func() interface{} {
-		if tmp206.(bool) {
-			return tmp209
+	var tmp205 interface{} = SubInt(int64(0), vp)
+	var tmp206 interface{} = SubInt(tmp205, int64(2))
+	var tmp207 interface{} = GeInt(dy, tmp206)
+	var tmp208 interface{} = func() interface{} {
+		if tmp204.(bool) {
+			return tmp207
 		}
 		return false
 	}()
-	var tmp211 interface{} = AddInt(vp, int64(2))
-	var tmp212 interface{} = LeInt(dy, tmp211)
+	var tmp209 interface{} = AddInt(vp, int64(2))
+	var tmp210 interface{} = LeInt(dy, tmp209)
 	return func() interface{} {
-		if tmp210.(bool) {
-			return tmp212
+		if tmp208.(bool) {
+			return tmp210
 		}
 		return false
 	}()
@@ -1417,53 +1415,53 @@ func crewColor(station *BridgeStation) int64 {
 
 func renderConsole_impl(console interface{}, camX interface{}, camY interface{}) interface{} {
 	var relX interface{} = func() interface{} {
-		var tmp226 interface{} = FieldGet(console, "pos")
-		_ = tmp226 // suppress unused
-		var tmp227 interface{} = FieldGet(tmp226, "x")
-		_ = tmp227 // suppress unused
-		return SubInt(tmp227, camX)
-	}()
-	var relY interface{} = func() interface{} {
 		var tmp224 interface{} = FieldGet(console, "pos")
 		_ = tmp224 // suppress unused
-		var tmp225 interface{} = FieldGet(tmp224, "y")
+		var tmp225 interface{} = FieldGet(tmp224, "x")
 		_ = tmp225 // suppress unused
-		return SubInt(tmp225, camY)
+		return SubInt(tmp225, camX)
+	}()
+	var relY interface{} = func() interface{} {
+		var tmp222 interface{} = FieldGet(console, "pos")
+		_ = tmp222 // suppress unused
+		var tmp223 interface{} = FieldGet(tmp222, "y")
+		_ = tmp223 // suppress unused
+		return SubInt(tmp223, camY)
 	}()
 	var isoX interface{} = func() interface{} {
-		var tmp222 interface{} = SubInt(relX, relY)
-		_ = tmp222 // suppress unused
-		var tmp223 interface{} = MulInt(tmp222, int64(32))
-		_ = tmp223 // suppress unused
-		return IntToFloat(tmp223)
-	}()
-	var isoY interface{} = func() interface{} {
-		var tmp220 interface{} = AddInt(relX, relY)
+		var tmp220 interface{} = SubInt(relX, relY)
 		_ = tmp220 // suppress unused
-		var tmp221 interface{} = MulInt(tmp220, int64(16))
+		var tmp221 interface{} = MulInt(tmp220, int64(32))
 		_ = tmp221 // suppress unused
 		return IntToFloat(tmp221)
 	}()
-	var screenX interface{} = func() interface{} {
-		var tmp219 interface{} = screenOffsetX_impl(struct{}{})
+	var isoY interface{} = func() interface{} {
+		var tmp218 interface{} = AddInt(relX, relY)
+		_ = tmp218 // suppress unused
+		var tmp219 interface{} = MulInt(tmp218, int64(16))
 		_ = tmp219 // suppress unused
-		return AddFloat(isoX, tmp219)
+		return IntToFloat(tmp219)
+	}()
+	var screenX interface{} = func() interface{} {
+		var tmp217 interface{} = screenOffsetX_impl(struct{}{})
+		_ = tmp217 // suppress unused
+		return AddFloat(isoX, tmp217)
 	}()
 	var screenY interface{} = func() interface{} {
-		var tmp218 interface{} = screenOffsetY_impl(struct{}{})
-		_ = tmp218 // suppress unused
-		return AddFloat(isoY, tmp218)
+		var tmp216 interface{} = screenOffsetY_impl(struct{}{})
+		_ = tmp216 // suppress unused
+		return AddFloat(isoY, tmp216)
 	}()
 	var color interface{} = func() interface{} {
-		var tmp217 interface{} = FieldGet(console, "station")
-		_ = tmp217 // suppress unused
-		return consoleColor_impl(tmp217)
+		var tmp215 interface{} = FieldGet(console, "station")
+		_ = tmp215 // suppress unused
+		return consoleColor_impl(tmp215)
 	}()
-	var tmp213 interface{} = SubFloat(screenX, float64(24))
-	var tmp214 interface{} = SubFloat(screenY, float64(32))
-	var tmp215 interface{} = layerConsoles_impl(struct{}{})
-	var tmp216 interface{} = NewDrawCmdRectRGBA(tmp213.(float64), tmp214.(float64), float64(48), float64(24), color.(int64), tmp215.(int64))
-	return []interface{}{tmp216}
+	var tmp211 interface{} = SubFloat(screenX, float64(24))
+	var tmp212 interface{} = SubFloat(screenY, float64(32))
+	var tmp213 interface{} = layerConsoles_impl(struct{}{})
+	var tmp214 interface{} = NewDrawCmdRectRGBA(tmp211.(float64), tmp212.(float64), float64(48), float64(24), color.(int64), tmp213.(int64))
+	return []interface{}{tmp214}
 }
 
 func renderConsole(console *ConsoleState, camX int64, camY int64) []*DrawCmd {
@@ -1482,25 +1480,25 @@ func renderConsolesRec_impl(consoles interface{}, camX interface{}, camY interfa
 			rest := ListTail(_scrutinee)
 			_ = rest // suppress unused
 			return func() interface{} {
+				var tmp226 interface{} = FieldGet(c, "pos")
+				_ = tmp226 // suppress unused
+				var tmp227 interface{} = FieldGet(tmp226, "x")
+				_ = tmp227 // suppress unused
 				var tmp228 interface{} = FieldGet(c, "pos")
 				_ = tmp228 // suppress unused
-				var tmp229 interface{} = FieldGet(tmp228, "x")
+				var tmp229 interface{} = FieldGet(tmp228, "y")
 				_ = tmp229 // suppress unused
-				var tmp230 interface{} = FieldGet(c, "pos")
+				var tmp230 interface{} = inViewport_impl(tmp227, tmp229, camX, camY)
 				_ = tmp230 // suppress unused
-				var tmp231 interface{} = FieldGet(tmp230, "y")
-				_ = tmp231 // suppress unused
-				var tmp232 interface{} = inViewport_impl(tmp229, tmp231, camX, camY)
-				_ = tmp232 // suppress unused
 				return func() interface{} {
-					if tmp232.(bool) {
+					if tmp230.(bool) {
 						return func() interface{} {
-							var tmp233 interface{} = renderConsole_impl(c, camX, camY)
-							_ = tmp233 // suppress unused
+							var tmp231 interface{} = renderConsole_impl(c, camX, camY)
+							_ = tmp231 // suppress unused
 							return func() interface{} {
-								var tmp234 interface{} = renderConsolesRec_impl(rest, camX, camY)
-								_ = tmp234 // suppress unused
-								return Concat(tmp233, tmp234)
+								var tmp232 interface{} = renderConsolesRec_impl(rest, camX, camY)
+								_ = tmp232 // suppress unused
+								return Concat(tmp231, tmp232)
 							}()
 						}()
 					}
@@ -1518,10 +1516,10 @@ func renderConsolesRec(consoles []*ConsoleState, camX int64, camY int64) []*Draw
 }
 
 func renderConsoles_impl(state interface{}) interface{} {
-	var tmp235 interface{} = FieldGet(state, "consoles")
-	var tmp236 interface{} = FieldGet(state, "cameraX")
-	var tmp237 interface{} = FieldGet(state, "cameraY")
-	return renderConsolesRec_impl(tmp235, tmp236, tmp237)
+	var tmp233 interface{} = FieldGet(state, "consoles")
+	var tmp234 interface{} = FieldGet(state, "cameraX")
+	var tmp235 interface{} = FieldGet(state, "cameraY")
+	return renderConsolesRec_impl(tmp233, tmp234, tmp235)
 }
 
 func RenderConsoles(state *BridgeState) []*DrawCmd {
@@ -1530,59 +1528,59 @@ func RenderConsoles(state *BridgeState) []*DrawCmd {
 
 func renderCrewMember_impl(crew interface{}, camX interface{}, camY interface{}) interface{} {
 	var relX interface{} = func() interface{} {
-		var tmp257 interface{} = FieldGet(crew, "pos")
-		_ = tmp257 // suppress unused
-		var tmp258 interface{} = FieldGet(tmp257, "x")
-		_ = tmp258 // suppress unused
-		return SubInt(tmp258, camX)
-	}()
-	var relY interface{} = func() interface{} {
 		var tmp255 interface{} = FieldGet(crew, "pos")
 		_ = tmp255 // suppress unused
-		var tmp256 interface{} = FieldGet(tmp255, "y")
+		var tmp256 interface{} = FieldGet(tmp255, "x")
 		_ = tmp256 // suppress unused
-		return SubInt(tmp256, camY)
+		return SubInt(tmp256, camX)
+	}()
+	var relY interface{} = func() interface{} {
+		var tmp253 interface{} = FieldGet(crew, "pos")
+		_ = tmp253 // suppress unused
+		var tmp254 interface{} = FieldGet(tmp253, "y")
+		_ = tmp254 // suppress unused
+		return SubInt(tmp254, camY)
 	}()
 	var isoX interface{} = func() interface{} {
-		var tmp253 interface{} = SubInt(relX, relY)
-		_ = tmp253 // suppress unused
-		var tmp254 interface{} = MulInt(tmp253, int64(32))
-		_ = tmp254 // suppress unused
-		return IntToFloat(tmp254)
-	}()
-	var isoY interface{} = func() interface{} {
-		var tmp251 interface{} = AddInt(relX, relY)
+		var tmp251 interface{} = SubInt(relX, relY)
 		_ = tmp251 // suppress unused
-		var tmp252 interface{} = MulInt(tmp251, int64(16))
+		var tmp252 interface{} = MulInt(tmp251, int64(32))
 		_ = tmp252 // suppress unused
 		return IntToFloat(tmp252)
 	}()
-	var screenX interface{} = func() interface{} {
-		var tmp250 interface{} = screenOffsetX_impl(struct{}{})
+	var isoY interface{} = func() interface{} {
+		var tmp249 interface{} = AddInt(relX, relY)
+		_ = tmp249 // suppress unused
+		var tmp250 interface{} = MulInt(tmp249, int64(16))
 		_ = tmp250 // suppress unused
-		return AddFloat(isoX, tmp250)
+		return IntToFloat(tmp250)
+	}()
+	var screenX interface{} = func() interface{} {
+		var tmp248 interface{} = screenOffsetX_impl(struct{}{})
+		_ = tmp248 // suppress unused
+		return AddFloat(isoX, tmp248)
 	}()
 	var screenY interface{} = func() interface{} {
-		var tmp249 interface{} = screenOffsetY_impl(struct{}{})
-		_ = tmp249 // suppress unused
-		return AddFloat(isoY, tmp249)
+		var tmp247 interface{} = screenOffsetY_impl(struct{}{})
+		_ = tmp247 // suppress unused
+		return AddFloat(isoY, tmp247)
 	}()
 	var color interface{} = func() interface{} {
-		var tmp248 interface{} = FieldGet(crew, "station")
-		_ = tmp248 // suppress unused
-		return crewColor_impl(tmp248)
+		var tmp246 interface{} = FieldGet(crew, "station")
+		_ = tmp246 // suppress unused
+		return crewColor_impl(tmp246)
 	}()
-	var tmp238 interface{} = SubFloat(screenY, float64(8))
-	var tmp239 interface{} = layerCrew_impl(struct{}{})
-	var tmp240 interface{} = NewDrawCmdCircleRGBA(screenX.(float64), tmp238.(float64), float64(12), color.(int64), true, tmp239.(int64))
-	var tmp241 interface{} = FieldGet(crew, "crew")
-	var tmp242 interface{} = FieldGet(tmp241, "name")
-	var tmp243 interface{} = SubFloat(screenX, float64(30))
-	var tmp244 interface{} = AddFloat(screenY, float64(8))
-	var tmp245 interface{} = layerCrew_impl(struct{}{})
-	var tmp246 interface{} = AddInt(tmp245, int64(1))
-	var tmp247 interface{} = NewDrawCmdText(tmp242.(string), tmp243.(float64), tmp244.(float64), int64(8), int64(4294967295), tmp246.(int64))
-	return []interface{}{tmp240, tmp247}
+	var tmp236 interface{} = SubFloat(screenY, float64(8))
+	var tmp237 interface{} = layerCrew_impl(struct{}{})
+	var tmp238 interface{} = NewDrawCmdCircleRGBA(screenX.(float64), tmp236.(float64), float64(12), color.(int64), true, tmp237.(int64))
+	var tmp239 interface{} = FieldGet(crew, "crew")
+	var tmp240 interface{} = FieldGet(tmp239, "name")
+	var tmp241 interface{} = SubFloat(screenX, float64(30))
+	var tmp242 interface{} = AddFloat(screenY, float64(8))
+	var tmp243 interface{} = layerCrew_impl(struct{}{})
+	var tmp244 interface{} = AddInt(tmp243, int64(1))
+	var tmp245 interface{} = NewDrawCmdText(tmp240.(string), tmp241.(float64), tmp242.(float64), int64(8), int64(4294967295), tmp244.(int64))
+	return []interface{}{tmp238, tmp245}
 }
 
 func renderCrewMember(crew *CrewPosition, camX int64, camY int64) []*DrawCmd {
@@ -1601,25 +1599,25 @@ func renderCrewRec_impl(crew interface{}, camX interface{}, camY interface{}) in
 			rest := ListTail(_scrutinee)
 			_ = rest // suppress unused
 			return func() interface{} {
+				var tmp257 interface{} = FieldGet(c, "pos")
+				_ = tmp257 // suppress unused
+				var tmp258 interface{} = FieldGet(tmp257, "x")
+				_ = tmp258 // suppress unused
 				var tmp259 interface{} = FieldGet(c, "pos")
 				_ = tmp259 // suppress unused
-				var tmp260 interface{} = FieldGet(tmp259, "x")
+				var tmp260 interface{} = FieldGet(tmp259, "y")
 				_ = tmp260 // suppress unused
-				var tmp261 interface{} = FieldGet(c, "pos")
+				var tmp261 interface{} = inViewport_impl(tmp258, tmp260, camX, camY)
 				_ = tmp261 // suppress unused
-				var tmp262 interface{} = FieldGet(tmp261, "y")
-				_ = tmp262 // suppress unused
-				var tmp263 interface{} = inViewport_impl(tmp260, tmp262, camX, camY)
-				_ = tmp263 // suppress unused
 				return func() interface{} {
-					if tmp263.(bool) {
+					if tmp261.(bool) {
 						return func() interface{} {
-							var tmp264 interface{} = renderCrewMember_impl(c, camX, camY)
-							_ = tmp264 // suppress unused
+							var tmp262 interface{} = renderCrewMember_impl(c, camX, camY)
+							_ = tmp262 // suppress unused
 							return func() interface{} {
-								var tmp265 interface{} = renderCrewRec_impl(rest, camX, camY)
-								_ = tmp265 // suppress unused
-								return Concat(tmp264, tmp265)
+								var tmp263 interface{} = renderCrewRec_impl(rest, camX, camY)
+								_ = tmp263 // suppress unused
+								return Concat(tmp262, tmp263)
 							}()
 						}()
 					}
@@ -1637,10 +1635,10 @@ func renderCrewRec(crew []*CrewPosition, camX int64, camY int64) []*DrawCmd {
 }
 
 func renderBridgeCrew_impl(state interface{}) interface{} {
-	var tmp266 interface{} = FieldGet(state, "crewPositions")
-	var tmp267 interface{} = FieldGet(state, "cameraX")
-	var tmp268 interface{} = FieldGet(state, "cameraY")
-	return renderCrewRec_impl(tmp266, tmp267, tmp268)
+	var tmp264 interface{} = FieldGet(state, "crewPositions")
+	var tmp265 interface{} = FieldGet(state, "cameraX")
+	var tmp266 interface{} = FieldGet(state, "cameraY")
+	return renderCrewRec_impl(tmp264, tmp265, tmp266)
 }
 
 func RenderBridgeCrew(state *BridgeState) []*DrawCmd {
@@ -1649,59 +1647,59 @@ func RenderBridgeCrew(state *BridgeState) []*DrawCmd {
 
 func renderPlayer_impl(state interface{}) interface{} {
 	var relX interface{} = func() interface{} {
-		var tmp289 interface{} = FieldGet(state, "playerPos")
+		var tmp287 interface{} = FieldGet(state, "playerPos")
+		_ = tmp287 // suppress unused
+		var tmp288 interface{} = FieldGet(tmp287, "x")
+		_ = tmp288 // suppress unused
+		var tmp289 interface{} = FieldGet(state, "cameraX")
 		_ = tmp289 // suppress unused
-		var tmp290 interface{} = FieldGet(tmp289, "x")
-		_ = tmp290 // suppress unused
-		var tmp291 interface{} = FieldGet(state, "cameraX")
-		_ = tmp291 // suppress unused
-		return SubInt(tmp290, tmp291)
+		return SubInt(tmp288, tmp289)
 	}()
 	var relY interface{} = func() interface{} {
-		var tmp286 interface{} = FieldGet(state, "playerPos")
+		var tmp284 interface{} = FieldGet(state, "playerPos")
+		_ = tmp284 // suppress unused
+		var tmp285 interface{} = FieldGet(tmp284, "y")
+		_ = tmp285 // suppress unused
+		var tmp286 interface{} = FieldGet(state, "cameraY")
 		_ = tmp286 // suppress unused
-		var tmp287 interface{} = FieldGet(tmp286, "y")
-		_ = tmp287 // suppress unused
-		var tmp288 interface{} = FieldGet(state, "cameraY")
-		_ = tmp288 // suppress unused
-		return SubInt(tmp287, tmp288)
+		return SubInt(tmp285, tmp286)
 	}()
 	var isoX interface{} = func() interface{} {
-		var tmp284 interface{} = SubInt(relX, relY)
-		_ = tmp284 // suppress unused
-		var tmp285 interface{} = MulInt(tmp284, int64(32))
-		_ = tmp285 // suppress unused
-		return IntToFloat(tmp285)
-	}()
-	var isoY interface{} = func() interface{} {
-		var tmp282 interface{} = AddInt(relX, relY)
+		var tmp282 interface{} = SubInt(relX, relY)
 		_ = tmp282 // suppress unused
-		var tmp283 interface{} = MulInt(tmp282, int64(16))
+		var tmp283 interface{} = MulInt(tmp282, int64(32))
 		_ = tmp283 // suppress unused
 		return IntToFloat(tmp283)
 	}()
-	var screenX interface{} = func() interface{} {
-		var tmp281 interface{} = screenOffsetX_impl(struct{}{})
+	var isoY interface{} = func() interface{} {
+		var tmp280 interface{} = AddInt(relX, relY)
+		_ = tmp280 // suppress unused
+		var tmp281 interface{} = MulInt(tmp280, int64(16))
 		_ = tmp281 // suppress unused
-		return AddFloat(isoX, tmp281)
+		return IntToFloat(tmp281)
+	}()
+	var screenX interface{} = func() interface{} {
+		var tmp279 interface{} = screenOffsetX_impl(struct{}{})
+		_ = tmp279 // suppress unused
+		return AddFloat(isoX, tmp279)
 	}()
 	var screenY interface{} = func() interface{} {
-		var tmp280 interface{} = screenOffsetY_impl(struct{}{})
-		_ = tmp280 // suppress unused
-		return AddFloat(isoY, tmp280)
+		var tmp278 interface{} = screenOffsetY_impl(struct{}{})
+		_ = tmp278 // suppress unused
+		return AddFloat(isoY, tmp278)
 	}()
-	var tmp269 interface{} = SubFloat(screenX, float64(10))
-	var tmp270 interface{} = SubFloat(screenY, float64(18))
-	var tmp271 interface{} = colorPlayer_impl(struct{}{})
-	var tmp272 interface{} = layerPlayer_impl(struct{}{})
-	var tmp273 interface{} = NewDrawCmdRectRGBA(tmp269.(float64), tmp270.(float64), float64(20), float64(20), tmp271.(int64), tmp272.(int64))
-	var tmp274 interface{} = SubFloat(screenX, float64(12))
-	var tmp275 interface{} = AddFloat(screenY, float64(8))
-	var tmp276 interface{} = colorPlayer_impl(struct{}{})
-	var tmp277 interface{} = layerPlayer_impl(struct{}{})
-	var tmp278 interface{} = AddInt(tmp277, int64(1))
-	var tmp279 interface{} = NewDrawCmdText("YOU", tmp274.(float64), tmp275.(float64), int64(10), tmp276.(int64), tmp278.(int64))
-	return []interface{}{tmp273, tmp279}
+	var tmp267 interface{} = SubFloat(screenX, float64(10))
+	var tmp268 interface{} = SubFloat(screenY, float64(18))
+	var tmp269 interface{} = colorPlayer_impl(struct{}{})
+	var tmp270 interface{} = layerPlayer_impl(struct{}{})
+	var tmp271 interface{} = NewDrawCmdRectRGBA(tmp267.(float64), tmp268.(float64), float64(20), float64(20), tmp269.(int64), tmp270.(int64))
+	var tmp272 interface{} = SubFloat(screenX, float64(12))
+	var tmp273 interface{} = AddFloat(screenY, float64(8))
+	var tmp274 interface{} = colorPlayer_impl(struct{}{})
+	var tmp275 interface{} = layerPlayer_impl(struct{}{})
+	var tmp276 interface{} = AddInt(tmp275, int64(1))
+	var tmp277 interface{} = NewDrawCmdText("YOU", tmp272.(float64), tmp273.(float64), int64(10), tmp274.(int64), tmp276.(int64))
+	return []interface{}{tmp271, tmp277}
 }
 
 func RenderPlayer(state *BridgeState) []*DrawCmd {
@@ -1709,18 +1707,18 @@ func RenderPlayer(state *BridgeState) []*DrawCmd {
 }
 
 func renderBridge_impl(state interface{}) interface{} {
-	var tmp292 interface{} = FieldGet(state, "domeState")
-	var tmp293 interface{} = renderDome_impl(tmp292)
-	var tmp294 interface{} = renderStruts_impl(state)
+	var tmp290 interface{} = FieldGet(state, "domeState")
+	var tmp291 interface{} = renderDome_impl(tmp290)
+	var tmp292 interface{} = renderStruts_impl(state)
+	var tmp293 interface{} = Concat(tmp291, tmp292)
+	var tmp294 interface{} = renderBridgeFloor_impl(state)
 	var tmp295 interface{} = Concat(tmp293, tmp294)
-	var tmp296 interface{} = renderBridgeFloor_impl(state)
+	var tmp296 interface{} = renderConsoles_impl(state)
 	var tmp297 interface{} = Concat(tmp295, tmp296)
-	var tmp298 interface{} = renderConsoles_impl(state)
+	var tmp298 interface{} = renderBridgeCrew_impl(state)
 	var tmp299 interface{} = Concat(tmp297, tmp298)
-	var tmp300 interface{} = renderBridgeCrew_impl(state)
-	var tmp301 interface{} = Concat(tmp299, tmp300)
-	var tmp302 interface{} = renderPlayer_impl(state)
-	return Concat(tmp301, tmp302)
+	var tmp300 interface{} = renderPlayer_impl(state)
+	return Concat(tmp299, tmp300)
 }
 
 func RenderBridge(state *BridgeState) []*DrawCmd {
@@ -1729,13 +1727,13 @@ func RenderBridge(state *BridgeState) []*DrawCmd {
 
 func getPatrolDirection_impl(crewId interface{}, frame interface{}) interface{} {
 	var phase interface{} = func() interface{} {
-		var tmp303 interface{} = DivInt(frame, int64(30))
+		var tmp301 interface{} = DivInt(frame, int64(30))
+		_ = tmp301 // suppress unused
+		var tmp302 interface{} = MulInt(crewId, int64(7))
+		_ = tmp302 // suppress unused
+		var tmp303 interface{} = AddInt(tmp301, tmp302)
 		_ = tmp303 // suppress unused
-		var tmp304 interface{} = MulInt(crewId, int64(7))
-		_ = tmp304 // suppress unused
-		var tmp305 interface{} = AddInt(tmp303, tmp304)
-		_ = tmp305 // suppress unused
-		return ModInt(tmp305, int64(4))
+		return ModInt(tmp303, int64(4))
 	}()
 	return func() interface{} {
 		_scrutinee := phase
@@ -1759,15 +1757,15 @@ func getPatrolDirection(crewId int64, frame int64) *Direction {
 
 func tryMoveCrew_impl(crew interface{}, dir interface{}, state interface{}) interface{} {
 	var newPos interface{} = func() interface{} {
-		var tmp309 interface{} = FieldGet(crew, "pos")
-		_ = tmp309 // suppress unused
-		return moveInDirection_impl(tmp309, dir)
+		var tmp307 interface{} = FieldGet(crew, "pos")
+		_ = tmp307 // suppress unused
+		return moveInDirection_impl(tmp307, dir)
 	}()
-	var tmp306 interface{} = FieldGet(newPos, "x")
-	var tmp307 interface{} = FieldGet(newPos, "y")
-	var tmp308 interface{} = isWalkable_impl(state, tmp306, tmp307)
+	var tmp304 interface{} = FieldGet(newPos, "x")
+	var tmp305 interface{} = FieldGet(newPos, "y")
+	var tmp306 interface{} = isWalkable_impl(state, tmp304, tmp305)
 	return func() interface{} {
-		if tmp308.(bool) {
+		if tmp306.(bool) {
 			return RecordUpdate(crew, map[string]interface{}{"pos": newPos, "facing": dir})
 		}
 		return RecordUpdate(crew, map[string]interface{}{"facing": dir})
@@ -1779,18 +1777,18 @@ func tryMoveCrew(crew *CrewPosition, dir *Direction, state *BridgeState) *CrewPo
 }
 
 func updateCrewMember_impl(crew interface{}, frame interface{}, state interface{}) interface{} {
-	var tmp310 interface{} = ModInt(frame, int64(30))
-	var tmp311 interface{} = EqInt(tmp310, int64(0))
+	var tmp308 interface{} = ModInt(frame, int64(30))
+	var tmp309 interface{} = EqInt(tmp308, int64(0))
 	return func() interface{} {
-		if tmp311.(bool) {
+		if tmp309.(bool) {
 			return func() interface{} {
-				var tmp312 interface{} = FieldGet(crew, "crew")
+				var tmp310 interface{} = FieldGet(crew, "crew")
+				_ = tmp310 // suppress unused
+				var tmp311 interface{} = FieldGet(tmp310, "id")
+				_ = tmp311 // suppress unused
+				var tmp312 interface{} = getPatrolDirection_impl(tmp311, frame)
 				_ = tmp312 // suppress unused
-				var tmp313 interface{} = FieldGet(tmp312, "id")
-				_ = tmp313 // suppress unused
-				var tmp314 interface{} = getPatrolDirection_impl(tmp313, frame)
-				_ = tmp314 // suppress unused
-				return tryMoveCrew_impl(crew, tmp314, state)
+				return tryMoveCrew_impl(crew, tmp312, state)
 			}()
 		}
 		return crew
@@ -1813,11 +1811,11 @@ func updateCrewRec_impl(crew interface{}, frame interface{}, state interface{}) 
 			rest := ListTail(_scrutinee)
 			_ = rest // suppress unused
 			return func() interface{} {
-				var tmp315 interface{} = updateCrewMember_impl(c, frame, state)
-				_ = tmp315 // suppress unused
-				var tmp316 interface{} = updateCrewRec_impl(rest, frame, state)
-				_ = tmp316 // suppress unused
-				return Cons(tmp315, tmp316)
+				var tmp313 interface{} = updateCrewMember_impl(c, frame, state)
+				_ = tmp313 // suppress unused
+				var tmp314 interface{} = updateCrewRec_impl(rest, frame, state)
+				_ = tmp314 // suppress unused
+				return Cons(tmp313, tmp314)
 			}()
 		} else {
 			panic("non-exhaustive match")
@@ -1832,27 +1830,27 @@ func updateCrewRec(crew []*CrewPosition, frame int64, state *BridgeState) []*Cre
 func stepBridge_impl(state interface{}, frame interface{}) interface{} {
 	var dt interface{} = DivFloat(float64(1), float64(60))
 	var updatedDome interface{} = func() interface{} {
-		var tmp322 interface{} = FieldGet(state, "domeState")
-		_ = tmp322 // suppress unused
-		return stepDome_impl(tmp322, dt)
+		var tmp320 interface{} = FieldGet(state, "domeState")
+		_ = tmp320 // suppress unused
+		return stepDome_impl(tmp320, dt)
 	}()
 	var updatedDomeView interface{} = func() interface{} {
-		var tmp318 interface{} = FieldGet(updatedDome, "targetPlanet")
+		var tmp316 interface{} = FieldGet(updatedDome, "targetPlanet")
+		_ = tmp316 // suppress unused
+		var tmp317 interface{} = FieldGet(updatedDome, "cruiseVelocity")
+		_ = tmp317 // suppress unused
+		var tmp318 interface{} = FieldGet(state, "domeView")
 		_ = tmp318 // suppress unused
-		var tmp319 interface{} = FieldGet(updatedDome, "cruiseVelocity")
+		var tmp319 interface{} = FieldGet(tmp318, "viewAngle")
 		_ = tmp319 // suppress unused
-		var tmp320 interface{} = FieldGet(state, "domeView")
-		_ = tmp320 // suppress unused
-		var tmp321 interface{} = FieldGet(tmp320, "viewAngle")
-		_ = tmp321 // suppress unused
-		return makeDomeViewState_impl(tmp318, tmp319, tmp321)
+		return makeDomeViewState_impl(tmp316, tmp317, tmp319)
 	}()
 	var updatedCrew interface{} = func() interface{} {
-		var tmp317 interface{} = FieldGet(state, "crewPositions")
-		_ = tmp317 // suppress unused
-		return updateCrewRec_impl(tmp317, frame, state)
+		var tmp315 interface{} = FieldGet(state, "crewPositions")
+		_ = tmp315 // suppress unused
+		return updateCrewRec_impl(tmp315, frame, state)
 	}()
-	return RecordUpdate(state, map[string]interface{}{"domeState": updatedDome, "domeView": updatedDomeView, "tick": frame, "crewPositions": updatedCrew})
+	return RecordUpdate(state, map[string]interface{}{"crewPositions": updatedCrew, "domeState": updatedDome, "domeView": updatedDomeView, "tick": frame})
 }
 
 func StepBridge(state *BridgeState, frame int64) *BridgeState {

@@ -1,0 +1,38 @@
+{
+  "sprint_id": "planet-data-migration",
+  "created": "2025-12-11T20:19:26Z",
+  "estimated_duration_days": 7,
+  "correlation_id": "sprint_planet-data-migration",
+  "design_doc": "",
+  "markdown_plan": "sprints/planet-data-migration-sprint.md",
+  "features": [
+  {
+    "id": "MILESTONE_ID",
+    "description": "Milestone description",
+    "estimated_loc": 200,
+    "actual_loc": null,
+    "dependencies": [],
+    "acceptance_criteria": [
+      "Criterion 1",
+      "Criterion 2"
+    ],
+    "passes": null,
+    "started": null,
+    "completed": null,
+    "notes": null
+  }
+],
+  "velocity": {
+    "target_loc_per_day": 150,
+    "actual_loc_per_day": 0,
+    "target_milestones_per_week": 5,
+    "actual_milestones_per_week": 0,
+    "estimated_total_loc": 1000,
+    "actual_total_loc": 0,
+    "estimated_days": 7,
+    "actual_days": null
+  },
+  "last_session": "2025-12-11T20:19:26Z",
+  "last_checkpoint": null,
+  "status": "not_started"
+}

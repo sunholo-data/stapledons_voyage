@@ -247,13 +247,14 @@ pure func layerDomeBg() -> int { 0 - 20 }
 -- Render dome view with all 3D elements
 -- AILANG controls WHEN each 3D layer renders via DrawCmd z-ordering
 -- Go engine interprets these commands and calls dome_renderer methods
+-- NOTE: Planets are now rendered via celestial.ail's renderSolarSystem() in step.ail
 export pure func renderDome(state: DomeState) -> [DrawCmd] {
     -- Layer 1: Space background (starfield + galaxy) - furthest back
-    -- Layer 2: 3D planets (Tetra3D) - after floor tiles
+    -- Layer 2: Planets rendered by AILANG via renderSolarSystem() in step.ail
     -- Layer 3: Bubble arc (dome edge effect) - on top
     [
         SpaceBg(layerDomeBg()),           -- Starfield at z=-20
-        Planets3D(layerPlanets3D()),      -- 3D planets at z=4 (after floor/player)
+        -- Planets3D removed - now rendered by celestial.ail
         BubbleArc(layerBubbleArc3D())     -- Bubble arc at z=5 (topmost)
     ]
 }

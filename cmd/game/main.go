@@ -478,11 +478,13 @@ func initializeHandlers(seed int64) (*handlers.EbitenClockHandler, handlers.AIHa
 func loadOrCreateWorld(saveMgr *save.Manager, seed int64) *sim_gen.World {
 	savedWorld, err := saveMgr.LoadGame()
 	if err != nil {
-		log.Printf("Warning: failed to load save: %v", err)
+		// Save system handles backups for corrupted/incompatible saves
+		log.Printf("Save error: %v", err)
+		log.Println("Starting new game...")
 	}
 
 	if savedWorld != nil {
-		log.Printf("Loaded save with %.1f minutes play time", saveMgr.PlayTime()/60)
+		log.Printf("Loaded save (v%s) with %.1f minutes play time", save.CurrentSaveVersion, saveMgr.PlayTime()/60)
 		return savedWorld
 	}
 

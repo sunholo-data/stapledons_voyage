@@ -1,0 +1,406 @@
+module sim/celestial
+
+-- =============================================================================
+-- Celestial Types
+-- Planet, StarSystem, and related types for solar system simulation
+-- =============================================================================
+
+import std/math (sin, cos)
+import std/option (Option, Some, None)
+import sim/protocol (DrawCmd, CircleRGBA)
+
+-- =============================================================================
+-- Color Type
+-- =============================================================================
+
+-- RGBA color (0-255 per channel)
+export type Color = { r: int, g: int, b: int, a: int }
+
+-- Pack color to single int (0xRRGGBBAA format)
+export pure func packColor(c: Color) -> int {
+    c.r * 16777216 + c.g * 65536 + c.b * 256 + c.a
+}
+
+-- =============================================================================
+-- Planet Types
+-- =============================================================================
+
+-- Planet classification by composition
+export type PlanetType =
+    | Rocky        -- Mercury, Mars-like
+    | GasGiant     -- Jupiter, Saturn-like
+    | IceGiant     -- Neptune, Uranus-like
+    | Terrestrial  -- Earth-like with atmosphere
+    | Ocean        -- Water world
+    | Volcanic     -- Io-like
+    | Dwarf        -- Pluto-like
+
+-- Individual planet (named CelestialPlanet to avoid conflict with bridge.ail's Planet)
+export type CelestialPlanet = {
+    id: int,
+    name: string,
+    planetType: PlanetType,
+    orbitDistance: float,    -- AU from star
+    radius: float,           -- Earth radii
+    orbitalPeriod: float,    -- Years
+    currentAngle: float,     -- Current orbital position (radians)
+    hasRings: bool,
+    ringColor: Option[Color],
+    atmosphereColor: Option[Color]
+}
+
+-- =============================================================================
+-- Star Types
+-- =============================================================================
+
+-- Spectral class for stars
+export type SpectralClass = O | B | A | F | G | K | M
+
+-- Star type classification
+export type StarType =
+    | MainSequence(SpectralClass)
+    | Giant
+    | WhiteDwarf
+    | NeutronStar
+    | BlackHole
+
+-- 3D position (reusing from starmap would be better, but keeping self-contained)
+export type SystemPos = { x: float, y: float, z: float }
+
+-- Star system containing planets
+export type StarSystem = {
+    id: int,
+    name: string,
+    starType: StarType,
+    position: SystemPos,
+    planets: [CelestialPlanet]
+}
+
+-- =============================================================================
+-- Color Functions
+-- =============================================================================
+
+-- Color constructors (workaround for record literals in match arms)
+pure func colorRocky() -> Color { { r: 180, g: 140, b: 100, a: 255 } }
+pure func colorGasGiant() -> Color { { r: 200, g: 170, b: 130, a: 255 } }
+pure func colorIceGiant() -> Color { { r: 80, g: 120, b: 200, a: 255 } }
+pure func colorTerrestrial() -> Color { { r: 80, g: 140, b: 200, a: 255 } }
+pure func colorOcean() -> Color { { r: 40, g: 80, b: 180, a: 255 } }
+pure func colorVolcanic() -> Color { { r: 200, g: 80, b: 40, a: 255 } }
+pure func colorDwarf() -> Color { { r: 150, g: 140, b: 130, a: 255 } }
+
+-- Get base color for planet type
+export pure func planetBaseColor(pt: PlanetType) -> Color {
+    match pt {
+        Rocky       => colorRocky(),
+        GasGiant    => colorGasGiant(),
+        IceGiant    => colorIceGiant(),
+        Terrestrial => colorTerrestrial(),
+        Ocean       => colorOcean(),
+        Volcanic    => colorVolcanic(),
+        Dwarf       => colorDwarf()
+    }
+}
+
+-- Atmosphere color constructors
+pure func atmoGasGiant() -> Color { { r: 220, g: 180, b: 140, a: 100 } }
+pure func atmoIceGiant() -> Color { { r: 150, g: 200, b: 255, a: 100 } }
+
+-- Get atmosphere tint if present
+export pure func atmosphereTint(planet: CelestialPlanet) -> Option[Color] {
+    match planet.planetType {
+        GasGiant    => Some(atmoGasGiant()),
+        IceGiant    => Some(atmoIceGiant()),
+        Terrestrial => planet.atmosphereColor,
+        _           => None
+    }
+}
+
+-- =============================================================================
+-- Planet Factory
+-- =============================================================================
+
+-- Create a planet with given properties
+export pure func makePlanet(
+    id: int,
+    name: string,
+    pType: PlanetType,
+    dist: float,
+    rad: float,
+    period: float,
+    angle: float,
+    rings: bool,
+    ringCol: Option[Color],
+    atmoCol: Option[Color]
+) -> CelestialPlanet {
+    {
+        id: id,
+        name: name,
+        planetType: pType,
+        orbitDistance: dist,
+        radius: rad,
+        orbitalPeriod: period,
+        currentAngle: angle,
+        hasRings: rings,
+        ringColor: ringCol,
+        atmosphereColor: atmoCol
+    }
+}
+
+-- =============================================================================
+-- Sol System Definition
+-- =============================================================================
+
+-- Generate Sol system (our solar system) with 8 planets
+export pure func initSolSystem() -> StarSystem {
+    let planets = [
+        -- Mercury: Rocky, closest to sun
+        makePlanet(0, "Mercury", Rocky, 0.39, 0.38, 0.24, 0.0,
+                   false, None, None),
+
+        -- Venus: Rocky with thick atmosphere
+        makePlanet(1, "Venus", Rocky, 0.72, 0.95, 0.62, 1.2,
+                   false, None, Some({ r: 255, g: 200, b: 100, a: 150 })),
+
+        -- Earth: Terrestrial, habitable
+        makePlanet(2, "Earth", Terrestrial, 1.0, 1.0, 1.0, 2.1,
+                   false, None, Some({ r: 100, g: 150, b: 255, a: 100 })),
+
+        -- Mars: Rocky, thin atmosphere
+        makePlanet(3, "Mars", Rocky, 1.52, 0.53, 1.88, 3.5,
+                   false, None, Some({ r: 200, g: 150, b: 100, a: 50 })),
+
+        -- Jupiter: Gas giant, largest planet
+        makePlanet(4, "Jupiter", GasGiant, 5.2, 11.2, 11.86, 0.8,
+                   false, None, None),
+
+        -- Saturn: Gas giant with prominent rings
+        makePlanet(5, "Saturn", GasGiant, 9.5, 9.4, 29.46, 4.2,
+                   true, Some({ r: 210, g: 190, b: 150, a: 200 }), None),
+
+        -- Uranus: Ice giant with faint rings
+        makePlanet(6, "Uranus", IceGiant, 19.2, 4.0, 84.01, 5.1,
+                   true, Some({ r: 150, g: 180, b: 200, a: 100 }), None),
+
+        -- Neptune: Ice giant, outermost
+        makePlanet(7, "Neptune", IceGiant, 30.1, 3.9, 164.8, 1.9,
+                   false, None, None)
+    ];
+
+    {
+        id: 0,
+        name: "Sol",
+        starType: MainSequence(G),
+        position: { x: 0.0, y: 0.0, z: 0.0 },
+        planets: planets
+    }
+}
+
+-- =============================================================================
+-- Orbital Mechanics
+-- =============================================================================
+
+-- Two pi constant
+pure func twoPi() -> float {
+    6.28318530718
+}
+
+-- Modulo for floats (keep angle in 0..2π range)
+pure func modFloat(x: float, m: float) -> float {
+    match x < 0.0 {
+        true => modFloat(x + m, m),
+        false => match x >= m {
+            true => modFloat(x - m, m),
+            false => x
+        }
+    }
+}
+
+-- Update a single planet's orbital position
+export pure func stepPlanetOrbit(planet: CelestialPlanet, dt: float) -> CelestialPlanet {
+    -- Angular velocity = 2π / period (radians per year)
+    let angularVel = twoPi() / planet.orbitalPeriod;
+    let newAngle = modFloat(planet.currentAngle + angularVel * dt, twoPi());
+    {
+        id: planet.id,
+        name: planet.name,
+        planetType: planet.planetType,
+        orbitDistance: planet.orbitDistance,
+        radius: planet.radius,
+        orbitalPeriod: planet.orbitalPeriod,
+        currentAngle: newAngle,
+        hasRings: planet.hasRings,
+        ringColor: planet.ringColor,
+        atmosphereColor: planet.atmosphereColor
+    }
+}
+
+-- Update all planets in a list
+pure func stepPlanetsOrbit(planets: [CelestialPlanet], dt: float) -> [CelestialPlanet] {
+    match planets {
+        [] => [],
+        p :: rest => stepPlanetOrbit(p, dt) :: stepPlanetsOrbit(rest, dt)
+    }
+}
+
+-- Update entire star system
+export pure func stepSystem(system: StarSystem, dt: float) -> StarSystem {
+    let updatedPlanets = stepPlanetsOrbit(system.planets, dt);
+    {
+        id: system.id,
+        name: system.name,
+        starType: system.starType,
+        position: system.position,
+        planets: updatedPlanets
+    }
+}
+
+-- =============================================================================
+-- Query Functions
+-- =============================================================================
+
+-- Get planet count
+export pure func planetCount(system: StarSystem) -> int {
+    countPlanets(system.planets)
+}
+
+pure func countPlanets(planets: [CelestialPlanet]) -> int {
+    match planets {
+        [] => 0,
+        _ :: rest => 1 + countPlanets(rest)
+    }
+}
+
+-- Get planet by index
+export pure func getPlanet(system: StarSystem, idx: int) -> Option[CelestialPlanet] {
+    getPlanetAt(system.planets, idx)
+}
+
+pure func getPlanetAt(planets: [CelestialPlanet], idx: int) -> Option[CelestialPlanet] {
+    match planets {
+        [] => None,
+        p :: rest => match idx == 0 {
+            true => Some(p),
+            false => getPlanetAt(rest, idx - 1)
+        }
+    }
+}
+
+-- Get planet position in 2D (for rendering)
+export pure func planetPosition2D(planet: CelestialPlanet, scale: float) -> (float, float) {
+    let x = cos(planet.currentAngle) * planet.orbitDistance * scale;
+    let y = sin(planet.currentAngle) * planet.orbitDistance * scale;
+    (x, y)
+}
+
+-- =============================================================================
+-- Planet Rendering (DrawCmd generation)
+-- =============================================================================
+
+-- Screen dimensions for rendering
+pure func renderScreenWidth() -> float { 1280.0 }
+pure func renderScreenHeight() -> float { 960.0 }
+
+-- Layer for planets (behind bridge floor but visible in dome)
+pure func layerPlanets() -> int { 0 - 5 }
+
+-- Convert planet radius to screen pixels (Earth = 1.0 radius -> 10 pixels)
+pure func planetScreenRadius(planet: CelestialPlanet) -> float {
+    -- Scale: Earth (1.0) = 10 pixels, Jupiter (11.2) = 35 pixels
+    -- Use log-ish scaling to keep gas giants visible but not overwhelming
+    match planet.radius > 5.0 {
+        true => 15.0 + planet.radius * 2.0,  -- Gas giants
+        false => 8.0 + planet.radius * 5.0   -- Rocky planets
+    }
+}
+
+-- Render a single planet as CircleRGBA
+-- centerX, centerY: screen position of the sun (star)
+-- scale: pixels per AU
+export pure func renderPlanet2D(planet: CelestialPlanet, centerX: float, centerY: float, scale: float) -> DrawCmd {
+    let pos = planetPosition2D(planet, scale);
+    match pos {
+        (px, py) => {
+            let screenX = centerX + px;
+            let screenY = centerY - py;  -- Invert Y for screen coords
+            let radius = planetScreenRadius(planet);
+            let baseColor = planetBaseColor(planet.planetType);
+            let colorInt = packColor(baseColor);
+            CircleRGBA(screenX, screenY, radius, colorInt, true, layerPlanets())
+        }
+    }
+}
+
+-- Render ring for a planet (if hasRings is true)
+pure func renderPlanetRing(planet: CelestialPlanet, centerX: float, centerY: float, scale: float) -> [DrawCmd] {
+    match planet.hasRings {
+        false => [],
+        true => {
+            let pos = planetPosition2D(planet, scale);
+            match pos {
+                (px, py) => {
+                    let screenX = centerX + px;
+                    let screenY = centerY - py;
+                    let planetRadius = planetScreenRadius(planet);
+                    -- Ring extends from 1.5x to 2.5x planet radius
+                    let innerRing = planetRadius * 1.5;
+                    let outerRing = planetRadius * 2.5;
+                    -- Get ring color (default to beige if none specified)
+                    let ringColor = match planet.ringColor {
+                        Some(c) => packColor(c),
+                        None => 3535748351  -- Beige fallback
+                    };
+                    -- Render as two concentric circles (outer ring border)
+                    [
+                        CircleRGBA(screenX, screenY, outerRing, ringColor, false, layerPlanets() - 1),
+                        CircleRGBA(screenX, screenY, innerRing, ringColor, false, layerPlanets() - 1)
+                    ]
+                }
+            }
+        }
+    }
+}
+
+-- Helper: concatenate draw command lists
+pure func concatCmds(a: [DrawCmd], b: [DrawCmd]) -> [DrawCmd] {
+    match a {
+        [] => b,
+        x :: rest => x :: concatCmds(rest, b)
+    }
+}
+
+-- Render all planets in a list recursively (orbital view)
+pure func renderOrbitalPlanetsRec(planets: [CelestialPlanet], centerX: float, centerY: float, scale: float) -> [DrawCmd] {
+    match planets {
+        [] => [],
+        p :: rest => {
+            let planetCmd = renderPlanet2D(p, centerX, centerY, scale);
+            let ringCmds = renderPlanetRing(p, centerX, centerY, scale);
+            concatCmds([planetCmd], concatCmds(ringCmds, renderOrbitalPlanetsRec(rest, centerX, centerY, scale)))
+        }
+    }
+}
+
+-- Render all planets in a star system
+-- Returns DrawCmds for all planets with their current orbital positions
+export pure func renderPlanets(system: StarSystem, centerX: float, centerY: float, scale: float) -> [DrawCmd] {
+    renderOrbitalPlanetsRec(system.planets, centerX, centerY, scale)
+}
+
+-- Render the sun (star) at center
+pure func sunColor() -> Color { { r: 255, g: 200, b: 50, a: 255 } }
+
+export pure func renderSun(centerX: float, centerY: float) -> DrawCmd {
+    CircleRGBA(centerX, centerY, 20.0, packColor(sunColor()), true, layerPlanets())
+}
+
+-- Render complete solar system view (sun + all planets)
+export pure func renderSolarSystem(system: StarSystem) -> [DrawCmd] {
+    -- Center sun in upper portion of screen (dome area)
+    let centerX = renderScreenWidth() / 2.0;
+    let centerY = 250.0;  -- Upper area (dome viewport)
+    -- Scale: 15 pixels per AU (so Neptune at 30 AU is ~450px from center)
+    let scale = 15.0;
+    let sunCmd = renderSun(centerX, centerY);
+    sunCmd :: renderPlanets(system, centerX, centerY, scale)
+}

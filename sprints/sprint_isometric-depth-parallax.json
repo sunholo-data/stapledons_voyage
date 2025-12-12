@@ -1,0 +1,90 @@
+{
+  "sprint_id": "isometric-depth-parallax",
+  "created": "2025-12-12T00:00:00Z",
+  "status": "in_progress",
+  "design_doc": "design_docs/planned/phase1-data-models/isometric-depth-parallax.md",
+  "features": [
+    {
+      "id": "layer-infrastructure",
+      "description": "Create DepthLayerManager and ParallaxCamera for multi-layer rendering",
+      "estimated_loc": 180,
+      "actual_loc": 180,
+      "dependencies": [],
+      "acceptance_criteria": [
+        "DepthLayerManager manages 4 layer buffers",
+        "ParallaxCamera extends CameraOffset with layer-aware transforms",
+        "Composite() blends layers back-to-front",
+        "Unit tests pass for parallax math"
+      ],
+      "passes": true,
+      "started": "2025-12-12T17:21:17Z",
+      "completed": "2025-12-12T17:26:16Z",
+      "notes": null
+    },
+    {
+      "id": "protocol-extension",
+      "description": "Add DepthLayer and LayeredDrawCmd types to AILANG protocol",
+      "estimated_loc": 70,
+      "actual_loc": null,
+      "dependencies": [
+        "layer-infrastructure"
+      ],
+      "acceptance_criteria": [
+        "DepthLayer ADT with 4 variants",
+        "LayeredDrawCmd wraps DrawCmd with layer assignment",
+        "RenderFrame sorts commands by layer",
+        "SpaceBackground renders to Layer 0"
+      ],
+      "passes": null,
+      "started": "2025-12-12T17:30:54Z",
+      "completed": null,
+      "notes": null
+    },
+    {
+      "id": "transparency-tiles",
+      "description": "Implement alpha rendering for isometric tiles",
+      "estimated_loc": 80,
+      "actual_loc": null,
+      "dependencies": [
+        "protocol-extension"
+      ],
+      "acceptance_criteria": [
+        "TransparentTile type with alpha field",
+        "IsoTile renders with alpha blending",
+        "Glass floor shows Layer 0 through it",
+        "Multiple alpha levels work (0.3, 0.5, 0.7, 1.0)"
+      ],
+      "passes": null,
+      "started": null,
+      "completed": null,
+      "notes": null
+    },
+    {
+      "id": "spire-integration",
+      "description": "Render spire to MidBackground layer with parallax",
+      "estimated_loc": 60,
+      "actual_loc": null,
+      "dependencies": [
+        "transparency-tiles"
+      ],
+      "acceptance_criteria": [
+        "Spire renders to Layer 1 (MidBackground)",
+        "Spire has 0.3x parallax when camera pans",
+        "Spire visible through transparent floors",
+        "60 FPS with 3 active layers"
+      ],
+      "passes": null,
+      "started": null,
+      "completed": null,
+      "notes": null
+    }
+  ],
+  "velocity": {
+    "target_loc_per_day": 100,
+    "actual_loc_per_day": 0
+  },
+  "ailang_issues": [],
+  "dx_issues_discovered": [],
+  "lessons_learned": [],
+  "last_updated": "2025-12-12T00:00:00Z"
+}

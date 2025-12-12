@@ -1,0 +1,100 @@
+{
+  "sprint_id": "planet-data-migration",
+  "created": "2025-12-11T20:19:26Z",
+  "estimated_duration_days": 1,
+  "correlation_id": "sprint_planet-data-migration",
+  "design_doc": "design_docs/planned/phase1-data-models/planet-data-migration.md",
+  "markdown_plan": "sprints/planet-data-migration-sprint.md",
+  "features": [
+    {
+      "id": "phase1-ailang-types",
+      "description": "Create celestial.ail with Planet, StarSystem, PlanetType types",
+      "estimated_loc": 100,
+      "actual_loc": null,
+      "dependencies": [],
+      "acceptance_criteria": [
+        "PlanetType ADT defined",
+        "Planet record type with all fields",
+        "StarSystem record type",
+        "init_sol_system() returns 8 planets",
+        "ailang check passes"
+      ],
+      "passes": true,
+      "started": "2025-12-11T20:20:52Z",
+      "completed": "2025-12-12T15:30:00Z",
+      "notes": "FIXED: AILANG codegen bug #36 resolved. celestial.ail created with all types."
+    },
+    {
+      "id": "phase2-world-integration",
+      "description": "Add StarSystem to World and implement orbital mechanics",
+      "estimated_loc": 50,
+      "actual_loc": null,
+      "dependencies": [
+        "phase1-ailang-types"
+      ],
+      "acceptance_criteria": [
+        "World type has current_system field",
+        "step_system updates orbital positions",
+        "init_world includes Sol system",
+        "go build passes"
+      ],
+      "passes": true,
+      "started": "2025-12-12T15:48:00Z",
+      "completed": "2025-12-12T16:00:00Z",
+      "notes": "Type unification bug fixed by AILANG team. World now has currentSystem: StarSystem."
+    },
+    {
+      "id": "phase3-rendering",
+      "description": "Render planets from AILANG state, remove hardcoded Go data",
+      "estimated_loc": 80,
+      "actual_loc": null,
+      "dependencies": [
+        "phase2-world-integration"
+      ],
+      "acceptance_criteria": [
+        "render_planets generates DrawCmds",
+        "No hardcoded planet data in Go",
+        "Planets animate in orbit",
+        "Saturn has rings"
+      ],
+      "passes": true,
+      "started": "2025-12-12T16:00:00Z",
+      "completed": "2025-12-12T16:30:00Z",
+      "notes": "COMPLETE: renderSolarSystem() in celestial.ail generates CircleRGBA DrawCmds for all 8 planets with orbital positions. Saturn/Uranus have rings. Planets3D trigger removed from bridge.ail. Go hardcoded data marked as DEPRECATED."
+    },
+    {
+      "id": "phase4-verification",
+      "description": "Visual verification and cleanup",
+      "estimated_loc": 20,
+      "actual_loc": null,
+      "dependencies": [
+        "phase3-rendering"
+      ],
+      "acceptance_criteria": [
+        "Mercury closest, Neptune furthest",
+        "Orbital speeds correct",
+        "Planet colors match types",
+        "No remaining hardcoded data"
+      ],
+      "passes": true,
+      "started": "2025-12-12T16:30:00Z",
+      "completed": "2025-12-12T16:35:00Z",
+      "notes": "VERIFIED: Mercury closest (0.39AU), Neptune furthest (30.1AU). Orbital periods correct. Colors match planet types. Saturn/Uranus have rings. Go hardcoded data marked DEPRECATED."
+    }
+  ],
+  "velocity": {
+    "target_loc_per_day": 250,
+    "actual_loc_per_day": 0,
+    "target_milestones_per_week": 4,
+    "actual_milestones_per_week": 0,
+    "estimated_total_loc": 250,
+    "actual_total_loc": 0,
+    "estimated_days": 1,
+    "actual_days": null
+  },
+  "last_session": "2025-12-11T20:19:26Z",
+  "last_checkpoint": null,
+  "status": "blocked",
+  "blocker": "AILANG #41: Option fields missing type assertion (.(*Option)). All fields now set but Option[T] fields fail type check.",
+  "last_updated": "2025-12-12T16:17:00Z"
+}

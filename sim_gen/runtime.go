@@ -703,6 +703,30 @@ func ConvertToBridgeStationSlice(v interface{}) []*BridgeStation {
 	return out
 }
 
+// ConvertToCelestialPlanetSlice converts []interface{} to []*CelestialPlanet.
+// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
+func ConvertToCelestialPlanetSlice(v interface{}) []*CelestialPlanet {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToCelestialPlanetSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*CelestialPlanet{}
+	}
+	out := make([]*CelestialPlanet, len(src))
+	for i, e := range src {
+		elem, ok := e.(*CelestialPlanet)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToCelestialPlanetSlice: element %d: expected *CelestialPlanet, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
 // ConvertToClickKindSlice converts []interface{} to []*ClickKind.
 // M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
 func ConvertToClickKindSlice(v interface{}) []*ClickKind {
@@ -817,6 +841,30 @@ func ConvertToCurrentPlanetSlice(v interface{}) []*CurrentPlanet {
 		elem, ok := e.(*CurrentPlanet)
 		if !ok {
 			panic(fmt.Sprintf("ConvertToCurrentPlanetSlice: element %d: expected *CurrentPlanet, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToDepthLayerSlice converts []interface{} to []*DepthLayer.
+// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
+func ConvertToDepthLayerSlice(v interface{}) []*DepthLayer {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToDepthLayerSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*DepthLayer{}
+	}
+	out := make([]*DepthLayer, len(src))
+	for i, e := range src {
+		elem, ok := e.(*DepthLayer)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToDepthLayerSlice: element %d: expected *DepthLayer, got %T", i, e))
 		}
 		out[i] = elem
 	}
@@ -1015,6 +1063,30 @@ func ConvertToOptionSlice(v interface{}) []*Option {
 	return out
 }
 
+// ConvertToPlanetTypeSlice converts []interface{} to []*PlanetType.
+// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
+func ConvertToPlanetTypeSlice(v interface{}) []*PlanetType {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToPlanetTypeSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*PlanetType{}
+	}
+	out := make([]*PlanetType, len(src))
+	for i, e := range src {
+		elem, ok := e.(*PlanetType)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToPlanetTypeSlice: element %d: expected *PlanetType, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
 // ConvertToPlayerActionSlice converts []interface{} to []*PlayerAction.
 // M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
 func ConvertToPlayerActionSlice(v interface{}) []*PlayerAction {
@@ -1105,6 +1177,30 @@ func ConvertToStarSlice(v interface{}) []*Star {
 		elem, ok := e.(*Star)
 		if !ok {
 			panic(fmt.Sprintf("ConvertToStarSlice: element %d: expected *Star, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToStarTypeSlice converts []interface{} to []*StarType.
+// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
+func ConvertToStarTypeSlice(v interface{}) []*StarType {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToStarTypeSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*StarType{}
+	}
+	out := make([]*StarType, len(src))
+	for i, e := range src {
+		elem, ok := e.(*StarType)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToStarTypeSlice: element %d: expected *StarType, got %T", i, e))
 		}
 		out[i] = elem
 	}

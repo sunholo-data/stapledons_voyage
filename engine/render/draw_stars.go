@@ -8,6 +8,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
+	"stapledons_voyage/engine/camera"
 	"stapledons_voyage/sim_gen"
 )
 
@@ -189,6 +190,58 @@ func (r *Renderer) drawGalaxyBackground(screen *ebiten.Image, opacity float64, s
 
 		screen.DrawImage(r.galaxyBg, op)
 	}
+}
+
+// drawGalaxyBackgroundParallax renders the galaxy background with parallax offset.
+// The transform contains the parallax-adjusted camera offset for this layer.
+func (r *Renderer) drawGalaxyBackgroundParallax(screen *ebiten.Image, opacity float64, screenW, screenH int, skyViewMode bool, viewLon, viewLat, fov float64, transform camera.Transform) {
+	// Lazy-load the galaxy background
+	if !r.galaxyBgLoaded {
+		r.galaxyBgLoaded = true
+		r.loadGalaxyBackground()
+	}
+
+	if r.galaxyBg == nil {
+		return
+	}
+
+	bgW := float64(r.galaxyBg.Bounds().Dx())
+	bgH := float64(r.galaxyBg.Bounds().Dy())
+
+	// Calculate parallax shift from transform
+	// transform.OffsetX = screenW/2 - camera.X * parallaxFactor * zoom
+	// So the shift from center is: transform.OffsetX - screenW/2
+	parallaxShiftX := transform.OffsetX - float64(screenW)/2
+	parallaxShiftY := transform.OffsetY - float64(screenH)/2
+
+	if skyViewMode {
+		// Sky view mode uses the original implementation (no parallax shift for star navigation)
+		r.drawGalaxyBackground(screen, opacity, screenW, screenH, skyViewMode, viewLon, viewLat, fov)
+		return
+	}
+
+	// Plane view: show entire image centered and scaled to fit, with parallax
+	scaleX := float64(screenW) / bgW
+	scaleY := float64(screenH) / bgH
+	scale := scaleX
+	if scaleY > scaleX {
+		scale = scaleY // Use larger scale to cover screen
+	}
+
+	// Center the image with parallax offset
+	drawW := bgW * scale
+	drawH := bgH * scale
+	offsetX := (float64(screenW)-drawW)/2 + parallaxShiftX
+	offsetY := (float64(screenH)-drawH)/2 + parallaxShiftY
+
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Scale(scale, scale)
+	op.GeoM.Translate(offsetX, offsetY)
+
+	// Apply opacity (dim the background)
+	op.ColorScale.Scale(float32(opacity), float32(opacity), float32(opacity), 1.0)
+
+	screen.DrawImage(r.galaxyBg, op)
 }
 
 // loadGalaxyBackground loads the galaxy background image from disk.

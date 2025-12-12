@@ -811,6 +811,56 @@ type Strut struct {
 	Color    int64
 }
 
+// OptionKind discriminates between variants of Option
+type OptionKind int
+
+const (
+	OptionKindSome OptionKind = iota
+	OptionKindNone
+)
+
+// OptionSome holds data for the Some variant
+type OptionSome struct {
+	Value0 interface{}
+}
+
+// OptionNone holds data for the None variant
+type OptionNone struct {
+}
+
+// Option is a sum type (discriminated union)
+type Option struct {
+	Kind OptionKind
+	Some *OptionSome
+	None *OptionNone
+}
+
+// NewOptionSome creates a new Some variant
+func NewOptionSome(v0 interface{}) *Option {
+	return &Option{
+		Kind: OptionKindSome,
+		Some: &OptionSome{Value0: v0},
+	}
+}
+
+// NewOptionNone creates a new None variant
+func NewOptionNone() *Option {
+	return &Option{
+		Kind: OptionKindNone,
+		None: &OptionNone{},
+	}
+}
+
+// IsSome returns true if this is a Some variant
+func (v *Option) IsSome() bool {
+	return v.Kind == OptionKindSome
+}
+
+// IsNone returns true if this is a None variant
+func (v *Option) IsNone() bool {
+	return v.Kind == OptionKindNone
+}
+
 // DirectionKind discriminates between variants of Direction
 type DirectionKind int
 
@@ -1374,6 +1424,7 @@ const (
 	DrawCmdKindText
 	DrawCmdKindIsoTile
 	DrawCmdKindIsoEntity
+	DrawCmdKindIsoTileAlpha
 	DrawCmdKindUi
 	DrawCmdKindLine
 	DrawCmdKindTextWrapped
@@ -1384,8 +1435,10 @@ const (
 	DrawCmdKindGalaxyBg
 	DrawCmdKindStar
 	DrawCmdKindSpaceBg
+	DrawCmdKindSpireBg
 	DrawCmdKindPlanets3D
 	DrawCmdKindBubbleArc
+	DrawCmdKindMarker
 )
 
 // DrawCmdSprite holds data for the Sprite variant
@@ -1434,6 +1487,16 @@ type DrawCmdIsoEntity struct {
 	Height   int64
 	SpriteId int64
 	Layer    int64
+}
+
+// DrawCmdIsoTileAlpha holds data for the IsoTileAlpha variant
+type DrawCmdIsoTileAlpha struct {
+	Tile     *Coord
+	Height   int64
+	SpriteId int64
+	Layer    int64
+	Alpha    float64
+	TintRgba int64
 }
 
 // DrawCmdUi holds data for the Ui variant
@@ -1538,6 +1601,11 @@ type DrawCmdSpaceBg struct {
 	Z int64
 }
 
+// DrawCmdSpireBg holds data for the SpireBg variant
+type DrawCmdSpireBg struct {
+	Z int64
+}
+
 // DrawCmdPlanets3D holds data for the Planets3D variant
 type DrawCmdPlanets3D struct {
 	Z int64
@@ -1548,26 +1616,40 @@ type DrawCmdBubbleArc struct {
 	Z int64
 }
 
+// DrawCmdMarker holds data for the Marker variant
+type DrawCmdMarker struct {
+	X             float64
+	Y             float64
+	W             float64
+	H             float64
+	Rgba          int64
+	ParallaxLayer int64
+	Z             int64
+}
+
 // DrawCmd is a sum type (discriminated union)
 type DrawCmd struct {
-	Kind        DrawCmdKind
-	Sprite      *DrawCmdSprite
-	Rect        *DrawCmdRect
-	Text        *DrawCmdText
-	IsoTile     *DrawCmdIsoTile
-	IsoEntity   *DrawCmdIsoEntity
-	Ui          *DrawCmdUi
-	Line        *DrawCmdLine
-	TextWrapped *DrawCmdTextWrapped
-	Circle      *DrawCmdCircle
-	RectScreen  *DrawCmdRectScreen
-	RectRGBA    *DrawCmdRectRGBA
-	CircleRGBA  *DrawCmdCircleRGBA
-	GalaxyBg    *DrawCmdGalaxyBg
-	Star        *DrawCmdStar
-	SpaceBg     *DrawCmdSpaceBg
-	Planets3D   *DrawCmdPlanets3D
-	BubbleArc   *DrawCmdBubbleArc
+	Kind         DrawCmdKind
+	Sprite       *DrawCmdSprite
+	Rect         *DrawCmdRect
+	Text         *DrawCmdText
+	IsoTile      *DrawCmdIsoTile
+	IsoEntity    *DrawCmdIsoEntity
+	IsoTileAlpha *DrawCmdIsoTileAlpha
+	Ui           *DrawCmdUi
+	Line         *DrawCmdLine
+	TextWrapped  *DrawCmdTextWrapped
+	Circle       *DrawCmdCircle
+	RectScreen   *DrawCmdRectScreen
+	RectRGBA     *DrawCmdRectRGBA
+	CircleRGBA   *DrawCmdCircleRGBA
+	GalaxyBg     *DrawCmdGalaxyBg
+	Star         *DrawCmdStar
+	SpaceBg      *DrawCmdSpaceBg
+	SpireBg      *DrawCmdSpireBg
+	Planets3D    *DrawCmdPlanets3D
+	BubbleArc    *DrawCmdBubbleArc
+	Marker       *DrawCmdMarker
 }
 
 // NewDrawCmdSprite creates a new Sprite variant
@@ -1607,6 +1689,14 @@ func NewDrawCmdIsoEntity(id string, tile *Coord, offsetX float64, offsetY float6
 	return &DrawCmd{
 		Kind:      DrawCmdKindIsoEntity,
 		IsoEntity: &DrawCmdIsoEntity{Id: id, Tile: tile, OffsetX: offsetX, OffsetY: offsetY, Height: height, SpriteId: spriteId, Layer: layer},
+	}
+}
+
+// NewDrawCmdIsoTileAlpha creates a new IsoTileAlpha variant
+func NewDrawCmdIsoTileAlpha(tile *Coord, height int64, spriteId int64, layer int64, alpha float64, tintRgba int64) *DrawCmd {
+	return &DrawCmd{
+		Kind:         DrawCmdKindIsoTileAlpha,
+		IsoTileAlpha: &DrawCmdIsoTileAlpha{Tile: tile, Height: height, SpriteId: spriteId, Layer: layer, Alpha: alpha, TintRgba: tintRgba},
 	}
 }
 
@@ -1690,6 +1780,14 @@ func NewDrawCmdSpaceBg(z int64) *DrawCmd {
 	}
 }
 
+// NewDrawCmdSpireBg creates a new SpireBg variant
+func NewDrawCmdSpireBg(z int64) *DrawCmd {
+	return &DrawCmd{
+		Kind:    DrawCmdKindSpireBg,
+		SpireBg: &DrawCmdSpireBg{Z: z},
+	}
+}
+
 // NewDrawCmdPlanets3D creates a new Planets3D variant
 func NewDrawCmdPlanets3D(z int64) *DrawCmd {
 	return &DrawCmd{
@@ -1703,6 +1801,14 @@ func NewDrawCmdBubbleArc(z int64) *DrawCmd {
 	return &DrawCmd{
 		Kind:      DrawCmdKindBubbleArc,
 		BubbleArc: &DrawCmdBubbleArc{Z: z},
+	}
+}
+
+// NewDrawCmdMarker creates a new Marker variant
+func NewDrawCmdMarker(x float64, y float64, w float64, h float64, rgba int64, parallaxLayer int64, z int64) *DrawCmd {
+	return &DrawCmd{
+		Kind:   DrawCmdKindMarker,
+		Marker: &DrawCmdMarker{X: x, Y: y, W: w, H: h, Rgba: rgba, ParallaxLayer: parallaxLayer, Z: z},
 	}
 }
 
@@ -1729,6 +1835,11 @@ func (v *DrawCmd) IsIsoTile() bool {
 // IsIsoEntity returns true if this is a IsoEntity variant
 func (v *DrawCmd) IsIsoEntity() bool {
 	return v.Kind == DrawCmdKindIsoEntity
+}
+
+// IsIsoTileAlpha returns true if this is a IsoTileAlpha variant
+func (v *DrawCmd) IsIsoTileAlpha() bool {
+	return v.Kind == DrawCmdKindIsoTileAlpha
 }
 
 // IsUi returns true if this is a Ui variant
@@ -1781,6 +1892,11 @@ func (v *DrawCmd) IsSpaceBg() bool {
 	return v.Kind == DrawCmdKindSpaceBg
 }
 
+// IsSpireBg returns true if this is a SpireBg variant
+func (v *DrawCmd) IsSpireBg() bool {
+	return v.Kind == DrawCmdKindSpireBg
+}
+
 // IsPlanets3D returns true if this is a Planets3D variant
 func (v *DrawCmd) IsPlanets3D() bool {
 	return v.Kind == DrawCmdKindPlanets3D
@@ -1791,6 +1907,11 @@ func (v *DrawCmd) IsBubbleArc() bool {
 	return v.Kind == DrawCmdKindBubbleArc
 }
 
+// IsMarker returns true if this is a Marker variant
+func (v *DrawCmd) IsMarker() bool {
+	return v.Kind == DrawCmdKindMarker
+}
+
 // FrameOutput is a record type
 type FrameOutput struct {
 	Draw   []*DrawCmd
@@ -1799,54 +1920,532 @@ type FrameOutput struct {
 	Camera *Camera
 }
 
-// OptionKind discriminates between variants of Option
-type OptionKind int
+// Color is a record type
+type Color struct {
+	R int64
+	G int64
+	B int64
+	A int64
+}
+
+// PlanetTypeKind discriminates between variants of PlanetType
+type PlanetTypeKind int
 
 const (
-	OptionKindSome OptionKind = iota
-	OptionKindNone
+	PlanetTypeKindRocky PlanetTypeKind = iota
+	PlanetTypeKindGasGiant
+	PlanetTypeKindIceGiant
+	PlanetTypeKindTerrestrial
+	PlanetTypeKindOcean
+	PlanetTypeKindVolcanic
+	PlanetTypeKindDwarf
 )
 
-// OptionSome holds data for the Some variant
-type OptionSome struct {
-	Value0 interface{}
+// PlanetTypeRocky holds data for the Rocky variant
+type PlanetTypeRocky struct {
 }
 
-// OptionNone holds data for the None variant
-type OptionNone struct {
+// PlanetTypeGasGiant holds data for the GasGiant variant
+type PlanetTypeGasGiant struct {
 }
 
-// Option is a sum type (discriminated union)
-type Option struct {
-	Kind OptionKind
-	Some *OptionSome
-	None *OptionNone
+// PlanetTypeIceGiant holds data for the IceGiant variant
+type PlanetTypeIceGiant struct {
 }
 
-// NewOptionSome creates a new Some variant
-func NewOptionSome(v0 interface{}) *Option {
-	return &Option{
-		Kind: OptionKindSome,
-		Some: &OptionSome{Value0: v0},
+// PlanetTypeTerrestrial holds data for the Terrestrial variant
+type PlanetTypeTerrestrial struct {
+}
+
+// PlanetTypeOcean holds data for the Ocean variant
+type PlanetTypeOcean struct {
+}
+
+// PlanetTypeVolcanic holds data for the Volcanic variant
+type PlanetTypeVolcanic struct {
+}
+
+// PlanetTypeDwarf holds data for the Dwarf variant
+type PlanetTypeDwarf struct {
+}
+
+// PlanetType is a sum type (discriminated union)
+type PlanetType struct {
+	Kind        PlanetTypeKind
+	Rocky       *PlanetTypeRocky
+	GasGiant    *PlanetTypeGasGiant
+	IceGiant    *PlanetTypeIceGiant
+	Terrestrial *PlanetTypeTerrestrial
+	Ocean       *PlanetTypeOcean
+	Volcanic    *PlanetTypeVolcanic
+	Dwarf       *PlanetTypeDwarf
+}
+
+// NewPlanetTypeRocky creates a new Rocky variant
+func NewPlanetTypeRocky() *PlanetType {
+	return &PlanetType{
+		Kind:  PlanetTypeKindRocky,
+		Rocky: &PlanetTypeRocky{},
 	}
 }
 
-// NewOptionNone creates a new None variant
-func NewOptionNone() *Option {
-	return &Option{
-		Kind: OptionKindNone,
-		None: &OptionNone{},
+// NewPlanetTypeGasGiant creates a new GasGiant variant
+func NewPlanetTypeGasGiant() *PlanetType {
+	return &PlanetType{
+		Kind:     PlanetTypeKindGasGiant,
+		GasGiant: &PlanetTypeGasGiant{},
 	}
 }
 
-// IsSome returns true if this is a Some variant
-func (v *Option) IsSome() bool {
-	return v.Kind == OptionKindSome
+// NewPlanetTypeIceGiant creates a new IceGiant variant
+func NewPlanetTypeIceGiant() *PlanetType {
+	return &PlanetType{
+		Kind:     PlanetTypeKindIceGiant,
+		IceGiant: &PlanetTypeIceGiant{},
+	}
 }
 
-// IsNone returns true if this is a None variant
-func (v *Option) IsNone() bool {
-	return v.Kind == OptionKindNone
+// NewPlanetTypeTerrestrial creates a new Terrestrial variant
+func NewPlanetTypeTerrestrial() *PlanetType {
+	return &PlanetType{
+		Kind:        PlanetTypeKindTerrestrial,
+		Terrestrial: &PlanetTypeTerrestrial{},
+	}
+}
+
+// NewPlanetTypeOcean creates a new Ocean variant
+func NewPlanetTypeOcean() *PlanetType {
+	return &PlanetType{
+		Kind:  PlanetTypeKindOcean,
+		Ocean: &PlanetTypeOcean{},
+	}
+}
+
+// NewPlanetTypeVolcanic creates a new Volcanic variant
+func NewPlanetTypeVolcanic() *PlanetType {
+	return &PlanetType{
+		Kind:     PlanetTypeKindVolcanic,
+		Volcanic: &PlanetTypeVolcanic{},
+	}
+}
+
+// NewPlanetTypeDwarf creates a new Dwarf variant
+func NewPlanetTypeDwarf() *PlanetType {
+	return &PlanetType{
+		Kind:  PlanetTypeKindDwarf,
+		Dwarf: &PlanetTypeDwarf{},
+	}
+}
+
+// IsRocky returns true if this is a Rocky variant
+func (v *PlanetType) IsRocky() bool {
+	return v.Kind == PlanetTypeKindRocky
+}
+
+// IsGasGiant returns true if this is a GasGiant variant
+func (v *PlanetType) IsGasGiant() bool {
+	return v.Kind == PlanetTypeKindGasGiant
+}
+
+// IsIceGiant returns true if this is a IceGiant variant
+func (v *PlanetType) IsIceGiant() bool {
+	return v.Kind == PlanetTypeKindIceGiant
+}
+
+// IsTerrestrial returns true if this is a Terrestrial variant
+func (v *PlanetType) IsTerrestrial() bool {
+	return v.Kind == PlanetTypeKindTerrestrial
+}
+
+// IsOcean returns true if this is a Ocean variant
+func (v *PlanetType) IsOcean() bool {
+	return v.Kind == PlanetTypeKindOcean
+}
+
+// IsVolcanic returns true if this is a Volcanic variant
+func (v *PlanetType) IsVolcanic() bool {
+	return v.Kind == PlanetTypeKindVolcanic
+}
+
+// IsDwarf returns true if this is a Dwarf variant
+func (v *PlanetType) IsDwarf() bool {
+	return v.Kind == PlanetTypeKindDwarf
+}
+
+// CelestialPlanet is a record type
+type CelestialPlanet struct {
+	Id              int64
+	Name            string
+	PlanetType      *PlanetType
+	OrbitDistance   float64
+	Radius          float64
+	OrbitalPeriod   float64
+	CurrentAngle    float64
+	HasRings        bool
+	RingColor       *Option
+	AtmosphereColor *Option
+}
+
+// SpectralClassKind discriminates between variants of SpectralClass
+type SpectralClassKind int
+
+const (
+	SpectralClassKindO SpectralClassKind = iota
+	SpectralClassKindB
+	SpectralClassKindA
+	SpectralClassKindF
+	SpectralClassKindG
+	SpectralClassKindK
+	SpectralClassKindM
+)
+
+// SpectralClassO holds data for the O variant
+type SpectralClassO struct {
+}
+
+// SpectralClassB holds data for the B variant
+type SpectralClassB struct {
+}
+
+// SpectralClassA holds data for the A variant
+type SpectralClassA struct {
+}
+
+// SpectralClassF holds data for the F variant
+type SpectralClassF struct {
+}
+
+// SpectralClassG holds data for the G variant
+type SpectralClassG struct {
+}
+
+// SpectralClassK holds data for the K variant
+type SpectralClassK struct {
+}
+
+// SpectralClassM holds data for the M variant
+type SpectralClassM struct {
+}
+
+// SpectralClass is a sum type (discriminated union)
+type SpectralClass struct {
+	Kind SpectralClassKind
+	O    *SpectralClassO
+	B    *SpectralClassB
+	A    *SpectralClassA
+	F    *SpectralClassF
+	G    *SpectralClassG
+	K    *SpectralClassK
+	M    *SpectralClassM
+}
+
+// NewSpectralClassO creates a new O variant
+func NewSpectralClassO() *SpectralClass {
+	return &SpectralClass{
+		Kind: SpectralClassKindO,
+		O:    &SpectralClassO{},
+	}
+}
+
+// NewSpectralClassB creates a new B variant
+func NewSpectralClassB() *SpectralClass {
+	return &SpectralClass{
+		Kind: SpectralClassKindB,
+		B:    &SpectralClassB{},
+	}
+}
+
+// NewSpectralClassA creates a new A variant
+func NewSpectralClassA() *SpectralClass {
+	return &SpectralClass{
+		Kind: SpectralClassKindA,
+		A:    &SpectralClassA{},
+	}
+}
+
+// NewSpectralClassF creates a new F variant
+func NewSpectralClassF() *SpectralClass {
+	return &SpectralClass{
+		Kind: SpectralClassKindF,
+		F:    &SpectralClassF{},
+	}
+}
+
+// NewSpectralClassG creates a new G variant
+func NewSpectralClassG() *SpectralClass {
+	return &SpectralClass{
+		Kind: SpectralClassKindG,
+		G:    &SpectralClassG{},
+	}
+}
+
+// NewSpectralClassK creates a new K variant
+func NewSpectralClassK() *SpectralClass {
+	return &SpectralClass{
+		Kind: SpectralClassKindK,
+		K:    &SpectralClassK{},
+	}
+}
+
+// NewSpectralClassM creates a new M variant
+func NewSpectralClassM() *SpectralClass {
+	return &SpectralClass{
+		Kind: SpectralClassKindM,
+		M:    &SpectralClassM{},
+	}
+}
+
+// IsO returns true if this is a O variant
+func (v *SpectralClass) IsO() bool {
+	return v.Kind == SpectralClassKindO
+}
+
+// IsB returns true if this is a B variant
+func (v *SpectralClass) IsB() bool {
+	return v.Kind == SpectralClassKindB
+}
+
+// IsA returns true if this is a A variant
+func (v *SpectralClass) IsA() bool {
+	return v.Kind == SpectralClassKindA
+}
+
+// IsF returns true if this is a F variant
+func (v *SpectralClass) IsF() bool {
+	return v.Kind == SpectralClassKindF
+}
+
+// IsG returns true if this is a G variant
+func (v *SpectralClass) IsG() bool {
+	return v.Kind == SpectralClassKindG
+}
+
+// IsK returns true if this is a K variant
+func (v *SpectralClass) IsK() bool {
+	return v.Kind == SpectralClassKindK
+}
+
+// IsM returns true if this is a M variant
+func (v *SpectralClass) IsM() bool {
+	return v.Kind == SpectralClassKindM
+}
+
+// StarTypeKind discriminates between variants of StarType
+type StarTypeKind int
+
+const (
+	StarTypeKindMainSequence StarTypeKind = iota
+	StarTypeKindGiant
+	StarTypeKindWhiteDwarf
+	StarTypeKindNeutronStar
+	StarTypeKindBlackHole
+)
+
+// StarTypeMainSequence holds data for the MainSequence variant
+type StarTypeMainSequence struct {
+	Value0 *SpectralClass
+}
+
+// StarTypeGiant holds data for the Giant variant
+type StarTypeGiant struct {
+}
+
+// StarTypeWhiteDwarf holds data for the WhiteDwarf variant
+type StarTypeWhiteDwarf struct {
+}
+
+// StarTypeNeutronStar holds data for the NeutronStar variant
+type StarTypeNeutronStar struct {
+}
+
+// StarTypeBlackHole holds data for the BlackHole variant
+type StarTypeBlackHole struct {
+}
+
+// StarType is a sum type (discriminated union)
+type StarType struct {
+	Kind         StarTypeKind
+	MainSequence *StarTypeMainSequence
+	Giant        *StarTypeGiant
+	WhiteDwarf   *StarTypeWhiteDwarf
+	NeutronStar  *StarTypeNeutronStar
+	BlackHole    *StarTypeBlackHole
+}
+
+// NewStarTypeMainSequence creates a new MainSequence variant
+func NewStarTypeMainSequence(v0 *SpectralClass) *StarType {
+	return &StarType{
+		Kind:         StarTypeKindMainSequence,
+		MainSequence: &StarTypeMainSequence{Value0: v0},
+	}
+}
+
+// NewStarTypeGiant creates a new Giant variant
+func NewStarTypeGiant() *StarType {
+	return &StarType{
+		Kind:  StarTypeKindGiant,
+		Giant: &StarTypeGiant{},
+	}
+}
+
+// NewStarTypeWhiteDwarf creates a new WhiteDwarf variant
+func NewStarTypeWhiteDwarf() *StarType {
+	return &StarType{
+		Kind:       StarTypeKindWhiteDwarf,
+		WhiteDwarf: &StarTypeWhiteDwarf{},
+	}
+}
+
+// NewStarTypeNeutronStar creates a new NeutronStar variant
+func NewStarTypeNeutronStar() *StarType {
+	return &StarType{
+		Kind:        StarTypeKindNeutronStar,
+		NeutronStar: &StarTypeNeutronStar{},
+	}
+}
+
+// NewStarTypeBlackHole creates a new BlackHole variant
+func NewStarTypeBlackHole() *StarType {
+	return &StarType{
+		Kind:      StarTypeKindBlackHole,
+		BlackHole: &StarTypeBlackHole{},
+	}
+}
+
+// IsMainSequence returns true if this is a MainSequence variant
+func (v *StarType) IsMainSequence() bool {
+	return v.Kind == StarTypeKindMainSequence
+}
+
+// IsGiant returns true if this is a Giant variant
+func (v *StarType) IsGiant() bool {
+	return v.Kind == StarTypeKindGiant
+}
+
+// IsWhiteDwarf returns true if this is a WhiteDwarf variant
+func (v *StarType) IsWhiteDwarf() bool {
+	return v.Kind == StarTypeKindWhiteDwarf
+}
+
+// IsNeutronStar returns true if this is a NeutronStar variant
+func (v *StarType) IsNeutronStar() bool {
+	return v.Kind == StarTypeKindNeutronStar
+}
+
+// IsBlackHole returns true if this is a BlackHole variant
+func (v *StarType) IsBlackHole() bool {
+	return v.Kind == StarTypeKindBlackHole
+}
+
+// SystemPos is a record type
+type SystemPos struct {
+	X float64
+	Y float64
+	Z float64
+}
+
+// StarSystem is a record type
+type StarSystem struct {
+	Id       int64
+	Name     string
+	StarType *StarType
+	Position *SystemPos
+	Planets  []*CelestialPlanet
+}
+
+// DepthLayerKind discriminates between variants of DepthLayer
+type DepthLayerKind int
+
+const (
+	DepthLayerKindLayerDeepBackground DepthLayerKind = iota
+	DepthLayerKindLayerMidBackground
+	DepthLayerKindLayerScene
+	DepthLayerKindLayerForeground
+)
+
+// DepthLayerLayerDeepBackground holds data for the LayerDeepBackground variant
+type DepthLayerLayerDeepBackground struct {
+}
+
+// DepthLayerLayerMidBackground holds data for the LayerMidBackground variant
+type DepthLayerLayerMidBackground struct {
+}
+
+// DepthLayerLayerScene holds data for the LayerScene variant
+type DepthLayerLayerScene struct {
+}
+
+// DepthLayerLayerForeground holds data for the LayerForeground variant
+type DepthLayerLayerForeground struct {
+}
+
+// DepthLayer is a sum type (discriminated union)
+type DepthLayer struct {
+	Kind                DepthLayerKind
+	LayerDeepBackground *DepthLayerLayerDeepBackground
+	LayerMidBackground  *DepthLayerLayerMidBackground
+	LayerScene          *DepthLayerLayerScene
+	LayerForeground     *DepthLayerLayerForeground
+}
+
+// NewDepthLayerLayerDeepBackground creates a new LayerDeepBackground variant
+func NewDepthLayerLayerDeepBackground() *DepthLayer {
+	return &DepthLayer{
+		Kind:                DepthLayerKindLayerDeepBackground,
+		LayerDeepBackground: &DepthLayerLayerDeepBackground{},
+	}
+}
+
+// NewDepthLayerLayerMidBackground creates a new LayerMidBackground variant
+func NewDepthLayerLayerMidBackground() *DepthLayer {
+	return &DepthLayer{
+		Kind:               DepthLayerKindLayerMidBackground,
+		LayerMidBackground: &DepthLayerLayerMidBackground{},
+	}
+}
+
+// NewDepthLayerLayerScene creates a new LayerScene variant
+func NewDepthLayerLayerScene() *DepthLayer {
+	return &DepthLayer{
+		Kind:       DepthLayerKindLayerScene,
+		LayerScene: &DepthLayerLayerScene{},
+	}
+}
+
+// NewDepthLayerLayerForeground creates a new LayerForeground variant
+func NewDepthLayerLayerForeground() *DepthLayer {
+	return &DepthLayer{
+		Kind:            DepthLayerKindLayerForeground,
+		LayerForeground: &DepthLayerLayerForeground{},
+	}
+}
+
+// IsLayerDeepBackground returns true if this is a LayerDeepBackground variant
+func (v *DepthLayer) IsLayerDeepBackground() bool {
+	return v.Kind == DepthLayerKindLayerDeepBackground
+}
+
+// IsLayerMidBackground returns true if this is a LayerMidBackground variant
+func (v *DepthLayer) IsLayerMidBackground() bool {
+	return v.Kind == DepthLayerKindLayerMidBackground
+}
+
+// IsLayerScene returns true if this is a LayerScene variant
+func (v *DepthLayer) IsLayerScene() bool {
+	return v.Kind == DepthLayerKindLayerScene
+}
+
+// IsLayerForeground returns true if this is a LayerForeground variant
+func (v *DepthLayer) IsLayerForeground() bool {
+	return v.Kind == DepthLayerKindLayerForeground
+}
+
+// TransparentTile is a record type
+type TransparentTile struct {
+	BaseId          int64
+	Alpha           float64
+	SeeThroughLayer *DepthLayer
+	TintRgba        int64
 }
 
 // Vec3 is a record type
@@ -2149,11 +2748,12 @@ func (v *ViewMode) IsViewGalaxyMap() bool {
 
 // World is a record type
 type World struct {
-	Tick        int64
-	Planet      *PlanetState
-	Npcs        []*NPC
-	Selection   *Selection
-	Bridge      *BridgeState
-	ViewMode    *ViewMode
-	StarCatalog *StarCatalog
+	Tick          int64
+	Planet        *PlanetState
+	Npcs          []*NPC
+	Selection     *Selection
+	Bridge        *BridgeState
+	ViewMode      *ViewMode
+	StarCatalog   *StarCatalog
+	CurrentSystem *StarSystem
 }

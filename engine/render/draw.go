@@ -8,6 +8,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"stapledons_voyage/engine/assets"
 	"stapledons_voyage/engine/camera"
+	"stapledons_voyage/engine/depth"
 	"stapledons_voyage/sim_gen"
 )
 
@@ -37,6 +38,11 @@ type Renderer struct {
 	lastTick       uint64        // Track simulation tick for animation updates
 	galaxyBg       *ebiten.Image // Galaxy background image (loaded lazily)
 	galaxyBgLoaded bool          // Whether we've attempted to load the background
+
+	// Layer-aware rendering (parallax system)
+	layers        *DepthLayerManager
+	parallaxCam   *camera.ParallaxCamera
+	layersEnabled bool // Whether to use layer-based rendering
 }
 
 // NewRenderer creates a renderer with the given asset manager.
@@ -81,6 +87,69 @@ func convertAnimations(src map[string]assets.SpriteAnimSeq) map[string]Animation
 	return dst
 }
 
+// EnableLayers initializes and enables layer-based rendering with parallax support.
+// Call this once after creating the renderer to enable the depth layer system.
+func (r *Renderer) EnableLayers(screenW, screenH int) {
+	r.layers = NewDepthLayerManager(screenW, screenH)
+	r.parallaxCam = camera.NewParallaxCamera(screenW, screenH)
+	r.layersEnabled = true
+}
+
+// ResizeLayers updates the layer buffers when screen size changes.
+func (r *Renderer) ResizeLayers(screenW, screenH int) {
+	if r.layers != nil {
+		r.layers.Resize(screenW, screenH)
+	}
+	if r.parallaxCam != nil {
+		r.parallaxCam.Resize(screenW, screenH)
+	}
+}
+
+// getDepthLayer determines which depth layer a DrawCmd should render to.
+// We support 20 layers (0-19) for flexible parallax composition:
+//
+//	Layer0 (0.00): Fixed at infinity (space/galaxy)
+//	Layer1-5: Distant ship structures (0.05-0.25x)
+//	Layer6-9: Mid-distance decks (0.30-0.60x)
+//	Layer10-15: Near elements (0.70-0.95x)
+//	Layer16-18: Scene layers (1.0x)
+//	Layer19: UI (screen-fixed)
+func getDepthLayer(cmd *sim_gen.DrawCmd) depth.Layer {
+	switch cmd.Kind {
+	// Marker: Use the parallaxLayer field to select layer (0-19)
+	case sim_gen.DrawCmdKindMarker:
+		layer := int(cmd.Marker.ParallaxLayer)
+		if layer >= 0 && layer < int(depth.LayerCount) {
+			return depth.Layer(layer)
+		}
+		return depth.Layer16 // Default to scene layer
+
+	// Layer 0: Fixed at infinity (space, galaxy, stars - physically realistic)
+	case sim_gen.DrawCmdKindGalaxyBg, sim_gen.DrawCmdKindSpaceBg, sim_gen.DrawCmdKindStar:
+		return depth.Layer0
+
+	// Layer 6: Mid-background (0.3x parallax) - spire, distant structures
+	case sim_gen.DrawCmdKindSpireBg:
+		return depth.Layer6
+
+	// Layer 19: Foreground - UI elements (screen-fixed)
+	case sim_gen.DrawCmdKindUi:
+		return depth.Layer19
+
+	// Layer 19: Screen-space elements
+	case sim_gen.DrawCmdKindRectScreen, sim_gen.DrawCmdKindTextWrapped:
+		return depth.Layer19
+
+	// Layer 19: Text is typically UI/foreground
+	case sim_gen.DrawCmdKindText:
+		return depth.Layer19
+
+	// Layer 16: Everything else is main scene layer
+	default:
+		return depth.Layer16
+	}
+}
+
 // RenderFrame renders the FrameOutput to the Ebiten screen.
 func (r *Renderer) RenderFrame(screen *ebiten.Image, out sim_gen.FrameOutput) {
 	// Update animations (assume 60 FPS, ~16.67ms per frame)
@@ -91,6 +160,12 @@ func (r *Renderer) RenderFrame(screen *ebiten.Image, out sim_gen.FrameOutput) {
 
 	// Get screen dimensions
 	screenW, screenH := screen.Bounds().Dx(), screen.Bounds().Dy()
+
+	// If layer rendering is enabled, use the layered path
+	if r.layersEnabled && r.layers != nil {
+		r.renderFrameLayered(screen, out, screenW, screenH)
+		return
+	}
 
 	// Create camera transform (dereference pointer)
 	cam := *out.Camera
@@ -145,6 +220,9 @@ func (r *Renderer) RenderFrame(screen *ebiten.Image, out sim_gen.FrameOutput) {
 		case sim_gen.DrawCmdKindIsoTile:
 			r.drawIsoTile(screen, cmd.IsoTile, cam, screenW, screenH)
 
+		case sim_gen.DrawCmdKindIsoTileAlpha:
+			r.drawIsoTileAlpha(screen, cmd.IsoTileAlpha, cam, screenW, screenH)
+
 		case sim_gen.DrawCmdKindIsoEntity:
 			r.drawIsoEntity(screen, cmd.IsoEntity, cam, screenW, screenH)
 
@@ -173,6 +251,9 @@ func (r *Renderer) RenderFrame(screen *ebiten.Image, out sim_gen.FrameOutput) {
 		case sim_gen.DrawCmdKindStar:
 			r.drawStar(screen, cmd.Star)
 
+		case sim_gen.DrawCmdKindSpireBg:
+			r.drawSpireBg(screen, screenW, screenH)
+
 		case sim_gen.DrawCmdKindRectRGBA:
 			c := cmd.RectRGBA
 			// Screen-space rectangle with packed RGBA color (0xRRGGBBAA format)
@@ -184,6 +265,12 @@ func (r *Renderer) RenderFrame(screen *ebiten.Image, out sim_gen.FrameOutput) {
 			// Screen-space circle with packed RGBA color
 			col := unpackRGBA(c.Rgba)
 			r.drawCircleRGBA(screen, c.X, c.Y, c.Radius, col, c.Filled)
+
+		case sim_gen.DrawCmdKindMarker:
+			// Marker in non-layered mode - render at screen position
+			c := cmd.Marker
+			col := unpackRGBA(c.Rgba)
+			ebitenutil.DrawRect(screen, c.X, c.Y, c.W, c.H, col)
 		}
 	}
 
@@ -191,6 +278,160 @@ func (r *Renderer) RenderFrame(screen *ebiten.Image, out sim_gen.FrameOutput) {
 	// Start at y=50 to avoid overlapping with camera panel
 	for i, msg := range out.Debug {
 		ebitenutil.DebugPrintAt(screen, msg, 10, 50+i*16)
+	}
+}
+
+// renderFrameLayered renders using the depth layer system with parallax support.
+// Commands are grouped by depth layer and rendered to separate buffers,
+// then composited back-to-front for proper parallax and transparency effects.
+func (r *Renderer) renderFrameLayered(screen *ebiten.Image, out sim_gen.FrameOutput, screenW, screenH int) {
+	// Update parallax camera from game camera
+	cam := *out.Camera
+	r.parallaxCam.SetPosition(cam.X, cam.Y)
+	r.parallaxCam.SetZoom(cam.Zoom)
+
+	// Clear all layer buffers
+	r.layers.Clear()
+
+	// Group commands by depth layer
+	layerCmds := make([][]*sim_gen.DrawCmd, LayerCount)
+	for i := range layerCmds {
+		layerCmds[i] = make([]*sim_gen.DrawCmd, 0)
+	}
+
+	for _, cmd := range out.Draw {
+		layer := getDepthLayer(cmd)
+		layerCmds[layer] = append(layerCmds[layer], cmd)
+	}
+
+	// Render each layer (back to front)
+	for layerIdx := 0; layerIdx < int(LayerCount); layerIdx++ {
+		layer := depth.Layer(layerIdx)
+		buffer := r.layers.GetBuffer(layer)
+		cmds := layerCmds[layerIdx]
+
+		if len(cmds) == 0 {
+			continue
+		}
+
+		// Get layer-specific camera transform (with parallax)
+		transform := r.parallaxCam.TransformForLayer(layer)
+		viewport := camera.CalculateViewport(cam, screenW, screenH)
+
+		// Sort commands within this layer
+		sortables := make([]isoSortable, len(cmds))
+		for i, cmd := range cmds {
+			sortables[i] = isoSortable{
+				cmd:     cmd,
+				sortKey: getIsoSortKey(cmd, cam, screenW, screenH),
+			}
+		}
+		sort.Slice(sortables, func(i, j int) bool {
+			return sortables[i].sortKey < sortables[j].sortKey
+		})
+
+		// Render commands to this layer's buffer
+		r.renderCommandsToBuffer(buffer, sortables, transform, viewport, cam, screenW, screenH)
+	}
+
+	// Composite all layers to screen (back to front)
+	r.layers.Composite(screen)
+
+	// Render debug messages on top (directly to screen)
+	for i, msg := range out.Debug {
+		ebitenutil.DebugPrintAt(screen, msg, 10, 50+i*16)
+	}
+}
+
+// renderCommandsToBuffer renders a list of sorted commands to a target buffer.
+func (r *Renderer) renderCommandsToBuffer(
+	buffer *ebiten.Image,
+	sortables []isoSortable,
+	transform camera.Transform,
+	viewport camera.Viewport,
+	cam sim_gen.Camera,
+	screenW, screenH int,
+) {
+	for _, s := range sortables {
+		cmd := s.cmd
+		switch cmd.Kind {
+		case sim_gen.DrawCmdKindRect:
+			c := cmd.Rect
+			if !viewport.ContainsRect(c.X, c.Y, c.W, c.H) {
+				continue
+			}
+			sx, sy := transform.WorldToScreen(c.X, c.Y)
+			sw := c.W * transform.Scale
+			sh := c.H * transform.Scale
+			col := biomeColors[int(c.Color)%len(biomeColors)]
+			ebitenutil.DrawRect(buffer, sx, sy, sw, sh, col)
+
+		case sim_gen.DrawCmdKindSprite:
+			c := cmd.Sprite
+			if !viewport.ContainsRect(c.X, c.Y, 16, 16) {
+				continue
+			}
+			r.drawSprite(buffer, c, transform)
+
+		case sim_gen.DrawCmdKindText:
+			c := cmd.Text
+			r.drawText(buffer, c, int(c.X), int(c.Y))
+
+		case sim_gen.DrawCmdKindIsoTile:
+			r.drawIsoTile(buffer, cmd.IsoTile, cam, screenW, screenH)
+
+		case sim_gen.DrawCmdKindIsoTileAlpha:
+			r.drawIsoTileAlpha(buffer, cmd.IsoTileAlpha, cam, screenW, screenH)
+
+		case sim_gen.DrawCmdKindIsoEntity:
+			r.drawIsoEntity(buffer, cmd.IsoEntity, cam, screenW, screenH)
+
+		case sim_gen.DrawCmdKindUi:
+			r.drawUiElement(buffer, cmd.Ui, screenW, screenH)
+
+		case sim_gen.DrawCmdKindLine:
+			r.drawLine(buffer, cmd.Line)
+
+		case sim_gen.DrawCmdKindTextWrapped:
+			r.drawTextWrapped(buffer, cmd.TextWrapped, screenW, screenH)
+
+		case sim_gen.DrawCmdKindCircle:
+			r.drawCircle(buffer, cmd.Circle)
+
+		case sim_gen.DrawCmdKindRectScreen:
+			c := cmd.RectScreen
+			col := biomeColors[int(c.Color)%len(biomeColors)]
+			ebitenutil.DrawRect(buffer, c.X, c.Y, c.W, c.H, col)
+
+		case sim_gen.DrawCmdKindGalaxyBg:
+			c := cmd.GalaxyBg
+			r.drawGalaxyBackgroundParallax(buffer, c.Opacity, screenW, screenH, c.SkyViewMode, c.ViewLon, c.ViewLat, c.Fov, transform)
+
+		case sim_gen.DrawCmdKindStar:
+			r.drawStar(buffer, cmd.Star)
+
+		case sim_gen.DrawCmdKindSpireBg:
+			r.drawSpireBgParallax(buffer, screenW, screenH, transform)
+
+		case sim_gen.DrawCmdKindRectRGBA:
+			c := cmd.RectRGBA
+			col := unpackRGBA(c.Rgba)
+			ebitenutil.DrawRect(buffer, c.X, c.Y, c.W, c.H, col)
+
+		case sim_gen.DrawCmdKindCircleRGBA:
+			c := cmd.CircleRGBA
+			col := unpackRGBA(c.Rgba)
+			r.drawCircleRGBA(buffer, c.X, c.Y, c.Radius, col, c.Filled)
+
+		case sim_gen.DrawCmdKindMarker:
+			// Marker: rectangle at screen position with parallax applied via layer system
+			c := cmd.Marker
+			col := unpackRGBA(c.Rgba)
+			// Apply parallax offset from transform
+			x := c.X + transform.OffsetX - float64(screenW)/2
+			y := c.Y + transform.OffsetY - float64(screenH)/2
+			ebitenutil.DrawRect(buffer, x, y, c.W, c.H, col)
+		}
 	}
 }
 
@@ -348,6 +589,8 @@ func getZ(cmd *sim_gen.DrawCmd) int {
 		return int(cmd.RectRGBA.Z)
 	case sim_gen.DrawCmdKindCircleRGBA:
 		return int(cmd.CircleRGBA.Z)
+	case sim_gen.DrawCmdKindMarker:
+		return int(cmd.Marker.Z)
 	}
 	return 0
 }
