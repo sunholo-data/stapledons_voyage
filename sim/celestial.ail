@@ -314,7 +314,7 @@ pure func planetScreenRadius(planet: CelestialPlanet) -> float {
     }
 }
 
--- Render a single planet as CircleRGBA
+-- Render a single planet as CircleRGBA (fallback/2D mode)
 -- centerX, centerY: screen position of the sun (star)
 -- scale: pixels per AU
 export pure func renderPlanet2D(planet: CelestialPlanet, centerX: float, centerY: float, scale: float) -> DrawCmd {
@@ -327,6 +327,41 @@ export pure func renderPlanet2D(planet: CelestialPlanet, centerX: float, centerY
             let baseColor = planetBaseColor(planet.planetType);
             let colorInt = packColor(baseColor);
             CircleRGBA(screenX, screenY, radius, colorInt, true, layerPlanets())
+        }
+    }
+}
+
+-- Layer for orbit paths (behind planets)
+pure func layerOrbits() -> int { 0 - 10 }
+
+-- Orbit path color (dim gray)
+pure func orbitPathColor() -> int { 1077952576 }  -- 0x40404040 (gray with 25% alpha)
+
+-- Render orbit path as unfilled circle
+export pure func renderOrbitPath(planet: CelestialPlanet, centerX: float, centerY: float, scale: float) -> DrawCmd {
+    let orbitRadius = planet.orbitDistance * scale;
+    Circle(centerX, centerY, orbitRadius, orbitPathColor(), false, layerOrbits())
+}
+
+-- Render a single planet as TexturedPlanet (3D mode with textures)
+-- centerX, centerY: screen position of the sun (star)
+-- scale: pixels per AU
+export pure func renderPlanetTextured(planet: CelestialPlanet, centerX: float, centerY: float, scale: float) -> DrawCmd {
+    let pos = planetPosition2D(planet, scale);
+    match pos {
+        (px, py) => {
+            let screenX = centerX + px;
+            let screenY = centerY - py;
+            let radius = planetScreenRadius(planet);
+            -- Get ring color if planet has rings
+            let ringColor = match planet.hasRings {
+                true => match planet.ringColor {
+                    Some(c) => packColor(c),
+                    None => 3535748351  -- Beige fallback
+                },
+                false => 0
+            };
+            TexturedPlanet(planet.name, screenX, screenY, radius, planet.currentAngle, planet.hasRings, ringColor, layerPlanets())
         }
     }
 }
@@ -369,7 +404,7 @@ pure func concatCmds(a: [DrawCmd], b: [DrawCmd]) -> [DrawCmd] {
     }
 }
 
--- Render all planets in a list recursively (orbital view)
+-- Render all planets in a list recursively (orbital view - 2D circles)
 pure func renderOrbitalPlanetsRec(planets: [CelestialPlanet], centerX: float, centerY: float, scale: float) -> [DrawCmd] {
     match planets {
         [] => [],
@@ -379,6 +414,35 @@ pure func renderOrbitalPlanetsRec(planets: [CelestialPlanet], centerX: float, ce
             concatCmds([planetCmd], concatCmds(ringCmds, renderOrbitalPlanetsRec(rest, centerX, centerY, scale)))
         }
     }
+}
+
+-- Render all orbit paths recursively
+pure func renderOrbitPathsRec(planets: [CelestialPlanet], centerX: float, centerY: float, scale: float) -> [DrawCmd] {
+    match planets {
+        [] => [],
+        p :: rest => renderOrbitPath(p, centerX, centerY, scale) :: renderOrbitPathsRec(rest, centerX, centerY, scale)
+    }
+}
+
+-- Render all orbit paths in a star system
+export pure func renderOrbitPaths(system: StarSystem, centerX: float, centerY: float, scale: float) -> [DrawCmd] {
+    renderOrbitPathsRec(system.planets, centerX, centerY, scale)
+}
+
+-- Render all planets as textured spheres recursively (3D mode)
+pure func renderTexturedPlanetsRec(planets: [CelestialPlanet], centerX: float, centerY: float, scale: float) -> [DrawCmd] {
+    match planets {
+        [] => [],
+        p :: rest => {
+            let planetCmd = renderPlanetTextured(p, centerX, centerY, scale);
+            planetCmd :: renderTexturedPlanetsRec(rest, centerX, centerY, scale)
+        }
+    }
+}
+
+-- Render all planets as textured spheres
+export pure func renderTexturedPlanets(system: StarSystem, centerX: float, centerY: float, scale: float) -> [DrawCmd] {
+    renderTexturedPlanetsRec(system.planets, centerX, centerY, scale)
 }
 
 -- Render all planets in a star system
@@ -394,7 +458,12 @@ export pure func renderSun(centerX: float, centerY: float) -> DrawCmd {
     CircleRGBA(centerX, centerY, 20.0, packColor(sunColor()), true, layerPlanets())
 }
 
--- Render complete solar system view (sun + all planets)
+-- Render the sun as textured sphere
+export pure func renderSunTextured(centerX: float, centerY: float) -> DrawCmd {
+    TexturedPlanet("sun", centerX, centerY, 25.0, 0.0, false, 0, layerPlanets())
+}
+
+-- Render complete solar system view (sun + all planets) - 2D colored circles
 export pure func renderSolarSystem(system: StarSystem) -> [DrawCmd] {
     -- Center sun in upper portion of screen (dome area)
     let centerX = renderScreenWidth() / 2.0;
@@ -403,4 +472,20 @@ export pure func renderSolarSystem(system: StarSystem) -> [DrawCmd] {
     let scale = 15.0;
     let sunCmd = renderSun(centerX, centerY);
     sunCmd :: renderPlanets(system, centerX, centerY, scale)
+}
+
+-- Render complete solar system with textured planets and orbit paths
+-- This is the full orbital view with sun at center, orbit ellipses, and 3D textured planets
+export pure func renderSolarSystemTextured(system: StarSystem) -> [DrawCmd] {
+    -- Center in middle of screen
+    let centerX = renderScreenWidth() / 2.0;
+    let centerY = renderScreenHeight() / 2.0;
+    -- Scale: 15 pixels per AU
+    let scale = 15.0;
+    -- Layer order: orbits first (behind), then planets, then sun
+    let orbitCmds = renderOrbitPaths(system, centerX, centerY, scale);
+    let planetCmds = renderTexturedPlanets(system, centerX, centerY, scale);
+    let sunCmd = renderSunTextured(centerX, centerY);
+    -- Combine: orbits, then sun (at center), then planets
+    concatCmds(orbitCmds, sunCmd :: planetCmds)
 }

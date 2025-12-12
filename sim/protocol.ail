@@ -124,6 +124,29 @@ export type DrawCmd =
     -- Marker renders a colored shape at screen position with parallax applied
     | Marker(x: float, y: float, w: float, h: float, rgba: int, parallaxLayer: int, z: int)
 
+    -- Viewport compositing command (for observation domes, windows, portholes)
+    -- shapeType: 0=ellipse, 1=circle, 2=rect, 3=dome
+    -- contentType: 0=none, 1=spaceView, 2=starfield, 3=solid
+    -- effectType: 0=none, 1=srWarp, 2=grLensing, 3=tint, 4=blur
+    -- shapeParams: [centerX, centerY, radiusX/width, radiusY/height, archHeight(dome only)]
+    -- contentParams: [velocity/density, viewAngle/scroll(0/1), rgba(solid)]
+    -- effectParams: [intensity/velocity, param2]
+    | Viewport(
+        id: string,
+        shapeType: int,
+        shapeParams: [float],
+        contentType: int,
+        contentParams: [float],
+        effectType: int,
+        effectParams: [float],
+        layer: int,
+        edgeBlend: float,
+        opacity: float,
+        screenX: float,
+        screenY: float,
+        z: int
+    )
+
 -- =============================================================================
 -- Output Types
 -- =============================================================================

@@ -11,10 +11,10 @@ Enable rendering content through shaped viewports (domes, windows, portholes) th
 
 ## Pre-Sprint Checklist
 
-- [ ] Verify Depth & Parallax sprint is complete
-- [ ] Verify DepthLayerManager working
-- [ ] Verify SpaceBackground renders to Layer 0
-- [ ] Check for unread AILANG messages: `ailang messages list --unread`
+- [x] Verify Depth & Parallax sprint is complete ✅ (2025-12-12)
+- [x] Verify DepthLayerManager working ✅ (20 layers, parallax functioning)
+- [x] Verify SpaceBackground renders to Layer 0 ✅ (GalaxyBg → L0)
+- [x] Check for unread AILANG messages: `ailang messages list --unread` ✅ (none)
 
 ## Day 1: Viewport Shapes & Masks (~5 hours)
 

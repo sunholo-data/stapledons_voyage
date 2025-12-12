@@ -240,6 +240,8 @@ func getCommandLayer(cmd *sim_gen.DrawCmd) int64 {
 		return cmd.BubbleArc.Z
 	case sim_gen.DrawCmdKindGalaxyBg:
 		return cmd.GalaxyBg.Z
+	case sim_gen.DrawCmdKindTexturedPlanet:
+		return cmd.TexturedPlanet.Z
 	default:
 		return 0 // Default to floor layer
 	}

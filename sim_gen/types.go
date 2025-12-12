@@ -811,222 +811,6 @@ type Strut struct {
 	Color    int64
 }
 
-// OptionKind discriminates between variants of Option
-type OptionKind int
-
-const (
-	OptionKindSome OptionKind = iota
-	OptionKindNone
-)
-
-// OptionSome holds data for the Some variant
-type OptionSome struct {
-	Value0 interface{}
-}
-
-// OptionNone holds data for the None variant
-type OptionNone struct {
-}
-
-// Option is a sum type (discriminated union)
-type Option struct {
-	Kind OptionKind
-	Some *OptionSome
-	None *OptionNone
-}
-
-// NewOptionSome creates a new Some variant
-func NewOptionSome(v0 interface{}) *Option {
-	return &Option{
-		Kind: OptionKindSome,
-		Some: &OptionSome{Value0: v0},
-	}
-}
-
-// NewOptionNone creates a new None variant
-func NewOptionNone() *Option {
-	return &Option{
-		Kind: OptionKindNone,
-		None: &OptionNone{},
-	}
-}
-
-// IsSome returns true if this is a Some variant
-func (v *Option) IsSome() bool {
-	return v.Kind == OptionKindSome
-}
-
-// IsNone returns true if this is a None variant
-func (v *Option) IsNone() bool {
-	return v.Kind == OptionKindNone
-}
-
-// DirectionKind discriminates between variants of Direction
-type DirectionKind int
-
-const (
-	DirectionKindNorth DirectionKind = iota
-	DirectionKindSouth
-	DirectionKindEast
-	DirectionKindWest
-)
-
-// DirectionNorth holds data for the North variant
-type DirectionNorth struct {
-}
-
-// DirectionSouth holds data for the South variant
-type DirectionSouth struct {
-}
-
-// DirectionEast holds data for the East variant
-type DirectionEast struct {
-}
-
-// DirectionWest holds data for the West variant
-type DirectionWest struct {
-}
-
-// Direction is a sum type (discriminated union)
-type Direction struct {
-	Kind  DirectionKind
-	North *DirectionNorth
-	South *DirectionSouth
-	East  *DirectionEast
-	West  *DirectionWest
-}
-
-// NewDirectionNorth creates a new North variant
-func NewDirectionNorth() *Direction {
-	return &Direction{
-		Kind:  DirectionKindNorth,
-		North: &DirectionNorth{},
-	}
-}
-
-// NewDirectionSouth creates a new South variant
-func NewDirectionSouth() *Direction {
-	return &Direction{
-		Kind:  DirectionKindSouth,
-		South: &DirectionSouth{},
-	}
-}
-
-// NewDirectionEast creates a new East variant
-func NewDirectionEast() *Direction {
-	return &Direction{
-		Kind: DirectionKindEast,
-		East: &DirectionEast{},
-	}
-}
-
-// NewDirectionWest creates a new West variant
-func NewDirectionWest() *Direction {
-	return &Direction{
-		Kind: DirectionKindWest,
-		West: &DirectionWest{},
-	}
-}
-
-// IsNorth returns true if this is a North variant
-func (v *Direction) IsNorth() bool {
-	return v.Kind == DirectionKindNorth
-}
-
-// IsSouth returns true if this is a South variant
-func (v *Direction) IsSouth() bool {
-	return v.Kind == DirectionKindSouth
-}
-
-// IsEast returns true if this is a East variant
-func (v *Direction) IsEast() bool {
-	return v.Kind == DirectionKindEast
-}
-
-// IsWest returns true if this is a West variant
-func (v *Direction) IsWest() bool {
-	return v.Kind == DirectionKindWest
-}
-
-// MovementPatternKind discriminates between variants of MovementPattern
-type MovementPatternKind int
-
-const (
-	MovementPatternKindPatternStatic MovementPatternKind = iota
-	MovementPatternKindPatternRandomWalk
-	MovementPatternKindPatternPatrol
-)
-
-// MovementPatternPatternStatic holds data for the PatternStatic variant
-type MovementPatternPatternStatic struct {
-}
-
-// MovementPatternPatternRandomWalk holds data for the PatternRandomWalk variant
-type MovementPatternPatternRandomWalk struct {
-	Value0 int64
-}
-
-// MovementPatternPatternPatrol holds data for the PatternPatrol variant
-type MovementPatternPatternPatrol struct {
-	Value0 []*Direction
-}
-
-// MovementPattern is a sum type (discriminated union)
-type MovementPattern struct {
-	Kind              MovementPatternKind
-	PatternStatic     *MovementPatternPatternStatic
-	PatternRandomWalk *MovementPatternPatternRandomWalk
-	PatternPatrol     *MovementPatternPatternPatrol
-}
-
-// NewMovementPatternPatternStatic creates a new PatternStatic variant
-func NewMovementPatternPatternStatic() *MovementPattern {
-	return &MovementPattern{
-		Kind:          MovementPatternKindPatternStatic,
-		PatternStatic: &MovementPatternPatternStatic{},
-	}
-}
-
-// NewMovementPatternPatternRandomWalk creates a new PatternRandomWalk variant
-func NewMovementPatternPatternRandomWalk(v0 int64) *MovementPattern {
-	return &MovementPattern{
-		Kind:              MovementPatternKindPatternRandomWalk,
-		PatternRandomWalk: &MovementPatternPatternRandomWalk{Value0: v0},
-	}
-}
-
-// NewMovementPatternPatternPatrol creates a new PatternPatrol variant
-func NewMovementPatternPatternPatrol(v0 []*Direction) *MovementPattern {
-	return &MovementPattern{
-		Kind:          MovementPatternKindPatternPatrol,
-		PatternPatrol: &MovementPatternPatternPatrol{Value0: v0},
-	}
-}
-
-// IsPatternStatic returns true if this is a PatternStatic variant
-func (v *MovementPattern) IsPatternStatic() bool {
-	return v.Kind == MovementPatternKindPatternStatic
-}
-
-// IsPatternRandomWalk returns true if this is a PatternRandomWalk variant
-func (v *MovementPattern) IsPatternRandomWalk() bool {
-	return v.Kind == MovementPatternKindPatternRandomWalk
-}
-
-// IsPatternPatrol returns true if this is a PatternPatrol variant
-func (v *MovementPattern) IsPatternPatrol() bool {
-	return v.Kind == MovementPatternKindPatternPatrol
-}
-
-// NPC is a record type
-type NPC struct {
-	Id          int64
-	Pos         *Coord
-	Pattern     *MovementPattern
-	MoveCounter int64
-	PatrolIndex int64
-}
-
 // Coord is a record type
 type Coord struct {
 	X int64
@@ -1438,7 +1222,9 @@ const (
 	DrawCmdKindSpireBg
 	DrawCmdKindPlanets3D
 	DrawCmdKindBubbleArc
+	DrawCmdKindTexturedPlanet
 	DrawCmdKindMarker
+	DrawCmdKindViewport
 )
 
 // DrawCmdSprite holds data for the Sprite variant
@@ -1616,6 +1402,18 @@ type DrawCmdBubbleArc struct {
 	Z int64
 }
 
+// DrawCmdTexturedPlanet holds data for the TexturedPlanet variant
+type DrawCmdTexturedPlanet struct {
+	Name     string
+	X        float64
+	Y        float64
+	Radius   float64
+	Rotation float64
+	HasRings bool
+	RingRgba int64
+	Z        int64
+}
+
 // DrawCmdMarker holds data for the Marker variant
 type DrawCmdMarker struct {
 	X             float64
@@ -1627,29 +1425,48 @@ type DrawCmdMarker struct {
 	Z             int64
 }
 
+// DrawCmdViewport holds data for the Viewport variant
+type DrawCmdViewport struct {
+	Id            string
+	ShapeType     int64
+	ShapeParams   []float64
+	ContentType   int64
+	ContentParams []float64
+	EffectType    int64
+	EffectParams  []float64
+	Layer         int64
+	EdgeBlend     float64
+	Opacity       float64
+	ScreenX       float64
+	ScreenY       float64
+	Z             int64
+}
+
 // DrawCmd is a sum type (discriminated union)
 type DrawCmd struct {
-	Kind         DrawCmdKind
-	Sprite       *DrawCmdSprite
-	Rect         *DrawCmdRect
-	Text         *DrawCmdText
-	IsoTile      *DrawCmdIsoTile
-	IsoEntity    *DrawCmdIsoEntity
-	IsoTileAlpha *DrawCmdIsoTileAlpha
-	Ui           *DrawCmdUi
-	Line         *DrawCmdLine
-	TextWrapped  *DrawCmdTextWrapped
-	Circle       *DrawCmdCircle
-	RectScreen   *DrawCmdRectScreen
-	RectRGBA     *DrawCmdRectRGBA
-	CircleRGBA   *DrawCmdCircleRGBA
-	GalaxyBg     *DrawCmdGalaxyBg
-	Star         *DrawCmdStar
-	SpaceBg      *DrawCmdSpaceBg
-	SpireBg      *DrawCmdSpireBg
-	Planets3D    *DrawCmdPlanets3D
-	BubbleArc    *DrawCmdBubbleArc
-	Marker       *DrawCmdMarker
+	Kind           DrawCmdKind
+	Sprite         *DrawCmdSprite
+	Rect           *DrawCmdRect
+	Text           *DrawCmdText
+	IsoTile        *DrawCmdIsoTile
+	IsoEntity      *DrawCmdIsoEntity
+	IsoTileAlpha   *DrawCmdIsoTileAlpha
+	Ui             *DrawCmdUi
+	Line           *DrawCmdLine
+	TextWrapped    *DrawCmdTextWrapped
+	Circle         *DrawCmdCircle
+	RectScreen     *DrawCmdRectScreen
+	RectRGBA       *DrawCmdRectRGBA
+	CircleRGBA     *DrawCmdCircleRGBA
+	GalaxyBg       *DrawCmdGalaxyBg
+	Star           *DrawCmdStar
+	SpaceBg        *DrawCmdSpaceBg
+	SpireBg        *DrawCmdSpireBg
+	Planets3D      *DrawCmdPlanets3D
+	BubbleArc      *DrawCmdBubbleArc
+	TexturedPlanet *DrawCmdTexturedPlanet
+	Marker         *DrawCmdMarker
+	Viewport       *DrawCmdViewport
 }
 
 // NewDrawCmdSprite creates a new Sprite variant
@@ -1804,11 +1621,27 @@ func NewDrawCmdBubbleArc(z int64) *DrawCmd {
 	}
 }
 
+// NewDrawCmdTexturedPlanet creates a new TexturedPlanet variant
+func NewDrawCmdTexturedPlanet(name string, x float64, y float64, radius float64, rotation float64, hasRings bool, ringRgba int64, z int64) *DrawCmd {
+	return &DrawCmd{
+		Kind:           DrawCmdKindTexturedPlanet,
+		TexturedPlanet: &DrawCmdTexturedPlanet{Name: name, X: x, Y: y, Radius: radius, Rotation: rotation, HasRings: hasRings, RingRgba: ringRgba, Z: z},
+	}
+}
+
 // NewDrawCmdMarker creates a new Marker variant
 func NewDrawCmdMarker(x float64, y float64, w float64, h float64, rgba int64, parallaxLayer int64, z int64) *DrawCmd {
 	return &DrawCmd{
 		Kind:   DrawCmdKindMarker,
 		Marker: &DrawCmdMarker{X: x, Y: y, W: w, H: h, Rgba: rgba, ParallaxLayer: parallaxLayer, Z: z},
+	}
+}
+
+// NewDrawCmdViewport creates a new Viewport variant
+func NewDrawCmdViewport(id string, shapeType int64, shapeParams []float64, contentType int64, contentParams []float64, effectType int64, effectParams []float64, layer int64, edgeBlend float64, opacity float64, screenX float64, screenY float64, z int64) *DrawCmd {
+	return &DrawCmd{
+		Kind:     DrawCmdKindViewport,
+		Viewport: &DrawCmdViewport{Id: id, ShapeType: shapeType, ShapeParams: shapeParams, ContentType: contentType, ContentParams: contentParams, EffectType: effectType, EffectParams: effectParams, Layer: layer, EdgeBlend: edgeBlend, Opacity: opacity, ScreenX: screenX, ScreenY: screenY, Z: z},
 	}
 }
 
@@ -1907,9 +1740,19 @@ func (v *DrawCmd) IsBubbleArc() bool {
 	return v.Kind == DrawCmdKindBubbleArc
 }
 
+// IsTexturedPlanet returns true if this is a TexturedPlanet variant
+func (v *DrawCmd) IsTexturedPlanet() bool {
+	return v.Kind == DrawCmdKindTexturedPlanet
+}
+
 // IsMarker returns true if this is a Marker variant
 func (v *DrawCmd) IsMarker() bool {
 	return v.Kind == DrawCmdKindMarker
+}
+
+// IsViewport returns true if this is a Viewport variant
+func (v *DrawCmd) IsViewport() bool {
+	return v.Kind == DrawCmdKindViewport
 }
 
 // FrameOutput is a record type
@@ -1918,6 +1761,222 @@ type FrameOutput struct {
 	Sounds []int64
 	Debug  []string
 	Camera *Camera
+}
+
+// OptionKind discriminates between variants of Option
+type OptionKind int
+
+const (
+	OptionKindSome OptionKind = iota
+	OptionKindNone
+)
+
+// OptionSome holds data for the Some variant
+type OptionSome struct {
+	Value0 interface{}
+}
+
+// OptionNone holds data for the None variant
+type OptionNone struct {
+}
+
+// Option is a sum type (discriminated union)
+type Option struct {
+	Kind OptionKind
+	Some *OptionSome
+	None *OptionNone
+}
+
+// NewOptionSome creates a new Some variant
+func NewOptionSome(v0 interface{}) *Option {
+	return &Option{
+		Kind: OptionKindSome,
+		Some: &OptionSome{Value0: v0},
+	}
+}
+
+// NewOptionNone creates a new None variant
+func NewOptionNone() *Option {
+	return &Option{
+		Kind: OptionKindNone,
+		None: &OptionNone{},
+	}
+}
+
+// IsSome returns true if this is a Some variant
+func (v *Option) IsSome() bool {
+	return v.Kind == OptionKindSome
+}
+
+// IsNone returns true if this is a None variant
+func (v *Option) IsNone() bool {
+	return v.Kind == OptionKindNone
+}
+
+// DirectionKind discriminates between variants of Direction
+type DirectionKind int
+
+const (
+	DirectionKindNorth DirectionKind = iota
+	DirectionKindSouth
+	DirectionKindEast
+	DirectionKindWest
+)
+
+// DirectionNorth holds data for the North variant
+type DirectionNorth struct {
+}
+
+// DirectionSouth holds data for the South variant
+type DirectionSouth struct {
+}
+
+// DirectionEast holds data for the East variant
+type DirectionEast struct {
+}
+
+// DirectionWest holds data for the West variant
+type DirectionWest struct {
+}
+
+// Direction is a sum type (discriminated union)
+type Direction struct {
+	Kind  DirectionKind
+	North *DirectionNorth
+	South *DirectionSouth
+	East  *DirectionEast
+	West  *DirectionWest
+}
+
+// NewDirectionNorth creates a new North variant
+func NewDirectionNorth() *Direction {
+	return &Direction{
+		Kind:  DirectionKindNorth,
+		North: &DirectionNorth{},
+	}
+}
+
+// NewDirectionSouth creates a new South variant
+func NewDirectionSouth() *Direction {
+	return &Direction{
+		Kind:  DirectionKindSouth,
+		South: &DirectionSouth{},
+	}
+}
+
+// NewDirectionEast creates a new East variant
+func NewDirectionEast() *Direction {
+	return &Direction{
+		Kind: DirectionKindEast,
+		East: &DirectionEast{},
+	}
+}
+
+// NewDirectionWest creates a new West variant
+func NewDirectionWest() *Direction {
+	return &Direction{
+		Kind: DirectionKindWest,
+		West: &DirectionWest{},
+	}
+}
+
+// IsNorth returns true if this is a North variant
+func (v *Direction) IsNorth() bool {
+	return v.Kind == DirectionKindNorth
+}
+
+// IsSouth returns true if this is a South variant
+func (v *Direction) IsSouth() bool {
+	return v.Kind == DirectionKindSouth
+}
+
+// IsEast returns true if this is a East variant
+func (v *Direction) IsEast() bool {
+	return v.Kind == DirectionKindEast
+}
+
+// IsWest returns true if this is a West variant
+func (v *Direction) IsWest() bool {
+	return v.Kind == DirectionKindWest
+}
+
+// MovementPatternKind discriminates between variants of MovementPattern
+type MovementPatternKind int
+
+const (
+	MovementPatternKindPatternStatic MovementPatternKind = iota
+	MovementPatternKindPatternRandomWalk
+	MovementPatternKindPatternPatrol
+)
+
+// MovementPatternPatternStatic holds data for the PatternStatic variant
+type MovementPatternPatternStatic struct {
+}
+
+// MovementPatternPatternRandomWalk holds data for the PatternRandomWalk variant
+type MovementPatternPatternRandomWalk struct {
+	Value0 int64
+}
+
+// MovementPatternPatternPatrol holds data for the PatternPatrol variant
+type MovementPatternPatternPatrol struct {
+	Value0 []*Direction
+}
+
+// MovementPattern is a sum type (discriminated union)
+type MovementPattern struct {
+	Kind              MovementPatternKind
+	PatternStatic     *MovementPatternPatternStatic
+	PatternRandomWalk *MovementPatternPatternRandomWalk
+	PatternPatrol     *MovementPatternPatternPatrol
+}
+
+// NewMovementPatternPatternStatic creates a new PatternStatic variant
+func NewMovementPatternPatternStatic() *MovementPattern {
+	return &MovementPattern{
+		Kind:          MovementPatternKindPatternStatic,
+		PatternStatic: &MovementPatternPatternStatic{},
+	}
+}
+
+// NewMovementPatternPatternRandomWalk creates a new PatternRandomWalk variant
+func NewMovementPatternPatternRandomWalk(v0 int64) *MovementPattern {
+	return &MovementPattern{
+		Kind:              MovementPatternKindPatternRandomWalk,
+		PatternRandomWalk: &MovementPatternPatternRandomWalk{Value0: v0},
+	}
+}
+
+// NewMovementPatternPatternPatrol creates a new PatternPatrol variant
+func NewMovementPatternPatternPatrol(v0 []*Direction) *MovementPattern {
+	return &MovementPattern{
+		Kind:          MovementPatternKindPatternPatrol,
+		PatternPatrol: &MovementPatternPatternPatrol{Value0: v0},
+	}
+}
+
+// IsPatternStatic returns true if this is a PatternStatic variant
+func (v *MovementPattern) IsPatternStatic() bool {
+	return v.Kind == MovementPatternKindPatternStatic
+}
+
+// IsPatternRandomWalk returns true if this is a PatternRandomWalk variant
+func (v *MovementPattern) IsPatternRandomWalk() bool {
+	return v.Kind == MovementPatternKindPatternRandomWalk
+}
+
+// IsPatternPatrol returns true if this is a PatternPatrol variant
+func (v *MovementPattern) IsPatternPatrol() bool {
+	return v.Kind == MovementPatternKindPatternPatrol
+}
+
+// NPC is a record type
+type NPC struct {
+	Id          int64
+	Pos         *Coord
+	Pattern     *MovementPattern
+	MoveCounter int64
+	PatrolIndex int64
 }
 
 // Color is a record type
@@ -2756,4 +2815,324 @@ type World struct {
 	ViewMode      *ViewMode
 	StarCatalog   *StarCatalog
 	CurrentSystem *StarSystem
+}
+
+// ViewportShapeKind discriminates between variants of ViewportShape
+type ViewportShapeKind int
+
+const (
+	ViewportShapeKindShapeEllipse ViewportShapeKind = iota
+	ViewportShapeKindShapeCircle
+	ViewportShapeKindShapeRect
+	ViewportShapeKindShapeDome
+)
+
+// ViewportShapeShapeEllipse holds data for the ShapeEllipse variant
+type ViewportShapeShapeEllipse struct {
+	CenterX float64
+	CenterY float64
+	RadiusX float64
+	RadiusY float64
+}
+
+// ViewportShapeShapeCircle holds data for the ShapeCircle variant
+type ViewportShapeShapeCircle struct {
+	CenterX float64
+	CenterY float64
+	Radius  float64
+}
+
+// ViewportShapeShapeRect holds data for the ShapeRect variant
+type ViewportShapeShapeRect struct {
+	X      float64
+	Y      float64
+	Width  float64
+	Height float64
+}
+
+// ViewportShapeShapeDome holds data for the ShapeDome variant
+type ViewportShapeShapeDome struct {
+	CenterX    float64
+	CenterY    float64
+	Width      float64
+	Height     float64
+	ArchHeight float64
+}
+
+// ViewportShape is a sum type (discriminated union)
+type ViewportShape struct {
+	Kind         ViewportShapeKind
+	ShapeEllipse *ViewportShapeShapeEllipse
+	ShapeCircle  *ViewportShapeShapeCircle
+	ShapeRect    *ViewportShapeShapeRect
+	ShapeDome    *ViewportShapeShapeDome
+}
+
+// NewViewportShapeShapeEllipse creates a new ShapeEllipse variant
+func NewViewportShapeShapeEllipse(centerX float64, centerY float64, radiusX float64, radiusY float64) *ViewportShape {
+	return &ViewportShape{
+		Kind:         ViewportShapeKindShapeEllipse,
+		ShapeEllipse: &ViewportShapeShapeEllipse{CenterX: centerX, CenterY: centerY, RadiusX: radiusX, RadiusY: radiusY},
+	}
+}
+
+// NewViewportShapeShapeCircle creates a new ShapeCircle variant
+func NewViewportShapeShapeCircle(centerX float64, centerY float64, radius float64) *ViewportShape {
+	return &ViewportShape{
+		Kind:        ViewportShapeKindShapeCircle,
+		ShapeCircle: &ViewportShapeShapeCircle{CenterX: centerX, CenterY: centerY, Radius: radius},
+	}
+}
+
+// NewViewportShapeShapeRect creates a new ShapeRect variant
+func NewViewportShapeShapeRect(x float64, y float64, width float64, height float64) *ViewportShape {
+	return &ViewportShape{
+		Kind:      ViewportShapeKindShapeRect,
+		ShapeRect: &ViewportShapeShapeRect{X: x, Y: y, Width: width, Height: height},
+	}
+}
+
+// NewViewportShapeShapeDome creates a new ShapeDome variant
+func NewViewportShapeShapeDome(centerX float64, centerY float64, width float64, height float64, archHeight float64) *ViewportShape {
+	return &ViewportShape{
+		Kind:      ViewportShapeKindShapeDome,
+		ShapeDome: &ViewportShapeShapeDome{CenterX: centerX, CenterY: centerY, Width: width, Height: height, ArchHeight: archHeight},
+	}
+}
+
+// IsShapeEllipse returns true if this is a ShapeEllipse variant
+func (v *ViewportShape) IsShapeEllipse() bool {
+	return v.Kind == ViewportShapeKindShapeEllipse
+}
+
+// IsShapeCircle returns true if this is a ShapeCircle variant
+func (v *ViewportShape) IsShapeCircle() bool {
+	return v.Kind == ViewportShapeKindShapeCircle
+}
+
+// IsShapeRect returns true if this is a ShapeRect variant
+func (v *ViewportShape) IsShapeRect() bool {
+	return v.Kind == ViewportShapeKindShapeRect
+}
+
+// IsShapeDome returns true if this is a ShapeDome variant
+func (v *ViewportShape) IsShapeDome() bool {
+	return v.Kind == ViewportShapeKindShapeDome
+}
+
+// ViewportContentKind discriminates between variants of ViewportContent
+type ViewportContentKind int
+
+const (
+	ViewportContentKindContentSpaceView ViewportContentKind = iota
+	ViewportContentKindContentStarfield
+	ViewportContentKindContentSolid
+	ViewportContentKindContentNone
+)
+
+// ViewportContentContentSpaceView holds data for the ContentSpaceView variant
+type ViewportContentContentSpaceView struct {
+	Velocity  float64
+	ViewAngle float64
+}
+
+// ViewportContentContentStarfield holds data for the ContentStarfield variant
+type ViewportContentContentStarfield struct {
+	Density float64
+	Scroll  bool
+}
+
+// ViewportContentContentSolid holds data for the ContentSolid variant
+type ViewportContentContentSolid struct {
+	Rgba int64
+}
+
+// ViewportContentContentNone holds data for the ContentNone variant
+type ViewportContentContentNone struct {
+}
+
+// ViewportContent is a sum type (discriminated union)
+type ViewportContent struct {
+	Kind             ViewportContentKind
+	ContentSpaceView *ViewportContentContentSpaceView
+	ContentStarfield *ViewportContentContentStarfield
+	ContentSolid     *ViewportContentContentSolid
+	ContentNone      *ViewportContentContentNone
+}
+
+// NewViewportContentContentSpaceView creates a new ContentSpaceView variant
+func NewViewportContentContentSpaceView(velocity float64, viewAngle float64) *ViewportContent {
+	return &ViewportContent{
+		Kind:             ViewportContentKindContentSpaceView,
+		ContentSpaceView: &ViewportContentContentSpaceView{Velocity: velocity, ViewAngle: viewAngle},
+	}
+}
+
+// NewViewportContentContentStarfield creates a new ContentStarfield variant
+func NewViewportContentContentStarfield(density float64, scroll bool) *ViewportContent {
+	return &ViewportContent{
+		Kind:             ViewportContentKindContentStarfield,
+		ContentStarfield: &ViewportContentContentStarfield{Density: density, Scroll: scroll},
+	}
+}
+
+// NewViewportContentContentSolid creates a new ContentSolid variant
+func NewViewportContentContentSolid(rgba int64) *ViewportContent {
+	return &ViewportContent{
+		Kind:         ViewportContentKindContentSolid,
+		ContentSolid: &ViewportContentContentSolid{Rgba: rgba},
+	}
+}
+
+// NewViewportContentContentNone creates a new ContentNone variant
+func NewViewportContentContentNone() *ViewportContent {
+	return &ViewportContent{
+		Kind:        ViewportContentKindContentNone,
+		ContentNone: &ViewportContentContentNone{},
+	}
+}
+
+// IsContentSpaceView returns true if this is a ContentSpaceView variant
+func (v *ViewportContent) IsContentSpaceView() bool {
+	return v.Kind == ViewportContentKindContentSpaceView
+}
+
+// IsContentStarfield returns true if this is a ContentStarfield variant
+func (v *ViewportContent) IsContentStarfield() bool {
+	return v.Kind == ViewportContentKindContentStarfield
+}
+
+// IsContentSolid returns true if this is a ContentSolid variant
+func (v *ViewportContent) IsContentSolid() bool {
+	return v.Kind == ViewportContentKindContentSolid
+}
+
+// IsContentNone returns true if this is a ContentNone variant
+func (v *ViewportContent) IsContentNone() bool {
+	return v.Kind == ViewportContentKindContentNone
+}
+
+// ViewportEffectKind discriminates between variants of ViewportEffect
+type ViewportEffectKind int
+
+const (
+	ViewportEffectKindEffectNone ViewportEffectKind = iota
+	ViewportEffectKindEffectSRWarp
+	ViewportEffectKindEffectGRLensing
+	ViewportEffectKindEffectTint
+	ViewportEffectKindEffectBlur
+)
+
+// ViewportEffectEffectNone holds data for the EffectNone variant
+type ViewportEffectEffectNone struct {
+}
+
+// ViewportEffectEffectSRWarp holds data for the EffectSRWarp variant
+type ViewportEffectEffectSRWarp struct {
+	Velocity float64
+}
+
+// ViewportEffectEffectGRLensing holds data for the EffectGRLensing variant
+type ViewportEffectEffectGRLensing struct {
+	Mass     float64
+	Distance float64
+}
+
+// ViewportEffectEffectTint holds data for the EffectTint variant
+type ViewportEffectEffectTint struct {
+	Rgba      int64
+	Intensity float64
+}
+
+// ViewportEffectEffectBlur holds data for the EffectBlur variant
+type ViewportEffectEffectBlur struct {
+	Radius float64
+}
+
+// ViewportEffect is a sum type (discriminated union)
+type ViewportEffect struct {
+	Kind            ViewportEffectKind
+	EffectNone      *ViewportEffectEffectNone
+	EffectSRWarp    *ViewportEffectEffectSRWarp
+	EffectGRLensing *ViewportEffectEffectGRLensing
+	EffectTint      *ViewportEffectEffectTint
+	EffectBlur      *ViewportEffectEffectBlur
+}
+
+// NewViewportEffectEffectNone creates a new EffectNone variant
+func NewViewportEffectEffectNone() *ViewportEffect {
+	return &ViewportEffect{
+		Kind:       ViewportEffectKindEffectNone,
+		EffectNone: &ViewportEffectEffectNone{},
+	}
+}
+
+// NewViewportEffectEffectSRWarp creates a new EffectSRWarp variant
+func NewViewportEffectEffectSRWarp(velocity float64) *ViewportEffect {
+	return &ViewportEffect{
+		Kind:         ViewportEffectKindEffectSRWarp,
+		EffectSRWarp: &ViewportEffectEffectSRWarp{Velocity: velocity},
+	}
+}
+
+// NewViewportEffectEffectGRLensing creates a new EffectGRLensing variant
+func NewViewportEffectEffectGRLensing(mass float64, distance float64) *ViewportEffect {
+	return &ViewportEffect{
+		Kind:            ViewportEffectKindEffectGRLensing,
+		EffectGRLensing: &ViewportEffectEffectGRLensing{Mass: mass, Distance: distance},
+	}
+}
+
+// NewViewportEffectEffectTint creates a new EffectTint variant
+func NewViewportEffectEffectTint(rgba int64, intensity float64) *ViewportEffect {
+	return &ViewportEffect{
+		Kind:       ViewportEffectKindEffectTint,
+		EffectTint: &ViewportEffectEffectTint{Rgba: rgba, Intensity: intensity},
+	}
+}
+
+// NewViewportEffectEffectBlur creates a new EffectBlur variant
+func NewViewportEffectEffectBlur(radius float64) *ViewportEffect {
+	return &ViewportEffect{
+		Kind:       ViewportEffectKindEffectBlur,
+		EffectBlur: &ViewportEffectEffectBlur{Radius: radius},
+	}
+}
+
+// IsEffectNone returns true if this is a EffectNone variant
+func (v *ViewportEffect) IsEffectNone() bool {
+	return v.Kind == ViewportEffectKindEffectNone
+}
+
+// IsEffectSRWarp returns true if this is a EffectSRWarp variant
+func (v *ViewportEffect) IsEffectSRWarp() bool {
+	return v.Kind == ViewportEffectKindEffectSRWarp
+}
+
+// IsEffectGRLensing returns true if this is a EffectGRLensing variant
+func (v *ViewportEffect) IsEffectGRLensing() bool {
+	return v.Kind == ViewportEffectKindEffectGRLensing
+}
+
+// IsEffectTint returns true if this is a EffectTint variant
+func (v *ViewportEffect) IsEffectTint() bool {
+	return v.Kind == ViewportEffectKindEffectTint
+}
+
+// IsEffectBlur returns true if this is a EffectBlur variant
+func (v *ViewportEffect) IsEffectBlur() bool {
+	return v.Kind == ViewportEffectKindEffectBlur
+}
+
+// ViewportDef is a record type
+type ViewportDef struct {
+	Id        string
+	Shape     *ViewportShape
+	Content   *ViewportContent
+	Effects   []*ViewportEffect
+	Layer     int64
+	EdgeBlend float64
+	Opacity   float64
+	ScreenX   float64
+	ScreenY   float64
 }

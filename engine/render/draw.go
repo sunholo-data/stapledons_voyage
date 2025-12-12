@@ -1,8 +1,13 @@
 package render
 
 import (
+	"image"
 	"image/color"
+	_ "image/jpeg"
+	"math"
+	"os"
 	"sort"
+	"strings"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -43,6 +48,10 @@ type Renderer struct {
 	layers        *DepthLayerManager
 	parallaxCam   *camera.ParallaxCamera
 	layersEnabled bool // Whether to use layer-based rendering
+
+	// Planet texture cache for TexturedPlanet DrawCmd
+	planetTextures       map[string]*ebiten.Image
+	planetTexturesLoaded bool
 }
 
 // NewRenderer creates a renderer with the given asset manager.
@@ -265,6 +274,10 @@ func (r *Renderer) RenderFrame(screen *ebiten.Image, out sim_gen.FrameOutput) {
 			// Screen-space circle with packed RGBA color
 			col := unpackRGBA(c.Rgba)
 			r.drawCircleRGBA(screen, c.X, c.Y, c.Radius, col, c.Filled)
+
+		case sim_gen.DrawCmdKindTexturedPlanet:
+			c := cmd.TexturedPlanet
+			r.drawTexturedPlanet(screen, c.Name, c.X, c.Y, c.Radius, c.Rotation, c.HasRings, c.RingRgba)
 
 		case sim_gen.DrawCmdKindMarker:
 			// Marker in non-layered mode - render at screen position
@@ -559,6 +572,164 @@ func (r *Renderer) drawCircleRGBA(screen *ebiten.Image, x, y, radius float64, co
 	}
 }
 
+// planetTexturePaths maps planet names to texture file paths
+var planetTexturePaths = map[string]string{
+	"mercury": "assets/planets/mercury.jpg",
+	"venus":   "assets/planets/venus_atmosphere.jpg",
+	"earth":   "assets/planets/earth_daymap.jpg",
+	"mars":    "assets/planets/mars.jpg",
+	"jupiter": "assets/planets/jupiter.jpg",
+	"saturn":  "assets/planets/saturn.jpg",
+	"uranus":  "assets/planets/uranus.jpg",
+	"neptune": "assets/planets/neptune.jpg",
+	"sun":     "assets/planets/sun.jpg",
+}
+
+// loadPlanetTextures loads all planet textures into the cache
+func (r *Renderer) loadPlanetTextures() {
+	if r.planetTexturesLoaded {
+		return
+	}
+	r.planetTextures = make(map[string]*ebiten.Image)
+	for name, path := range planetTexturePaths {
+		f, err := os.Open(path)
+		if err != nil {
+			continue // Skip missing textures
+		}
+		img, _, err := image.Decode(f)
+		f.Close()
+		if err != nil {
+			continue
+		}
+		r.planetTextures[name] = ebiten.NewImageFromImage(img)
+	}
+	r.planetTexturesLoaded = true
+}
+
+// drawTexturedPlanet draws a planet with texture at the given screen position
+func (r *Renderer) drawTexturedPlanet(screen *ebiten.Image, name string, x, y, radius, rotation float64, hasRings bool, ringRgba int64) {
+	// Ensure textures are loaded
+	r.loadPlanetTextures()
+
+	// Normalize name to lowercase for texture lookup (AILANG uses "Mercury", map uses "mercury")
+	normalizedName := strings.ToLower(name)
+
+	// Get texture for this planet
+	tex := r.planetTextures[normalizedName]
+	if tex == nil {
+		// Fallback to colored circle if no texture
+		col := planetFallbackColor(normalizedName)
+		r.drawCircleRGBA(screen, x, y, radius, col, true)
+		return
+	}
+
+	// Draw textured planet as a circular crop of the texture
+	r.drawTexturedCircle(screen, tex, x, y, radius, rotation)
+
+	// Draw rings if present
+	if hasRings {
+		ringCol := unpackRGBA(ringRgba)
+		if ringCol.A == 0 {
+			// Default ring color if none specified
+			ringCol = color.RGBA{210, 190, 150, 180}
+		}
+		innerR := radius * 1.3
+		outerR := radius * 2.2
+		r.drawCircleRGBA(screen, x, y, outerR, ringCol, false)
+		r.drawCircleRGBA(screen, x, y, innerR, ringCol, false)
+	}
+}
+
+// planetFallbackColor returns a fallback color for planets without textures
+func planetFallbackColor(name string) color.RGBA {
+	switch name {
+	case "sun":
+		return color.RGBA{255, 200, 50, 255}
+	case "mercury":
+		return color.RGBA{180, 140, 100, 255}
+	case "venus":
+		return color.RGBA{200, 180, 140, 255}
+	case "earth":
+		return color.RGBA{60, 120, 200, 255}
+	case "mars":
+		return color.RGBA{200, 100, 80, 255}
+	case "jupiter":
+		return color.RGBA{220, 180, 140, 255}
+	case "saturn":
+		return color.RGBA{210, 190, 150, 255}
+	case "uranus":
+		return color.RGBA{150, 200, 220, 255}
+	case "neptune":
+		return color.RGBA{80, 120, 200, 255}
+	default:
+		return color.RGBA{128, 128, 128, 255}
+	}
+}
+
+// drawTexturedCircle draws a texture cropped to a circle at the given position
+func (r *Renderer) drawTexturedCircle(screen *ebiten.Image, tex *ebiten.Image, x, y, radius, rotation float64) {
+	// Get texture dimensions
+	texW := tex.Bounds().Dx()
+	texH := tex.Bounds().Dy()
+
+	// Scale texture to fit within the radius
+	scale := (radius * 2) / float64(texW)
+	if float64(texH)*scale > radius*2 {
+		scale = (radius * 2) / float64(texH)
+	}
+
+	// Create draw options with rotation and positioning
+	op := &ebiten.DrawImageOptions{}
+
+	// Center the texture on origin for rotation
+	op.GeoM.Translate(-float64(texW)/2, -float64(texH)/2)
+
+	// Apply rotation
+	op.GeoM.Rotate(rotation)
+
+	// Scale
+	op.GeoM.Scale(scale, scale)
+
+	// Move to final position
+	op.GeoM.Translate(x, y)
+
+	// Draw the texture (for now, draw the full texture - circular masking would require shaders)
+	// For orbital view, a square texture looks acceptable
+	screen.DrawImage(tex, op)
+
+	// Draw a circle border to make it look more planet-like
+	r.drawCircleRGBA(screen, x, y, radius, color.RGBA{40, 40, 40, 100}, false)
+}
+
+// drawOrbitPath draws an orbital path circle
+func (r *Renderer) drawOrbitPath(screen *ebiten.Image, centerX, centerY, radius float64, col color.RGBA) {
+	// Draw circle outline using midpoint algorithm
+	cx, cy := int(centerX), int(centerY)
+	rad := int(radius)
+	px, py := 0, rad
+	d := 1 - rad
+	for px <= py {
+		screen.Set(cx+px, cy+py, col)
+		screen.Set(cx-px, cy+py, col)
+		screen.Set(cx+px, cy-py, col)
+		screen.Set(cx-px, cy-py, col)
+		screen.Set(cx+py, cy+px, col)
+		screen.Set(cx-py, cy+px, col)
+		screen.Set(cx+py, cy-px, col)
+		screen.Set(cx-py, cy-px, col)
+		if d < 0 {
+			d += 2*px + 3
+		} else {
+			d += 2*(px-py) + 5
+			py--
+		}
+		px++
+	}
+}
+
+// Unused import placeholder to satisfy compiler during development
+var _ = math.Pi
+
 func getZ(cmd *sim_gen.DrawCmd) int {
 	switch cmd.Kind {
 	case sim_gen.DrawCmdKindRect:
@@ -589,6 +760,8 @@ func getZ(cmd *sim_gen.DrawCmd) int {
 		return int(cmd.RectRGBA.Z)
 	case sim_gen.DrawCmdKindCircleRGBA:
 		return int(cmd.CircleRGBA.Z)
+	case sim_gen.DrawCmdKindTexturedPlanet:
+		return int(cmd.TexturedPlanet.Z)
 	case sim_gen.DrawCmdKindMarker:
 		return int(cmd.Marker.Z)
 	}

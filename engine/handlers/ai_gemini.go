@@ -15,6 +15,7 @@ import (
 // Supports text, images (input/output/editing), and audio (input/output via TTS).
 type GeminiAIHandler struct {
 	client             *genai.Client
+	ttsClient          *genai.Client // Separate client for TTS (requires us-central1)
 	model              string
 	imagenModel        string // For image generation
 	ttsModel           string // For text-to-speech
@@ -35,7 +36,7 @@ type GeminiConfig struct {
 	// Model config
 	Model       string // Default: gemini-2.5-flash
 	ImagenModel string // Default: gemini-2.5-flash-image
-	TTSModel    string // Default: gemini-2.5-flash-tts (may require allowlisting)
+	TTSModel    string // Default: gemini-2.5-flash-tts (requires us-central1 region)
 	TTSVoice    string // Default: Kore (options: Aoede, Charon, Fenrir, Kore, Puck, Zephyr, etc.)
 	AssetsDir   string // Where to save generated media (default: assets/generated)
 }
@@ -52,7 +53,7 @@ func geminiDefaults(cfg GeminiConfig) (model, imagenModel, ttsModel, ttsVoice, a
 	}
 	ttsModel = cfg.TTSModel
 	if ttsModel == "" {
-		ttsModel = "gemini-2.5-flash-tts"
+		ttsModel = "gemini-2.5-flash-tts" // Fast TTS. Options: gemini-2.5-pro-tts for higher quality
 	}
 	ttsVoice = cfg.TTSVoice
 	if ttsVoice == "" {
@@ -66,9 +67,10 @@ func geminiDefaults(cfg GeminiConfig) (model, imagenModel, ttsModel, ttsVoice, a
 }
 
 // newGeminiHandler creates a handler with the given client and config defaults
-func newGeminiHandler(client *genai.Client, model, imagenModel, ttsModel, ttsVoice, assetsDir string) *GeminiAIHandler {
+func newGeminiHandler(client, ttsClient *genai.Client, model, imagenModel, ttsModel, ttsVoice, assetsDir string) *GeminiAIHandler {
 	return &GeminiAIHandler{
 		client:      client,
+		ttsClient:   ttsClient,
 		model:       model,
 		imagenModel: imagenModel,
 		ttsModel:    ttsModel,
@@ -107,7 +109,26 @@ func NewGeminiAIHandler(ctx context.Context, cfg GeminiConfig) (*GeminiAIHandler
 		})
 		if err == nil {
 			fmt.Printf("[Gemini] Using Vertex AI (project=%s, location=%s)\n", project, location)
-			return newGeminiHandler(client, model, imagenModel, ttsModel, ttsVoice, assetsDir), nil
+
+			// Create separate TTS client with us-central1 (TTS preview models require this region)
+			var ttsClient *genai.Client
+			if location != "us-central1" {
+				ttsClient, err = genai.NewClient(ctx, &genai.ClientConfig{
+					Project:  project,
+					Location: "us-central1",
+					Backend:  genai.BackendVertexAI,
+				})
+				if err != nil {
+					fmt.Printf("[Gemini] TTS client (us-central1) init failed: %v, TTS may not work\n", err)
+					ttsClient = client // Fall back to main client
+				} else {
+					fmt.Println("[Gemini] TTS using us-central1 region")
+				}
+			} else {
+				ttsClient = client
+			}
+
+			return newGeminiHandler(client, ttsClient, model, imagenModel, ttsModel, ttsVoice, assetsDir), nil
 		}
 		fmt.Printf("[Gemini] Vertex AI init failed: %v, trying API key...\n", err)
 	}
@@ -125,7 +146,8 @@ func NewGeminiAIHandler(ctx context.Context, cfg GeminiConfig) (*GeminiAIHandler
 		})
 		if err == nil {
 			fmt.Println("[Gemini] Using API Key backend")
-			return newGeminiHandler(client, model, imagenModel, ttsModel, ttsVoice, assetsDir), nil
+			// API key backend doesn't need separate TTS client (no region)
+			return newGeminiHandler(client, client, model, imagenModel, ttsModel, ttsVoice, assetsDir), nil
 		}
 		return nil, fmt.Errorf("creating Gemini client with API key: %w", err)
 	}

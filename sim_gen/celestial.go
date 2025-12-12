@@ -522,10 +522,108 @@ func RenderPlanet2D(planet *CelestialPlanet, centerX float64, centerY float64, s
 	return renderPlanet2D_impl(planet, centerX, centerY, scale).(*DrawCmd)
 }
 
-func renderPlanetRing_impl(planet interface{}, centerX interface{}, centerY interface{}, scale interface{}) interface{} {
-	var tmp80 interface{} = FieldGet(planet, "hasRings")
+func layerOrbits_impl(_unused0 interface{}) interface{} {
+	return SubInt(int64(0), int64(10))
+}
+
+func layerOrbits() int64 {
+	return layerOrbits_impl(struct{}{}).(int64)
+}
+
+func orbitPathColor_impl(_unused0 interface{}) interface{} {
+	return int64(1077952576)
+}
+
+func orbitPathColor() int64 {
+	return orbitPathColor_impl(struct{}{}).(int64)
+}
+
+func renderOrbitPath_impl(planet interface{}, centerX interface{}, centerY interface{}, scale interface{}) interface{} {
+	var orbitRadius interface{} = func() interface{} {
+		var tmp82 interface{} = FieldGet(planet, "orbitDistance")
+		_ = tmp82 // suppress unused
+		return MulFloat(tmp82, scale)
+	}()
+	var tmp80 interface{} = orbitPathColor_impl(struct{}{})
+	var tmp81 interface{} = layerOrbits_impl(struct{}{})
+	return NewDrawCmdCircle(centerX.(float64), centerY.(float64), orbitRadius.(float64), tmp80.(int64), false, tmp81.(int64))
+}
+
+func RenderOrbitPath(planet *CelestialPlanet, centerX float64, centerY float64, scale float64) *DrawCmd {
+	return renderOrbitPath_impl(planet, centerX, centerY, scale).(*DrawCmd)
+}
+
+func renderPlanetTextured_impl(planet interface{}, centerX interface{}, centerY interface{}, scale interface{}) interface{} {
+	var pos interface{} = planetPosition2D_impl(planet, scale)
 	return func() interface{} {
-		if tmp80.(bool) {
+		_scrutinee := pos
+		_ = _scrutinee // suppress unused
+		if len(_scrutinee.([]interface{})) == 2 {
+			px := _scrutinee.([]interface{})[0]
+			_ = px // suppress unused
+			py := _scrutinee.([]interface{})[1]
+			_ = py // suppress unused
+			return func() interface{} {
+				var screenX interface{} = AddFloat(centerX, px)
+				_ = screenX // suppress unused
+				var screenY interface{} = SubFloat(centerY, py)
+				_ = screenY // suppress unused
+				var radius interface{} = planetScreenRadius_impl(planet)
+				_ = radius // suppress unused
+				var ringColor interface{} = func() interface{} {
+					var tmp87 interface{} = FieldGet(planet, "hasRings")
+					_ = tmp87 // suppress unused
+					return func() interface{} {
+						if tmp87.(bool) {
+							return func() interface{} {
+								var tmp88 interface{} = FieldGet(planet, "ringColor")
+								_ = tmp88 // suppress unused
+								return func() interface{} {
+									_scrutinee := tmp88
+									_ = _scrutinee // suppress unused
+									_adt := _scrutinee.(*Option)
+									switch _adt.Kind {
+									case OptionKindSome:
+										c := _adt.Some.Value0
+										_ = c // suppress unused
+										return packColor_impl(c)
+									default:
+										none := _adt
+										_ = none // suppress unused
+										return int64(3535748351)
+									}
+								}()
+							}()
+						} else {
+							return int64(0)
+						}
+					}()
+				}()
+				_ = ringColor // suppress unused
+				var tmp83 interface{} = FieldGet(planet, "name")
+				_ = tmp83 // suppress unused
+				var tmp84 interface{} = FieldGet(planet, "currentAngle")
+				_ = tmp84 // suppress unused
+				var tmp85 interface{} = FieldGet(planet, "hasRings")
+				_ = tmp85 // suppress unused
+				var tmp86 interface{} = layerPlanets_impl(struct{}{})
+				_ = tmp86 // suppress unused
+				return NewDrawCmdTexturedPlanet(tmp83.(string), screenX.(float64), screenY.(float64), radius.(float64), tmp84.(float64), tmp85.(bool), ringColor.(int64), tmp86.(int64))
+			}()
+		} else {
+			panic("non-exhaustive match")
+		}
+	}()
+}
+
+func RenderPlanetTextured(planet *CelestialPlanet, centerX float64, centerY float64, scale float64) *DrawCmd {
+	return renderPlanetTextured_impl(planet, centerX, centerY, scale).(*DrawCmd)
+}
+
+func renderPlanetRing_impl(planet interface{}, centerX interface{}, centerY interface{}, scale interface{}) interface{} {
+	var tmp89 interface{} = FieldGet(planet, "hasRings")
+	return func() interface{} {
+		if tmp89.(bool) {
 			return func() interface{} {
 				var pos interface{} = planetPosition2D_impl(planet, scale)
 				_ = pos // suppress unused
@@ -549,10 +647,10 @@ func renderPlanetRing_impl(planet interface{}, centerX interface{}, centerY inte
 							var outerRing interface{} = MulFloat(planetRadius, float64(2.5))
 							_ = outerRing // suppress unused
 							var ringColor interface{} = func() interface{} {
-								var tmp87 interface{} = FieldGet(planet, "ringColor")
-								_ = tmp87 // suppress unused
+								var tmp96 interface{} = FieldGet(planet, "ringColor")
+								_ = tmp96 // suppress unused
 								return func() interface{} {
-									_scrutinee := tmp87
+									_scrutinee := tmp96
 									_ = _scrutinee // suppress unused
 									_adt := _scrutinee.(*Option)
 									switch _adt.Kind {
@@ -568,19 +666,19 @@ func renderPlanetRing_impl(planet interface{}, centerX interface{}, centerY inte
 								}()
 							}()
 							_ = ringColor // suppress unused
-							var tmp81 interface{} = layerPlanets_impl(struct{}{})
-							_ = tmp81 // suppress unused
-							var tmp82 interface{} = SubInt(tmp81, int64(1))
-							_ = tmp82 // suppress unused
-							var tmp83 interface{} = NewDrawCmdCircleRGBA(screenX.(float64), screenY.(float64), outerRing.(float64), ringColor.(int64), false, tmp82.(int64))
-							_ = tmp83 // suppress unused
-							var tmp84 interface{} = layerPlanets_impl(struct{}{})
-							_ = tmp84 // suppress unused
-							var tmp85 interface{} = SubInt(tmp84, int64(1))
-							_ = tmp85 // suppress unused
-							var tmp86 interface{} = NewDrawCmdCircleRGBA(screenX.(float64), screenY.(float64), innerRing.(float64), ringColor.(int64), false, tmp85.(int64))
-							_ = tmp86 // suppress unused
-							return []interface{}{tmp83, tmp86}
+							var tmp90 interface{} = layerPlanets_impl(struct{}{})
+							_ = tmp90 // suppress unused
+							var tmp91 interface{} = SubInt(tmp90, int64(1))
+							_ = tmp91 // suppress unused
+							var tmp92 interface{} = NewDrawCmdCircleRGBA(screenX.(float64), screenY.(float64), outerRing.(float64), ringColor.(int64), false, tmp91.(int64))
+							_ = tmp92 // suppress unused
+							var tmp93 interface{} = layerPlanets_impl(struct{}{})
+							_ = tmp93 // suppress unused
+							var tmp94 interface{} = SubInt(tmp93, int64(1))
+							_ = tmp94 // suppress unused
+							var tmp95 interface{} = NewDrawCmdCircleRGBA(screenX.(float64), screenY.(float64), innerRing.(float64), ringColor.(int64), false, tmp94.(int64))
+							_ = tmp95 // suppress unused
+							return []interface{}{tmp92, tmp95}
 						}()
 					} else {
 						panic("non-exhaustive match")
@@ -609,9 +707,9 @@ func concatCmds_impl(a interface{}, b interface{}) interface{} {
 			rest := ListTail(_scrutinee)
 			_ = rest // suppress unused
 			return func() interface{} {
-				var tmp88 interface{} = concatCmds_impl(rest, b)
-				_ = tmp88 // suppress unused
-				return Cons(x, tmp88)
+				var tmp97 interface{} = concatCmds_impl(rest, b)
+				_ = tmp97 // suppress unused
+				return Cons(x, tmp97)
 			}()
 		} else {
 			panic("non-exhaustive match")
@@ -639,13 +737,13 @@ func renderOrbitalPlanetsRec_impl(planets interface{}, centerX interface{}, cent
 				_ = planetCmd // suppress unused
 				var ringCmds interface{} = renderPlanetRing_impl(p, centerX, centerY, scale)
 				_ = ringCmds // suppress unused
-				var tmp89 interface{} = []interface{}{planetCmd}
-				_ = tmp89 // suppress unused
-				var tmp90 interface{} = renderOrbitalPlanetsRec_impl(rest, centerX, centerY, scale)
-				_ = tmp90 // suppress unused
-				var tmp91 interface{} = concatCmds_impl(ringCmds, tmp90)
-				_ = tmp91 // suppress unused
-				return concatCmds_impl(tmp89, tmp91)
+				var tmp98 interface{} = []interface{}{planetCmd}
+				_ = tmp98 // suppress unused
+				var tmp99 interface{} = renderOrbitalPlanetsRec_impl(rest, centerX, centerY, scale)
+				_ = tmp99 // suppress unused
+				var tmp100 interface{} = concatCmds_impl(ringCmds, tmp99)
+				_ = tmp100 // suppress unused
+				return concatCmds_impl(tmp98, tmp100)
 			}()
 		} else {
 			panic("non-exhaustive match")
@@ -657,9 +755,83 @@ func renderOrbitalPlanetsRec(planets []*CelestialPlanet, centerX float64, center
 	return ConvertToDrawCmdSlice(renderOrbitalPlanetsRec_impl(planets, centerX, centerY, scale))
 }
 
+func renderOrbitPathsRec_impl(planets interface{}, centerX interface{}, centerY interface{}, scale interface{}) interface{} {
+	return func() interface{} {
+		_scrutinee := planets
+		_ = _scrutinee // suppress unused
+		if ListLen(_scrutinee) == 0 {
+			return []interface{}{}
+		} else if ListLen(_scrutinee) >= 1 {
+			p := ListHead(_scrutinee)
+			_ = p // suppress unused
+			rest := ListTail(_scrutinee)
+			_ = rest // suppress unused
+			return func() interface{} {
+				var tmp101 interface{} = renderOrbitPath_impl(p, centerX, centerY, scale)
+				_ = tmp101 // suppress unused
+				var tmp102 interface{} = renderOrbitPathsRec_impl(rest, centerX, centerY, scale)
+				_ = tmp102 // suppress unused
+				return Cons(tmp101, tmp102)
+			}()
+		} else {
+			panic("non-exhaustive match")
+		}
+	}()
+}
+
+func renderOrbitPathsRec(planets []*CelestialPlanet, centerX float64, centerY float64, scale float64) []*DrawCmd {
+	return ConvertToDrawCmdSlice(renderOrbitPathsRec_impl(planets, centerX, centerY, scale))
+}
+
+func renderOrbitPaths_impl(system interface{}, centerX interface{}, centerY interface{}, scale interface{}) interface{} {
+	var tmp103 interface{} = FieldGet(system, "planets")
+	return renderOrbitPathsRec_impl(tmp103, centerX, centerY, scale)
+}
+
+func RenderOrbitPaths(system *StarSystem, centerX float64, centerY float64, scale float64) []*DrawCmd {
+	return ConvertToDrawCmdSlice(renderOrbitPaths_impl(system, centerX, centerY, scale))
+}
+
+func renderTexturedPlanetsRec_impl(planets interface{}, centerX interface{}, centerY interface{}, scale interface{}) interface{} {
+	return func() interface{} {
+		_scrutinee := planets
+		_ = _scrutinee // suppress unused
+		if ListLen(_scrutinee) == 0 {
+			return []interface{}{}
+		} else if ListLen(_scrutinee) >= 1 {
+			p := ListHead(_scrutinee)
+			_ = p // suppress unused
+			rest := ListTail(_scrutinee)
+			_ = rest // suppress unused
+			return func() interface{} {
+				var planetCmd interface{} = renderPlanetTextured_impl(p, centerX, centerY, scale)
+				_ = planetCmd // suppress unused
+				var tmp104 interface{} = renderTexturedPlanetsRec_impl(rest, centerX, centerY, scale)
+				_ = tmp104 // suppress unused
+				return Cons(planetCmd, tmp104)
+			}()
+		} else {
+			panic("non-exhaustive match")
+		}
+	}()
+}
+
+func renderTexturedPlanetsRec(planets []*CelestialPlanet, centerX float64, centerY float64, scale float64) []*DrawCmd {
+	return ConvertToDrawCmdSlice(renderTexturedPlanetsRec_impl(planets, centerX, centerY, scale))
+}
+
+func renderTexturedPlanets_impl(system interface{}, centerX interface{}, centerY interface{}, scale interface{}) interface{} {
+	var tmp105 interface{} = FieldGet(system, "planets")
+	return renderTexturedPlanetsRec_impl(tmp105, centerX, centerY, scale)
+}
+
+func RenderTexturedPlanets(system *StarSystem, centerX float64, centerY float64, scale float64) []*DrawCmd {
+	return ConvertToDrawCmdSlice(renderTexturedPlanets_impl(system, centerX, centerY, scale))
+}
+
 func renderPlanets_impl(system interface{}, centerX interface{}, centerY interface{}, scale interface{}) interface{} {
-	var tmp92 interface{} = FieldGet(system, "planets")
-	return renderOrbitalPlanetsRec_impl(tmp92, centerX, centerY, scale)
+	var tmp106 interface{} = FieldGet(system, "planets")
+	return renderOrbitalPlanetsRec_impl(tmp106, centerX, centerY, scale)
 }
 
 func RenderPlanets(system *StarSystem, centerX float64, centerY float64, scale float64) []*DrawCmd {
@@ -675,29 +847,61 @@ func sunColor() *Color {
 }
 
 func renderSun_impl(centerX interface{}, centerY interface{}) interface{} {
-	var tmp93 interface{} = sunColor_impl(struct{}{})
-	var tmp94 interface{} = packColor_impl(tmp93)
-	var tmp95 interface{} = layerPlanets_impl(struct{}{})
-	return NewDrawCmdCircleRGBA(centerX.(float64), centerY.(float64), float64(20), tmp94.(int64), true, tmp95.(int64))
+	var tmp107 interface{} = sunColor_impl(struct{}{})
+	var tmp108 interface{} = packColor_impl(tmp107)
+	var tmp109 interface{} = layerPlanets_impl(struct{}{})
+	return NewDrawCmdCircleRGBA(centerX.(float64), centerY.(float64), float64(20), tmp108.(int64), true, tmp109.(int64))
 }
 
 func RenderSun(centerX float64, centerY float64) *DrawCmd {
 	return renderSun_impl(centerX, centerY).(*DrawCmd)
 }
 
+func renderSunTextured_impl(centerX interface{}, centerY interface{}) interface{} {
+	var tmp110 interface{} = layerPlanets_impl(struct{}{})
+	return NewDrawCmdTexturedPlanet("sun", centerX.(float64), centerY.(float64), float64(25), float64(0), false, int64(0), tmp110.(int64))
+}
+
+func RenderSunTextured(centerX float64, centerY float64) *DrawCmd {
+	return renderSunTextured_impl(centerX, centerY).(*DrawCmd)
+}
+
 func renderSolarSystem_impl(system interface{}) interface{} {
 	var centerX interface{} = func() interface{} {
-		var tmp97 interface{} = renderScreenWidth_impl(struct{}{})
-		_ = tmp97 // suppress unused
-		return DivFloat(tmp97, float64(2))
+		var tmp112 interface{} = renderScreenWidth_impl(struct{}{})
+		_ = tmp112 // suppress unused
+		return DivFloat(tmp112, float64(2))
 	}()
 	var centerY interface{} = float64(250)
 	var scale interface{} = float64(15)
 	var sunCmd interface{} = renderSun_impl(centerX, centerY)
-	var tmp96 interface{} = renderPlanets_impl(system, centerX, centerY, scale)
-	return Cons(sunCmd, tmp96)
+	var tmp111 interface{} = renderPlanets_impl(system, centerX, centerY, scale)
+	return Cons(sunCmd, tmp111)
 }
 
 func RenderSolarSystem(system *StarSystem) []*DrawCmd {
 	return ConvertToDrawCmdSlice(renderSolarSystem_impl(system))
+}
+
+func renderSolarSystemTextured_impl(system interface{}) interface{} {
+	var centerX interface{} = func() interface{} {
+		var tmp115 interface{} = renderScreenWidth_impl(struct{}{})
+		_ = tmp115 // suppress unused
+		return DivFloat(tmp115, float64(2))
+	}()
+	var centerY interface{} = func() interface{} {
+		var tmp114 interface{} = renderScreenHeight_impl(struct{}{})
+		_ = tmp114 // suppress unused
+		return DivFloat(tmp114, float64(2))
+	}()
+	var scale interface{} = float64(15)
+	var orbitCmds interface{} = renderOrbitPaths_impl(system, centerX, centerY, scale)
+	var planetCmds interface{} = renderTexturedPlanets_impl(system, centerX, centerY, scale)
+	var sunCmd interface{} = renderSunTextured_impl(centerX, centerY)
+	var tmp113 interface{} = Cons(sunCmd, planetCmds)
+	return concatCmds_impl(orbitCmds, tmp113)
+}
+
+func RenderSolarSystemTextured(system *StarSystem) []*DrawCmd {
+	return ConvertToDrawCmdSlice(renderSolarSystemTextured_impl(system))
 }

@@ -69,6 +69,7 @@ func (m *Manager) Preload() error {
 		"sr_warp",
 		"gr_lensing",
 		"gr_redshift",
+		"edge_blend",
 	}
 
 	for _, name := range names {
@@ -98,5 +99,6 @@ func (m *Manager) ShaderNames() []string {
 		"sr_warp",
 		"gr_lensing",
 		"gr_redshift",
+		"edge_blend",
 	}
 }

@@ -1,0 +1,256 @@
+module sim/viewport
+
+import sim/protocol (DrawCmd, Viewport)
+
+-- =============================================================================
+-- Viewport Types for Compositing Different Render Sources
+-- =============================================================================
+
+-- Shape definitions for viewports
+export type ViewportShape =
+    | ShapeEllipse(centerX: float, centerY: float, radiusX: float, radiusY: float)
+    | ShapeCircle(centerX: float, centerY: float, radius: float)
+    | ShapeRect(x: float, y: float, width: float, height: float)
+    | ShapeDome(centerX: float, centerY: float, width: float, height: float, archHeight: float)
+
+-- What content fills the viewport
+export type ViewportContent =
+    | ContentSpaceView(velocity: float, viewAngle: float)
+    | ContentStarfield(density: float, scroll: bool)
+    | ContentSolid(rgba: int)
+    | ContentNone
+
+-- Effects applied within viewport
+export type ViewportEffect =
+    | EffectNone
+    | EffectSRWarp(velocity: float)
+    | EffectGRLensing(mass: float, distance: float)
+    | EffectTint(rgba: int, intensity: float)
+    | EffectBlur(radius: float)
+
+-- Complete viewport definition
+export type ViewportDef = {
+    id: string,
+    shape: ViewportShape,
+    content: ViewportContent,
+    effects: [ViewportEffect],
+    layer: int,
+    edgeBlend: float,
+    opacity: float,
+    screenX: float,
+    screenY: float
+}
+
+-- =============================================================================
+-- Viewport Factory Functions
+-- =============================================================================
+
+-- Create a bridge observation dome viewport
+export pure func bridgeDome(
+    centerX: float,
+    centerY: float,
+    width: float,
+    height: float,
+    archHeight: float,
+    velocity: float,
+    viewAngle: float
+) -> ViewportDef {
+    {
+        id: "bridge_dome",
+        shape: ShapeDome(centerX, centerY, width, height, archHeight),
+        content: ContentSpaceView(velocity, viewAngle),
+        effects: [EffectSRWarp(velocity)],
+        layer: 90,
+        edgeBlend: 0.15,
+        opacity: 1.0,
+        screenX: centerX - width / 2.0,
+        screenY: centerY - height / 2.0
+    }
+}
+
+-- Create a simple window viewport
+export pure func cabinWindow(
+    x: float,
+    y: float,
+    width: float,
+    height: float,
+    density: float
+) -> ViewportDef {
+    {
+        id: "cabin_window",
+        shape: ShapeRect(0.0, 0.0, width, height),
+        content: ContentStarfield(density, true),
+        effects: [],
+        layer: 20,
+        edgeBlend: 0.05,
+        opacity: 1.0,
+        screenX: x,
+        screenY: y
+    }
+}
+
+-- Create a circular porthole viewport
+export pure func porthole(
+    centerX: float,
+    centerY: float,
+    radius: float,
+    density: float
+) -> ViewportDef {
+    {
+        id: "porthole",
+        shape: ShapeCircle(radius, radius, radius),
+        content: ContentStarfield(density, false),
+        effects: [],
+        layer: 15,
+        edgeBlend: 0.1,
+        opacity: 0.9,
+        screenX: centerX - radius,
+        screenY: centerY - radius
+    }
+}
+
+-- =============================================================================
+-- Helper Functions
+-- =============================================================================
+
+-- Get the bounding dimensions of a viewport shape
+export pure func shapeWidth(shape: ViewportShape) -> float {
+    match shape {
+        ShapeEllipse(_, _, rx, _) => rx * 2.0,
+        ShapeCircle(_, _, r) => r * 2.0,
+        ShapeRect(_, _, w, _) => w,
+        ShapeDome(_, _, w, _, _) => w
+    }
+}
+
+export pure func shapeHeight(shape: ViewportShape) -> float {
+    match shape {
+        ShapeEllipse(_, _, _, ry) => ry * 2.0,
+        ShapeCircle(_, _, r) => r * 2.0,
+        ShapeRect(_, _, _, h) => h,
+        ShapeDome(_, _, _, h, _) => h
+    }
+}
+
+-- Check if a viewport has SR warp effect
+export pure func hasWarp(vp: ViewportDef) -> bool {
+    let checkEffect = \eff.
+        match eff {
+            EffectSRWarp(_) => true,
+            _ => false
+        };
+    match vp.effects {
+        [] => false,
+        e :: _ => checkEffect(e)
+    }
+}
+
+-- Get the SR warp velocity from a viewport (0 if no warp)
+export pure func warpVelocity(vp: ViewportDef) -> float {
+    let getVel = \eff.
+        match eff {
+            EffectSRWarp(v) => v,
+            _ => 0.0
+        };
+    match vp.effects {
+        [] => 0.0,
+        e :: _ => getVel(e)
+    }
+}
+
+-- =============================================================================
+-- DrawCmd Conversion
+-- =============================================================================
+
+-- Convert shape type to int
+pure func shapeTypeToInt(shape: ViewportShape) -> int {
+    match shape {
+        ShapeEllipse(_, _, _, _) => 0,
+        ShapeCircle(_, _, _) => 1,
+        ShapeRect(_, _, _, _) => 2,
+        ShapeDome(_, _, _, _, _) => 3
+    }
+}
+
+-- Get shape parameters as list
+pure func shapeToParams(shape: ViewportShape) -> [float] {
+    match shape {
+        ShapeEllipse(cx, cy, rx, ry) => [cx, cy, rx, ry, 0.0],
+        ShapeCircle(cx, cy, r) => [cx, cy, r, r, 0.0],
+        ShapeRect(x, y, w, h) => [x, y, w, h, 0.0],
+        ShapeDome(cx, cy, w, h, arch) => [cx, cy, w, h, arch]
+    }
+}
+
+-- Convert content type to int
+pure func contentTypeToInt(content: ViewportContent) -> int {
+    match content {
+        ContentNone => 0,
+        ContentSpaceView(_, _) => 1,
+        ContentStarfield(_, _) => 2,
+        ContentSolid(_) => 3
+    }
+}
+
+-- Get content parameters as list
+pure func contentToParams(content: ViewportContent) -> [float] {
+    match content {
+        ContentNone => [0.0, 0.0, 0.0],
+        ContentSpaceView(v, a) => [v, a, 0.0],
+        ContentStarfield(d, s) => [d, match s { true => 1.0, false => 0.0 }, 0.0],
+        ContentSolid(c) => [intToFloat(c), 0.0, 0.0]
+    }
+}
+
+-- Convert effect type to int
+pure func effectTypeToInt(effect: ViewportEffect) -> int {
+    match effect {
+        EffectNone => 0,
+        EffectSRWarp(_) => 1,
+        EffectGRLensing(_, _) => 2,
+        EffectTint(_, _) => 3,
+        EffectBlur(_) => 4
+    }
+}
+
+-- Get effect parameters as list
+pure func effectToParams(effect: ViewportEffect) -> [float] {
+    match effect {
+        EffectNone => [0.0, 0.0],
+        EffectSRWarp(v) => [v, 0.0],
+        EffectGRLensing(m, d) => [m, d],
+        EffectTint(c, i) => [intToFloat(c), i],
+        EffectBlur(r) => [r, 0.0]
+    }
+}
+
+-- Get first effect from viewport or EffectNone
+pure func firstEffect(vp: ViewportDef) -> ViewportEffect {
+    match vp.effects {
+        [] => EffectNone,
+        e :: _ => e
+    }
+}
+
+-- Convert a ViewportDef to a DrawCmd for rendering
+export pure func viewportToDrawCmd(vp: ViewportDef, z: int) -> DrawCmd {
+    let shapeT = shapeTypeToInt(vp.shape);
+    let shapeP = shapeToParams(vp.shape);
+    let contentT = contentTypeToInt(vp.content);
+    let contentP = contentToParams(vp.content);
+    let eff = firstEffect(vp);
+    let effectT = effectTypeToInt(eff);
+    let effectP = effectToParams(eff);
+    Viewport(
+        vp.id,
+        shapeT, shapeP,
+        contentT, contentP,
+        effectT, effectP,
+        vp.layer,
+        vp.edgeBlend,
+        vp.opacity,
+        vp.screenX,
+        vp.screenY,
+        z
+    )
+}

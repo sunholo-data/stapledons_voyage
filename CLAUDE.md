@@ -79,7 +79,8 @@ Engine owns HOW it looks (rendering, animation, polish)
 - Go workarounds violate the architecture (all game logic in AILANG)
 - The AILANG team responds quickly via the messaging system
 
-**Current blockers:** None! All recent issues fixed.
+**Current blockers:**
+- #42: Codegen generates `s.(bool)` on bool variable (OPEN) - Blocks viewport AILANG types
 
 **Recently fixed (2025-12-10):**
 - #28: math codegen type assertions (FIXED)
@@ -106,9 +107,28 @@ The Go layer only needs to:
 
 ```bash
 make sim      # Compile AILANG → Go (prerequisite for all others)
+make build    # Build all Go (with sim_gen error detection) - USE THIS!
 make game     # Build executable to bin/game
 make run      # Run game directly with go run
 make eval     # Run benchmarks + scenarios, output to out/report.json
+make engine   # Build engine only (no sim_gen error detection)
+```
+
+### ⚠️ IMPORTANT: Use `make build` NOT `go build`
+
+**Always use `make build` instead of direct `go build`!**
+
+If codegen produces invalid Go code, `make build` will:
+1. Detect that errors are in `sim_gen/`
+2. Print instructions for reporting the AILANG bug
+3. Prevent accidental workaround attempts
+
+```bash
+# YES - correct way
+make build
+
+# NO - don't use direct go build
+go build ./...   # ❌ Won't detect AILANG codegen bugs
 ```
 
 ### Legacy Mock Mode (deprecated)
@@ -135,7 +155,9 @@ out/             # Reports, screenshots, test output
 
 When creating new `cmd/` entrypoints, always build to `bin/`:
 ```bash
-go build -o bin/demo-foo ./cmd/demo-foo
+# Use make target or specify output path
+make game                                    # Uses Makefile target
+go build -o bin/demo-foo ./cmd/demo-foo     # Direct build to bin/
 ```
 
 ### Cleanup

@@ -1,0 +1,28 @@
+//kage:unit pixels
+package main
+
+// Edge blend shader for viewport masking
+// Applies smooth transition at viewport edges using mask alpha.
+//
+// Uniforms:
+//   BlendAmount: how much to feather the edge (0.0 = hard, 1.0 = very soft)
+//
+// Images:
+//   imageSrc0: content to display (rendered viewport content)
+//   imageSrc1: mask (white = visible, black = hidden)
+
+var BlendAmount float
+
+func Fragment(dstPos vec4, srcPos vec2, color vec4) vec4 {
+	// Sample content and mask
+	content := imageSrc0At(srcPos)
+	maskValue := imageSrc1At(srcPos).r
+
+	// Apply soft edge using smoothstep
+	// When BlendAmount is small, transition is sharp
+	// When BlendAmount is large, transition is gradual
+	edge := smoothstep(0.0, BlendAmount+0.001, maskValue)
+
+	// Return content with alpha modulated by edge
+	return vec4(content.rgb, content.a*edge)
+}

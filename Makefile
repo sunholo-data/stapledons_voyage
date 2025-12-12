@@ -90,6 +90,53 @@ test-golden:
 update-golden:
 	.claude/skills/test-manager/scripts/update_golden.sh
 
+# =============================================================================
+# BUILD TARGETS WITH sim_gen ERROR DETECTION
+# =============================================================================
+# IMPORTANT: Claude should use these instead of direct `go build`
+# If errors occur in sim_gen/, it's an AILANG codegen bug that must be reported
+
+# Build all Go code with sim_gen error detection
+build: sim
+	@echo "Building with sim_gen error detection..."
+	@go build ./... > /tmp/go-build.log 2>&1; \
+	BUILD_STATUS=$$?; \
+	cat /tmp/go-build.log; \
+	if [ $$BUILD_STATUS -eq 0 ]; then \
+		echo "✓ Build successful"; \
+	else \
+		if grep -q 'sim_gen/' /tmp/go-build.log; then \
+			echo ""; \
+			echo "═══════════════════════════════════════════════════════════════════════"; \
+			echo "❌ ERROR IN sim_gen/ - THIS IS AN AILANG CODEGEN BUG"; \
+			echo "═══════════════════════════════════════════════════════════════════════"; \
+			echo ""; \
+			echo "DO NOT try to work around this error!"; \
+			echo ""; \
+			echo "1. Report the bug:"; \
+			echo '   ailang messages send user "AILANG codegen bug: <paste error>" \'; \
+			echo '     --title "Codegen: <brief description>" \'; \
+			echo '     --from "stapledons_voyage" \'; \
+			echo '     --type bug \'; \
+			echo '     --github'; \
+			echo ""; \
+			echo "2. Mark the feature as BLOCKED in sprint tracking"; \
+			echo ""; \
+			echo "3. WAIT for AILANG team to fix it"; \
+			echo ""; \
+			echo "═══════════════════════════════════════════════════════════════════════"; \
+			exit 1; \
+		else \
+			echo "Build error (not in sim_gen - normal Go error to fix)"; \
+			exit 1; \
+		fi; \
+	fi
+
+# Build only engine code (excludes sim_gen from the check - for engine-only work)
+engine:
+	@echo "Building engine (sim_gen excluded from error check)..."
+	go build ./engine/... ./cmd/...
+
 # Testing and linting
 test:
 	go test -v ./...
@@ -106,4 +153,4 @@ clean:
 clean-all:
 	rm -rf sim_gen bin out/*
 
-.PHONY: sim game eval run demo-bridge cli cli-mock game-mock eval-mock run-mock sprites test test-all test-visual test-golden update-golden lint clean clean-all screenshot screenshot-zoomed screenshot-panned screenshots scenario-pan scenario-zoom scenario-npc scenarios
+.PHONY: sim game eval run demo-bridge cli cli-mock game-mock eval-mock run-mock sprites build engine test test-all test-visual test-golden update-golden lint clean clean-all screenshot screenshot-zoomed screenshot-panned screenshots scenario-pan scenario-zoom scenario-npc scenarios

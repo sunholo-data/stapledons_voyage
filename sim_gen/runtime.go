@@ -1302,3 +1302,75 @@ func ConvertToViewModeSlice(v interface{}) []*ViewMode {
 	}
 	return out
 }
+
+// ConvertToViewportContentSlice converts []interface{} to []*ViewportContent.
+// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
+func ConvertToViewportContentSlice(v interface{}) []*ViewportContent {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToViewportContentSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*ViewportContent{}
+	}
+	out := make([]*ViewportContent, len(src))
+	for i, e := range src {
+		elem, ok := e.(*ViewportContent)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToViewportContentSlice: element %d: expected *ViewportContent, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToViewportEffectSlice converts []interface{} to []*ViewportEffect.
+// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
+func ConvertToViewportEffectSlice(v interface{}) []*ViewportEffect {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToViewportEffectSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*ViewportEffect{}
+	}
+	out := make([]*ViewportEffect, len(src))
+	for i, e := range src {
+		elem, ok := e.(*ViewportEffect)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToViewportEffectSlice: element %d: expected *ViewportEffect, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToViewportShapeSlice converts []interface{} to []*ViewportShape.
+// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
+func ConvertToViewportShapeSlice(v interface{}) []*ViewportShape {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToViewportShapeSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*ViewportShape{}
+	}
+	out := make([]*ViewportShape, len(src))
+	for i, e := range src {
+		elem, ok := e.(*ViewportShape)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToViewportShapeSlice: element %d: expected *ViewportShape, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}

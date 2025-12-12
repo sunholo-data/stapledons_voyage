@@ -66,12 +66,12 @@ func (h *GeminiAIHandler) textToSpeech(req AIRequest) (string, error) {
 		genai.NewContentFromText(textToSpeak, genai.RoleUser),
 	}
 
-	// Try dedicated TTS model first
-	resp, err := h.client.Models.GenerateContent(ctx, h.ttsModel, contents, config)
+	// Try dedicated TTS model first (uses ttsClient with us-central1 region)
+	resp, err := h.ttsClient.Models.GenerateContent(ctx, h.ttsModel, contents, config)
 	if err != nil {
 		// Fall back to regular model with audio output
 		fmt.Printf("[TTS] Dedicated model failed: %v, trying regular model...\n", err)
-		resp, err = h.client.Models.GenerateContent(ctx, h.model, contents, config)
+		resp, err = h.ttsClient.Models.GenerateContent(ctx, h.model, contents, config)
 		if err != nil {
 			return h.errorResponse(fmt.Sprintf("Gemini TTS error: %v", err))
 		}

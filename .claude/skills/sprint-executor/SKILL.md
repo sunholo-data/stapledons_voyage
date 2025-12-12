@@ -118,9 +118,10 @@ Before writing any code, verify these items:
 - [ ] **Test GR at high intensity** - May render pure black
 
 ### Build & Test
-- [ ] **Rebuild binary after Go changes** - `go build -o bin/game ./cmd/game` or use `go run`
+- [ ] **Always use `make build`** - Detects sim_gen errors and enforces correct bug reporting
+- [ ] **Use `make game` for executable** - Builds bin/game
 - [ ] **Use `go run` for quick testing** - Compiles fresh each time
-- [ ] **Use `make game` for release** - Ensures clean build
+- [ ] **NEVER use direct `go build ./...`** - Won't detect AILANG codegen bugs
 
 ## CRITICAL: AILANG-First Architecture
 
@@ -231,7 +232,7 @@ Most work should be AILANG. Engine changes are only needed for:
 
 For engine-only work:
 ```bash
-go build ./...    # Verify Go compiles
+make engine       # Build engine only (skips sim_gen check)
 make run          # Test rendering
 ```
 
@@ -394,6 +395,33 @@ make run          # Test rendering
    - DX rating (1-5 stars) - for AILANG sprints only
 
 ## Error Handling
+
+### CRITICAL: Use `make build` - It Enforces Correct Behavior
+
+**Always use `make build` instead of `go build`!**
+
+`make build` automatically:
+1. Detects if errors are in `sim_gen/` (AILANG codegen bug)
+2. Prints instructions for reporting the bug
+3. Prevents workaround attempts
+
+```bash
+# CORRECT - use this
+make build
+
+# WRONG - don't use direct go build
+go build ./...   # Won't detect codegen bugs
+```
+
+**If `make build` shows "ERROR IN sim_gen/":**
+1. Follow the printed instructions to report the bug
+2. Mark the feature as BLOCKED in sprint tracking
+3. STOP and wait for fix
+4. DO NOT refactor AILANG to work around it
+5. DO NOT edit sim_gen files
+
+**If `make build` shows a normal error (not in sim_gen/):**
+- Fix it in engine/*.go or cmd/*.go as usual
 
 ### AILANG Compilation Fails
 1. Show error output

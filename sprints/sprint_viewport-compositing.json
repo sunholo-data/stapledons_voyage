@@ -1,0 +1,106 @@
+{
+  "sprint_id": "viewport-compositing",
+  "created": "2025-12-12T00:00:00Z",
+  "status": "in_progress",
+  "design_doc": "design_docs/planned/phase1-data-models/viewport-compositing.md",
+  "features": [
+    {
+      "id": "viewport-shapes",
+      "description": "Viewport shape interfaces (Ellipse, Circle, Rect, Dome) with mask generation",
+      "estimated_loc": 150,
+      "actual_loc": 280,
+      "dependencies": [],
+      "acceptance_criteria": [
+        "ViewportShape interface defined",
+        "EllipseShape generates correct mask",
+        "CircleShape generates correct mask",
+        "RectShape generates correct mask",
+        "DomeShape generates dome shape (rect + arch)"
+      ],
+      "passes": true,
+      "started": "2025-12-12T18:58:48Z",
+      "completed": "2025-12-12T18:59:58Z",
+      "notes": null
+    },
+    {
+      "id": "viewport-renderer",
+      "description": "Content rendering with masking and edge blending",
+      "estimated_loc": 150,
+      "actual_loc": 280,
+      "dependencies": [
+        "viewport-shapes"
+      ],
+      "acceptance_criteria": [
+        "ViewportRenderer renders content to buffer",
+        "Edge blend shader applies smooth transitions",
+        "Multiple blend amounts work (0.05, 0.15, 0.3)"
+      ],
+      "passes": true,
+      "started": "2025-12-12T18:59:58Z",
+      "completed": "2025-12-12T19:01:41Z",
+      "notes": null
+    },
+    {
+      "id": "ailang-types",
+      "description": "AILANG viewport types and DrawCmdViewport",
+      "estimated_loc": 100,
+      "actual_loc": null,
+      "dependencies": [
+        "viewport-renderer"
+      ],
+      "acceptance_criteria": [
+        "ViewportShape ADT in sim/viewport.ail",
+        "ViewportContent ADT defined",
+        "Viewport record type defined",
+        "DrawCmdViewport added to protocol"
+      ],
+      "passes": false,
+      "started": "2025-12-12T19:01:41Z",
+      "completed": null,
+      "notes": null
+    },
+    {
+      "id": "viewport-compositor",
+      "description": "Multi-viewport compositing with layer integration",
+      "estimated_loc": 80,
+      "actual_loc": null,
+      "dependencies": [
+        "ailang-types"
+      ],
+      "acceptance_criteria": [
+        "ViewportCompositor composites multiple viewports",
+        "Z-ordering works correctly",
+        "Integrates with depth layer system"
+      ],
+      "passes": null,
+      "started": null,
+      "completed": null,
+      "notes": null
+    },
+    {
+      "id": "sr-viewport-effect",
+      "description": "SR warp shader as viewport-specific effect",
+      "estimated_loc": 30,
+      "actual_loc": null,
+      "dependencies": [
+        "viewport-compositor"
+      ],
+      "acceptance_criteria": [
+        "SR warp applies only within viewport bounds",
+        "Effect intensity configurable per viewport"
+      ],
+      "passes": null,
+      "started": null,
+      "completed": null,
+      "notes": null
+    }
+  ],
+  "velocity": {
+    "target_loc_per_day": 200,
+    "actual_loc_per_day": 0
+  },
+  "ailang_issues": [],
+  "dx_issues_discovered": [],
+  "lessons_learned": [],
+  "last_updated": "2025-12-12T00:00:00Z"
+}
