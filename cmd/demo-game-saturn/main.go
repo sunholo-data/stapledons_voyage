@@ -51,11 +51,11 @@ type SaturnGame struct {
 	saturnData *sim_gen.CelestialPlanet
 
 	// 3D rendering
-	scene3D   *tetra.Scene
-	saturn    *tetra.Planet
-	ring      *tetra.Ring
-	sun       *tetra.SunLight
-	ambient   *tetra.AmbientLight
+	scene3D    *tetra.Scene
+	saturn     *tetra.Planet
+	ringSystem *tetra.RingSystem // Multi-band dust rings
+	sun        *tetra.SunLight
+	ambient    *tetra.AmbientLight
 
 	// Background
 	spaceBackground *background.SpaceBackground
@@ -139,19 +139,19 @@ func (g *SaturnGame) setup3DScene(screenW, screenH int) {
 	g.saturn.SetPosition(0, 0, 0) // Saturn at origin
 	g.saturn.SetRotationSpeed(0.1) // Slow self-rotation
 
-	// Create rings using command-line parameters (generated mesh, no texture needed)
-	ringInnerR := saturnRadius * *ringInner
-	ringOuterR := saturnRadius * *ringOuter
+	// Create multi-band ring system with dust particle effects
+	// Uses Saturn's real ring structure (C, B, A rings with Cassini Division gap)
 	tiltRadians := *ringTilt * math.Pi / 180.0
 
-	// Use nil texture - NewRing generates solid colored ring mesh
-	g.ring = tetra.NewRing("saturn_ring", ringInnerR, ringOuterR, nil)
-	g.ring.AddToScene(g.scene3D)
-	g.ring.SetPosition(0, 0, 0) // Same position as Saturn (origin)
-	g.ring.SetTilt(tiltRadians)
+	// Get Saturn ring bands preset (scales to planet radius)
+	ringBands := tetra.SaturnRingBands(saturnRadius)
+	g.ringSystem = tetra.NewRingSystem("saturn", ringBands)
+	g.ringSystem.AddToScene(g.scene3D)
+	g.ringSystem.SetPosition(0, 0, 0) // Same position as Saturn (origin)
+	g.ringSystem.SetTilt(tiltRadians)
 
-	log.Printf("Ring parameters: inner=%.2f, outer=%.2f, tilt=%.1f deg",
-		ringInnerR, ringOuterR, *ringTilt)
+	log.Printf("Ring system: %d bands with dust effects, tilt=%.1f deg",
+		len(ringBands), *ringTilt)
 
 	// Add lighting - from above/side for good ring visibility
 	g.sun = tetra.NewSunLight()
@@ -210,8 +210,8 @@ func (g *SaturnGame) Update() error {
 	// Saturn rotates on its axis
 	g.saturn.Update(dt)
 
-	// Ring rotates slowly with Saturn
-	g.ring.Update(dt * 0.05)
+	// Ring system rotates slowly with Saturn
+	g.ringSystem.Update(dt * 0.05)
 
 	return nil
 }

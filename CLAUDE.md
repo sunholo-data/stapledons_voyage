@@ -201,6 +201,38 @@ ailang messages read <msg-id>          # Show message content
 ailang messages watch                  # Watch for new messages
 ```
 
+## Voyage CLI (Dev Tools)
+
+The `voyage` CLI provides development tools. Install with `make install`.
+
+```bash
+# Demo runner (interactive selection)
+voyage demo              # Show menu, pick by number or name
+voyage demo bridge       # Run demo-game-bridge directly
+voyage demo orbital      # Partial name matching works
+
+# File watcher (auto-rebuild)
+voyage watch             # Watch sim/*.ail, run make sim on changes
+voyage watch --test      # Also run ailang test after rebuild
+voyage watch --run bridge # Rebuild and restart demo
+
+# Screenshot capture
+voyage screenshot        # Capture main game (frame 60)
+voyage screenshot bridge # Capture specific demo
+voyage screenshot --all  # Capture all demos
+voyage screenshot bridge -f 120 -o out/ # Custom frames/output
+
+# Asset validation
+voyage manifest          # Validate all asset manifests
+voyage manifest -v       # Verbose (show all files)
+voyage manifest sprites  # Check specific manifest
+
+# Other tools
+voyage world             # Inspect world state
+voyage bench             # Run benchmarks
+voyage ai                # Test AI handlers
+```
+
 ## Architecture
 
 ### AILANG-First Development (CRITICAL)

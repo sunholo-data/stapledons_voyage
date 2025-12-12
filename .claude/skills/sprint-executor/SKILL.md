@@ -122,6 +122,7 @@ Before writing any code, verify these items:
 - [ ] **Use `make game` for executable** - Builds bin/game
 - [ ] **Use `go run` for quick testing** - Compiles fresh each time
 - [ ] **NEVER use direct `go build ./...`** - Won't detect AILANG codegen bugs
+- [ ] **Run `voyage manifest`** - Validate all assets exist before starting
 
 ## CRITICAL: AILANG-First Architecture
 
@@ -736,6 +737,45 @@ make clean  # Removes bin/, out/* but preserves structure
 - `make sim` - Compile AILANG to Go
 - `make game` - Build game executable
 - `make run` - Run game
+- `make install` - Install voyage CLI globally
+
+### Voyage CLI (Dev Tools)
+
+The `voyage` CLI provides development tools. Install with `make install`.
+
+```bash
+# Demo runner (use instead of manual go run)
+voyage demo              # Interactive selection menu
+voyage demo bridge       # Run demo-game-bridge directly
+voyage demo orbital      # Partial name matching works
+
+# File watcher (auto-rebuild on changes)
+voyage watch             # Watch sim/*.ail, run make sim on changes
+voyage watch --test      # Also run ailang test after rebuild
+voyage watch --run bridge # Rebuild and restart demo automatically
+
+# Screenshot capture (use for visual verification)
+voyage screenshot        # Capture main game (frame 60)
+voyage screenshot bridge # Capture specific demo
+voyage screenshot --all  # Capture all demos to out/screenshots/
+voyage screenshot bridge -f 120 -o out/ # Custom frames/output
+
+# Asset validation (run before sprints)
+voyage manifest          # Validate all asset manifests exist
+voyage manifest -v       # Verbose (show all files)
+voyage manifest sprites  # Check specific manifest
+
+# Other inspection tools
+voyage world             # Inspect world state
+voyage bench             # Run benchmarks
+voyage ai                # Test AI handlers
+```
+
+**Use `voyage` commands for:**
+- Quick demo switching during development
+- Auto-rebuild while editing AILANG
+- Screenshot capture for visual verification
+- Asset validation before commits
 
 ### AILANG Commands
 - `ailang check <file>` - Type-check

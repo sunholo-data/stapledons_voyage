@@ -2273,7 +2273,7 @@ func tryMovePlayer_impl(state interface{}, dir interface{}) interface{} {
 				_ = tmp409 // suppress unused
 				var tmp410 interface{} = FieldGet(newPos, "y")
 				_ = tmp410 // suppress unused
-				return RecordUpdate(state, map[string]interface{}{"playerPos": newPos, "playerFacing": dir, "moveState": tmp408, "cameraX": tmp409, "cameraY": tmp410})
+				return RecordUpdate(state, map[string]interface{}{"cameraY": tmp410, "playerPos": newPos, "playerFacing": dir, "moveState": tmp408, "cameraX": tmp409})
 			}()
 		}
 		return RecordUpdate(state, map[string]interface{}{"playerFacing": dir, "moveState": NewMoveStateMoveIdle()})
@@ -2618,7 +2618,7 @@ func stepBridge_impl(state interface{}, frame interface{}) interface{} {
 		_ = tmp451 // suppress unused
 		return updateCrewRec_impl(tmp451, frame, state)
 	}()
-	return RecordUpdate(state, map[string]interface{}{"crewPositions": updatedCrew, "domeState": updatedDome, "domeView": updatedDomeView, "tick": frame})
+	return RecordUpdate(state, map[string]interface{}{"domeView": updatedDomeView, "tick": frame, "crewPositions": updatedCrew, "domeState": updatedDome})
 }
 
 func StepBridge(state *BridgeState, frame int64) *BridgeState {

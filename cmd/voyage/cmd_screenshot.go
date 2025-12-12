@@ -116,8 +116,13 @@ func captureAllDemos(frames int, outputDir string, seed int64) {
 
 	// Capture each demo
 	for _, demo := range demos {
-		// Skip template
+		// Skip non-visual demos
 		if strings.Contains(demo, "template") {
+			fmt.Printf("Skipping %s (template)\n", demo)
+			continue
+		}
+		if strings.Contains(demo, "engine-ai") {
+			fmt.Printf("Skipping %s (CLI-only, no visual output)\n", demo)
 			continue
 		}
 		captureSingle(demo, frames, outputDir, seed)
