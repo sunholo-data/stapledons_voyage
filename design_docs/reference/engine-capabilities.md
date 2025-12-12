@@ -416,6 +416,96 @@ type Config struct {
 
 ---
 
+## 4b. 3D Scene (Tetra3D)
+
+**Files:** `engine/tetra/scene.go`, `planet.go`, `ring.go`, `lighting.go`
+
+The engine wraps Tetra3D for 3D rendering (planets, rings, orbital views).
+
+### Scene Setup
+
+```go
+scene := tetra.NewScene(screenW, screenH)
+
+// Add objects
+planet := tetra.NewTexturedPlanet("saturn", radius, texture)
+planet.AddToScene(scene)
+planet.SetPosition(0, 0, 0)
+
+// Add lighting
+sun := tetra.NewSunLight()
+sun.SetPosition(30, 20, 30)
+sun.AddToScene(scene)
+
+// Render
+img := scene.Render()
+screen.DrawImage(img, nil)
+```
+
+### Camera LookAt
+
+**Critical Fix (2025-12-12):** The `LookAt` function was fixed to correctly orient the camera.
+
+```go
+// Position camera and look at target
+scene.SetCameraPosition(x, y, z)
+scene.LookAt(targetX, targetY, targetZ)
+```
+
+**How It Works:**
+
+Tetra3D cameras render along their local **-Z axis**. The `NewMatrix4LookAt(from, to, up)` function builds a rotation matrix where the Z row points from→to. To make the camera's -Z face the target, we swap the arguments:
+
+```go
+// Inside Scene.LookAt():
+// FIXED: Swap from/to so the Z row points AWAY from target.
+// Camera's -Z then points toward target (render direction).
+lookMatrix := tetra3d.NewMatrix4LookAt(to, from, up)  // Note: swapped!
+s.camera.SetLocalRotation(lookMatrix)
+```
+
+**Usage Patterns:**
+
+| Pattern | Code | Description |
+|---------|------|-------------|
+| Camera orbits object | `SetCameraPosition(cos(θ)*r, h, sin(θ)*r); LookAt(0,0,0)` | Camera moves, looks at origin |
+| Camera tracks object | `SetCameraPosition(0, 0, 10); LookAt(obj.x, obj.y, obj.z)` | Camera fixed, follows moving object |
+| First-person | `SetCameraPosition(player.pos); LookAt(player.pos + forward)` | Camera at player, looks forward |
+
+### 3D Objects
+
+| Type | Constructor | Description |
+|------|-------------|-------------|
+| Planet | `NewPlanet(name, radius, color)` | Solid-colored sphere |
+| Planet | `NewTexturedPlanet(name, radius, texture)` | Textured sphere |
+| Ring | `NewRing(name, inner, outer, texture)` | Planetary ring (nil texture = solid) |
+| SunLight | `NewSunLight()` | Directional light |
+| AmbientLight | `NewAmbientLight(r, g, b, intensity)` | Fill lighting |
+
+### Ring System
+
+```go
+ring := tetra.NewRing("saturn_rings", innerRadius, outerRadius, nil)
+ring.AddToScene(scene)
+ring.SetPosition(0, 0, 0)  // Same as planet
+ring.SetTilt(27 * math.Pi / 180)  // Saturn's 27° tilt
+```
+
+**Material Options:**
+- With texture: `TransparencyModeAlphaClip` for ring gaps
+- Without texture: Solid beige/tan color (`0.85, 0.75, 0.6`)
+- `Shadeless = true` (rings don't need lighting)
+- `BackfaceCulling = false` (render both sides)
+
+### Demo
+
+```bash
+bin/demo-game-saturn --screenshot 120     # Saturn with rings
+bin/demo-engine-lookat --mode camera-track # LookAt test
+```
+
+---
+
 ## 5. Parallax Depth Layers
 
 **File:** `engine/depth/layer.go`
@@ -1128,4 +1218,4 @@ sortKey = layer × 10000 + screenY
 ---
 
 **Document created**: 2025-12-06
-**Last updated**: 2025-12-12 (Multi-level ship system)
+**Last updated**: 2025-12-12 (3D Scene/LookAt, Multi-level ship system)

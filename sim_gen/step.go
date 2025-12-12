@@ -518,7 +518,7 @@ func updateBridgeView_impl(world interface{}, newTick interface{}) interface{} {
 		_ = tmp93 // suppress unused
 		return stepSystem_impl(tmp93, float64(0.001))
 	}()
-	return RecordUpdate(world, map[string]interface{}{"tick": newTick, "bridge": updatedBridge, "currentSystem": updatedSystem})
+	return RecordUpdate(world, map[string]interface{}{"bridge": updatedBridge, "currentSystem": updatedSystem, "tick": newTick})
 }
 
 func updateBridgeView(world *World, newTick int64) *World {
@@ -540,7 +540,7 @@ func updatePlanetView_impl(world interface{}, input interface{}, newTick interfa
 		_ = tmp99 // suppress unused
 		return updateAllNPCs_impl(tmp95, tmp97, tmp99)
 	}()
-	return RecordUpdate(world, map[string]interface{}{"npcs": updatedNpcs, "selection": newSelection, "tick": newTick})
+	return RecordUpdate(world, map[string]interface{}{"tick": newTick, "npcs": updatedNpcs, "selection": newSelection})
 }
 
 func updatePlanetView(world *World, input *FrameInput, newTick int64) *World {

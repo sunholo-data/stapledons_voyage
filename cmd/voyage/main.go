@@ -35,6 +35,12 @@ func main() {
 	switch cmd {
 	case "demo":
 		runDemoCommand(args)
+	case "watch":
+		runWatchCommand(args)
+	case "screenshot":
+		runScreenshotCommand(args)
+	case "manifest":
+		runManifestCommand(args)
 	case "ai":
 		runAICommand(args)
 	case "world":
@@ -63,14 +69,18 @@ Usage:
   voyage <command> [options]
 
 Commands:
-  demo     Run demos interactively or by name
-  ai       Test AI handlers (Claude, Gemini)
-  world    Inspect world state (NPCs, tiles, planets)
-  bench    Run performance benchmarks (human-readable)
-  perf     Run benchmarks with threshold checks (CI/JSON output)
-  assets   Validate game assets
-  sim      Run simulation stress tests
-  help     Show this help message
+  demo        Run demos interactively or by name
+  watch       Watch sim/*.ail and auto-rebuild on changes
+  screenshot  Capture screenshots from demos
+  manifest    Validate asset manifests
+
+  ai          Test AI handlers (Claude, Gemini)
+  world       Inspect world state (NPCs, tiles, planets)
+  bench       Run performance benchmarks (human-readable)
+  perf        Run benchmarks with threshold checks (CI/JSON output)
+  assets      Validate game assets
+  sim         Run simulation stress tests
+  help        Show this help message
 
 Use "voyage <command> -h" for more information about a command.`)
 }

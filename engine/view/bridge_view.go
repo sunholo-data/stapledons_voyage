@@ -139,6 +139,20 @@ func (v *BridgeView) captureInput() *sim_gen.FrameInput {
 		}
 	}
 
+	// Check interaction keys (E for interact, Escape for cancel)
+	if inpututil.IsKeyJustPressed(ebiten.KeyE) {
+		keys = append(keys, &sim_gen.KeyEvent{
+			Key:  int64(ebiten.KeyE),
+			Kind: "pressed",
+		})
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
+		keys = append(keys, &sim_gen.KeyEvent{
+			Key:  int64(ebiten.KeyEscape),
+			Kind: "pressed",
+		})
+	}
+
 	return &sim_gen.FrameInput{
 		Mouse:            &sim_gen.MouseState{X: 0, Y: 0, Buttons: []int64{}},
 		Keys:             keys,

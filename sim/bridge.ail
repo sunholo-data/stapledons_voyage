@@ -673,6 +673,7 @@ pure func layerPlayer() -> int { 3 }
 -- These layers ensure 3D elements render at correct times relative to 2D elements
 pure func layerPlanets3D() -> int { 4 }   -- 3D planets render AFTER player (above floor)
 pure func layerBubbleArc3D() -> int { 5 } -- Bubble arc renders on top
+pure func layerUI() -> int { 100 }        -- UI renders on very top
 
 -- Default color (white, no tint) - 0xFFFFFFFF as decimal
 pure func colorWhite() -> int { 4294967295 }
@@ -859,24 +860,115 @@ export pure func renderPlayer(state: BridgeState) -> [DrawCmd] {
     ]
 }
 
+-- =============================================================================
+-- Interaction UI Rendering
+-- =============================================================================
+
+-- Get name of a bridge station for display
+pure func stationName(station: BridgeStation) -> string {
+    match station {
+        StationHelm => "HELM",
+        StationComms => "COMMS",
+        StationStatus => "STATUS",
+        StationScience => "SCIENCE",
+        StationWeapons => "WEAPONS"
+    }
+}
+
+-- Color constants for UI (converted from hex to decimal)
+pure func colorDarkBg() -> int { 540029132 }       -- 0x203040CC - Dark blue with alpha
+pure func colorYellow() -> int { 4293559551 }       -- 0xFFDD44FF - Bright yellow
+pure func colorPanelBg() -> int { 270545120 }       -- 0x102030E0 - Dark panel
+pure func colorUIGreen() -> int { 1157595391 }      -- 0x44FF44FF - Bright green
+pure func colorUIGray() -> int { 2290649343 }       -- 0x888888FF - Gray
+
+-- Render interaction prompt when player is near a console
+export pure func renderInteractionPrompt(state: BridgeState) -> [DrawCmd] {
+    match state.hoveredInteractable {
+        None => [],
+        Some(interactable) =>
+            match interactable {
+                InteractConsole(station) =>
+                    -- Show prompt at bottom center of screen
+                    [
+                        RectRGBA(480.0, 650.0, 320.0, 40.0, colorDarkBg(), layerUI()),
+                        Text("Press E: Interact", 530.0, 665.0, 12, colorYellow(), layerUI() + 1)
+                    ],
+                InteractCrew(crew) =>
+                    [
+                        RectRGBA(480.0, 650.0, 320.0, 40.0, colorDarkBg(), layerUI()),
+                        Text("Press E: Talk", 530.0, 665.0, 12, colorYellow(), layerUI() + 1)
+                    ],
+                InteractHatch(deck) =>
+                    [
+                        RectRGBA(480.0, 650.0, 320.0, 40.0, colorDarkBg(), layerUI()),
+                        Text("Press E: Use hatch", 530.0, 665.0, 12, colorYellow(), layerUI() + 1)
+                    ]
+            }
+    }
+}
+
+-- Render selected console panel (when interacting)
+export pure func renderSelectedPanel(state: BridgeState) -> [DrawCmd] {
+    match state.selectedInteractable {
+        None => [],
+        Some(interactable) =>
+            match interactable {
+                InteractConsole(station) =>
+                    -- Info panel at right side of screen
+                    [
+                        -- Panel background
+                        RectRGBA(880.0, 100.0, 360.0, 280.0, colorPanelBg(), layerUI()),
+                        -- Title bar
+                        RectRGBA(880.0, 100.0, 360.0, 40.0, consoleColor(station), layerUI() + 1),
+                        Text(stationName(station), 1000.0, 115.0, 14, colorWhite(), layerUI() + 2),
+                        -- Status
+                        Text("Status: OPERATIONAL", 900.0, 170.0, 12, colorUIGreen(), layerUI() + 2),
+                        -- Instructions
+                        Text("Press E or ESC to close", 900.0, 340.0, 10, colorUIGray(), layerUI() + 2)
+                    ],
+                InteractCrew(crew) =>
+                    [
+                        RectRGBA(880.0, 100.0, 360.0, 280.0, colorPanelBg(), layerUI()),
+                        RectRGBA(880.0, 100.0, 360.0, 40.0, colorPlayer(), layerUI() + 1),
+                        Text(crew.name, 1000.0, 115.0, 14, colorWhite(), layerUI() + 2),
+                        Text("Crew Member", 900.0, 170.0, 12, colorWhite(), layerUI() + 2),
+                        Text("Press E or ESC to close", 900.0, 340.0, 10, colorUIGray(), layerUI() + 2)
+                    ],
+                InteractHatch(deck) =>
+                    [
+                        RectRGBA(880.0, 100.0, 360.0, 200.0, colorPanelBg(), layerUI()),
+                        Text("HATCH", 1000.0, 115.0, 14, colorWhite(), layerUI() + 1),
+                        Text("Press E or ESC to close", 900.0, 260.0, 10, colorUIGray(), layerUI() + 2)
+                    ]
+            }
+    }
+}
+
 -- Render entire bridge (combines all layers)
--- Layer order: dome -> struts -> floor -> consoles -> crew -> player (front)
+-- Layer order: dome -> struts -> floor -> consoles -> crew -> player -> UI (front)
 export pure func renderBridge(state: BridgeState) -> [DrawCmd] {
     concat(
         concat(
             concat(
                 concat(
                     concat(
-                        renderDome(state.domeState),  -- Dome with planets (background)
-                        renderStruts(state)           -- Structural struts
+                        concat(
+                            concat(
+                                renderDome(state.domeState),  -- Dome with planets (background)
+                                renderStruts(state)           -- Structural struts
+                            ),
+                            renderBridgeFloor(state)          -- Isometric floor tiles
+                        ),
+                        renderConsoles(state)                 -- Console stations
                     ),
-                    renderBridgeFloor(state)          -- Isometric floor tiles
+                    renderBridgeCrew(state)                   -- Crew members
                 ),
-                renderConsoles(state)                 -- Console stations
+                renderPlayer(state)                           -- Player character
             ),
-            renderBridgeCrew(state)                   -- Crew members
+            renderInteractionPrompt(state)                    -- "Press E" prompt
         ),
-        renderPlayer(state)                           -- Player character
+        renderSelectedPanel(state)                            -- Selected console panel
     )
 }
 
@@ -893,6 +985,8 @@ pure func keyUp() -> int { 265 }
 pure func keyDown() -> int { 264 }
 pure func keyLeft() -> int { 263 }
 pure func keyRight() -> int { 262 }
+pure func keyE() -> int { 69 }        -- Interact key
+pure func keyEscape() -> int { 256 }  -- Cancel/close key
 
 -- Check if a key is in the key list (recursive)
 pure func hasKeyRec(keyCode: int, keys: [KeyEvent]) -> bool {
@@ -936,12 +1030,86 @@ pure func setPlayerIdle(state: BridgeState) -> BridgeState {
     { state | moveState: MoveIdle }
 }
 
+-- =============================================================================
+-- Console Interaction (Hover/Click)
+-- =============================================================================
+
+-- Absolute value for distance calculation
+pure func absInt(x: int) -> int {
+    if x < 0 then 0 - x else x
+}
+
+-- Manhattan distance between two coordinates
+pure func manhattanDistance(a: Coord, b: Coord) -> int {
+    absInt(a.x - b.x) + absInt(a.y - b.y)
+}
+
+-- Check if player is adjacent to a console (within 2 tiles)
+pure func isNearConsole(playerPos: Coord, console: ConsoleState) -> bool {
+    manhattanDistance(playerPos, console.pos) <= 2
+}
+
+-- Find nearby console (recursive search)
+pure func findNearbyConsoleRec(playerPos: Coord, consoles: [ConsoleState]) -> Option[BridgeStation] {
+    match consoles {
+        [] => None,
+        c :: rest =>
+            if isNearConsole(playerPos, c) then Some(c.station)
+            else findNearbyConsoleRec(playerPos, rest)
+    }
+}
+
+-- Find console near player, return as InteractableID
+pure func findNearbyInteractable(state: BridgeState) -> Option[InteractableID] {
+    match findNearbyConsoleRec(state.playerPos, state.consoles) {
+        Some(station) => Some(InteractConsole(station)),
+        None => None
+    }
+}
+
+-- Helper: update hovered interactable
+pure func updateHover(state: BridgeState) -> BridgeState {
+    { state | hoveredInteractable: findNearbyInteractable(state) }
+}
+
+-- Helper: deselect current interactable
+pure func deselectInteractable(state: BridgeState) -> BridgeState {
+    { state | selectedInteractable: None }
+}
+
+-- Helper: select currently hovered interactable
+pure func selectHovered(state: BridgeState) -> BridgeState {
+    { state | selectedInteractable: state.hoveredInteractable }
+}
+
+-- Helper: toggle selection when E is pressed
+pure func toggleSelection(state: BridgeState) -> BridgeState {
+    match state.selectedInteractable {
+        Some(_) => deselectInteractable(state),
+        None => selectHovered(state)
+    }
+}
+
+-- Helper: clear selection (Escape key)
+pure func clearSelection(state: BridgeState) -> BridgeState {
+    { state | selectedInteractable: None }
+}
+
 -- Process player input and update state
 export pure func processBridgeInput(state: BridgeState, input: FrameInput) -> BridgeState {
-    match getInputDirection(input) {
+    -- First handle movement
+    let afterMove = match getInputDirection(input) {
         Some(dir) => tryMovePlayer(state, dir),
         None => setPlayerIdle(state)
-    }
+    };
+
+    -- Update hover state based on new position
+    let afterHover = updateHover(afterMove);
+
+    -- Handle interaction keys
+    if hasKey(keyEscape(), input) then clearSelection(afterHover)
+    else if hasKey(keyE(), input) then toggleSelection(afterHover)
+    else afterHover
 }
 
 -- =============================================================================
