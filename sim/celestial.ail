@@ -7,7 +7,7 @@ module sim/celestial
 
 import std/math (sin, cos)
 import std/option (Option, Some, None)
-import sim/protocol (DrawCmd, CircleRGBA)
+import sim/protocol (DrawCmd, CircleRGBA, TexturedPlanet, Circle)
 
 -- =============================================================================
 -- Color Type

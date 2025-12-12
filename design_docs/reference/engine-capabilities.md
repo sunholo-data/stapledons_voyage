@@ -13,6 +13,7 @@
 | Asset loading | `engine/assets/` | Working |
 | Camera/viewport | `engine/camera/` | Working |
 | **Parallax layers** | `engine/depth/` | **Working** |
+| **Celestial system** | `sim/celestial.ail` | **Working** |
 | SR/GR physics | `engine/relativity/` | Working |
 | Shader effects | `engine/shader/` | Working |
 | Input capture | `engine/input/` | Working |
@@ -57,6 +58,24 @@ All defined in `sim/protocol.ail`, rendered by `engine/render/draw.go`.
 | `GalaxyBg` | `(opacity, z, skyViewMode, viewLon, viewLat, fov)` | Galaxy background with scrolling |
 | `Star` | `(x, y, spriteId, scale, alpha, z)` | Individual star with scale/alpha |
 | `SpireBg` | `(z)` | Spire silhouette background (Layer 6, 0.3x parallax) |
+| `CircleRGBA` | `(x, y, radius, rgba, filled, z)` | Circle with packed RGBA color |
+| `RectRGBA` | `(x, y, w, h, rgba, z)` | Rectangle with packed RGBA color |
+
+**RGBA Color Format:** `0xRRGGBBAA` (e.g., `0xFF0000FF` = opaque red)
+
+### Celestial System (AILANG)
+
+Planet and star system simulation defined in `sim/celestial.ail`:
+
+| Function | Signature | Purpose |
+|----------|-----------|---------|
+| `initSolSystem` | `() -> StarSystem` | Create Sol with 8 planets |
+| `stepSystem` | `(system, dt) -> StarSystem` | Update orbital positions |
+| `renderSolarSystem` | `(system) -> [DrawCmd]` | Render planets as CircleRGBA |
+
+**Planet Types:** `Rocky`, `GasGiant`, `IceGiant`, `Terrestrial`, `Ocean`, `Volcanic`, `Dwarf`
+
+**Star Types:** Spectral classes `O`, `B`, `A`, `F`, `G`, `K`, `M`
 
 ### Parallax Layer Commands
 

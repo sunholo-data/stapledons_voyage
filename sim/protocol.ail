@@ -107,8 +107,17 @@ export type DrawCmd =
     -- These tell the Go engine WHEN to render 3D elements (AILANG controls layer order)
     | SpaceBg(z: int)       -- Render starfield/galaxy background (DeepBackground layer)
     | SpireBg(z: int)       -- Render spire silhouette background (MidBackground layer, 0.3x parallax)
-    | Planets3D(z: int)     -- Render 3D textured planets (Tetra3D)
+    | Planets3D(z: int)     -- Render 3D textured planets (Tetra3D) - DEPRECATED, use TexturedPlanet
     | BubbleArc(z: int)     -- Render bubble arc edge effect
+
+    -- Textured planet command (AILANG-controlled Tetra3D rendering)
+    -- name: planet name for texture lookup (e.g., "earth", "saturn", "jupiter")
+    -- x, y: screen position (center of planet)
+    -- radius: visual radius in pixels
+    -- rotation: rotation angle in radians (for texture animation)
+    -- hasRings: true if planet has rings (Saturn, Uranus)
+    -- ringRgba: ring color in 0xRRGGBBAA format (0 = use default)
+    | TexturedPlanet(name: string, x: float, y: float, radius: float, rotation: float, hasRings: bool, ringRgba: int, z: int)
 
     -- Parallax layer marker (for testing/debugging depth layers)
     -- parallaxLayer: 0-19, selects which parallax layer to render on

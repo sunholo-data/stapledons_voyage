@@ -1,0 +1,1448 @@
+{
+  "version": "0.2.0",
+  "timestamp": 1765565474,
+  "play_time": 16.350000000000353,
+  "world": {
+    "Tick": 981,
+    "Planet": {
+      "Width": 8,
+      "Height": 8,
+      "Tiles": [
+        {
+          "Biome": 3
+        },
+        {
+          "Biome": 2
+        },
+        {
+          "Biome": 1
+        },
+        {
+          "Biome": 0
+        },
+        {
+          "Biome": 3
+        },
+        {
+          "Biome": 2
+        },
+        {
+          "Biome": 1
+        },
+        {
+          "Biome": 0
+        },
+        {
+          "Biome": 3
+        },
+        {
+          "Biome": 2
+        },
+        {
+          "Biome": 1
+        },
+        {
+          "Biome": 0
+        },
+        {
+          "Biome": 3
+        },
+        {
+          "Biome": 2
+        },
+        {
+          "Biome": 1
+        },
+        {
+          "Biome": 0
+        },
+        {
+          "Biome": 3
+        },
+        {
+          "Biome": 2
+        },
+        {
+          "Biome": 1
+        },
+        {
+          "Biome": 0
+        },
+        {
+          "Biome": 3
+        },
+        {
+          "Biome": 2
+        },
+        {
+          "Biome": 1
+        },
+        {
+          "Biome": 0
+        },
+        {
+          "Biome": 3
+        },
+        {
+          "Biome": 2
+        },
+        {
+          "Biome": 1
+        },
+        {
+          "Biome": 0
+        },
+        {
+          "Biome": 3
+        },
+        {
+          "Biome": 2
+        },
+        {
+          "Biome": 1
+        },
+        {
+          "Biome": 0
+        },
+        {
+          "Biome": 3
+        },
+        {
+          "Biome": 2
+        },
+        {
+          "Biome": 1
+        },
+        {
+          "Biome": 0
+        },
+        {
+          "Biome": 3
+        },
+        {
+          "Biome": 2
+        },
+        {
+          "Biome": 1
+        },
+        {
+          "Biome": 0
+        },
+        {
+          "Biome": 3
+        },
+        {
+          "Biome": 2
+        },
+        {
+          "Biome": 1
+        },
+        {
+          "Biome": 0
+        },
+        {
+          "Biome": 3
+        },
+        {
+          "Biome": 2
+        },
+        {
+          "Biome": 1
+        },
+        {
+          "Biome": 0
+        },
+        {
+          "Biome": 3
+        },
+        {
+          "Biome": 2
+        },
+        {
+          "Biome": 1
+        },
+        {
+          "Biome": 0
+        },
+        {
+          "Biome": 3
+        },
+        {
+          "Biome": 2
+        },
+        {
+          "Biome": 1
+        },
+        {
+          "Biome": 0
+        },
+        {
+          "Biome": 3
+        },
+        {
+          "Biome": 2
+        },
+        {
+          "Biome": 1
+        },
+        {
+          "Biome": 0
+        },
+        {
+          "Biome": 3
+        },
+        {
+          "Biome": 2
+        },
+        {
+          "Biome": 1
+        },
+        {
+          "Biome": 0
+        }
+      ]
+    },
+    "Npcs": [
+      {
+        "Id": 1,
+        "Pos": {
+          "X": 2,
+          "Y": 2
+        },
+        "Pattern": {
+          "Kind": 1,
+          "PatternStatic": null,
+          "PatternRandomWalk": {
+            "Value0": 30
+          },
+          "PatternPatrol": null
+        },
+        "MoveCounter": 30,
+        "PatrolIndex": 0
+      },
+      {
+        "Id": 2,
+        "Pos": {
+          "X": 5,
+          "Y": 3
+        },
+        "Pattern": {
+          "Kind": 1,
+          "PatternStatic": null,
+          "PatternRandomWalk": {
+            "Value0": 45
+          },
+          "PatternPatrol": null
+        },
+        "MoveCounter": 45,
+        "PatrolIndex": 0
+      },
+      {
+        "Id": 3,
+        "Pos": {
+          "X": 4,
+          "Y": 4
+        },
+        "Pattern": {
+          "Kind": 0,
+          "PatternStatic": {},
+          "PatternRandomWalk": null,
+          "PatternPatrol": null
+        },
+        "MoveCounter": 0,
+        "PatrolIndex": 0
+      },
+      {
+        "Id": 4,
+        "Pos": {
+          "X": 1,
+          "Y": 1
+        },
+        "Pattern": {
+          "Kind": 2,
+          "PatternStatic": null,
+          "PatternRandomWalk": null,
+          "PatternPatrol": {
+            "Value0": [
+              {
+                "Kind": 2,
+                "North": null,
+                "South": null,
+                "East": {},
+                "West": null
+              },
+              {
+                "Kind": 2,
+                "North": null,
+                "South": null,
+                "East": {},
+                "West": null
+              },
+              {
+                "Kind": 1,
+                "North": null,
+                "South": {},
+                "East": null,
+                "West": null
+              },
+              {
+                "Kind": 1,
+                "North": null,
+                "South": {},
+                "East": null,
+                "West": null
+              },
+              {
+                "Kind": 3,
+                "North": null,
+                "South": null,
+                "East": null,
+                "West": {}
+              },
+              {
+                "Kind": 3,
+                "North": null,
+                "South": null,
+                "East": null,
+                "West": {}
+              },
+              {
+                "Kind": 0,
+                "North": {},
+                "South": null,
+                "East": null,
+                "West": null
+              },
+              {
+                "Kind": 0,
+                "North": {},
+                "South": null,
+                "East": null,
+                "West": null
+              }
+            ]
+          }
+        },
+        "MoveCounter": 0,
+        "PatrolIndex": 0
+      }
+    ],
+    "Selection": {
+      "Kind": 0,
+      "SelectionNone": {},
+      "SelectionTile": null
+    },
+    "Bridge": {
+      "PlayerPos": {
+        "X": 24,
+        "Y": 40
+      },
+      "PlayerFacing": {
+        "Kind": 0,
+        "North": {},
+        "South": null,
+        "East": null,
+        "West": null
+      },
+      "MoveState": {
+        "Kind": 0,
+        "MoveIdle": {},
+        "MoveWalking": null,
+        "MoveTransitioning": null
+      },
+      "CameraX": 24,
+      "CameraY": 40,
+      "CrewPositions": [
+        {
+          "Crew": {
+            "Id": 1,
+            "Name": "Pilot Chen"
+          },
+          "Station": {
+            "Kind": 0,
+            "StationHelm": {},
+            "StationComms": null,
+            "StationStatus": null,
+            "StationNav": null,
+            "StationScience": null,
+            "StationCaptain": null,
+            "StationNone": null
+          },
+          "Pos": {
+            "X": 24,
+            "Y": 1
+          },
+          "Facing": {
+            "Kind": 3,
+            "North": null,
+            "South": null,
+            "East": null,
+            "West": {}
+          },
+          "Activity": {
+            "Kind": 1,
+            "ActivityIdle": null,
+            "ActivityWorking": {},
+            "ActivityTalking": null
+          }
+        },
+        {
+          "Crew": {
+            "Id": 2,
+            "Name": "Comms Officer Patel"
+          },
+          "Station": {
+            "Kind": 1,
+            "StationHelm": null,
+            "StationComms": {},
+            "StationStatus": null,
+            "StationNav": null,
+            "StationScience": null,
+            "StationCaptain": null,
+            "StationNone": null
+          },
+          "Pos": {
+            "X": 16,
+            "Y": 2
+          },
+          "Facing": {
+            "Kind": 1,
+            "North": null,
+            "South": {},
+            "East": null,
+            "West": null
+          },
+          "Activity": {
+            "Kind": 1,
+            "ActivityIdle": null,
+            "ActivityWorking": {},
+            "ActivityTalking": null
+          }
+        },
+        {
+          "Crew": {
+            "Id": 3,
+            "Name": "Engineer Torres"
+          },
+          "Station": {
+            "Kind": 2,
+            "StationHelm": null,
+            "StationComms": null,
+            "StationStatus": {},
+            "StationNav": null,
+            "StationScience": null,
+            "StationCaptain": null,
+            "StationNone": null
+          },
+          "Pos": {
+            "X": 32,
+            "Y": 2
+          },
+          "Facing": {
+            "Kind": 2,
+            "North": null,
+            "South": null,
+            "East": {},
+            "West": null
+          },
+          "Activity": {
+            "Kind": 1,
+            "ActivityIdle": null,
+            "ActivityWorking": {},
+            "ActivityTalking": null
+          }
+        },
+        {
+          "Crew": {
+            "Id": 4,
+            "Name": "Navigator Kim"
+          },
+          "Station": {
+            "Kind": 3,
+            "StationHelm": null,
+            "StationComms": null,
+            "StationStatus": null,
+            "StationNav": {},
+            "StationScience": null,
+            "StationCaptain": null,
+            "StationNone": null
+          },
+          "Pos": {
+            "X": 13,
+            "Y": 3
+          },
+          "Facing": {
+            "Kind": 0,
+            "North": {},
+            "South": null,
+            "East": null,
+            "West": null
+          },
+          "Activity": {
+            "Kind": 1,
+            "ActivityIdle": null,
+            "ActivityWorking": {},
+            "ActivityTalking": null
+          }
+        },
+        {
+          "Crew": {
+            "Id": 5,
+            "Name": "Science Officer Okafor"
+          },
+          "Station": {
+            "Kind": 4,
+            "StationHelm": null,
+            "StationComms": null,
+            "StationStatus": null,
+            "StationNav": null,
+            "StationScience": {},
+            "StationCaptain": null,
+            "StationNone": null
+          },
+          "Pos": {
+            "X": 35,
+            "Y": 3
+          },
+          "Facing": {
+            "Kind": 3,
+            "North": null,
+            "South": null,
+            "East": null,
+            "West": {}
+          },
+          "Activity": {
+            "Kind": 1,
+            "ActivityIdle": null,
+            "ActivityWorking": {},
+            "ActivityTalking": null
+          }
+        },
+        {
+          "Crew": {
+            "Id": 6,
+            "Name": "Captain Reyes"
+          },
+          "Station": {
+            "Kind": 5,
+            "StationHelm": null,
+            "StationComms": null,
+            "StationStatus": null,
+            "StationNav": null,
+            "StationScience": null,
+            "StationCaptain": {},
+            "StationNone": null
+          },
+          "Pos": {
+            "X": 24,
+            "Y": 1
+          },
+          "Facing": {
+            "Kind": 1,
+            "North": null,
+            "South": {},
+            "East": null,
+            "West": null
+          },
+          "Activity": {
+            "Kind": 0,
+            "ActivityIdle": {},
+            "ActivityWorking": null,
+            "ActivityTalking": null
+          }
+        }
+      ],
+      "Consoles": [
+        {
+          "Station": {
+            "Kind": 0,
+            "StationHelm": {},
+            "StationComms": null,
+            "StationStatus": null,
+            "StationNav": null,
+            "StationScience": null,
+            "StationCaptain": null,
+            "StationNone": null
+          },
+          "Pos": {
+            "X": 24,
+            "Y": 14
+          },
+          "Active": true,
+          "HasAlert": false,
+          "SpriteId": 1100
+        },
+        {
+          "Station": {
+            "Kind": 1,
+            "StationHelm": null,
+            "StationComms": {},
+            "StationStatus": null,
+            "StationNav": null,
+            "StationScience": null,
+            "StationCaptain": null,
+            "StationNone": null
+          },
+          "Pos": {
+            "X": 16,
+            "Y": 16
+          },
+          "Active": true,
+          "HasAlert": false,
+          "SpriteId": 1101
+        },
+        {
+          "Station": {
+            "Kind": 2,
+            "StationHelm": null,
+            "StationComms": null,
+            "StationStatus": {},
+            "StationNav": null,
+            "StationScience": null,
+            "StationCaptain": null,
+            "StationNone": null
+          },
+          "Pos": {
+            "X": 32,
+            "Y": 16
+          },
+          "Active": true,
+          "HasAlert": false,
+          "SpriteId": 1102
+        },
+        {
+          "Station": {
+            "Kind": 5,
+            "StationHelm": null,
+            "StationComms": null,
+            "StationStatus": null,
+            "StationNav": null,
+            "StationScience": null,
+            "StationCaptain": {},
+            "StationNone": null
+          },
+          "Pos": {
+            "X": 24,
+            "Y": 24
+          },
+          "Active": true,
+          "HasAlert": false,
+          "SpriteId": 1105
+        },
+        {
+          "Station": {
+            "Kind": 3,
+            "StationHelm": null,
+            "StationComms": null,
+            "StationStatus": null,
+            "StationNav": {},
+            "StationScience": null,
+            "StationCaptain": null,
+            "StationNone": null
+          },
+          "Pos": {
+            "X": 12,
+            "Y": 24
+          },
+          "Active": true,
+          "HasAlert": false,
+          "SpriteId": 1103
+        },
+        {
+          "Station": {
+            "Kind": 4,
+            "StationHelm": null,
+            "StationComms": null,
+            "StationStatus": null,
+            "StationNav": null,
+            "StationScience": {},
+            "StationCaptain": null,
+            "StationNone": null
+          },
+          "Pos": {
+            "X": 36,
+            "Y": 24
+          },
+          "Active": true,
+          "HasAlert": false,
+          "SpriteId": 1104
+        }
+      ],
+      "HoveredInteractable": {
+        "Kind": 1,
+        "Some": null,
+        "None": {}
+      },
+      "SelectedInteractable": {
+        "Kind": 1,
+        "Some": null,
+        "None": {}
+      },
+      "DomeView": {
+        "TargetPlanetId": 4,
+        "ShipVelocity": 0.15,
+        "ViewAngle": 0
+      },
+      "DomeState": {
+        "CruiseTime": 16.350000000000353,
+        "CruiseDuration": 60,
+        "CruiseVelocity": 0.15,
+        "CameraZ": -20.079350468751155,
+        "TargetPlanet": 4
+      },
+      "Tick": 981,
+      "DiscRadius": 24,
+      "DiscCenterX": 24,
+      "DiscCenterY": 24
+    },
+    "ViewMode": {
+      "Kind": 0,
+      "ViewBridge": {},
+      "ViewPlanet": null,
+      "ViewGalaxyMap": null
+    },
+    "StarCatalog": {
+      "Stars": [
+        {
+          "Id": 0,
+          "Name": "Sol",
+          "Pos": {
+            "X": 0,
+            "Y": 0,
+            "Z": 0
+          },
+          "Spectral": {
+            "Kind": 4,
+            "O": null,
+            "B": null,
+            "A": null,
+            "F": null,
+            "G": {},
+            "K": null,
+            "M": null
+          },
+          "Luminosity": 1,
+          "HasHZPlanet": true
+        },
+        {
+          "Id": 1,
+          "Name": "Proxima Centauri",
+          "Pos": {
+            "X": -1.55,
+            "Y": -1.32,
+            "Z": -3.77
+          },
+          "Spectral": {
+            "Kind": 6,
+            "O": null,
+            "B": null,
+            "A": null,
+            "F": null,
+            "G": null,
+            "K": null,
+            "M": {}
+          },
+          "Luminosity": 0.04,
+          "HasHZPlanet": true
+        },
+        {
+          "Id": 2,
+          "Name": "Alpha Centauri A",
+          "Pos": {
+            "X": -1.64,
+            "Y": -1.36,
+            "Z": -3.84
+          },
+          "Spectral": {
+            "Kind": 4,
+            "O": null,
+            "B": null,
+            "A": null,
+            "F": null,
+            "G": {},
+            "K": null,
+            "M": null
+          },
+          "Luminosity": 1,
+          "HasHZPlanet": true
+        },
+        {
+          "Id": 3,
+          "Name": "Alpha Centauri B",
+          "Pos": {
+            "X": -1.64,
+            "Y": -1.36,
+            "Z": -3.84
+          },
+          "Spectral": {
+            "Kind": 5,
+            "O": null,
+            "B": null,
+            "A": null,
+            "F": null,
+            "G": null,
+            "K": {},
+            "M": null
+          },
+          "Luminosity": 0.4,
+          "HasHZPlanet": true
+        },
+        {
+          "Id": 4,
+          "Name": "Barnard's Star",
+          "Pos": {
+            "X": -0.06,
+            "Y": 5.94,
+            "Z": 0.49
+          },
+          "Spectral": {
+            "Kind": 6,
+            "O": null,
+            "B": null,
+            "A": null,
+            "F": null,
+            "G": null,
+            "K": null,
+            "M": {}
+          },
+          "Luminosity": 0.04,
+          "HasHZPlanet": false
+        },
+        {
+          "Id": 5,
+          "Name": "Wolf 359",
+          "Pos": {
+            "X": -7.43,
+            "Y": 2.11,
+            "Z": -0.66
+          },
+          "Spectral": {
+            "Kind": 6,
+            "O": null,
+            "B": null,
+            "A": null,
+            "F": null,
+            "G": null,
+            "K": null,
+            "M": {}
+          },
+          "Luminosity": 0.04,
+          "HasHZPlanet": false
+        },
+        {
+          "Id": 6,
+          "Name": "Lalande 21185",
+          "Pos": {
+            "X": -6.52,
+            "Y": -1.9,
+            "Z": 4.88
+          },
+          "Spectral": {
+            "Kind": 6,
+            "O": null,
+            "B": null,
+            "A": null,
+            "F": null,
+            "G": null,
+            "K": null,
+            "M": {}
+          },
+          "Luminosity": 0.04,
+          "HasHZPlanet": true
+        },
+        {
+          "Id": 7,
+          "Name": "Sirius A",
+          "Pos": {
+            "X": -1.61,
+            "Y": 8.06,
+            "Z": -2.47
+          },
+          "Spectral": {
+            "Kind": 2,
+            "O": null,
+            "B": null,
+            "A": {},
+            "F": null,
+            "G": null,
+            "K": null,
+            "M": null
+          },
+          "Luminosity": 20,
+          "HasHZPlanet": false
+        },
+        {
+          "Id": 8,
+          "Name": "Sirius B",
+          "Pos": {
+            "X": -1.61,
+            "Y": 8.06,
+            "Z": -2.47
+          },
+          "Spectral": {
+            "Kind": 2,
+            "O": null,
+            "B": null,
+            "A": {},
+            "F": null,
+            "G": null,
+            "K": null,
+            "M": null
+          },
+          "Luminosity": 20,
+          "HasHZPlanet": false
+        },
+        {
+          "Id": 9,
+          "Name": "Luyten 726-8 A",
+          "Pos": {
+            "X": 8.56,
+            "Y": -0.8,
+            "Z": 1.28
+          },
+          "Spectral": {
+            "Kind": 6,
+            "O": null,
+            "B": null,
+            "A": null,
+            "F": null,
+            "G": null,
+            "K": null,
+            "M": {}
+          },
+          "Luminosity": 0.04,
+          "HasHZPlanet": false
+        },
+        {
+          "Id": 10,
+          "Name": "Ross 154",
+          "Pos": {
+            "X": 1.91,
+            "Y": -8.87,
+            "Z": -3.32
+          },
+          "Spectral": {
+            "Kind": 6,
+            "O": null,
+            "B": null,
+            "A": null,
+            "F": null,
+            "G": null,
+            "K": null,
+            "M": {}
+          },
+          "Luminosity": 0.04,
+          "HasHZPlanet": false
+        },
+        {
+          "Id": 11,
+          "Name": "Ross 248",
+          "Pos": {
+            "X": 7.38,
+            "Y": -0.59,
+            "Z": 7.19
+          },
+          "Spectral": {
+            "Kind": 6,
+            "O": null,
+            "B": null,
+            "A": null,
+            "F": null,
+            "G": null,
+            "K": null,
+            "M": {}
+          },
+          "Luminosity": 0.04,
+          "HasHZPlanet": false
+        },
+        {
+          "Id": 12,
+          "Name": "Epsilon Eridani",
+          "Pos": {
+            "X": -6.22,
+            "Y": 8.31,
+            "Z": -1.73
+          },
+          "Spectral": {
+            "Kind": 5,
+            "O": null,
+            "B": null,
+            "A": null,
+            "F": null,
+            "G": null,
+            "K": {},
+            "M": null
+          },
+          "Luminosity": 0.4,
+          "HasHZPlanet": true
+        },
+        {
+          "Id": 13,
+          "Name": "Lacaille 9352",
+          "Pos": {
+            "X": -8.46,
+            "Y": -2,
+            "Z": -6.3
+          },
+          "Spectral": {
+            "Kind": 6,
+            "O": null,
+            "B": null,
+            "A": null,
+            "F": null,
+            "G": null,
+            "K": null,
+            "M": {}
+          },
+          "Luminosity": 0.04,
+          "HasHZPlanet": false
+        },
+        {
+          "Id": 14,
+          "Name": "Ross 128",
+          "Pos": {
+            "X": -10.9,
+            "Y": 0.58,
+            "Z": -1.35
+          },
+          "Spectral": {
+            "Kind": 6,
+            "O": null,
+            "B": null,
+            "A": null,
+            "F": null,
+            "G": null,
+            "K": null,
+            "M": {}
+          },
+          "Luminosity": 0.04,
+          "HasHZPlanet": true
+        },
+        {
+          "Id": 15,
+          "Name": "EZ Aquarii A",
+          "Pos": {
+            "X": 10.19,
+            "Y": 3.79,
+            "Z": -2.97
+          },
+          "Spectral": {
+            "Kind": 6,
+            "O": null,
+            "B": null,
+            "A": null,
+            "F": null,
+            "G": null,
+            "K": null,
+            "M": {}
+          },
+          "Luminosity": 0.04,
+          "HasHZPlanet": false
+        },
+        {
+          "Id": 16,
+          "Name": "Procyon A",
+          "Pos": {
+            "X": -4.77,
+            "Y": 10.31,
+            "Z": -0.39
+          },
+          "Spectral": {
+            "Kind": 3,
+            "O": null,
+            "B": null,
+            "A": null,
+            "F": {},
+            "G": null,
+            "K": null,
+            "M": null
+          },
+          "Luminosity": 3,
+          "HasHZPlanet": false
+        },
+        {
+          "Id": 17,
+          "Name": "61 Cygni A",
+          "Pos": {
+            "X": 6.4,
+            "Y": -6.06,
+            "Z": 7.14
+          },
+          "Spectral": {
+            "Kind": 5,
+            "O": null,
+            "B": null,
+            "A": null,
+            "F": null,
+            "G": null,
+            "K": {},
+            "M": null
+          },
+          "Luminosity": 0.4,
+          "HasHZPlanet": false
+        },
+        {
+          "Id": 18,
+          "Name": "61 Cygni B",
+          "Pos": {
+            "X": 6.4,
+            "Y": -6.06,
+            "Z": 7.14
+          },
+          "Spectral": {
+            "Kind": 5,
+            "O": null,
+            "B": null,
+            "A": null,
+            "F": null,
+            "G": null,
+            "K": {},
+            "M": null
+          },
+          "Luminosity": 0.4,
+          "HasHZPlanet": false
+        },
+        {
+          "Id": 19,
+          "Name": "Struve 2398 A",
+          "Pos": {
+            "X": 7.02,
+            "Y": -7.59,
+            "Z": 4.73
+          },
+          "Spectral": {
+            "Kind": 6,
+            "O": null,
+            "B": null,
+            "A": null,
+            "F": null,
+            "G": null,
+            "K": null,
+            "M": {}
+          },
+          "Luminosity": 0.04,
+          "HasHZPlanet": false
+        },
+        {
+          "Id": 20,
+          "Name": "Groombridge 34 A",
+          "Pos": {
+            "X": 0.05,
+            "Y": 4.18,
+            "Z": -10.84
+          },
+          "Spectral": {
+            "Kind": 6,
+            "O": null,
+            "B": null,
+            "A": null,
+            "F": null,
+            "G": null,
+            "K": null,
+            "M": {}
+          },
+          "Luminosity": 0.04,
+          "HasHZPlanet": false
+        }
+      ],
+      "SolIndex": 0
+    },
+    "CurrentSystem": {
+      "Id": 0,
+      "Name": "Sol",
+      "StarType": {
+        "Kind": 0,
+        "MainSequence": {
+          "Value0": {
+            "Kind": 4,
+            "O": null,
+            "B": null,
+            "A": null,
+            "F": null,
+            "G": {},
+            "K": null,
+            "M": null
+          }
+        },
+        "Giant": null,
+        "WhiteDwarf": null,
+        "NeutronStar": null,
+        "BlackHole": null
+      },
+      "Position": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Planets": [
+        {
+          "Id": 0,
+          "Name": "Mercury",
+          "PlanetType": {
+            "Kind": 0,
+            "Rocky": {},
+            "GasGiant": null,
+            "IceGiant": null,
+            "Terrestrial": null,
+            "Ocean": null,
+            "Volcanic": null,
+            "Dwarf": null
+          },
+          "OrbitDistance": 0.39,
+          "Radius": 0.38,
+          "OrbitalPeriod": 0.24,
+          "CurrentAngle": 0.5497787143783741,
+          "HasRings": false,
+          "RingColor": {
+            "Kind": 1,
+            "Some": null,
+            "None": {}
+          },
+          "AtmosphereColor": {
+            "Kind": 1,
+            "Some": null,
+            "None": {}
+          }
+        },
+        {
+          "Id": 1,
+          "Name": "Venus",
+          "PlanetType": {
+            "Kind": 0,
+            "Rocky": {},
+            "GasGiant": null,
+            "IceGiant": null,
+            "Terrestrial": null,
+            "Ocean": null,
+            "Volcanic": null,
+            "Dwarf": null
+          },
+          "OrbitDistance": 0.72,
+          "Radius": 0.95,
+          "OrbitalPeriod": 0.62,
+          "CurrentAngle": 4.858435315954689,
+          "HasRings": false,
+          "RingColor": {
+            "Kind": 1,
+            "Some": null,
+            "None": {}
+          },
+          "AtmosphereColor": {
+            "Kind": 0,
+            "Some": {
+              "Value0": {
+                "R": 255,
+                "G": 200,
+                "B": 100,
+                "A": 150
+              }
+            },
+            "None": null
+          }
+        },
+        {
+          "Id": 2,
+          "Name": "Earth",
+          "PlanetType": {
+            "Kind": 3,
+            "Rocky": null,
+            "GasGiant": null,
+            "IceGiant": null,
+            "Terrestrial": {},
+            "Ocean": null,
+            "Volcanic": null,
+            "Dwarf": null
+          },
+          "OrbitDistance": 1,
+          "Radius": 1,
+          "OrbitalPeriod": 1,
+          "CurrentAngle": 1.9806194791636451,
+          "HasRings": false,
+          "RingColor": {
+            "Kind": 1,
+            "Some": null,
+            "None": {}
+          },
+          "AtmosphereColor": {
+            "Kind": 0,
+            "Some": {
+              "Value0": {
+                "R": 100,
+                "G": 150,
+                "B": 255,
+                "A": 100
+              }
+            },
+            "None": null
+          }
+        },
+        {
+          "Id": 3,
+          "Name": "Mars",
+          "PlanetType": {
+            "Kind": 0,
+            "Rocky": {},
+            "GasGiant": null,
+            "IceGiant": null,
+            "Terrestrial": null,
+            "Ocean": null,
+            "Volcanic": null,
+            "Dwarf": null
+          },
+          "OrbitDistance": 1.52,
+          "Radius": 0.53,
+          "OrbitalPeriod": 1.88,
+          "CurrentAngle": 0.49543426002405483,
+          "HasRings": false,
+          "RingColor": {
+            "Kind": 1,
+            "Some": null,
+            "None": {}
+          },
+          "AtmosphereColor": {
+            "Kind": 0,
+            "Some": {
+              "Value0": {
+                "R": 200,
+                "G": 150,
+                "B": 100,
+                "A": 50
+              }
+            },
+            "None": null
+          }
+        },
+        {
+          "Id": 4,
+          "Name": "Jupiter",
+          "PlanetType": {
+            "Kind": 1,
+            "Rocky": null,
+            "GasGiant": {},
+            "IceGiant": null,
+            "Terrestrial": null,
+            "Ocean": null,
+            "Volcanic": null,
+            "Dwarf": null
+          },
+          "OrbitDistance": 5.2,
+          "Radius": 11.2,
+          "OrbitalPeriod": 11.86,
+          "CurrentAngle": 1.319713725661357,
+          "HasRings": false,
+          "RingColor": {
+            "Kind": 1,
+            "Some": null,
+            "None": {}
+          },
+          "AtmosphereColor": {
+            "Kind": 1,
+            "Some": null,
+            "None": {}
+          }
+        },
+        {
+          "Id": 5,
+          "Name": "Saturn",
+          "PlanetType": {
+            "Kind": 1,
+            "Rocky": null,
+            "GasGiant": {},
+            "IceGiant": null,
+            "Terrestrial": null,
+            "Ocean": null,
+            "Volcanic": null,
+            "Dwarf": null
+          },
+          "OrbitDistance": 9.5,
+          "Radius": 9.4,
+          "OrbitalPeriod": 29.46,
+          "CurrentAngle": 4.409226231715404,
+          "HasRings": true,
+          "RingColor": {
+            "Kind": 0,
+            "Some": {
+              "Value0": {
+                "R": 210,
+                "G": 190,
+                "B": 150,
+                "A": 200
+              }
+            },
+            "None": null
+          },
+          "AtmosphereColor": {
+            "Kind": 1,
+            "Some": null,
+            "None": {}
+          }
+        },
+        {
+          "Id": 6,
+          "Name": "Uranus",
+          "PlanetType": {
+            "Kind": 2,
+            "Rocky": null,
+            "GasGiant": null,
+            "IceGiant": {},
+            "Terrestrial": null,
+            "Ocean": null,
+            "Volcanic": null,
+            "Dwarf": null
+          },
+          "OrbitDistance": 19.2,
+          "Radius": 4,
+          "OrbitalPeriod": 84.01,
+          "CurrentAngle": 5.173369893897814,
+          "HasRings": true,
+          "RingColor": {
+            "Kind": 0,
+            "Some": {
+              "Value0": {
+                "R": 150,
+                "G": 180,
+                "B": 200,
+                "A": 100
+              }
+            },
+            "None": null
+          },
+          "AtmosphereColor": {
+            "Kind": 1,
+            "Some": null,
+            "None": {}
+          }
+        },
+        {
+          "Id": 7,
+          "Name": "Neptune",
+          "PlanetType": {
+            "Kind": 2,
+            "Rocky": null,
+            "GasGiant": null,
+            "IceGiant": {},
+            "Terrestrial": null,
+            "Ocean": null,
+            "Volcanic": null,
+            "Dwarf": null
+          },
+          "OrbitDistance": 30.1,
+          "Radius": 3.9,
+          "OrbitalPeriod": 164.8,
+          "CurrentAngle": 1.9374017280725762,
+          "HasRings": false,
+          "RingColor": {
+            "Kind": 1,
+            "Some": null,
+            "None": {}
+          },
+          "AtmosphereColor": {
+            "Kind": 1,
+            "Some": null,
+            "None": {}
+          }
+        }
+      ]
+    }
+  }
+}
