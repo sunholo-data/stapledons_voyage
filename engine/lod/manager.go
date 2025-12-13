@@ -15,8 +15,14 @@ type Manager struct {
 	tierCircle    []*Object
 	tierPoint     []*Object
 
+	// Objects currently transitioning (rendered in both tiers with blend)
+	transitioning []*Object
+
 	// Statistics
 	stats Stats
+
+	// Delta time for transition updates
+	lastDT float64
 }
 
 // NewManager creates a new LOD manager with the given configuration.
@@ -28,6 +34,7 @@ func NewManager(config Config) *Manager {
 		tierBillboard: make([]*Object, 0, 50),
 		tierCircle:    make([]*Object, 0, 500),
 		tierPoint:     make([]*Object, 0, 1000),
+		transitioning: make([]*Object, 0, 20),
 	}
 }
 
@@ -61,6 +68,12 @@ func (m *Manager) ObjectCount() int {
 // Update recalculates distances and assigns LOD tiers for all objects.
 // This should be called once per frame before rendering.
 func (m *Manager) Update(camera Camera) {
+	m.UpdateWithDT(camera, 1.0/60.0) // Default 60 FPS
+}
+
+// UpdateWithDT updates with explicit delta time for smooth transitions.
+func (m *Manager) UpdateWithDT(camera Camera, dt float64) {
+	m.lastDT = dt
 	cameraPos := camera.Position()
 	fovScale := camera.FOVScale()
 	screenW := camera.ScreenWidth()
@@ -71,6 +84,7 @@ func (m *Manager) Update(camera Camera) {
 	m.tierBillboard = m.tierBillboard[:0]
 	m.tierCircle = m.tierCircle[:0]
 	m.tierPoint = m.tierPoint[:0]
+	m.transitioning = m.transitioning[:0]
 	m.stats.Reset()
 	m.stats.TotalObjects = len(m.objects)
 
@@ -84,7 +98,7 @@ func (m *Manager) Update(camera Camera) {
 		obj.ScreenY = screenY
 		obj.Visible = visible
 
-		// Calculate apparent radius (screen-space size)
+		// Calculate apparent radius (screen-space size in pixels)
 		if obj.Distance > 0 {
 			obj.ApparentRadius = (obj.Radius / obj.Distance) * fovScale
 		} else {
@@ -98,12 +112,39 @@ func (m *Manager) Update(camera Camera) {
 			obj.Visible = false
 		}
 
-		// Assign tier based on distance
-		obj.CurrentTier = m.calcTier(obj.Distance)
+		// Calculate target tier with hysteresis
+		targetTier := m.calcTierWithHysteresis(obj)
+
+		// Handle tier transitions
+		if targetTier != obj.CurrentTier {
+			// Start new transition
+			if obj.TransitionProgress >= 1.0 {
+				obj.PreviousTier = obj.CurrentTier
+				obj.TargetTier = targetTier
+				obj.TransitionProgress = 0.0
+			}
+		}
+
+		// Update transition progress
+		if obj.TransitionProgress < 1.0 {
+			if m.config.TransitionTime > 0 {
+				obj.TransitionProgress += dt / m.config.TransitionTime
+			} else {
+				obj.TransitionProgress = 1.0 // Instant transition
+			}
+			if obj.TransitionProgress >= 1.0 {
+				obj.TransitionProgress = 1.0
+				obj.CurrentTier = obj.TargetTier
+			}
+		}
 	}
 
-	// Sort objects by distance for 3D priority
+	// Sort objects by distance (closest first) and importance
 	sort.Slice(m.objects, func(i, j int) bool {
+		// Higher importance always wins
+		if m.objects[i].Importance != m.objects[j].Importance {
+			return m.objects[i].Importance > m.objects[j].Importance
+		}
 		return m.objects[i].Distance < m.objects[j].Distance
 	})
 
@@ -117,16 +158,28 @@ func (m *Manager) Update(camera Camera) {
 
 		m.stats.VisibleCount++
 
-		switch obj.CurrentTier {
+		// Track transitioning objects separately
+		if obj.IsTransitioning() {
+			m.transitioning = append(m.transitioning, obj)
+		}
+
+		// Use target tier for bucket assignment during transition
+		tier := obj.CurrentTier
+		if obj.IsTransitioning() {
+			tier = obj.TargetTier
+		}
+
+		switch tier {
 		case TierFull3D:
 			// Limit 3D objects to Max3DObjects
-			if num3D < m.config.Max3DObjects {
+			if num3D < m.config.Max3DObjects || obj.Importance > 0 {
 				m.tier3D = append(m.tier3D, obj)
 				m.stats.Full3DCount++
 				num3D++
 			} else {
 				// Demote to billboard if 3D pool is full
 				obj.CurrentTier = TierBillboard
+				obj.TargetTier = TierBillboard
 				m.tierBillboard = append(m.tierBillboard, obj)
 				m.stats.BillboardCount++
 			}
@@ -145,7 +198,76 @@ func (m *Manager) Update(camera Camera) {
 	}
 }
 
-// calcTier determines the LOD tier based on distance.
+// calcTierWithHysteresis determines the LOD tier with hysteresis to prevent flickering.
+// Uses apparent size (pixels) when UseApparentSize is true, otherwise uses distance.
+func (m *Manager) calcTierWithHysteresis(obj *Object) LODTier {
+	apparentSize := obj.ApparentRadius
+	currentTier := obj.CurrentTier
+	hysteresis := m.config.Hysteresis
+
+	if m.config.UseApparentSize {
+		// Apparent size based (larger = more detail)
+		// Upgrading (to higher detail): use normal threshold
+		// Downgrading (to lower detail): use threshold * (1 - hysteresis)
+		return m.calcTierByApparentSize(apparentSize, currentTier, hysteresis)
+	}
+
+	// Legacy distance based (smaller = more detail)
+	return m.calcTierByDistance(obj.Distance, currentTier, hysteresis)
+}
+
+// calcTierByApparentSize determines tier based on screen pixel size.
+func (m *Manager) calcTierByApparentSize(pixels float64, currentTier LODTier, hysteresis float64) LODTier {
+	// Thresholds for upgrading to a tier
+	full3D := m.config.Full3DPixels
+	billboard := m.config.BillboardPixels
+	circle := m.config.CirclePixels
+	point := m.config.PointPixels
+
+	// Apply hysteresis: harder to downgrade (need to be smaller)
+	// Upgrading: pixels > threshold
+	// Downgrading: pixels < threshold * (1 - hysteresis)
+	downgradeMultiplier := 1.0 - hysteresis
+
+	// Check from highest to lowest detail
+	if pixels >= full3D || (currentTier == TierFull3D && pixels >= full3D*downgradeMultiplier) {
+		return TierFull3D
+	}
+	if pixels >= billboard || (currentTier == TierBillboard && pixels >= billboard*downgradeMultiplier) {
+		return TierBillboard
+	}
+	if pixels >= circle || (currentTier == TierCircle && pixels >= circle*downgradeMultiplier) {
+		return TierCircle
+	}
+	if pixels >= point || (currentTier == TierPoint && pixels >= point*downgradeMultiplier) {
+		return TierPoint
+	}
+	return TierCulled
+}
+
+// calcTierByDistance determines tier based on distance (legacy mode).
+func (m *Manager) calcTierByDistance(distance float64, currentTier LODTier, hysteresis float64) LODTier {
+	// For distance: smaller = closer = more detail
+	// Upgrading: distance < threshold
+	// Downgrading: distance > threshold * (1 + hysteresis)
+	upgradeMultiplier := 1.0 + hysteresis
+
+	if distance < m.config.Full3DDistance || (currentTier == TierFull3D && distance < m.config.Full3DDistance*upgradeMultiplier) {
+		return TierFull3D
+	}
+	if distance < m.config.BillboardDistance || (currentTier == TierBillboard && distance < m.config.BillboardDistance*upgradeMultiplier) {
+		return TierBillboard
+	}
+	if distance < m.config.CircleDistance || (currentTier == TierCircle && distance < m.config.CircleDistance*upgradeMultiplier) {
+		return TierCircle
+	}
+	if distance < m.config.PointDistance || (currentTier == TierPoint && distance < m.config.PointDistance*upgradeMultiplier) {
+		return TierPoint
+	}
+	return TierCulled
+}
+
+// calcTier determines the LOD tier based on distance (no hysteresis, for testing).
 func (m *Manager) calcTier(distance float64) LODTier {
 	switch {
 	case distance < m.config.Full3DDistance:
@@ -179,6 +301,12 @@ func (m *Manager) GetTierCircle() []*Object {
 // GetTierPoint returns objects that should be rendered as points.
 func (m *Manager) GetTierPoint() []*Object {
 	return m.tierPoint
+}
+
+// GetTransitioning returns objects currently transitioning between tiers.
+// These objects should be rendered in both their old and new tier with blending.
+func (m *Manager) GetTransitioning() []*Object {
+	return m.transitioning
 }
 
 // Stats returns the current LOD statistics.

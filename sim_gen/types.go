@@ -811,6 +811,12 @@ type Strut struct {
 	Color    int64
 }
 
+// IsoMove is a record type
+type IsoMove struct {
+	Dx int64
+	Dy int64
+}
+
 // OptionKind discriminates between variants of Option
 type OptionKind int
 
@@ -2672,6 +2678,17 @@ type Star struct {
 type StarCatalog struct {
 	Stars    []*Star
 	SolIndex int64
+}
+
+// IsoWalkState is a record type
+type IsoWalkState struct {
+	PlayerX    int64
+	PlayerY    int64
+	GridWidth  int64
+	GridHeight int64
+	Tick       int64
+	CamX       float64
+	CamY       float64
 }
 
 // DeckTypeKind discriminates between variants of DeckType

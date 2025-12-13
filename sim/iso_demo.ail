@@ -1,0 +1,320 @@
+module sim/iso_demo
+
+-- =============================================================================
+-- Enhanced Isometric Walk Demo with Parallax
+-- Features: 16x16 grid, parallax depth layers, view culling, camera follow
+-- =============================================================================
+
+import sim/protocol (Coord, DrawCmd, IsoTile, IsoEntity, Marker, FrameInput, KeyEvent, Camera)
+import std/option (Option, Some, None)
+import std/list (concat)
+
+-- =============================================================================
+-- Types
+-- =============================================================================
+
+-- Enhanced state with camera tracking
+export type IsoWalkState = {
+    playerX: int,
+    playerY: int,
+    gridWidth: int,
+    gridHeight: int,
+    tick: int,
+    -- Camera follows player smoothly
+    camX: float,
+    camY: float
+}
+
+-- Isometric movement delta (screen-aligned)
+type IsoMove = { dx: int, dy: int }
+
+-- =============================================================================
+-- Constants
+-- =============================================================================
+
+-- Sprite IDs (matching manifest.json)
+pure func demoSpriteWater() -> int { 1 }
+pure func demoSpriteForest() -> int { 2 }
+pure func demoSpriteDesert() -> int { 3 }
+pure func demoSpriteMountain() -> int { 4 }
+pure func demoSpritePlayer() -> int { 105 }
+
+-- NPC sprites (generated colored NPCs)
+pure func demoSpriteNpcRed() -> int { 100 }
+pure func demoSpriteNpcGreen() -> int { 101 }
+pure func demoSpriteNpcBlue() -> int { 102 }
+pure func demoSpriteNpcYellow() -> int { 103 }
+pure func demoSpriteNpcPurple() -> int { 104 }
+
+-- Layer constants for sorting
+pure func demoLayerFloor() -> int { 0 }
+pure func demoLayerPlayer() -> int { 1 }
+
+-- Parallax layer indices (from engine/depth/layer.go)
+-- Layer6 = 0.3x parallax (mid-distance)
+-- Layer8 = 0.5x parallax
+-- Layer10 = 0.7x parallax
+-- Layer16 = 1.0x (main scene, no parallax)
+pure func demoParallaxFar() -> int { 6 }      -- 0.3x - furthest background
+pure func demoParallaxMid() -> int { 8 }      -- 0.5x - middle background
+pure func demoParallaxNear() -> int { 10 }    -- 0.7x - near background
+pure func demoParallaxMain() -> int { 16 }    -- 1.0x - main scene
+
+-- Key codes (Ebiten internal values)
+pure func demoKeyW() -> int { 22 }
+pure func demoKeyA() -> int { 0 }
+pure func demoKeyS() -> int { 18 }
+pure func demoKeyD() -> int { 3 }
+pure func demoKeyUp() -> int { 31 }
+pure func demoKeyDown() -> int { 28 }
+pure func demoKeyLeft() -> int { 29 }
+pure func demoKeyRight() -> int { 30 }
+
+-- Tile dimensions for isometric conversion
+pure func demoTileW() -> float { 64.0 }
+pure func demoTileH() -> float { 32.0 }
+
+-- =============================================================================
+-- Isometric Movement (Screen-Aligned)
+-- =============================================================================
+
+-- Screen directions map to diagonal world movement:
+-- Screen UP    = world NW (-1, -1)
+-- Screen DOWN  = world SE (+1, +1)
+-- Screen LEFT  = world SW (-1, +1)
+-- Screen RIGHT = world NE (+1, -1)
+
+pure func demoIsoMoveUp() -> IsoMove { { dx: 0 - 1, dy: 0 - 1 } }
+pure func demoIsoMoveDown() -> IsoMove { { dx: 1, dy: 1 } }
+pure func demoIsoMoveLeft() -> IsoMove { { dx: 0 - 1, dy: 1 } }
+pure func demoIsoMoveRight() -> IsoMove { { dx: 1, dy: 0 - 1 } }
+
+-- Check if key is pressed (search key list recursively)
+pure func demoHasKeyRec(keyCode: int, keys: [KeyEvent]) -> bool {
+    match keys {
+        [] => false,
+        k :: rest => if k.key == keyCode && k.kind == "pressed" then true else demoHasKeyRec(keyCode, rest)
+    }
+}
+
+pure func demoHasKey(keyCode: int, input: FrameInput) -> bool {
+    demoHasKeyRec(keyCode, input.keys)
+}
+
+-- Get isometric movement from input
+pure func demoGetIsoMovement(input: FrameInput) -> Option[IsoMove] {
+    if demoHasKey(demoKeyW(), input) || demoHasKey(demoKeyUp(), input) then Some(demoIsoMoveUp())
+    else if demoHasKey(demoKeyS(), input) || demoHasKey(demoKeyDown(), input) then Some(demoIsoMoveDown())
+    else if demoHasKey(demoKeyA(), input) || demoHasKey(demoKeyLeft(), input) then Some(demoIsoMoveLeft())
+    else if demoHasKey(demoKeyD(), input) || demoHasKey(demoKeyRight(), input) then Some(demoIsoMoveRight())
+    else None
+}
+
+-- =============================================================================
+-- Isometric Coordinate Conversion
+-- =============================================================================
+
+-- Convert tile coords to world coords (screen-space before camera transform)
+pure func demoTileToWorldX(tileX: int, tileY: int) -> float {
+    intToFloat(tileX - tileY) * (demoTileW() / 2.0)
+}
+
+pure func demoTileToWorldY(tileX: int, tileY: int) -> float {
+    intToFloat(tileX + tileY) * (demoTileH() / 2.0)
+}
+
+-- =============================================================================
+-- State Management
+-- =============================================================================
+
+-- Initialize demo state (player at center of 16x16 grid)
+export pure func initIsoDemo() -> IsoWalkState {
+    let startX = 8;
+    let startY = 8;
+    let worldX = demoTileToWorldX(startX, startY);
+    let worldY = demoTileToWorldY(startX, startY);
+    {
+        playerX: startX,
+        playerY: startY,
+        gridWidth: 16,
+        gridHeight: 16,
+        tick: 0,
+        camX: worldX,
+        camY: worldY
+    }
+}
+
+-- Check bounds
+pure func inBounds(x: int, y: int, w: int, h: int) -> bool {
+    x >= 0 && x < w && y >= 0 && y < h
+}
+
+-- Try to move player
+pure func tryMove(state: IsoWalkState, move: IsoMove) -> IsoWalkState {
+    let newX = state.playerX + move.dx;
+    let newY = state.playerY + move.dy;
+    if inBounds(newX, newY, state.gridWidth, state.gridHeight) then
+        { state | playerX: newX, playerY: newY }
+    else
+        state
+}
+
+-- Smooth camera follow (simple lerp toward player)
+pure func demoUpdateCamera(state: IsoWalkState) -> IsoWalkState {
+    let targetX = demoTileToWorldX(state.playerX, state.playerY);
+    let targetY = demoTileToWorldY(state.playerX, state.playerY);
+    -- Smooth camera follow (lerp factor 0.15)
+    let lerpFactor = 0.15;
+    let newCamX = state.camX + (targetX - state.camX) * lerpFactor;
+    let newCamY = state.camY + (targetY - state.camY) * lerpFactor;
+    { state | camX: newCamX, camY: newCamY }
+}
+
+-- Step the demo (process input)
+export pure func stepIsoDemo(state: IsoWalkState, input: FrameInput) -> IsoWalkState {
+    let afterMove = match demoGetIsoMovement(input) {
+        Some(move) => tryMove(state, move),
+        None => state
+    };
+    let afterCamera = demoUpdateCamera(afterMove);
+    { afterCamera | tick: afterCamera.tick + 1 }
+}
+
+-- =============================================================================
+-- Rendering Helpers
+-- =============================================================================
+
+-- Helper: create Coord
+pure func demoMakeCoord(x: int, y: int) -> Coord {
+    { x: x, y: y }
+}
+
+-- RGBA color packing (0xRRGGBBAA)
+pure func demoRgba(r: int, g: int, b: int, a: int) -> int {
+    r * 16777216 + g * 65536 + b * 256 + a
+}
+
+-- =============================================================================
+-- Parallax Background Grids (using Marker DrawCmd)
+-- =============================================================================
+
+-- Create a marker for parallax grid visualization
+-- x, y in world coords, mapped to screen by parallax layer
+pure func demoMakeMarker(x: float, y: float, w: float, h: float, rgba: int, layer: int) -> DrawCmd {
+    Marker(x, y, w, h, rgba, layer, layer)
+}
+
+-- Render a parallax grid layer using simple rectangular coordinates
+-- The markers are centered around (0, gridCenterY) in world space
+pure func demoRenderParallaxGridRec(x: int, y: int, maxX: int, maxY: int, spacing: int, rgba: int, layer: int, scale: float, acc: [DrawCmd]) -> [DrawCmd] {
+    if y >= maxY then acc
+    else if x >= maxX then demoRenderParallaxGridRec(0 - maxX, y + spacing, maxX, maxY, spacing, rgba, layer, scale, acc)
+    else {
+        -- Simple rectangular grid centered around the play area
+        -- scale determines marker size and spacing feel
+        let worldX = intToFloat(x) * scale;
+        let worldY = intToFloat(y) * scale + 256.0;  -- Center vertically on grid
+        let markerW = scale * 0.7;
+        let markerH = scale * 0.35;
+        let marker = demoMakeMarker(worldX, worldY, markerW, markerH, rgba, layer);
+        demoRenderParallaxGridRec(x + spacing, y, maxX, maxY, spacing, rgba, layer, scale, marker :: acc)
+    }
+}
+
+-- Far background grid (0.3x parallax, large sparse grid, dark)
+pure func demoRenderFarGrid() -> [DrawCmd] {
+    let rgba = demoRgba(40, 50, 70, 180);  -- Dark blue-gray
+    -- Large scale, sparse, extends far beyond main grid
+    demoRenderParallaxGridRec(0 - 40, 0 - 40, 40, 40, 5, rgba, demoParallaxFar(), 60.0, [])
+}
+
+-- Mid background grid (0.5x parallax, medium density)
+pure func demoRenderMidGrid() -> [DrawCmd] {
+    let rgba = demoRgba(60, 80, 100, 150);  -- Lighter blue
+    demoRenderParallaxGridRec(0 - 30, 0 - 30, 30, 30, 4, rgba, demoParallaxMid(), 50.0, [])
+}
+
+-- Near background grid (0.7x parallax, denser)
+pure func demoRenderNearGrid() -> [DrawCmd] {
+    let rgba = demoRgba(80, 100, 120, 120);  -- Even lighter
+    demoRenderParallaxGridRec(0 - 25, 0 - 25, 25, 25, 3, rgba, demoParallaxNear(), 40.0, [])
+}
+
+-- =============================================================================
+-- Main Floor Grid (IsoTile - engine handles view culling)
+-- =============================================================================
+
+-- Get tile sprite based on position (alternating pattern)
+pure func demoGetTileSprite(x: int, y: int) -> int {
+    let pattern = (x + y) % 4;
+    if pattern == 0 then demoSpriteForest()
+    else if pattern == 1 then demoSpriteDesert()
+    else if pattern == 2 then demoSpriteWater()
+    else demoSpriteMountain()
+}
+
+-- Render a single tile
+pure func demoRenderTile(x: int, y: int) -> DrawCmd {
+    IsoTile(demoMakeCoord(x, y), 0, demoGetTileSprite(x, y), demoLayerFloor(), 0)
+}
+
+-- Render one row of tiles
+pure func demoRenderRowRec(y: int, x: int, maxX: int, acc: [DrawCmd]) -> [DrawCmd] {
+    if x >= maxX then acc
+    else demoRenderRowRec(y, x + 1, maxX, demoRenderTile(x, y) :: acc)
+}
+
+pure func demoRenderRow(y: int, width: int) -> [DrawCmd] {
+    demoRenderRowRec(y, 0, width, [])
+}
+
+-- Render all rows
+pure func demoRenderFloorRec(y: int, maxY: int, width: int, acc: [DrawCmd]) -> [DrawCmd] {
+    if y >= maxY then acc
+    else demoRenderFloorRec(y + 1, maxY, width, concat(demoRenderRow(y, width), acc))
+}
+
+-- Render entire floor grid
+pure func demoRenderFloor(state: IsoWalkState) -> [DrawCmd] {
+    demoRenderFloorRec(0, state.gridHeight, state.gridWidth, [])
+}
+
+-- =============================================================================
+-- Entities
+-- =============================================================================
+
+-- Render player entity
+pure func demoRenderPlayer(state: IsoWalkState) -> [DrawCmd] {
+    [IsoEntity("player", demoMakeCoord(state.playerX, state.playerY), 0.0, 0.0, 0, demoSpritePlayer(), demoLayerPlayer())]
+}
+
+-- Render NPCs at fixed positions using generated colored sprites
+pure func demoRenderNpcs() -> [DrawCmd] {
+    [
+        IsoEntity("npc_red", demoMakeCoord(2, 2), 0.0, 0.0, 0, demoSpriteNpcRed(), demoLayerPlayer()),
+        IsoEntity("npc_green", demoMakeCoord(13, 2), 0.0, 0.0, 0, demoSpriteNpcGreen(), demoLayerPlayer()),
+        IsoEntity("npc_blue", demoMakeCoord(2, 13), 0.0, 0.0, 0, demoSpriteNpcBlue(), demoLayerPlayer()),
+        IsoEntity("npc_yellow", demoMakeCoord(13, 13), 0.0, 0.0, 0, demoSpriteNpcYellow(), demoLayerPlayer()),
+        IsoEntity("npc_purple", demoMakeCoord(8, 8), 0.0, 0.0, 0, demoSpriteNpcPurple(), demoLayerPlayer())
+    ]
+}
+
+-- =============================================================================
+-- Main Render Function
+-- =============================================================================
+
+export pure func renderIsoDemo(state: IsoWalkState) -> [DrawCmd] {
+    -- Layer order: far parallax -> mid parallax -> near parallax -> floor -> NPCs -> player
+    let farBg = demoRenderFarGrid();
+    let midBg = demoRenderMidGrid();
+    let nearBg = demoRenderNearGrid();
+    let floor = demoRenderFloor(state);
+    let npcs = demoRenderNpcs();
+    let player = demoRenderPlayer(state);
+    concat(concat(concat(concat(concat(farBg, midBg), nearBg), floor), npcs), player)
+}
+
+-- Export camera state for the engine
+export pure func getIsoCamera(state: IsoWalkState) -> Camera {
+    { x: state.camX, y: state.camY, zoom: 1.0 }
+}

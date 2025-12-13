@@ -84,16 +84,28 @@ func NewRenderer(assets *assets.Manager) *Renderer {
 // registerAnimations copies animation definitions from assets to the animation manager.
 func (r *Renderer) registerAnimations() {
 	// Get animation definitions from sprite manager
-	// We need to check each sprite ID that might have animations
+	// Check each sprite ID range that might have animations
+
+	// World entities (100-105)
 	for spriteID := 100; spriteID <= 105; spriteID++ {
-		animDef := r.assets.Sprites().GetAnimation(spriteID)
-		if animDef != nil {
-			r.anims.RegisterSprite(spriteID, &AnimationDef{
-				Animations:  convertAnimations(animDef.Animations),
-				FrameWidth:  animDef.FrameWidth,
-				FrameHeight: animDef.FrameHeight,
-			})
-		}
+		r.registerAnimationIfExists(spriteID)
+	}
+
+	// Bridge crew sprites (1200-1210)
+	for spriteID := 1200; spriteID <= 1210; spriteID++ {
+		r.registerAnimationIfExists(spriteID)
+	}
+}
+
+// registerAnimationIfExists registers animation for a sprite if it has animations defined.
+func (r *Renderer) registerAnimationIfExists(spriteID int) {
+	animDef := r.assets.Sprites().GetAnimation(spriteID)
+	if animDef != nil {
+		r.anims.RegisterSprite(spriteID, &AnimationDef{
+			Animations:  convertAnimations(animDef.Animations),
+			FrameWidth:  animDef.FrameWidth,
+			FrameHeight: animDef.FrameHeight,
+		})
 	}
 }
 

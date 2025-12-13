@@ -35,8 +35,17 @@ func (r *Renderer) drawIsoTile(screen *ebiten.Image, c *sim_gen.DrawCmdIsoTile, 
 	if r.assets != nil && c.SpriteId > 0 {
 		sprite := r.assets.GetSprite(int(c.SpriteId))
 		if sprite != nil {
+			spriteW := float64(sprite.Bounds().Dx())
+			spriteH := float64(sprite.Bounds().Dy())
+
+			// Scale sprite to fill the isometric tile footprint exactly
+			// Isometric tiles are 2:1 aspect ratio (64x32)
+			// Stretch sprite to match tile dimensions for proper tessellation
+			scaleX := tileW / spriteW
+			scaleY := tileH / spriteH
+
 			op := &ebiten.DrawImageOptions{}
-			op.GeoM.Scale(cam.Zoom, cam.Zoom)
+			op.GeoM.Scale(scaleX, scaleY)
 			// Center sprite on tile position
 			op.GeoM.Translate(sx-tileW/2, sy-tileH/2)
 			screen.DrawImage(sprite, op)
@@ -126,20 +135,32 @@ func (r *Renderer) drawIsoEntity(screen *ebiten.Image, c *sim_gen.DrawCmdIsoEnti
 				return
 			}
 
-			// Non-animated sprite: use full image
-			spriteW := float64(sprite.Bounds().Dx()) * cam.Zoom
-			spriteH := float64(sprite.Bounds().Dy()) * cam.Zoom
+			// Non-animated sprite: scale to reasonable size for isometric grid
+			// Entities should be ~2-3 tiles tall/wide
+			spriteW := float64(sprite.Bounds().Dx())
+			spriteH := float64(sprite.Bounds().Dy())
+
+			// Target size: entities span ~2 tiles (128 pixels at zoom 1.0)
+			targetSize := TileWidth * 2.0 * cam.Zoom
+			scale := targetSize / spriteW
+			if spriteH*scale > targetSize*1.5 {
+				// If sprite is very tall, constrain by height
+				scale = (targetSize * 1.5) / spriteH
+			}
+
+			scaledW := spriteW * scale
+			scaledH := spriteH * scale
 
 			// Check if on screen (simple bounds check)
-			if sx+spriteW/2 < 0 || sx-spriteW/2 > float64(screenW) ||
-				sy < 0 || sy-spriteH > float64(screenH) {
+			if sx+scaledW/2 < 0 || sx-scaledW/2 > float64(screenW) ||
+				sy < 0 || sy-scaledH > float64(screenH) {
 				return
 			}
 
 			op := &ebiten.DrawImageOptions{}
-			op.GeoM.Scale(cam.Zoom, cam.Zoom)
+			op.GeoM.Scale(scale, scale)
 			// Anchor at bottom-center (feet at tile center)
-			op.GeoM.Translate(sx-spriteW/2, sy-spriteH)
+			op.GeoM.Translate(sx-scaledW/2, sy-scaledH)
 			screen.DrawImage(sprite, op)
 			return
 		}
@@ -173,12 +194,24 @@ func (r *Renderer) drawAnimatedEntity(screen *ebiten.Image, sprite *ebiten.Image
 	}
 
 	// Calculate sub-rectangle for this frame
-	frameX := frameIdx * frameW
-	subImg := sprite.SubImage(image.Rect(frameX, 0, frameX+frameW, frameH)).(*ebiten.Image)
+	// Handle 2D sprite sheets (rows and columns)
+	spriteW := sprite.Bounds().Dx()
+	framesPerRow := 1
+	if frameW > 0 && spriteW >= frameW {
+		framesPerRow = spriteW / frameW
+	}
+	col := frameIdx % framesPerRow
+	row := frameIdx / framesPerRow
+	frameX := col * frameW
+	frameY := row * frameH
+	subImg := sprite.SubImage(image.Rect(frameX, frameY, frameX+frameW, frameY+frameH)).(*ebiten.Image)
 
-	// Calculate scaled dimensions
-	scaledW := float64(frameW) * cam.Zoom
-	scaledH := float64(frameH) * cam.Zoom
+	// Scale to fit reasonably in the isometric grid
+	// Target: entity should be ~1.5 tiles tall (96 pixels at zoom 1.0)
+	targetH := TileHeight * 3.0 * cam.Zoom
+	scale := targetH / float64(frameH)
+	scaledW := float64(frameW) * scale
+	scaledH := float64(frameH) * scale
 
 	// Check if on screen
 	if sx+scaledW/2 < 0 || sx-scaledW/2 > float64(screenW) ||
@@ -188,7 +221,7 @@ func (r *Renderer) drawAnimatedEntity(screen *ebiten.Image, sprite *ebiten.Image
 
 	// Draw the frame
 	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Scale(cam.Zoom, cam.Zoom)
+	op.GeoM.Scale(scale, scale)
 	// Anchor at bottom-center (feet at tile center)
 	op.GeoM.Translate(sx-scaledW/2, sy-scaledH)
 	screen.DrawImage(subImg, op)

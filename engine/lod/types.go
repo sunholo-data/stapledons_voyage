@@ -35,6 +35,16 @@ type Object struct {
 	// CurrentTier is the currently assigned LOD tier
 	CurrentTier LODTier
 
+	// PreviousTier tracks the tier from last frame (for hysteresis)
+	PreviousTier LODTier
+
+	// TargetTier is the tier we're transitioning to
+	TargetTier LODTier
+
+	// TransitionProgress is 0.0-1.0 during tier transitions
+	// 0.0 = fully in PreviousTier, 1.0 = fully in CurrentTier
+	TransitionProgress float64
+
 	// Distance to camera (cached after Update)
 	Distance float64
 
@@ -46,17 +56,40 @@ type Object struct {
 
 	// Visible indicates if the object is within the view frustum
 	Visible bool
+
+	// Importance allows certain objects (player, target) to always get high LOD
+	// 0 = normal, 1+ = higher priority for Full3D tier
+	Importance int
 }
 
 // NewObject creates a new LOD object with the given parameters.
 func NewObject(id string, pos Vector3, radius float64, col color.RGBA) *Object {
 	return &Object{
-		ID:          id,
-		Position:    pos,
-		Radius:      radius,
-		Color:       col,
-		CurrentTier: TierCulled,
+		ID:                 id,
+		Position:           pos,
+		Radius:             radius,
+		Color:              col,
+		CurrentTier:        TierCulled,
+		PreviousTier:       TierCulled,
+		TargetTier:         TierCulled,
+		TransitionProgress: 1.0, // Start fully transitioned
 	}
+}
+
+// IsTransitioning returns true if the object is currently transitioning between tiers.
+func (o *Object) IsTransitioning() bool {
+	return o.TransitionProgress < 1.0
+}
+
+// TransitionAlpha returns the blend factor for the current tier (0.0 to 1.0).
+// Use this in renderers to blend between old and new representations.
+func (o *Object) TransitionAlpha() float64 {
+	return o.TransitionProgress
+}
+
+// PreviousAlpha returns the blend factor for the previous tier (1.0 to 0.0).
+func (o *Object) PreviousAlpha() float64 {
+	return 1.0 - o.TransitionProgress
 }
 
 // Stats tracks LOD rendering statistics.

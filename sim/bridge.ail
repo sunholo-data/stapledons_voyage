@@ -439,13 +439,14 @@ export pure func spriteConsoleNav() -> int { 1103 }
 export pure func spriteConsoleScience() -> int { 1104 }
 export pure func spriteConsoleCaptain() -> int { 1105 }
 
--- Crew sprite IDs (1200-1249 range)
+-- Crew sprite IDs (matching manifest.json)
+-- 1200: crew_blue.png, 1201: captain.png, 1202: engineer.png
 export pure func spriteCrewPilot() -> int { 1200 }
-export pure func spriteCrewComms() -> int { 1201 }
+export pure func spriteCrewComms() -> int { 1200 }      -- Uses crew_blue
 export pure func spriteCrewEngineer() -> int { 1202 }
-export pure func spriteCrewScientist() -> int { 1203 }
-export pure func spriteCrewCaptain() -> int { 1204 }
-export pure func spritePlayer() -> int { 1205 }
+export pure func spriteCrewScientist() -> int { 1200 }  -- Uses crew_blue
+export pure func spriteCrewCaptain() -> int { 1201 }
+export pure func spritePlayer() -> int { 1201 }          -- Uses captain sprite
 
 -- =============================================================================
 -- Helper Functions
@@ -498,7 +499,8 @@ export pure func getTileType(x: int, y: int, cx: int, cy: int, radius: int) -> i
 }
 
 -- Viewport size (tiles visible in each direction from camera)
-export pure func viewportSize() -> int { 10 }
+-- Large enough to show disc edge and dome beyond
+export pure func viewportSize() -> int { 40 }
 
 -- Get sprite ID for a station
 export pure func stationSprite(station: BridgeStation) -> int {
@@ -543,7 +545,7 @@ export pure func moveInDirection(pos: Coord, dir: Direction) -> Coord {
 -- =============================================================================
 
 -- Disc configuration constants for 48x48 disc (radius 24, center 24,24)
-export pure func discRadiusDefault() -> int { 24 }
+export pure func discRadiusDefault() -> int { 18 }
 export pure func discCenterDefault() -> int { 24 }
 
 -- Create console state list - positioned around the large disc
@@ -629,9 +631,9 @@ export pure func initBridge() -> BridgeState {
         playerFacing: North,
         moveState: MoveIdle,
 
-        -- Camera starts centered on player
+        -- Camera starts centered on bridge disc
         cameraX: cx,
-        cameraY: cy + 16,
+        cameraY: cy,
 
         -- Load crew
         crewPositions: createDefaultCrew(),
@@ -694,32 +696,32 @@ pure func tileColor(tileType: int) -> int {
     else colorFloor()
 }
 
--- Render a single floor tile at world position, relative to camera
--- Using RectRGBA for visible placeholder (isometric diamond approximated as rect)
+-- Render a single floor tile at world position using IsoTile DrawCmd
+-- The engine handles isometric projection from tile coords to screen coords
 pure func renderTileAt(worldX: int, worldY: int, camX: int, camY: int, tileType: int) -> DrawCmd {
-    -- Calculate position relative to camera (so camera is at screen center)
-    let relX = worldX - camX;
-    let relY = worldY - camY;
-    -- Isometric projection: x' = (x - y) * tileWidth/2, y' = (x + y) * tileHeight/2
-    let isoX = intToFloat((relX - relY) * 32);
-    let isoY = intToFloat((relX + relY) * 16);
-    let screenX = isoX + screenOffsetX();
-    let screenY = isoY + screenOffsetY();
-    -- Render as small rectangle representing isometric tile
-    RectRGBA(screenX - 28.0, screenY - 12.0, 56.0, 28.0, tileColor(tileType), layerFloor())
+    -- Use IsoTile with sprite ID - engine handles projection
+    -- All floor tiles use the same sprite (tileFloor() = 1000) but different colors
+    IsoTile(makeCoord(worldX, worldY), 0, tileFloor(), layerFloor(), tileColor(tileType))
 }
 
 -- Render tile row helper (recurses through x from start to maxX)
+-- Skips tiles outside disc (tileWall) so dome background shows through
 pure func renderFloorRowViewportRec(state: BridgeState, x: int, y: int, maxX: int, acc: [DrawCmd]) -> [DrawCmd] {
     if x > maxX then acc
-    else renderFloorRowViewportRec(
-        state,
-        x + 1,
-        y,
-        maxX,
-        renderTileAt(x, y, state.cameraX, state.cameraY,
-            getTileType(x, y, state.discCenterX, state.discCenterY, state.discRadius)) :: acc
-    )
+    else {
+        let tType = getTileType(x, y, state.discCenterX, state.discCenterY, state.discRadius);
+        -- Skip wall tiles (outside disc) - let dome show through
+        if tType == tileWall() then
+            renderFloorRowViewportRec(state, x + 1, y, maxX, acc)
+        else
+            renderFloorRowViewportRec(
+                state,
+                x + 1,
+                y,
+                maxX,
+                renderTileAt(x, y, state.cameraX, state.cameraY, tType) :: acc
+            )
+    }
 }
 
 -- Render one row of tiles in viewport
@@ -782,17 +784,26 @@ pure func crewColor(station: BridgeStation) -> int {
     }
 }
 
--- Render a single console relative to camera (colored rectangle placeholder)
+-- Render a single console using IsoEntity with sprite
+-- The engine handles isometric projection from tile coords
 pure func renderConsole(console: ConsoleState, camX: int, camY: int) -> [DrawCmd] {
-    let relX = console.pos.x - camX;
-    let relY = console.pos.y - camY;
-    let isoX = intToFloat((relX - relY) * 32);
-    let isoY = intToFloat((relX + relY) * 16);
-    let screenX = isoX + screenOffsetX();
-    let screenY = isoY + screenOffsetY();
-    let color = consoleColor(console.station);
-    -- Console as colored rectangle (elevated above floor)
-    [RectRGBA(screenX - 24.0, screenY - 32.0, 48.0, 24.0, color, layerConsoles())]
+    -- Build unique ID from station name
+    let entityId = stationEntityId(console.station);
+    -- Use IsoEntity with the console's sprite ID (from console state)
+    [IsoEntity(entityId, console.pos, 0.0, 0.0, 0, console.spriteId, layerConsoles())]
+}
+
+-- Get entity ID string for a console station
+pure func stationEntityId(station: BridgeStation) -> string {
+    match station {
+        StationHelm => "console_helm",
+        StationComms => "console_comms",
+        StationStatus => "console_status",
+        StationNav => "console_nav",
+        StationScience => "console_science",
+        StationCaptain => "console_captain",
+        StationNone => "console_none"
+    }
 }
 
 -- Render all consoles recursively (only those in viewport)
@@ -812,20 +823,15 @@ export pure func renderConsoles(state: BridgeState) -> [DrawCmd] {
     renderConsolesRec(state.consoles, state.cameraX, state.cameraY)
 }
 
--- Render a single crew member relative to camera (colored circle with name label)
+-- Render a single crew member using IsoEntity with sprite
+-- The engine handles isometric projection from tile coords
 pure func renderCrewMember(crew: CrewPosition, camX: int, camY: int) -> [DrawCmd] {
-    let relX = crew.pos.x - camX;
-    let relY = crew.pos.y - camY;
-    let isoX = intToFloat((relX - relY) * 32);
-    let isoY = intToFloat((relX + relY) * 16);
-    let screenX = isoX + screenOffsetX();
-    let screenY = isoY + screenOffsetY();
-    let color = crewColor(crew.station);
-    -- Circle at crew position + name label below
-    [
-        CircleRGBA(screenX, screenY - 8.0, 12.0, color, true, layerCrew()),
-        Text(crew.crew.name, screenX - 30.0, screenY + 8.0, 8, 4294967295, layerCrew() + 1)
-    ]
+    -- Build unique ID from crew name (for animation tracking)
+    let entityId = crew.crew.name;
+    -- Get sprite based on crew's station role
+    let sprite = crewSprite(crew.station);
+    -- Use IsoEntity with crew sprite - engine handles projection
+    [IsoEntity(entityId, crew.pos, 0.0, 0.0, 0, sprite, layerCrew())]
 }
 
 -- Render all crew recursively (only those in viewport)
@@ -845,19 +851,11 @@ export pure func renderBridgeCrew(state: BridgeState) -> [DrawCmd] {
     renderCrewRec(state.crewPositions, state.cameraX, state.cameraY)
 }
 
--- Render the player entity (green rectangle with "YOU" label)
+-- Render the player entity using IsoEntity with sprite
+-- The engine handles isometric projection from tile coords
 export pure func renderPlayer(state: BridgeState) -> [DrawCmd] {
-    let relX = state.playerPos.x - state.cameraX;
-    let relY = state.playerPos.y - state.cameraY;
-    let isoX = intToFloat((relX - relY) * 32);
-    let isoY = intToFloat((relX + relY) * 16);
-    let screenX = isoX + screenOffsetX();
-    let screenY = isoY + screenOffsetY();
-    -- Green rectangle (slightly larger than crew circles) with "YOU" label
-    [
-        RectRGBA(screenX - 10.0, screenY - 18.0, 20.0, 20.0, colorPlayer(), layerPlayer()),
-        Text("YOU", screenX - 12.0, screenY + 8.0, 10, colorPlayer(), layerPlayer() + 1)
-    ]
+    -- Use IsoEntity with player sprite - engine handles projection
+    [IsoEntity("player", state.playerPos, 0.0, 0.0, 0, spritePlayer(), layerPlayer())]
 }
 
 -- =============================================================================
@@ -977,16 +975,17 @@ export pure func renderBridge(state: BridgeState) -> [DrawCmd] {
 -- =============================================================================
 
 -- Key codes for WASD (matching Ebiten key codes)
-pure func keyW() -> int { 87 }
-pure func keyA() -> int { 65 }
-pure func keyS() -> int { 83 }
-pure func keyD() -> int { 68 }
-pure func keyUp() -> int { 265 }
-pure func keyDown() -> int { 264 }
-pure func keyLeft() -> int { 263 }
-pure func keyRight() -> int { 262 }
-pure func keyE() -> int { 69 }        -- Interact key
-pure func keyEscape() -> int { 256 }  -- Cancel/close key
+-- Key codes matching Ebiten's internal values (not ASCII!)
+pure func keyW() -> int { 22 }        -- ebiten.KeyW
+pure func keyA() -> int { 0 }         -- ebiten.KeyA
+pure func keyS() -> int { 18 }        -- ebiten.KeyS
+pure func keyD() -> int { 3 }         -- ebiten.KeyD
+pure func keyUp() -> int { 31 }       -- ebiten.KeyUp
+pure func keyDown() -> int { 28 }     -- ebiten.KeyDown
+pure func keyLeft() -> int { 29 }     -- ebiten.KeyLeft
+pure func keyRight() -> int { 30 }    -- ebiten.KeyRight
+pure func keyE() -> int { 4 }         -- ebiten.KeyE
+pure func keyEscape() -> int { 56 }   -- ebiten.KeyEscape
 
 -- Check if a key is in the key list (recursive)
 pure func hasKeyRec(keyCode: int, keys: [KeyEvent]) -> bool {
@@ -1001,7 +1000,44 @@ pure func hasKey(keyCode: int, input: FrameInput) -> bool {
     hasKeyRec(keyCode, input.keys)
 }
 
--- Get movement direction from input (returns None if no movement key pressed)
+-- =============================================================================
+-- Isometric Movement
+-- In isometric view, screen directions are diagonal in world coords:
+--   Screen UP    = world NW (x-1, y-1)
+--   Screen DOWN  = world SE (x+1, y+1)
+--   Screen LEFT  = world SW (x-1, y+1)
+--   Screen RIGHT = world NE (x+1, y-1)
+-- =============================================================================
+
+-- Isometric movement delta type (dx, dy)
+type IsoMove = { dx: int, dy: int }
+
+-- Screen-aligned movement deltas for isometric view
+pure func isoMoveUp() -> IsoMove { { dx: 0 - 1, dy: 0 - 1 } }    -- NW: screen up
+pure func isoMoveDown() -> IsoMove { { dx: 1, dy: 1 } }          -- SE: screen down
+pure func isoMoveLeft() -> IsoMove { { dx: 0 - 1, dy: 1 } }      -- SW: screen left
+pure func isoMoveRight() -> IsoMove { { dx: 1, dy: 0 - 1 } }     -- NE: screen right
+
+-- Get isometric movement from input (returns None if no movement key pressed)
+pure func getIsoMovement(input: FrameInput) -> Option[IsoMove] {
+    if hasKey(keyW(), input) || hasKey(keyUp(), input) then Some(isoMoveUp())
+    else if hasKey(keyS(), input) || hasKey(keyDown(), input) then Some(isoMoveDown())
+    else if hasKey(keyA(), input) || hasKey(keyLeft(), input) then Some(isoMoveLeft())
+    else if hasKey(keyD(), input) || hasKey(keyRight(), input) then Some(isoMoveRight())
+    else None
+}
+
+-- Convert IsoMove to facing direction (for sprite orientation)
+-- Uses the dominant axis to determine facing
+pure func isoMoveToFacing(move: IsoMove) -> Direction {
+    if move.dy < 0 then North       -- Moving toward screen top = facing north
+    else if move.dy > 0 then South  -- Moving toward screen bottom = facing south
+    else if move.dx > 0 then East   -- Moving right = facing east
+    else West                       -- Moving left = facing west
+}
+
+-- Legacy: Get movement direction from input (returns None if no movement key pressed)
+-- NOTE: This is kept for compatibility but getIsoMovement should be used instead
 pure func getInputDirection(input: FrameInput) -> Option[Direction] {
     if hasKey(keyW(), input) || hasKey(keyUp(), input) then Some(North)
     else if hasKey(keyS(), input) || hasKey(keyDown(), input) then Some(South)
@@ -1023,6 +1059,25 @@ pure func tryMovePlayer(state: BridgeState, dir: Direction) -> BridgeState {
         }
     else
         { state | playerFacing: dir, moveState: MoveIdle }
+}
+
+-- Try to move player using isometric movement (screen-aligned WASD)
+pure func tryMovePlayerIso(state: BridgeState, move: IsoMove) -> BridgeState {
+    let px = state.playerPos.x;
+    let py = state.playerPos.y;
+    let newX = px + move.dx;
+    let newY = py + move.dy;
+    let facing = isoMoveToFacing(move);
+    if isWalkable(state, newX, newY) then
+        { state |
+            playerPos: makeCoord(newX, newY),
+            playerFacing: facing,
+            moveState: MoveWalking(facing),
+            cameraX: newX,
+            cameraY: newY
+        }
+    else
+        { state | playerFacing: facing, moveState: MoveIdle }
 }
 
 -- Helper: set player to idle
@@ -1096,10 +1151,11 @@ pure func clearSelection(state: BridgeState) -> BridgeState {
 }
 
 -- Process player input and update state
+-- Uses isometric movement so WASD aligns with screen directions
 export pure func processBridgeInput(state: BridgeState, input: FrameInput) -> BridgeState {
-    -- First handle movement
-    let afterMove = match getInputDirection(input) {
-        Some(dir) => tryMovePlayer(state, dir),
+    -- First handle isometric movement (screen-aligned WASD)
+    let afterMove = match getIsoMovement(input) {
+        Some(move) => tryMovePlayerIso(state, move),
         None => setPlayerIdle(state)
     };
 
