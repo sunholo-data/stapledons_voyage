@@ -476,7 +476,7 @@ func tryMove_impl(state interface{}, move interface{}) interface{} {
 	var tmp51 interface{} = inBounds_impl(newX, newY, tmp49, tmp50)
 	return func() interface{} {
 		if tmp51.(bool) {
-			return RecordUpdate(state, map[string]interface{}{"playerY": newY, "playerX": newX})
+			return RecordUpdate(state, map[string]interface{}{"playerX": newX, "playerY": newY})
 		}
 		return state
 	}()

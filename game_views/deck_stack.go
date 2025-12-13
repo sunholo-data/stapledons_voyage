@@ -1,8 +1,9 @@
-// Package render provides the deck stack renderer for multi-level ship visualization.
-package render
+// Package game_views contains game-specific rendering helpers for Stapledon's Voyage.
+package game_views
 
 import (
 	"stapledons_voyage/engine/depth"
+	"stapledons_voyage/engine/render"
 	"stapledons_voyage/sim_gen"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -12,7 +13,7 @@ import (
 // The current deck renders at full detail while adjacent decks are visible
 // with offset and opacity based on distance from current.
 type DeckStackRenderer struct {
-	layerManager *DepthLayerManager
+	layerManager *render.DepthLayerManager
 	screenW      int
 	screenH      int
 
@@ -27,7 +28,7 @@ type DeckStackRenderer struct {
 // NewDeckStackRenderer creates a new deck stack renderer.
 func NewDeckStackRenderer(screenW, screenH int) *DeckStackRenderer {
 	dsr := &DeckStackRenderer{
-		layerManager:   NewDepthLayerManager(screenW, screenH),
+		layerManager:   render.NewDepthLayerManager(screenW, screenH),
 		screenW:        screenW,
 		screenH:        screenH,
 		parallaxFactor: 50.0,  // 50 pixels offset per deck level
@@ -60,7 +61,7 @@ func (dsr *DeckStackRenderer) Resize(w, h int) {
 }
 
 // GetLayerManager returns the internal depth layer manager.
-func (dsr *DeckStackRenderer) GetLayerManager() *DepthLayerManager {
+func (dsr *DeckStackRenderer) GetLayerManager() *render.DepthLayerManager {
 	return dsr.layerManager
 }
 

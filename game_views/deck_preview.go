@@ -1,6 +1,5 @@
-// Package render provides deck preview rendering - showing glimpses of
-// adjacent decks at screen edges.
-package render
+// Package game_views contains game-specific rendering helpers for Stapledon's Voyage.
+package game_views
 
 import (
 	"image/color"

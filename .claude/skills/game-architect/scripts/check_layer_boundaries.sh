@@ -38,6 +38,37 @@ for pattern in "${GAME_LOGIC_PATTERNS[@]}"; do
     fi
 done
 
+# Check 1b: engine/ should not contain game-specific concepts (genericization)
+echo ""
+echo "1b. Checking engine/ for game-specific concepts (genericization)..."
+
+# These patterns indicate game-specific content that should be in game_views/
+GAME_SPECIFIC_PATTERNS=(
+    "DeckType"          # Ship deck types (game concept)
+    "DeckCore"          # Specific deck name
+    "DeckBridge"        # Specific deck name
+    "DeckEngineering"   # Specific deck name
+    "DomeViewState"     # Game-specific view state
+    "ArrivalState"      # Game-specific state
+    "GetArrivalPlanet"  # Game-specific function
+)
+
+WARNINGS=0
+for pattern in "${GAME_SPECIFIC_PATTERNS[@]}"; do
+    matches=$(grep -rn "sim_gen\.$pattern\|sim_gen\.New$pattern" engine/ 2>/dev/null | grep -v "_test.go" | grep -v "// allowed:" || true)
+    if [ -n "$matches" ]; then
+        echo "  ! WARN: Found game-specific type '$pattern' in engine/ (should be in game_views/):"
+        echo "$matches" | head -3 | sed 's/^/      /'
+        WARNINGS=$((WARNINGS + 1))
+    fi
+done
+
+if [ $WARNINGS -gt 0 ]; then
+    echo "  → $WARNINGS game-specific patterns found in engine/"
+    echo "  → These should move to game_views/ for engine reusability"
+    echo "  → See design_docs/planned/engine-genericization.md"
+fi
+
 # Check 2: sim_gen/ should not import ebiten
 echo ""
 echo "2. Checking sim_gen/ for rendering imports..."
@@ -92,8 +123,10 @@ echo "  Violations: $VIOLATIONS"
 if [ $VIOLATIONS -gt 0 ]; then
     echo ""
     echo "Layer rules:"
-    echo "  - engine/: IO only (input, render, assets)"
-    echo "  - sim_gen/: Game logic (types, Step function)"
+    echo "  - sim/*.ail: Game logic (AILANG source)"
+    echo "  - sim_gen/: Generated code (OK to have game types)"
+    echo "  - game_views/: Game-specific rendering helpers"
+    echo "  - engine/: Generic rendering (reusable for ANY game)"
     echo "  - cmd/: Wiring only"
     exit 1
 fi

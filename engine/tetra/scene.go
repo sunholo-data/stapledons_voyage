@@ -125,3 +125,20 @@ func (s *Scene) Resize(width, height int) {
 	s.camera.SetLocalPosition(oldPos.X, oldPos.Y, oldPos.Z)
 	s.scene.Root.AddChildren(s.camera)
 }
+
+// SetLightingEnabled enables or disables scene lighting.
+// When enabled, lights in the scene affect material colors.
+// When disabled, all materials render at full brightness.
+func (s *Scene) SetLightingEnabled(enabled bool) {
+	s.scene.World.LightingOn = enabled
+}
+
+// IsLightingEnabled returns whether scene lighting is enabled.
+func (s *Scene) IsLightingEnabled() bool {
+	return s.scene.World.LightingOn
+}
+
+// World returns the scene's world settings for advanced configuration.
+func (s *Scene) World() *tetra3d.World {
+	return s.scene.World
+}

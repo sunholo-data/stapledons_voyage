@@ -89,9 +89,16 @@ Execute an approved sprint plan with **AILANG as the primary implementation lang
 Before writing any code, verify these items:
 
 ### File Boundaries
-- [ ] **sim_gen/*.go is GENERATED** - Never edit (except manual workarounds marked with PATCH)
-- [ ] **engine/*.go is safe** - OK to edit for rendering
-- [ ] **sim/*.ail is source** - Primary edit location
+- [ ] **sim_gen/*.go is GENERATED** - Never edit (OK to have game types - they come from AILANG)
+- [ ] **engine/*.go is GENERIC** - Must work for ANY AILANG game (no deck names, planet names, crew roles)
+- [ ] **game_views/*.go for game-specific** - Stapledon-specific rendering helpers go here
+- [ ] **sim/*.ail is source** - Primary edit location for all game logic
+
+### Engine Genericization Check
+- [ ] **Before adding to engine/**, ask: Could a different game use this unchanged?
+- [ ] **If NO** → Put in `game_views/` instead
+- [ ] **sim_gen types OK in engine**: DrawCmd*, FrameInput, FrameOutput, Camera, Coord
+- [ ] **sim_gen types NOT OK in engine**: World, DeckType, Planet, NPC, ArrivalState, DomeViewState
 
 ### For Visual Features
 - [ ] **Screenshot testing ready** - Can run `go run ./cmd/game -screenshot N -output /tmp/test.png`
@@ -131,12 +138,54 @@ Before writing any code, verify these items:
 | Layer | Language | Responsibility | Edit? |
 |-------|----------|----------------|-------|
 | `sim/*.ail` | AILANG | ALL game logic | ✅ Primary work |
-| `sim_gen/*.go` | Generated | AILANG → Go output | ❌ Never edit |
-| `engine/*.go` | Go | Rendering DrawCmd only | ⚠️ Rare, rendering only |
+| `sim_gen/*.go` | Generated | AILANG → Go output (OK to have game types) | ❌ Never edit |
+| `game_views/*.go` | Go | Game-specific rendering helpers | ✅ For Stapledon-specific visuals |
+| `engine/*.go` | Go | Generic rendering (reusable for ANY game) | ⚠️ Must be game-agnostic |
 
 **If you're writing game logic in Go, STOP. Write it in AILANG.**
 
 Mock-only mode was for early prototyping. We are past that phase.
+
+### ⚠️ Engine Genericization Rule (IMPORTANT)
+
+**The engine should work unchanged for a completely different AILANG game.**
+
+Before writing Go code, ask: **Could a different game use this unchanged?**
+
+| Answer | Where to Put It |
+|--------|-----------------|
+| YES - generic rendering | `engine/*.go` |
+| NO - game-specific visual | `game_views/*.go` |
+| NO - game logic/data | `sim/*.ail` (AILANG) |
+
+**sim_gen/ is fine** - It's generated from AILANG. Game-specific types (World, DeckType, Planet) belong there because they come from AILANG.
+
+**engine/ must be generic:**
+- ✅ DrawCmd rendering (Sprite, Rect, Text, Circle, etc.)
+- ✅ Asset loading (sprites, audio, fonts)
+- ✅ Camera transforms, shaders, display
+- ❌ Deck names (Core, Engineering, Bridge)
+- ❌ Planet names (Saturn, Earth, Jupiter)
+- ❌ Crew roles (pilot, comms, scientist)
+- ❌ Game-specific state types (DomeViewState, ArrivalState)
+
+**game_views/ for game-specific rendering:**
+- DomeRenderer (solar system visualization)
+- DeckStackRenderer (5-deck ship structure)
+- DeckPreview (deck colors and names)
+- Any code that references sim_gen game types beyond DrawCmd
+
+**Example Violation (DO NOT DO):**
+```go
+// ❌ WRONG - in engine/render/draw.go
+func getBridgeSpriteColor(id int64) color.RGBA {
+    case id == 1200: return ... // pilot
+    case id == 1201: return ... // comms  <- GAME CONCEPTS IN ENGINE!
+}
+
+// ✅ RIGHT - move to game_views/sprite_colors.go
+// Or better: define colors in AILANG and pass via DrawCmd
+```
 
 ## Quick Start
 
@@ -227,9 +276,13 @@ Sprint JSON files can use either **features-based** (preferred for new sprints) 
 ## Engine-Only Changes (Rare)
 
 Most work should be AILANG. Engine changes are only needed for:
-- Adding new DrawCmd rendering (e.g., planet textures)
-- Shader modifications
-- Asset loading
+- Adding new DrawCmd rendering (e.g., new DrawCmd variant)
+- Shader modifications (generic visual effects)
+- Asset loading (generic loaders)
+
+**STOP - Is this game-specific?**
+- Game-specific rendering → `game_views/*.go`
+- Generic rendering → `engine/*.go`
 
 For engine-only work:
 ```bash
@@ -237,7 +290,19 @@ make engine       # Build engine only (skips sim_gen check)
 make run          # Test rendering
 ```
 
-**Remember:** Engine code should be "dumb" - it only renders what AILANG tells it via DrawCmd.
+**Remember:** Engine code should be "dumb" - it only renders what AILANG tells it via DrawCmd. It should work unchanged for ANY AILANG game.
+
+## Game-Specific Views (game_views/)
+
+For rendering helpers that reference game concepts:
+- DomeRenderer, DeckStackRenderer, DeckPreview
+- Any code using sim_gen types beyond DrawCmd/FrameInput/FrameOutput
+- Code that knows about decks, planets, crew, etc.
+
+```bash
+# game_views imports both engine/ and sim_gen/
+# engine/ should NOT import game_views/
+```
 
 ## Execution Flow
 

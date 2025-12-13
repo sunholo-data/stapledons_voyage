@@ -540,7 +540,7 @@ func updatePlanetView_impl(world interface{}, input interface{}, newTick interfa
 		_ = tmp99 // suppress unused
 		return updateAllNPCs_impl(tmp95, tmp97, tmp99)
 	}()
-	return RecordUpdate(world, map[string]interface{}{"selection": newSelection, "tick": newTick, "npcs": updatedNpcs})
+	return RecordUpdate(world, map[string]interface{}{"tick": newTick, "npcs": updatedNpcs, "selection": newSelection})
 }
 
 func updatePlanetView(world *World, input *FrameInput, newTick int64) *World {
@@ -575,12 +575,15 @@ func step_impl(world interface{}, input interface{}) interface{} {
 	}()
 	var drawCmds interface{} = renderForView_impl(newWorld)
 	var cam interface{} = &Camera{X: float64(0), Y: float64(0), Zoom: float64(1)}
+	var srCtx interface{} = &SRContext{Enabled: false, Velocity: float64(0), Gamma: float64(1), ViewAngle: float64(0)}
+	var grCtx interface{} = &GRContext{Enabled: false, CenterX: float64(0.5), CenterY: float64(0.5), Phi: float64(0), Rs: float64(0), ObjectType: ""}
+	var relCtx interface{} = &RelativityContext{Sr: srCtx.(*SRContext), Gr: grCtx.(*GRContext)}
 	var output interface{} = func() interface{} {
 		var tmp100 interface{} = []interface{}{}
 		_ = tmp100 // suppress unused
 		var tmp101 interface{} = []interface{}{}
 		_ = tmp101 // suppress unused
-		return &FrameOutput{Draw: ConvertToDrawCmdSlice(drawCmds), Sounds: ConvertToInt64Slice(tmp100), Debug: ConvertToStringSlice(tmp101), Camera: cam.(*Camera)}
+		return &FrameOutput{Draw: ConvertToDrawCmdSlice(drawCmds), Sounds: ConvertToInt64Slice(tmp100), Debug: ConvertToStringSlice(tmp101), Camera: cam.(*Camera), Relativity: relCtx.(*RelativityContext)}
 	}()
 	return []interface{}{newWorld, output}
 }

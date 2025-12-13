@@ -59,14 +59,42 @@ AILANG owns WHAT is happening (state, logic, decisions)
 Engine owns HOW it looks (rendering, animation, polish)
 ```
 
-### Three-Layer Separation
+### Four-Layer Separation
 
 | Layer | Location | Purpose | Allowed Content |
 |-------|----------|---------|-----------------|
 | **Source** | `sim/*.ail` | Game logic (AILANG) | Types, pure functions |
-| **Simulation** | `sim_gen/*.go` | Generated/mock Go | Game logic (temporary mock) |
-| **Engine** | `engine/*.go` | IO bridging + visuals | Rendering, particles, transitions |
+| **Generated** | `sim_gen/*.go` | Generated from AILANG | Game types (OK - generated) |
+| **Game Views** | `game_views/*.go` | Game-specific rendering | DomeRenderer, DeckStack |
+| **Engine** | `engine/*.go` | Generic rendering (reusable) | DrawCmd, Camera, Assets |
 | **Entry** | `cmd/*.go` | Wiring | Main, game loop |
+
+### Engine Genericization (Critical)
+
+**Goal:** Engine should work unchanged for ANY AILANG game.
+
+**Before adding to engine/, ask:** Could a different game use this unchanged?
+
+| If YES | If NO |
+|--------|-------|
+| → OK for `engine/` | → Put in `game_views/` |
+
+**engine/ must be generic:**
+- ✅ DrawCmd rendering (any variant)
+- ✅ Asset loading, camera, shaders
+- ❌ Deck names (Core, Engineering, Bridge)
+- ❌ Planet names (Saturn, Earth)
+- ❌ Crew roles (pilot, comms, scientist)
+- ❌ Game-specific state types
+
+**sim_gen/ is fine:**
+- Generated from AILANG - game types belong there
+- Never manually edit
+
+**game_views/ for game-specific rendering:**
+- DomeRenderer (solar system viz)
+- DeckStackRenderer (5-deck ship)
+- Any code using sim_gen types beyond DrawCmd
 
 ### Layer Boundaries (Critical)
 
@@ -74,17 +102,14 @@ Engine owns HOW it looks (rendering, animation, polish)
 - Game state (positions, health, time) - use AILANG
 - Game logic (NPC AI, decisions) - use AILANG
 - Hardcoded game data (planet configs) - use AILANG
+- Game-specific types (DeckType, DomeViewState) - use game_views/
 
 **engine/ CAN contain:**
+- Generic DrawCmd rendering
 - Decorative particles (no gameplay impact)
 - Screen transition animations
 - Shader/visual effects
 - UI layout helpers
-
-**sim_gen/ rules:**
-- Never manually edit when using AILANG compiler
-- Currently mock (hand-written) until AILANG ships
-- Contains ALL game logic temporarily
 
 ### File Size Limits
 

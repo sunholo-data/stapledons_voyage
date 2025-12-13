@@ -340,6 +340,63 @@ make game   # Build with generated code
 
 The engine layer should be "dumb" - it captures input, passes it to sim_gen, and renders whatever sim_gen outputs. All game logic lives in `sim/*.ail`.
 
+### ⚠️ Engine Genericization (IMPORTANT)
+
+**Goal:** The engine should be reusable for ANY AILANG game, not just Stapledon's Voyage.
+
+**sim_gen/ is fine** - It's generated from AILANG, so game-specific types (World, NPC, Planet, DeckType) belong there.
+
+**engine/ must be generic** - No game-specific concepts. Should work unchanged if you swapped in different AILANG code for a different game.
+
+#### The Engine Genericization Test
+
+Before adding code to `engine/`, ask:
+
+| Question | If YES | If NO |
+|----------|--------|-------|
+| Does this reference game concepts (decks, planets, crew roles)? | → Move to `game_views/` | → OK for engine |
+| Does this hardcode game data (planet names, deck layouts)? | → Move to AILANG | → OK for engine |
+| Could a different game use this unchanged? | → OK for engine | → Move to `game_views/` |
+
+#### What Belongs Where
+
+| Location | Content | Examples |
+|----------|---------|----------|
+| `sim/*.ail` | ALL game logic and data | World, NPC, Planet, DeckType definitions |
+| `sim_gen/*.go` | Generated types (OK to have game types) | Auto-generated from AILANG |
+| `game_views/*.go` | Game-specific rendering helpers | DomeRenderer, DeckStackRenderer |
+| `engine/*.go` | Generic rendering (ANY game could use) | DrawCmd switch, Camera, Asset loading |
+
+#### Migrated to game_views/ (Done)
+
+| File | Status |
+|------|--------|
+| `game_views/dome_renderer.go` | ✅ Moved from engine/view/ |
+| `game_views/deck_stack.go` | ✅ Moved from engine/render/ |
+| `game_views/deck_preview.go` | ✅ Moved from engine/render/ |
+| `game_views/deck_transition.go` | ✅ Moved from engine/render/ |
+
+#### Remaining Violations (Lower Priority)
+
+| File | Game-Specific Content | Priority |
+|------|----------------------|----------|
+| `engine/render/draw.go` | `getBridgeSpriteColor()` with crew roles | P2 |
+| `engine/screenshot/screenshot.go` | `ArrivalState` for testing | P3 (testing only) |
+
+#### Generic Types Engine CAN Use
+
+Engine should only import these from sim_gen:
+- `FrameInput`, `FrameOutput` - IO protocol
+- `DrawCmd*` - Rendering commands
+- `Camera`, `Coord` - Spatial types
+
+Engine should NOT import:
+- `World`, `NPC`, `Planet` - Game state
+- `DeckType`, `DeckInfo` - Game concepts
+- `ArrivalState`, `DomeViewState` - Game-specific view states
+
+See [design_docs/planned/engine-genericization.md](design_docs/planned/engine-genericization.md) for full migration plan.
+
 ## Engine Feature Status (Updated 2025-12-04)
 
 The Go/Ebiten engine layer is largely complete. Reference this when planning features.

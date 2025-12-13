@@ -33,10 +33,25 @@ Invoke this skill when:
 ### Architecture (from CLAUDE.md)
 ```
 sim/*.ail        → AILANG game logic (manually edit)
-sim_gen/*.go     → Generated Go (never edit)
-engine/*.go      → Go/Ebiten rendering
+sim_gen/*.go     → Generated Go (OK - contains game types)
+game_views/*.go  → Game-specific rendering helpers (NEW)
+engine/*.go      → Generic Go/Ebiten rendering (reusable)
 cmd/game/main.go → Game loop
 ```
+
+### ⚠️ Engine Genericization Rule
+
+**Before planning engine work, ask:** Could a different game use this unchanged?
+
+| If YES | If NO |
+|--------|-------|
+| → OK for `engine/` | → Must go in `game_views/` or AILANG |
+
+**sim_gen/ is fine** - Generated from AILANG, game-specific types belong there.
+
+**engine/ must be generic** - No deck names, planet names, crew roles, or game concepts.
+
+**game_views/** - New layer for game-specific rendering (DomeRenderer, DeckStackRenderer).
 
 ### Engine Capabilities Reference
 
@@ -79,9 +94,17 @@ ailang messages list --unread
 
 For each game feature, estimate:
 - **AILANG code**: Types, functions needed in `sim/*.ail`
-- **Engine code**: Go/Ebiten changes in `engine/`
+- **game_views code**: Game-specific rendering helpers (if needed)
+- **Engine code**: Generic Go/Ebiten changes (should be rare!)
 - **Workarounds**: AILANG limitations to navigate
 - **Testing**: How to verify it works
+
+**Engine Genericization Check:**
+Before adding to `engine/`, verify it's not game-specific:
+- ❌ References decks, planets, crew roles → `game_views/`
+- ❌ Hardcodes game data → AILANG
+- ✅ Generic DrawCmd rendering → `engine/`
+- ✅ Asset loading, camera, shaders → `engine/`
 
 ### 3. Example Sprint Plan
 

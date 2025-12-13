@@ -32,6 +32,23 @@ type Object struct {
 	// Color for rendering as circle or point
 	Color color.RGBA
 
+	// Luminosity is the light energy emitted by this object (0 = not a light source).
+	// Stars should have high values (e.g., 8000+ for Sun) due to inverse square falloff.
+	// At distance d, effective intensity = Luminosity / d².
+	Luminosity float64
+
+	// LightColor is the color of emitted light (for light sources).
+	// If nil/zero, falls back to object's Color.
+	// Use this for stellar spectral classes:
+	//   O-type: Blue (0.6, 0.7, 1.0)
+	//   B-type: Blue-white (0.8, 0.85, 1.0)
+	//   A-type: White (1.0, 1.0, 1.0)
+	//   F-type: Yellow-white (1.0, 0.98, 0.9)
+	//   G-type: Yellow/Sun (1.0, 0.95, 0.85)
+	//   K-type: Orange (1.0, 0.8, 0.5)
+	//   M-type: Red (1.0, 0.6, 0.3)
+	LightColor color.RGBA
+
 	// CurrentTier is the currently assigned LOD tier
 	CurrentTier LODTier
 
@@ -79,6 +96,21 @@ func NewObject(id string, pos Vector3, radius float64, col color.RGBA) *Object {
 // IsTransitioning returns true if the object is currently transitioning between tiers.
 func (o *Object) IsTransitioning() bool {
 	return o.TransitionProgress < 1.0
+}
+
+// IsLightSource returns true if this object emits light (Luminosity > 0).
+func (o *Object) IsLightSource() bool {
+	return o.Luminosity > 0
+}
+
+// EffectiveLightColor returns the light color to use for this object.
+// Returns LightColor if set (any component > 0), otherwise falls back to Color.
+func (o *Object) EffectiveLightColor() color.RGBA {
+	// Check if LightColor has any non-zero RGB components
+	if o.LightColor.R > 0 || o.LightColor.G > 0 || o.LightColor.B > 0 {
+		return o.LightColor
+	}
+	return o.Color
 }
 
 // TransitionAlpha returns the blend factor for the current tier (0.0 to 1.0).

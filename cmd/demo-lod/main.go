@@ -1,5 +1,6 @@
 // Package main provides a stress test demo for the LOD (Level of Detail) system.
 // It renders celestial objects with automatic LOD tier switching including actual 3D planets.
+// Now includes SR (Special Relativity) and GR (General Relativity) visual effects.
 package main
 
 import (
@@ -17,8 +18,10 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 
 	"stapledons_voyage/engine/lod"
+	"stapledons_voyage/engine/shader"
 	"stapledons_voyage/engine/tetra"
 )
 
@@ -67,6 +70,21 @@ type Game struct {
 
 	// Lazy initialization flag for billboards
 	billboardsInitialized bool
+
+	// SR/GR shader effects
+	shaderManager *shader.Manager
+	srWarp        *shader.SRWarp
+	grWarp        *shader.GRWarp
+	renderBuffer  *ebiten.Image // Off-screen buffer for shader post-processing
+
+	// Ship velocity (fraction of c, 0.0 to 0.99)
+	velocity float64
+
+	// Light sources for runtime adjustment
+	starLights      []*tetra.StarLight // Lights from luminous objects
+	ambientLight    *tetra.AmbientLight
+	lightMultiplier float64 // Star light intensity multiplier (0.1 to 3.0)
+	ambientLevel    float64 // Ambient light level (0.0 to 1.0)
 }
 
 // NewGame creates a new LOD demo with the specified number of objects.
@@ -88,8 +106,8 @@ func NewGame(objectCount int, screenshotFrame int, screenshotPath string, testMo
 
 	if testMode {
 		// Test mode: 4 planets at specific distances
-		// Start far away so you can see the full LOD progression
-		camera.Pos = lod.Vector3{X: 0, Y: 50, Z: 500}
+		// Start close to Sun to see Full3D lighting
+		camera.Pos = lod.Vector3{X: 0, Y: 20, Z: 80}
 		camera.LookAt = lod.Vector3{X: 0, Y: 0, Z: 0}
 		planets = createTestPlanets(manager, scene3D)
 	} else {
@@ -105,10 +123,41 @@ func NewGame(objectCount int, screenshotFrame int, screenshotPath string, testMo
 	defaultSprite := lod.CreateDefaultPlanetSprite(128, color.RGBA{255, 255, 255, 255})
 	billboardRenderer.SetDefaultSprite(defaultSprite)
 
-	// Add lighting to scene
-	sun := tetra.NewSunLight()
-	sun.AddToScene(scene3D)
-	ambient := tetra.NewAmbientLight(0.3, 0.3, 0.3, 1.0)
+	// Enable scene lighting so planets receive light from sources
+	scene3D.SetLightingEnabled(true)
+
+	// Create lights dynamically from any object with Luminosity > 0
+	// This makes light sources data-driven rather than hardcoded
+	var starLights []*tetra.StarLight
+	for _, p := range planets {
+		if p.lodObj.IsLightSource() {
+			// Create a PointLight at the object's position with its luminosity
+			// Use EffectiveLightColor for proper spectral light color
+			lightCol := p.lodObj.EffectiveLightColor()
+			r := float64(lightCol.R) / 255.0
+			g := float64(lightCol.G) / 255.0
+			b := float64(lightCol.B) / 255.0
+
+			starLight := tetra.NewStarLight(
+				p.lodObj.ID+"_light",
+				r, g, b,
+				p.lodObj.Luminosity,
+				0, // infinite range
+			)
+			starLight.SetPosition(p.lodObj.Position.X, p.lodObj.Position.Y, p.lodObj.Position.Z)
+			starLight.AddToScene(scene3D)
+			starLights = append(starLights, starLight)
+			log.Printf("Created light for %s: luminosity=%.0f, spectral color=(%.2f,%.2f,%.2f)",
+				p.lodObj.ID, p.lodObj.Luminosity, r, g, b)
+
+			// Make light-emitting objects shadeless (self-illuminated)
+			p.planet.SetShadeless(true)
+			log.Printf("Made %s shadeless (self-illuminated)", p.lodObj.ID)
+		}
+	}
+
+	// Low ambient so we see clear day/night contrast
+	ambient := tetra.NewAmbientLight(0.08, 0.08, 0.1, 1.0)
 	ambient.AddToScene(scene3D)
 
 	// Build sprite map from planet billboards
@@ -118,6 +167,17 @@ func NewGame(objectCount int, screenshotFrame int, screenshotPath string, testMo
 			planetSprites[p.lodObj.ID] = p.billboard
 		}
 	}
+
+	// Initialize shader system for SR/GR effects
+	shaderMgr := shader.NewManager()
+	srWarp := shader.NewSRWarp(shaderMgr)
+	grWarp := shader.NewGRWarp(shaderMgr)
+
+	// Pre-configure GR for demo mode (centered on screen)
+	grWarp.SetDemoMode(0.5, 0.5, 0.08, 0.01)
+
+	// Create off-screen render buffer for shader post-processing
+	renderBuffer := ebiten.NewImage(screenWidth, screenHeight)
 
 	return &Game{
 		lodManager:        manager,
@@ -134,6 +194,14 @@ func NewGame(objectCount int, screenshotFrame int, screenshotPath string, testMo
 		screenshotFrame:   screenshotFrame,
 		screenshotPath:    screenshotPath,
 		lastUpdate:        time.Now(),
+		shaderManager:     shaderMgr,
+		srWarp:            srWarp,
+		grWarp:            grWarp,
+		renderBuffer:      renderBuffer,
+		velocity:          0.0,
+		starLights:        starLights,
+		ambientLight:      ambient,
+		lightMultiplier:   1.0,
 	}
 }
 
@@ -141,23 +209,33 @@ func NewGame(objectCount int, screenshotFrame int, screenshotPath string, testMo
 func createTestPlanets(manager *lod.Manager, scene3D *tetra.Scene) []*Planet3D {
 	planets := make([]*Planet3D, 0, 4)
 
-	// Planet definitions: name, position, radius, texture path, fallback color
+	// Planet definitions: name, position, radius, texture path, fallback color, luminosity, light color
+	// Luminosity > 0 means the object emits light (e.g., stars).
+	// Due to inverse square falloff: intensity = luminosity / distance².
+	// At distance 60, luminosity 8000 gives intensity ~2.2, which is visible.
+	// Light colors based on stellar spectral classification:
+	//   G-type (Sun): Yellow-white (255, 243, 217) - ~5778K
 	defs := []struct {
-		name     string
-		pos      lod.Vector3
-		radius   float64
-		texPath  string
-		color    color.RGBA
+		name       string
+		pos        lod.Vector3
+		radius     float64
+		texPath    string
+		color      color.RGBA
+		luminosity float64    // 0 = not a light source, >0 = emits light
+		lightColor color.RGBA // spectral light color (0,0,0 = use object color)
 	}{
-		{"Sun", lod.Vector3{X: 0, Y: 0, Z: 0}, 15.0, "assets/planets/sun.jpg", color.RGBA{255, 200, 50, 255}},
-		{"Earth", lod.Vector3{X: 60, Y: 0, Z: 20}, 8.0, "assets/planets/earth.jpg", color.RGBA{50, 100, 200, 255}},
-		{"Jupiter", lod.Vector3{X: -80, Y: 10, Z: -30}, 12.0, "assets/planets/jupiter.jpg", color.RGBA{200, 150, 100, 255}},
-		{"Neptune", lod.Vector3{X: 0, Y: -20, Z: -100}, 6.0, "assets/planets/neptune.jpg", color.RGBA{50, 100, 200, 255}},
+		// Sun: G-type star, yellow-white light
+		{"Sun", lod.Vector3{X: 0, Y: 0, Z: 0}, 15.0, "assets/planets/sun.jpg", color.RGBA{255, 200, 50, 255}, 8000.0, color.RGBA{255, 243, 217, 255}},
+		{"Earth", lod.Vector3{X: 60, Y: 0, Z: 20}, 8.0, "assets/planets/earth.jpg", color.RGBA{50, 100, 200, 255}, 0, color.RGBA{}},
+		{"Jupiter", lod.Vector3{X: -80, Y: 10, Z: -30}, 12.0, "assets/planets/jupiter.jpg", color.RGBA{200, 150, 100, 255}, 0, color.RGBA{}},
+		{"Neptune", lod.Vector3{X: 0, Y: -20, Z: -100}, 6.0, "assets/planets/neptune.jpg", color.RGBA{50, 100, 200, 255}, 0, color.RGBA{}},
 	}
 
 	for _, def := range defs {
-		// Create LOD object
+		// Create LOD object with luminosity and light color
 		lodObj := lod.NewObject(def.name, def.pos, def.radius, def.color)
+		lodObj.Luminosity = def.luminosity
+		lodObj.LightColor = def.lightColor
 		manager.Add(lodObj)
 
 		// Load texture
@@ -186,6 +264,28 @@ func createTestPlanets(manager *lod.Manager, scene3D *tetra.Scene) []*Planet3D {
 	}
 
 	return planets
+}
+
+// updateLightIntensities updates all light sources based on the light multiplier.
+func (g *Game) updateLightIntensities() {
+	// Update star lights (scale their base energy by the multiplier)
+	for i, light := range g.starLights {
+		if i < len(g.planets) {
+			// Find the matching planet to get base luminosity
+			for _, p := range g.planets {
+				if p.lodObj.IsLightSource() {
+					light.SetEnergy(p.lodObj.Luminosity * g.lightMultiplier)
+					break
+				}
+			}
+		}
+	}
+
+	// Update ambient light
+	if g.ambientLight != nil {
+		// Base ambient is 1.0, scale by multiplier
+		g.ambientLight.SetEnergy(g.lightMultiplier)
+	}
 }
 
 // initializeBillboards creates billboard sprites from planet textures.
@@ -337,6 +437,83 @@ func (g *Game) Update() error {
 		}
 	}
 
+	// SR/GR effect controls
+	// 1: Toggle SR warp effect
+	if inpututil.IsKeyJustPressed(ebiten.Key1) {
+		g.srWarp.Toggle()
+		if g.srWarp.IsEnabled() {
+			log.Printf("SR Warp ENABLED (velocity: %.1f%%c)", g.velocity*100)
+		} else {
+			log.Printf("SR Warp DISABLED")
+		}
+	}
+
+	// 2: Toggle GR warp effect
+	if inpututil.IsKeyJustPressed(ebiten.Key2) {
+		g.grWarp.Toggle()
+		if g.grWarp.IsEnabled() {
+			log.Printf("GR Warp ENABLED (intensity: %s)", g.grWarp.GetDemoIntensity())
+		} else {
+			log.Printf("GR Warp DISABLED")
+		}
+	}
+
+	// 3: Cycle GR intensity (Subtle → Strong → Extreme)
+	if inpututil.IsKeyJustPressed(ebiten.Key3) && g.grWarp.IsEnabled() {
+		intensity := g.grWarp.CycleDemoIntensity()
+		log.Printf("GR intensity: %s", intensity)
+	}
+
+	// +/= : Increase velocity (accelerate toward c)
+	if ebiten.IsKeyPressed(ebiten.KeyEqual) || ebiten.IsKeyPressed(ebiten.KeyKPAdd) {
+		g.velocity += 0.005 // Increase by 0.5% c per frame
+		if g.velocity > 0.99 {
+			g.velocity = 0.99
+		}
+		g.srWarp.SetForwardVelocity(g.velocity)
+	}
+
+	// -: Decrease velocity (decelerate)
+	if ebiten.IsKeyPressed(ebiten.KeyMinus) || ebiten.IsKeyPressed(ebiten.KeyKPSubtract) {
+		g.velocity -= 0.005
+		if g.velocity < 0 {
+			g.velocity = 0
+		}
+		g.srWarp.SetForwardVelocity(g.velocity)
+	}
+
+	// 0: Reset velocity to zero
+	if inpututil.IsKeyJustPressed(ebiten.Key0) {
+		g.velocity = 0
+		g.srWarp.SetForwardVelocity(0)
+		log.Printf("Velocity reset to 0")
+	}
+
+	// [: Decrease light intensity
+	if ebiten.IsKeyPressed(ebiten.KeyLeftBracket) {
+		g.lightMultiplier -= 0.02
+		if g.lightMultiplier < 0.1 {
+			g.lightMultiplier = 0.1
+		}
+		g.updateLightIntensities()
+	}
+
+	// ]: Increase light intensity
+	if ebiten.IsKeyPressed(ebiten.KeyRightBracket) {
+		g.lightMultiplier += 0.02
+		if g.lightMultiplier > 3.0 {
+			g.lightMultiplier = 3.0
+		}
+		g.updateLightIntensities()
+	}
+
+	// L: Reset light intensity to default
+	if inpututil.IsKeyJustPressed(ebiten.KeyL) {
+		g.lightMultiplier = 1.0
+		g.updateLightIntensities()
+		log.Printf("Light intensity reset to 1.0")
+	}
+
 	// Update LOD manager with explicit delta time for smooth transitions
 	g.lodManager.UpdateWithDT(g.camera, dt)
 
@@ -374,8 +551,16 @@ func (g *Game) Update() error {
 
 // Draw renders the game.
 func (g *Game) Draw(screen *ebiten.Image) {
+	// Determine render target: buffer if using shaders, screen if not
+	renderTarget := screen
+	useShaders := g.srWarp.IsEnabled() || g.grWarp.IsEnabled()
+	if useShaders {
+		renderTarget = g.renderBuffer
+		g.renderBuffer.Clear()
+	}
+
 	// Clear to dark space color
-	screen.Fill(color.RGBA{5, 5, 15, 255})
+	renderTarget.Fill(color.RGBA{5, 5, 15, 255})
 
 	// Get objects by tier
 	points := g.lodManager.GetTierPoint()
@@ -387,22 +572,22 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	// Layer 1: Render distant objects (points)
 	// Use scaled points that grow as they approach circle threshold for smoother transition
 	config := g.lodManager.Config()
-	g.pointRenderer.RenderPointsScaled(screen, points, config.CirclePixels)
+	g.pointRenderer.RenderPointsScaled(renderTarget, points, config.CirclePixels)
 
 	// Layer 2: Render medium-distance objects (circles)
-	g.circleRenderer.RenderCircles(screen, circles)
+	g.circleRenderer.RenderCircles(renderTarget, circles)
 
 	// Layer 3: Render billboard tier (non-Full3D close objects)
 	// Use planetSprites for texture-based billboards in test mode
-	g.billboardRenderer.RenderBillboards(screen, billboards, g.planetSprites)
+	g.billboardRenderer.RenderBillboards(renderTarget, billboards, g.planetSprites)
 
 	// Layer 4: Render 3D scene (Full3D tier)
 	if g.testMode && len(full3D) > 0 {
 		img3d := g.scene3D.Render()
-		screen.DrawImage(img3d, nil)
+		renderTarget.DrawImage(img3d, nil)
 	} else if !g.testMode && len(full3D) > 0 {
 		// For non-test mode, render Full3D as glowing circles (no 3D planets)
-		g.circleRenderer.RenderCirclesWithGlow(screen, full3D, 1.5)
+		g.circleRenderer.RenderCirclesWithGlow(renderTarget, full3D, 1.5)
 	}
 
 	// Layer 5: Render transitioning objects with blending
@@ -417,17 +602,44 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		// Render previous tier with fading alpha
 		switch obj.PreviousTier {
 		case lod.TierPoint:
-			g.pointRenderer.RenderPointWithAlpha(screen, obj, prevAlpha)
+			g.pointRenderer.RenderPointWithAlpha(renderTarget, obj, prevAlpha)
 		case lod.TierCircle:
-			g.circleRenderer.RenderCircleWithAlpha(screen, obj, prevAlpha)
+			g.circleRenderer.RenderCircleWithAlpha(renderTarget, obj, prevAlpha)
 		case lod.TierBillboard:
-			g.billboardRenderer.RenderBillboardWithAlpha(screen, obj, prevAlpha, g.planetSprites)
+			g.billboardRenderer.RenderBillboardWithAlpha(renderTarget, obj, prevAlpha, g.planetSprites)
 		case lod.TierFull3D:
 			// For 3D, we'd need to fade the mesh - for now just render as glowing circle
 			if !g.testMode {
-				g.circleRenderer.RenderCircleWithAlpha(screen, obj, prevAlpha)
+				g.circleRenderer.RenderCircleWithAlpha(renderTarget, obj, prevAlpha)
 			}
 		}
+	}
+
+	// Apply shader post-processing effects
+	if useShaders {
+		// Chain shaders: renderBuffer → intermediate → screen
+		// For now, apply SR first, then GR
+		src := g.renderBuffer
+
+		// Apply SR warp if enabled
+		if g.srWarp.IsEnabled() && g.velocity >= 0.05 {
+			// Create intermediate buffer for chaining
+			intermediate := ebiten.NewImage(screenWidth, screenHeight)
+			if g.srWarp.Apply(intermediate, src) {
+				src = intermediate
+			}
+		}
+
+		// Apply GR warp if enabled
+		if g.grWarp.IsEnabled() {
+			intermediate := ebiten.NewImage(screenWidth, screenHeight)
+			if g.grWarp.Apply(intermediate, src) {
+				src = intermediate
+			}
+		}
+
+		// Draw final result to screen
+		screen.DrawImage(src, nil)
 	}
 
 	// Draw stats overlay
@@ -473,6 +685,22 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		)
 	}
 
+	// SR/GR status
+	srStatus := "OFF"
+	grStatus := "OFF"
+	if g.srWarp.IsEnabled() {
+		srStatus = "ON"
+	}
+	if g.grWarp.IsEnabled() {
+		grStatus = fmt.Sprintf("ON (%s)", g.grWarp.GetDemoIntensity())
+	}
+
+	// Calculate gamma (Lorentz factor)
+	gamma := 1.0
+	if g.velocity > 0 {
+		gamma = 1.0 / math.Sqrt(1.0-g.velocity*g.velocity)
+	}
+
 	statsText := fmt.Sprintf(
 		"LOD Demo - %s\n"+
 			"FPS: %.1f\n"+
@@ -489,11 +717,22 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			"  Visible:   %d\n"+
 			"  Transitioning: %d\n"+
 			"\n"+
+			"Lighting:\n"+
+			"  Multiplier: %.1fx\n"+
+			"  Sources:    %d\n"+
+			"\n"+
+			"Relativistic Effects:\n"+
+			"  Velocity: %.1f%% c\n"+
+			"  Gamma:    %.2f\n"+
+			"  SR Warp:  %s\n"+
+			"  GR Warp:  %s\n"+
+			"\n"+
 			"Controls:\n"+
-			"  WASD/Arrows: Move camera\n"+
-			"  Q/E: Up/Down\n"+
-			"  Shift: Fast move\n"+
-			"  R: Reset position",
+			"  WASD/Arrows: Move | Q/E: Up/Down\n"+
+			"  Shift: Fast | R: Reset position\n"+
+			"  [ / ]: Decrease/Increase light\n"+
+			"  L: Reset light | 1/2: SR/GR warp\n"+
+			"  3: Cycle GR | +/-/0: Velocity",
 		modeStr,
 		g.fps,
 		g.camera.Pos.X, g.camera.Pos.Y, g.camera.Pos.Z,
@@ -505,6 +744,12 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		stats.CulledCount,
 		stats.VisibleCount,
 		len(transitioning),
+		g.lightMultiplier,
+		len(g.starLights),
+		g.velocity*100,
+		gamma,
+		srStatus,
+		grStatus,
 	)
 	ebitenutil.DebugPrint(screen, statsText)
 

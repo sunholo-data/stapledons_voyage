@@ -170,3 +170,14 @@ func (p *Planet) Rotation() float64 {
 func (p *Planet) FlipX() {
 	p.model.Rotate(1, 0, 0, 3.14159265359) // π radians = 180°
 }
+
+// SetShadeless makes the planet ignore lighting (self-illuminated).
+// Use this for stars/suns that should emit light rather than receive it.
+func (p *Planet) SetShadeless(shadeless bool) {
+	p.material.Shadeless = shadeless
+}
+
+// IsShadeless returns whether the planet ignores lighting.
+func (p *Planet) IsShadeless() bool {
+	return p.material.Shadeless
+}

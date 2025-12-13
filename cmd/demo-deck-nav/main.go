@@ -21,6 +21,7 @@ import (
 
 	"stapledons_voyage/engine/demo"
 	"stapledons_voyage/engine/render"
+	"stapledons_voyage/game_views"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -37,8 +38,8 @@ const (
 type DeckDemo struct {
 	// Renderers
 	spire      *render.HiggsSpire
-	preview    *render.DeckPreview
-	transition *render.DeckTransition
+	preview    *game_views.DeckPreview
+	transition *game_views.DeckTransition
 
 	// State
 	currentDeck int
@@ -52,8 +53,8 @@ type DeckDemo struct {
 func NewDeckDemo() *DeckDemo {
 	return &DeckDemo{
 		spire:       render.NewHiggsSpire(screenWidth, screenHeight),
-		preview:     render.NewDeckPreview(screenWidth, screenHeight),
-		transition:  render.NewDeckTransition(screenWidth, screenHeight),
+		preview:     game_views.NewDeckPreview(screenWidth, screenHeight),
+		transition:  game_views.NewDeckTransition(screenWidth, screenHeight),
 		currentDeck: 4, // Start on Bridge
 		targetDeck:  4,
 	}

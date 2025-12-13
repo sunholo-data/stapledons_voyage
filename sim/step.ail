@@ -221,6 +221,12 @@ export func step(world: World, input: FrameInput) -> (World, FrameOutput) ! {Ran
     let drawCmds = renderForView(newWorld);
 
     let cam = { x: 0.0, y: 0.0, zoom: 1.0 };
-    let output = { draw: drawCmds, sounds: [], debug: [], camera: cam };
+
+    -- Default relativity context (no effects enabled)
+    let srCtx = { enabled: false, velocity: 0.0, gamma: 1.0, viewAngle: 0.0 };
+    let grCtx = { enabled: false, centerX: 0.5, centerY: 0.5, phi: 0.0, rs: 0.0, objectType: "" };
+    let relCtx = { sr: srCtx, gr: grCtx };
+
+    let output = { draw: drawCmds, sounds: [], debug: [], camera: cam, relativity: relCtx };
     (newWorld, output)
 }

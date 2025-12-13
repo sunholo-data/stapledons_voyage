@@ -148,6 +148,36 @@ export type DrawCmd =
     )
 
 -- =============================================================================
+-- Relativity Types (for SR/GR shader effects)
+-- =============================================================================
+
+-- Special Relativity context (ship velocity effects)
+-- The engine applies aberration, Doppler shift, and beaming based on velocity
+export type SRContext = {
+    enabled: bool,
+    velocity: float,     -- Fraction of c (0.0 to 0.99)
+    gamma: float,        -- Lorentz factor: 1/sqrt(1-v²/c²)
+    viewAngle: float     -- 0=forward, π/2=side, π=backward
+}
+
+-- General Relativity context (gravitational effects near massive objects)
+-- The engine applies gravitational lensing and redshift
+export type GRContext = {
+    enabled: bool,
+    centerX: float,      -- Screen X of massive object (0-1 normalized)
+    centerY: float,      -- Screen Y of massive object (0-1 normalized)
+    phi: float,          -- Gravitational potential GM/(rc²), higher = stronger
+    rs: float,           -- Schwarzschild radius in screen units (visual size)
+    objectType: string   -- "bh" (black hole), "ns" (neutron star), "wd" (white dwarf)
+}
+
+-- Combined relativity context for shader pipeline
+export type RelativityContext = {
+    sr: SRContext,
+    gr: GRContext
+}
+
+-- =============================================================================
 -- Output Types
 -- =============================================================================
 
@@ -156,5 +186,6 @@ export type FrameOutput = {
     draw: [DrawCmd],
     sounds: [int],
     debug: [string],
-    camera: Camera
+    camera: Camera,
+    relativity: RelativityContext  -- SR/GR shader context
 }

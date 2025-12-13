@@ -1,6 +1,5 @@
-// Package render provides deck transition animations - smooth animated
-// transitions between ship decks with fade and slide effects.
-package render
+// Package game_views contains game-specific rendering helpers for Stapledon's Voyage.
+package game_views
 
 import (
 	"image/color"

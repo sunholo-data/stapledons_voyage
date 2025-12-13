@@ -1,4 +1,6 @@
-package view
+// Package game_views contains game-specific rendering helpers for Stapledon's Voyage.
+// These reference game concepts (decks, planets, ship structure) and should not be in engine/.
+package game_views
 
 import (
 	"image"
@@ -10,6 +12,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"stapledons_voyage/engine/tetra"
+	"stapledons_voyage/engine/view"
 	"stapledons_voyage/engine/view/background"
 	"stapledons_voyage/sim_gen"
 )
@@ -21,7 +24,7 @@ type DomeRenderer struct {
 	spaceBackground *background.SpaceBackground
 
 	// Planet layer for 3D planets
-	planetLayer *PlanetLayer
+	planetLayer *view.PlanetLayer
 	planets     []*tetra.Planet
 	rings       []*tetra.Ring
 
@@ -91,7 +94,7 @@ func NewDomeRenderer(config DomeConfig) *DomeRenderer {
 	}
 
 	// Create planet layer for 3D planet rendering
-	d.planetLayer = NewPlanetLayer(config.BufferWidth, config.BufferHeight)
+	d.planetLayer = view.NewPlanetLayer(config.BufferWidth, config.BufferHeight)
 
 	// Create the solar system
 	d.createSolarSystem()

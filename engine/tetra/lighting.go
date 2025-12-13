@@ -80,3 +80,59 @@ func NewAmbientLight(r, g, b, energy float64) *AmbientLight {
 func (a *AmbientLight) AddToScene(scene *Scene) {
 	scene.Root().AddChildren(a.light)
 }
+
+// SetEnergy sets the ambient light's intensity.
+func (a *AmbientLight) SetEnergy(energy float64) {
+	a.light.SetEnergy(float32(energy))
+}
+
+// Light returns the underlying Tetra3D ambient light.
+func (a *AmbientLight) Light() *tetra3d.AmbientLight {
+	return a.light
+}
+
+// StarLight represents a point light that radiates from a star/sun.
+// Unlike DirectionalLight (parallel rays), PointLight radiates from a position
+// and falls off with distance - more realistic for solar system views.
+type StarLight struct {
+	light *tetra3d.PointLight
+}
+
+// NewStarLight creates a new point light at the star's position.
+// range_ is the maximum distance the light reaches (0 = infinite).
+// energy is the light intensity (1.0 = normal).
+func NewStarLight(name string, r, g, b, energy, range_ float64) *StarLight {
+	light := tetra3d.NewPointLight(name, float32(r), float32(g), float32(b), float32(energy))
+	light.Range = float32(range_) // 0 = infinite range
+	return &StarLight{light: light}
+}
+
+// SetPosition sets the star light's position (where the star is).
+func (s *StarLight) SetPosition(x, y, z float64) {
+	s.light.SetLocalPosition(float32(x), float32(y), float32(z))
+}
+
+// SetColor sets the light's color (e.g., yellow-white for sun, blue for hot stars).
+func (s *StarLight) SetColor(r, g, b float64) {
+	s.light.SetColor(tetra3d.NewColor(float32(r), float32(g), float32(b), 1))
+}
+
+// SetEnergy sets the light's intensity.
+func (s *StarLight) SetEnergy(energy float64) {
+	s.light.SetEnergy(float32(energy))
+}
+
+// SetRange sets the maximum distance the light reaches (0 = infinite).
+func (s *StarLight) SetRange(range_ float64) {
+	s.light.Range = float32(range_)
+}
+
+// AddToScene adds the star light to a scene.
+func (s *StarLight) AddToScene(scene *Scene) {
+	scene.Root().AddChildren(s.light)
+}
+
+// Light returns the underlying Tetra3D point light.
+func (s *StarLight) Light() *tetra3d.PointLight {
+	return s.light
+}
