@@ -105,9 +105,9 @@ func NewGame(objectCount int, screenshotFrame int, screenshotPath string, testMo
 	var planets []*Planet3D
 
 	if testMode {
-		// Test mode: 4 planets at specific distances
-		// Start close to Sun to see Full3D lighting
-		camera.Pos = lod.Vector3{X: 0, Y: 20, Z: 80}
+		// Test mode: 5 planets at specific distances
+		// Start with good view of Earth and Sun, can see Saturn and Jupiter
+		camera.Pos = lod.Vector3{X: 30, Y: 30, Z: 100}
 		camera.LookAt = lod.Vector3{X: 0, Y: 0, Z: 0}
 		planets = createTestPlanets(manager, scene3D)
 	} else {
@@ -206,9 +206,9 @@ func NewGame(objectCount int, screenshotFrame int, screenshotPath string, testMo
 	}
 }
 
-// createTestPlanets creates 4 test planets with real textures at known positions
+// createTestPlanets creates test planets with real textures at known positions
 func createTestPlanets(manager *lod.Manager, scene3D *tetra.Scene) []*Planet3D {
-	planets := make([]*Planet3D, 0, 4)
+	planets := make([]*Planet3D, 0, 5)
 
 	// Planet definitions: name, position, radius, texture path, fallback color, luminosity, light color
 	// Luminosity > 0 means the object emits light (e.g., stars).
@@ -216,6 +216,15 @@ func createTestPlanets(manager *lod.Manager, scene3D *tetra.Scene) []*Planet3D {
 	// At distance 60, luminosity 8000 gives intensity ~2.2, which is visible.
 	// Light colors based on stellar spectral classification:
 	//   G-type (Sun): Yellow-white (255, 243, 217) - ~5778K
+	//
+	// Layout (top-down view, +Z is "up" screen):
+	//                   Neptune (0, -20, -120)
+	//                        |
+	//   Jupiter (-100, 10, -40)    Saturn (80, 5, -60)
+	//                        |
+	//                   Sun (0, 0, 0)
+	//                        |
+	//                   Earth (50, 0, 40)
 	defs := []struct {
 		name       string
 		pos        lod.Vector3
@@ -225,11 +234,16 @@ func createTestPlanets(manager *lod.Manager, scene3D *tetra.Scene) []*Planet3D {
 		luminosity float64    // 0 = not a light source, >0 = emits light
 		lightColor color.RGBA // spectral light color (0,0,0 = use object color)
 	}{
-		// Sun: G-type star, yellow-white light
+		// Sun: G-type star, yellow-white light (center)
 		{"Sun", lod.Vector3{X: 0, Y: 0, Z: 0}, 15.0, "assets/planets/sun.jpg", color.RGBA{255, 200, 50, 255}, 8000.0, color.RGBA{255, 243, 217, 255}},
-		{"Earth", lod.Vector3{X: 60, Y: 0, Z: 20}, 8.0, "assets/planets/earth.jpg", color.RGBA{50, 100, 200, 255}, 0, color.RGBA{}},
-		{"Jupiter", lod.Vector3{X: -80, Y: 10, Z: -30}, 12.0, "assets/planets/jupiter.jpg", color.RGBA{200, 150, 100, 255}, 0, color.RGBA{}},
-		{"Neptune", lod.Vector3{X: 0, Y: -20, Z: -100}, 6.0, "assets/planets/neptune.jpg", color.RGBA{50, 100, 200, 255}, 0, color.RGBA{}},
+		// Earth: Close, in front-right (good for initial view)
+		{"Earth", lod.Vector3{X: 50, Y: 0, Z: 40}, 8.0, "assets/planets/earth.jpg", color.RGBA{50, 100, 200, 255}, 0, color.RGBA{}},
+		// Jupiter: Large gas giant, left side
+		{"Jupiter", lod.Vector3{X: -100, Y: 10, Z: -40}, 12.0, "assets/planets/jupiter.jpg", color.RGBA{200, 150, 100, 255}, 0, color.RGBA{}},
+		// Saturn: Ringed gas giant, right side (between Earth and Neptune)
+		{"Saturn", lod.Vector3{X: 80, Y: 5, Z: -60}, 10.0, "assets/planets/saturn.jpg", color.RGBA{220, 190, 140, 255}, 0, color.RGBA{}},
+		// Neptune: Far ice giant, deep background
+		{"Neptune", lod.Vector3{X: 0, Y: -20, Z: -120}, 6.0, "assets/planets/neptune.jpg", color.RGBA{50, 100, 200, 255}, 0, color.RGBA{}},
 	}
 
 	for _, def := range defs {
@@ -433,7 +447,7 @@ func (g *Game) Update() error {
 
 	if ebiten.IsKeyPressed(ebiten.KeyR) {
 		if g.testMode {
-			g.camera.Pos = lod.Vector3{X: 0, Y: 20, Z: 150}
+			g.camera.Pos = lod.Vector3{X: 30, Y: 30, Z: 100}
 		} else {
 			g.camera.Pos = lod.Vector3{X: 0, Y: 0, Z: 500}
 		}
@@ -813,15 +827,16 @@ func main() {
 	objectCount := flag.Int("objects", 5000, "Number of objects to render")
 	screenshotFrame := flag.Int("screenshot", 0, "Frame to take screenshot (0 = disabled)")
 	screenshotPath := flag.String("output", "", "Screenshot output path")
-	testMode := flag.Bool("test", false, "Test mode: 4 textured planets at fixed positions")
+	testMode := flag.Bool("test", false, "Test mode: 5 textured planets at fixed positions")
 	flag.Parse()
 
 	if *testMode {
-		fmt.Println("LOD Demo: Test mode - 4 textured planets")
-		fmt.Println("  Sun (0,0,0): Yellow star")
-		fmt.Println("  Earth (60,0,20): Blue planet")
-		fmt.Println("  Jupiter (-80,10,-30): Brown gas giant")
-		fmt.Println("  Uranus (0,-20,-100): Cyan ice giant")
+		fmt.Println("LOD Demo: Test mode - 5 textured planets")
+		fmt.Println("  Sun (0,0,0): Yellow star (light source)")
+		fmt.Println("  Earth (50,0,40): Blue planet")
+		fmt.Println("  Jupiter (-100,10,-40): Brown gas giant")
+		fmt.Println("  Saturn (80,5,-60): Ringed gas giant")
+		fmt.Println("  Neptune (0,-20,-120): Blue ice giant")
 		fmt.Println("\nMove toward planets to see 3D textures (Full3D tier < 50 units)")
 	} else {
 		fmt.Printf("LOD Demo: Rendering %d objects\n", *objectCount)

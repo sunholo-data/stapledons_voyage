@@ -1,0 +1,47 @@
+{
+  "sprint_id": "voyage-api-reference",
+  "design_doc": "design_docs/planned/voyage-api-reference.md",
+  "sprint_plan": "sprints/voyage-api-reference-sprint.md",
+  "status": "completed",
+  "started_at": "2025-12-13",
+  "completed_at": "2025-12-13",
+  "phases": {
+    "core_implementation": {
+      "status": "completed",
+      "tasks": [
+        {"name": "Create cmd_api.go", "status": "completed"},
+        {"name": "Implement extractPackageAPI()", "status": "completed"},
+        {"name": "Extract exported types", "status": "completed"},
+        {"name": "Extract exported functions", "status": "completed"},
+        {"name": "Extract methods", "status": "completed"},
+        {"name": "Extract doc comments", "status": "completed"}
+      ]
+    },
+    "commands": {
+      "status": "completed",
+      "tasks": [
+        {"name": "voyage api (list packages)", "status": "completed"},
+        {"name": "voyage api <package>", "status": "completed"},
+        {"name": "voyage api <package>.<Type>", "status": "completed"},
+        {"name": "voyage api --search", "status": "completed"},
+        {"name": "--methods flag", "status": "completed"}
+      ]
+    },
+    "integration": {
+      "status": "completed",
+      "tasks": [
+        {"name": "Add to main.go", "status": "completed"},
+        {"name": "Update printUsage()", "status": "completed"},
+        {"name": "Test all packages", "status": "completed"},
+        {"name": "Verify output formatting", "status": "completed"}
+      ]
+    }
+  },
+  "files_created": [
+    "cmd/voyage/cmd_api.go"
+  ],
+  "files_modified": [
+    "cmd/voyage/main.go"
+  ],
+  "notes": "Implemented using Go AST parsing (Option A from design doc) - automatically stays up-to-date with source code changes."
+}

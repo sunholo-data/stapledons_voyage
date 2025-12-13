@@ -1785,6 +1785,38 @@ type RelativityContext struct {
 	Gr *GRContext
 }
 
+// RGBColor is a record type
+type RGBColor struct {
+	R float64
+	G float64
+	B float64
+}
+
+// LightSource is a record type
+type LightSource struct {
+	Id     string
+	X      float64
+	Y      float64
+	Z      float64
+	Energy float64
+	Color  *RGBColor
+	Range  float64
+}
+
+// AmbientSettings is a record type
+type AmbientSettings struct {
+	Energy float64
+	Color  *RGBColor
+}
+
+// LightingContext is a record type
+type LightingContext struct {
+	Enabled         bool
+	Ambient         *AmbientSettings
+	Lights          []*LightSource
+	LightMultiplier float64
+}
+
 // FrameOutput is a record type
 type FrameOutput struct {
 	Draw       []*DrawCmd
@@ -1792,6 +1824,7 @@ type FrameOutput struct {
 	Debug      []string
 	Camera     *Camera
 	Relativity *RelativityContext
+	Lighting   *LightingContext
 }
 
 // OptionKind discriminates between variants of Option
@@ -2887,6 +2920,66 @@ type ShipLevels struct {
 	CurrentDeck     *DeckType
 	TransitionState *TransitionState
 	SpireGlow       float64
+}
+
+// Vector3 is a record type
+type Vector3 struct {
+	X float64
+	Y float64
+	Z float64
+}
+
+// Moon is a record type
+type Moon struct {
+	Name        string
+	Radius      float64
+	ColorR      float64
+	ColorG      float64
+	ColorB      float64
+	OrbitRadius float64
+	OrbitSpeed  float64
+	OrbitPhase  float64
+}
+
+// RingBand is a record type
+type RingBand struct {
+	InnerRadius float64
+	OuterRadius float64
+	ColorRgba   int64
+	Opacity     float64
+}
+
+// SolarPlanet is a record type
+type SolarPlanet struct {
+	Name          string
+	PosX          float64
+	PosY          float64
+	PosZ          float64
+	Radius        float64
+	ColorRgba     int64
+	TextureName   string
+	Rotation      float64
+	RotationSpeed float64
+	HasRings      bool
+	RingColor     int64
+}
+
+// SolarDemoState is a record type
+type SolarDemoState struct {
+	Tick         int64
+	CameraX      float64
+	CameraY      float64
+	CameraZ      float64
+	LookAtX      float64
+	LookAtY      float64
+	LookAtZ      float64
+	ShipVelocity float64
+	GrEnabled    bool
+	GrCenterX    float64
+	GrCenterY    float64
+	GrPhi        float64
+	SunEnergy    float64
+	AmbientLevel float64
 }
 
 // Tile is a record type

@@ -41,6 +41,8 @@ func main() {
 		runScreenshotCommand(args)
 	case "manifest":
 		runManifestCommand(args)
+	case "api":
+		runAPICommand(args)
 	case "ai":
 		runAICommand(args)
 	case "world":
@@ -73,6 +75,7 @@ Commands:
   watch       Watch sim/*.ail and auto-rebuild on changes
   screenshot  Capture screenshots from demos
   manifest    Validate asset manifests
+  api         Explore engine API documentation
 
   ai          Test AI handlers (Claude, Gemini)
   world       Inspect world state (NPCs, tiles, planets)

@@ -809,6 +809,13 @@ make clean  # Removes bin/, out/* but preserves structure
 The `voyage` CLI provides development tools. Install with `make install`.
 
 ```bash
+# API documentation (always up-to-date via AST parsing)
+voyage api                      # List all engine packages
+voyage api tetra                # List types in package
+voyage api tetra.Scene          # Show type details
+voyage api tetra.Scene --methods # Show with method signatures
+voyage api --search camera      # Search across all packages
+
 # Demo runner (use instead of manual go run)
 voyage demo              # Interactive selection menu
 voyage demo bridge       # Run demo-game-bridge directly
@@ -837,6 +844,7 @@ voyage ai                # Test AI handlers
 ```
 
 **Use `voyage` commands for:**
+- Engine API lookup (find correct signatures, constructors, methods)
 - Quick demo switching during development
 - Auto-rebuild while editing AILANG
 - Screenshot capture for visual verification

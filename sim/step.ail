@@ -227,6 +227,10 @@ export func step(world: World, input: FrameInput) -> (World, FrameOutput) ! {Ran
     let grCtx = { enabled: false, centerX: 0.5, centerY: 0.5, phi: 0.0, rs: 0.0, objectType: "" };
     let relCtx = { sr: srCtx, gr: grCtx };
 
-    let output = { draw: drawCmds, sounds: [], debug: [], camera: cam, relativity: relCtx };
+    -- Default lighting context (no active lights)
+    let ambientSettings = { energy: 1.0, color: { r: 1.0, g: 1.0, b: 1.0 } };
+    let lightingCtx = { enabled: false, ambient: ambientSettings, lights: [], lightMultiplier: 1.0 };
+
+    let output = { draw: drawCmds, sounds: [], debug: [], camera: cam, relativity: relCtx, lighting: lightingCtx };
     (newWorld, output)
 }

@@ -557,15 +557,15 @@ func updateGalaxyView(world *World, newTick int64) *World {
 
 func step_impl(world interface{}, input interface{}) interface{} {
 	var newTick interface{} = func() interface{} {
-		var tmp103 interface{} = FieldGet(world, "tick")
-		_ = tmp103 // suppress unused
-		return AddInt(tmp103, int64(1))
+		var tmp105 interface{} = FieldGet(world, "tick")
+		_ = tmp105 // suppress unused
+		return AddInt(tmp105, int64(1))
 	}()
 	var newWorld interface{} = func() interface{} {
-		var tmp102 interface{} = FieldGet(world, "viewMode")
-		_ = tmp102 // suppress unused
+		var tmp104 interface{} = FieldGet(world, "viewMode")
+		_ = tmp104 // suppress unused
 		return func() interface{} {
-			_scrutinee := tmp102
+			_scrutinee := tmp104
 			_ = _scrutinee // suppress unused
 			switch _scrutinee {
 			default:
@@ -578,12 +578,22 @@ func step_impl(world interface{}, input interface{}) interface{} {
 	var srCtx interface{} = &SRContext{Enabled: false, Velocity: float64(0), Gamma: float64(1), ViewAngle: float64(0)}
 	var grCtx interface{} = &GRContext{Enabled: false, CenterX: float64(0.5), CenterY: float64(0.5), Phi: float64(0), Rs: float64(0), ObjectType: ""}
 	var relCtx interface{} = &RelativityContext{Sr: srCtx.(*SRContext), Gr: grCtx.(*GRContext)}
+	var ambientSettings interface{} = func() interface{} {
+		var tmp103 interface{} = &RGBColor{R: float64(1), G: float64(1), B: float64(1)}
+		_ = tmp103 // suppress unused
+		return &AmbientSettings{Energy: float64(1), Color: tmp103.(*RGBColor)}
+	}()
+	var lightingCtx interface{} = func() interface{} {
+		var tmp102 interface{} = []interface{}{}
+		_ = tmp102 // suppress unused
+		return &LightingContext{Enabled: false, Ambient: ambientSettings.(*AmbientSettings), Lights: ConvertToLightSourceSlice(tmp102), LightMultiplier: float64(1)}
+	}()
 	var output interface{} = func() interface{} {
 		var tmp100 interface{} = []interface{}{}
 		_ = tmp100 // suppress unused
 		var tmp101 interface{} = []interface{}{}
 		_ = tmp101 // suppress unused
-		return &FrameOutput{Draw: ConvertToDrawCmdSlice(drawCmds), Sounds: ConvertToInt64Slice(tmp100), Debug: ConvertToStringSlice(tmp101), Camera: cam.(*Camera), Relativity: relCtx.(*RelativityContext)}
+		return &FrameOutput{Draw: ConvertToDrawCmdSlice(drawCmds), Sounds: ConvertToInt64Slice(tmp100), Debug: ConvertToStringSlice(tmp101), Camera: cam.(*Camera), Relativity: relCtx.(*RelativityContext), Lighting: lightingCtx.(*LightingContext)}
 	}()
 	return []interface{}{newWorld, output}
 }

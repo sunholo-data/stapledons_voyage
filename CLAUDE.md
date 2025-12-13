@@ -206,6 +206,13 @@ ailang messages watch                  # Watch for new messages
 The `voyage` CLI provides development tools. Install with `make install`.
 
 ```bash
+# API documentation (always up-to-date via AST parsing)
+voyage api                      # List all engine packages
+voyage api tetra                # List types in package
+voyage api tetra.Scene          # Show type details
+voyage api tetra.Scene --methods # Show with method signatures
+voyage api --search camera      # Search across all packages
+
 # Demo runner (interactive selection)
 voyage demo              # Show menu, pick by number or name
 voyage demo bridge       # Run demo-game-bridge directly
@@ -364,17 +371,24 @@ Before adding code to `engine/`, ask:
 |----------|---------|----------|
 | `sim/*.ail` | ALL game logic and data | World, NPC, Planet, DeckType definitions |
 | `sim_gen/*.go` | Generated types (OK to have game types) | Auto-generated from AILANG |
-| `game_views/*.go` | Game-specific rendering helpers | DomeRenderer, DeckStackRenderer |
+| `game_views/*.go` | Game-specific rendering helpers | DeckPreview, DeckTransition |
 | `engine/*.go` | Generic rendering (ANY game could use) | DrawCmd switch, Camera, Asset loading |
 
 #### Migrated to game_views/ (Done)
 
 | File | Status |
 |------|--------|
-| `game_views/dome_renderer.go` | ✅ Moved from engine/view/ |
 | `game_views/deck_stack.go` | ✅ Moved from engine/render/ |
 | `game_views/deck_preview.go` | ✅ Moved from engine/render/ |
 | `game_views/deck_transition.go` | ✅ Moved from engine/render/ |
+
+#### Removed (Superseded by LOD system)
+
+| File | Reason |
+|------|--------|
+| `engine/view/planet_layer.go` | Hardcoded lighting; use `demo-lod` data-driven approach |
+| `game_views/dome_renderer.go` | Used planet_layer.go; superseded by LOD system |
+| `cmd/demo-engine-lookat/` | Used planet_layer.go; camera targeting now in demo-lod |
 
 #### Remaining Violations (Lower Priority)
 

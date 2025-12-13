@@ -33,9 +33,9 @@
 | Demo | Feature | Run Command |
 |------|---------|-------------|
 | `demo-engine-ai` | AI capabilities (text/image/TTS) | `go run ./cmd/demo-engine-ai` |
-| `demo-engine-lookat` | Camera LookAt diagnostics | `go run ./cmd/demo-engine-lookat` |
 | `demo-engine-tetra` | Tetra3D 3D rendering | `go run ./cmd/demo-engine-tetra` |
 | `demo-engine-solar` | 3D planet compositing | `go run ./cmd/demo-engine-solar` |
+| `demo-lod` | LOD system + SR/GR effects | `go run ./cmd/demo-lod --test` |
 
 ### Asset Generators
 
@@ -141,6 +141,8 @@ go build -o bin/demo-game-YOURNAME ./cmd/demo-game-YOURNAME
 | Parallax/Depth | `demo-game-parallax` | Working |
 | Starmap | `demo-game-starmap` | Working |
 | 3D Planets | `demo-engine-tetra`, `demo-engine-solar` | Working |
+| LOD + 3D Planets | `demo-lod` | Working |
+| SR/GR Effects | `demo-lod` | Working |
 | Galaxy Map | - | Needs demo |
 | Journey/Time Dilation | - | Needs demo |
 | Save System | - | Needs demo |

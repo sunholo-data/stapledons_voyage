@@ -1,0 +1,74 @@
+{
+  "sprint_id": "ailang-solar-system-demo",
+  "design_doc": "design_docs/planned/ailang-solar-system-demo.md",
+  "sprint_plan": "sprints/ailang-solar-system-demo-sprint.md",
+  "status": "complete",
+  "blocker": null,
+  "days": 3,
+  "priority": "P1",
+  "created": "2025-12-13",
+  "progress": {
+    "day1": {
+      "name": "AILANG Types & Basic State",
+      "status": "complete",
+      "tasks": {
+        "create_module": true,
+        "define_types": true,
+        "init_function": true,
+        "planet_helpers": true,
+        "compile_check": true
+      }
+    },
+    "day2": {
+      "name": "Step Function & DrawCmd Generation",
+      "status": "complete",
+      "tasks": {
+        "import_protocol": true,
+        "camera_handling": true,
+        "planet_rotation": true,
+        "draw_commands": true,
+        "lighting_context": true,
+        "relativity_context": true,
+        "step_function": true,
+        "compile_check": true
+      }
+    },
+    "day3": {
+      "name": "Go Demo Entry Point & Integration",
+      "status": "complete",
+      "tasks": {
+        "create_main": true,
+        "implement_update": true,
+        "implement_draw": true,
+        "overlay_ui": true,
+        "test_lod": true,
+        "test_lighting": true,
+        "test_sr": true,
+        "test_gr": true,
+        "screenshot_mode": true
+      }
+    }
+  },
+  "files_to_create": [
+    "sim/solar_demo.ail",
+    "cmd/demo-ailang-solar/main.go"
+  ],
+  "files_created": [
+    "sim/solar_demo.ail",
+    "cmd/demo-ailang-solar/main.go"
+  ],
+  "success_criteria": [
+    "ailang check sim/solar_demo.ail passes",
+    "make sim && go build ./... succeeds",
+    "Demo launches: bin/demo-ailang-solar",
+    "All 8 planets render with TexturedPlanet",
+    "Saturn rings visible when close",
+    "Moons orbit parent planets",
+    "LightingContext controls Tetra3D lights",
+    "RelativityContext enables SR/GR shaders",
+    "LOD transitions work smoothly",
+    "No hardcoded planet data in Go",
+    "Screenshot mode works"
+  ],
+  "last_updated": "2025-12-13T20:41:00Z"
+}

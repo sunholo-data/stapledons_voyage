@@ -252,7 +252,7 @@ func shapeToParams_impl(shape interface{}) interface{} {
 }
 
 func shapeToParams(shape *ViewportShape) []float64 {
-	return shapeToParams_impl(shape).([]float64)
+	return ConvertToFloat64Slice(shapeToParams_impl(shape))
 }
 
 func contentTypeToInt_impl(content interface{}) interface{} {
@@ -324,7 +324,7 @@ func contentToParams_impl(content interface{}) interface{} {
 }
 
 func contentToParams(content *ViewportContent) []float64 {
-	return contentToParams_impl(content).([]float64)
+	return ConvertToFloat64Slice(contentToParams_impl(content))
 }
 
 func effectTypeToInt_impl(effect interface{}) interface{} {
@@ -392,7 +392,7 @@ func effectToParams_impl(effect interface{}) interface{} {
 }
 
 func effectToParams(effect *ViewportEffect) []float64 {
-	return effectToParams_impl(effect).([]float64)
+	return ConvertToFloat64Slice(effectToParams_impl(effect))
 }
 
 func firstEffect_impl(vp interface{}) interface{} {
@@ -446,7 +446,7 @@ func viewportToDrawCmd_impl(vp interface{}, z interface{}) interface{} {
 	var tmp26 interface{} = FieldGet(vp, "opacity")
 	var tmp27 interface{} = FieldGet(vp, "screenX")
 	var tmp28 interface{} = FieldGet(vp, "screenY")
-	return NewDrawCmdViewport(tmp23.(string), shapeT.(int64), shapeP.([]float64), contentT.(int64), contentP.([]float64), effectT.(int64), effectP.([]float64), tmp24.(int64), tmp25.(float64), tmp26.(float64), tmp27.(float64), tmp28.(float64), z.(int64))
+	return NewDrawCmdViewport(tmp23.(string), shapeT.(int64), ConvertToFloat64Slice(shapeP), contentT.(int64), ConvertToFloat64Slice(contentP), effectT.(int64), ConvertToFloat64Slice(effectP), tmp24.(int64), tmp25.(float64), tmp26.(float64), tmp27.(float64), tmp28.(float64), z.(int64))
 }
 
 func ViewportToDrawCmd(vp *ViewportDef, z int64) *DrawCmd {

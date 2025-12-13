@@ -1,0 +1,210 @@
+module sim/solar_demo
+
+-- =============================================================================
+-- AILANG Solar System Demo
+-- Validates AILANG-first architecture for celestial rendering
+-- =============================================================================
+
+import sim/protocol (
+    FrameInput, FrameOutput, DrawCmd, Camera,
+    LightingContext, LightSource, AmbientSettings, RGBColor,
+    RelativityContext, SRContext, GRContext,
+    TexturedPlanet, SpaceBg
+)
+
+-- =============================================================================
+-- Core Types
+-- =============================================================================
+
+-- 3D position vector
+export type Vector3 = { x: float, y: float, z: float }
+
+-- Moon definition (orbits a planet)
+export type Moon = {
+    name: string,
+    radius: float,
+    colorR: float,
+    colorG: float,
+    colorB: float,
+    orbitRadius: float,
+    orbitSpeed: float,
+    orbitPhase: float
+}
+
+-- Ring band for ringed planets (Saturn, Uranus)
+export type RingBand = {
+    innerRadius: float,
+    outerRadius: float,
+    colorRgba: int,
+    opacity: float
+}
+
+-- Planet with all visual properties (SolarPlanet to avoid collision with bridge.ail Planet)
+export type SolarPlanet = {
+    name: string,
+    posX: float,
+    posY: float,
+    posZ: float,
+    radius: float,
+    colorRgba: int,
+    textureName: string,
+    rotation: float,
+    rotationSpeed: float,
+    hasRings: bool,
+    ringColor: int
+}
+
+-- Demo state (owned by AILANG, rendered by Go)
+export type SolarDemoState = {
+    tick: int,
+    cameraX: float,
+    cameraY: float,
+    cameraZ: float,
+    lookAtX: float,
+    lookAtY: float,
+    lookAtZ: float,
+    shipVelocity: float,
+    grEnabled: bool,
+    grCenterX: float,
+    grCenterY: float,
+    grPhi: float,
+    sunEnergy: float,
+    ambientLevel: float
+}
+
+-- =============================================================================
+-- Planet Creation Helpers (colors as decimal RGBA)
+-- =============================================================================
+
+-- Mercury: gray rock (0x808080FF = 2155905279)
+pure func createMercury() -> SolarPlanet =
+    { name: "Mercury", posX: 40.0, posY: 0.0, posZ: 0.0, radius: 2.0, colorRgba: 2155905279, textureName: "mercury", rotation: 0.0, rotationSpeed: 0.005, hasRings: false, ringColor: 0 }
+
+-- Venus: yellow-white (0xE6D9A0FF = 3873169663)
+pure func createVenus() -> SolarPlanet =
+    { name: "Venus", posX: 60.0, posY: 0.0, posZ: 0.0, radius: 4.0, colorRgba: 3873169663, textureName: "venus", rotation: 0.0, rotationSpeed: 0.003, hasRings: false, ringColor: 0 }
+
+-- Earth: blue (0x3264C8FF = 846014719)
+pure func createEarth() -> SolarPlanet =
+    { name: "Earth", posX: 80.0, posY: 0.0, posZ: 0.0, radius: 4.5, colorRgba: 846014719, textureName: "earth", rotation: 0.0, rotationSpeed: 0.01, hasRings: false, ringColor: 0 }
+
+-- Mars: red (0xC84632FF = 3359519487)
+pure func createMars() -> SolarPlanet =
+    { name: "Mars", posX: 100.0, posY: 0.0, posZ: 0.0, radius: 3.0, colorRgba: 3359519487, textureName: "mars", rotation: 0.0, rotationSpeed: 0.009, hasRings: false, ringColor: 0 }
+
+-- Jupiter: tan (0xC89664FF = 3365143807)
+pure func createJupiter() -> SolarPlanet =
+    { name: "Jupiter", posX: 150.0, posY: 0.0, posZ: 0.0, radius: 15.0, colorRgba: 3365143807, textureName: "jupiter", rotation: 0.0, rotationSpeed: 0.02, hasRings: false, ringColor: 0 }
+
+-- Saturn: tan with rings (0xDCBE8CFF = 3703430399, ring: 0xD4C8A880 = 3570993280)
+pure func createSaturn() -> SolarPlanet =
+    { name: "Saturn", posX: 200.0, posY: 0.0, posZ: 0.0, radius: 12.0, colorRgba: 3703430399, textureName: "saturn", rotation: 0.0, rotationSpeed: 0.018, hasRings: true, ringColor: 3570993280 }
+
+-- Uranus: cyan with thin rings (0x96C8D2FF = 2529579775, ring: 0x3C3C4640 = 1010763328)
+pure func createUranus() -> SolarPlanet =
+    { name: "Uranus", posX: 280.0, posY: 0.0, posZ: 0.0, radius: 8.0, colorRgba: 2529579775, textureName: "uranus", rotation: 0.0, rotationSpeed: 0.012, hasRings: true, ringColor: 1010763328 }
+
+-- Neptune: blue (0x3264C8FF = 846014719)
+pure func createNeptune() -> SolarPlanet =
+    { name: "Neptune", posX: 350.0, posY: 0.0, posZ: 0.0, radius: 7.0, colorRgba: 846014719, textureName: "neptune", rotation: 0.0, rotationSpeed: 0.011, hasRings: false, ringColor: 0 }
+
+-- Sun: yellow (0xFFC832FF = 4290925311)
+pure func createSun() -> SolarPlanet =
+    { name: "Sun", posX: 0.0, posY: 0.0, posZ: 0.0, radius: 20.0, colorRgba: 4290925311, textureName: "sun", rotation: 0.0, rotationSpeed: 0.001, hasRings: false, ringColor: 0 }
+
+-- Create all planets
+pure func createPlanets() -> [SolarPlanet] =
+    [ createSun(), createMercury(), createVenus(), createEarth(), createMars(), createJupiter(), createSaturn(), createUranus(), createNeptune() ]
+
+-- =============================================================================
+-- State Initialization
+-- =============================================================================
+
+export pure func initSolarDemo() -> SolarDemoState =
+    { tick: 0, cameraX: 300.0, cameraY: 100.0, cameraZ: 200.0, lookAtX: 0.0, lookAtY: 0.0, lookAtZ: 0.0, shipVelocity: 0.0, grEnabled: false, grCenterX: 0.5, grCenterY: 0.5, grPhi: 0.001, sunEnergy: 8000.0, ambientLevel: 0.2 }
+
+-- =============================================================================
+-- Lighting Context Builder
+-- =============================================================================
+
+pure func buildAmbientSettings(level: float) -> AmbientSettings =
+    { energy: level, color: { r: 0.08, g: 0.08, b: 0.1 } }
+
+pure func buildSunLight(energy: float) -> LightSource =
+    { id: "sun", x: 0.0, y: 0.0, z: 0.0, energy: energy, color: { r: 1.0, g: 0.95, b: 0.85 }, range: 0.0 }
+
+pure func buildLightingContext(sunEnergy: float, ambientLevel: float) -> LightingContext =
+    { enabled: true, ambient: buildAmbientSettings(ambientLevel), lights: [buildSunLight(sunEnergy)], lightMultiplier: 1.0 }
+
+-- =============================================================================
+-- Relativity Context Builder
+-- =============================================================================
+
+pure func buildSRContext(velocity: float) -> SRContext =
+    { enabled: velocity > 0.01, velocity: velocity, gamma: 1.0, viewAngle: 0.0 }
+
+pure func buildGRContext(enabled: bool, centerX: float, centerY: float, phi: float) -> GRContext =
+    { enabled: enabled, centerX: centerX, centerY: centerY, phi: phi, rs: 0.05, objectType: "bh" }
+
+pure func buildRelativityContext(velocity: float, grEnabled: bool, grCenterX: float, grCenterY: float, grPhi: float) -> RelativityContext =
+    { sr: buildSRContext(velocity), gr: buildGRContext(grEnabled, grCenterX, grCenterY, grPhi) }
+
+-- =============================================================================
+-- Draw Command Generation
+-- =============================================================================
+
+pure func planetToDrawCmd(p: SolarPlanet, z: int) -> DrawCmd =
+    TexturedPlanet(p.name, p.posX, p.posY, p.radius, p.rotation, p.hasRings, p.ringColor, z)
+
+pure func mapPlanetsToDrawCmds(planets: [SolarPlanet], z: int) -> [DrawCmd] =
+    match planets {
+        [] => [],
+        p :: rest => planetToDrawCmd(p, z) :: mapPlanetsToDrawCmds(rest, z)
+    }
+
+pure func generateDrawCommands(sunEnergy: float) -> [DrawCmd] {
+    let planets = createPlanets();
+    let bgCmd = SpaceBg(0);
+    let planetCmds = mapPlanetsToDrawCmds(planets, 10);
+    bgCmd :: planetCmds
+}
+
+-- =============================================================================
+-- Step Function
+-- =============================================================================
+
+pure func updatePlanetRotation(p: SolarPlanet) -> SolarPlanet =
+    { name: p.name, posX: p.posX, posY: p.posY, posZ: p.posZ, radius: p.radius, colorRgba: p.colorRgba, textureName: p.textureName, rotation: p.rotation + p.rotationSpeed, rotationSpeed: p.rotationSpeed, hasRings: p.hasRings, ringColor: p.ringColor }
+
+pure func updatePlanetRotations(planets: [SolarPlanet]) -> [SolarPlanet] =
+    match planets {
+        [] => [],
+        p :: rest => updatePlanetRotation(p) :: updatePlanetRotations(rest)
+    }
+
+pure func buildCamera(state: SolarDemoState) -> Camera =
+    { x: state.cameraX, y: state.cameraY, zoom: 1.0 }
+
+pure func buildFrameOutput(state: SolarDemoState) -> FrameOutput {
+    let drawCmds = generateDrawCommands(state.sunEnergy);
+    let lighting = buildLightingContext(state.sunEnergy, state.ambientLevel);
+    let relativity = buildRelativityContext(state.shipVelocity, state.grEnabled, state.grCenterX, state.grCenterY, state.grPhi);
+    { draw: drawCmds, sounds: [], debug: [], camera: buildCamera(state), relativity: relativity, lighting: lighting }
+}
+
+pure func incrementTick(state: SolarDemoState) -> SolarDemoState =
+    { tick: state.tick + 1, cameraX: state.cameraX, cameraY: state.cameraY, cameraZ: state.cameraZ, lookAtX: state.lookAtX, lookAtY: state.lookAtY, lookAtZ: state.lookAtZ, shipVelocity: state.shipVelocity, grEnabled: state.grEnabled, grCenterX: state.grCenterX, grCenterY: state.grCenterY, grPhi: state.grPhi, sunEnergy: state.sunEnergy, ambientLevel: state.ambientLevel }
+
+export pure func stepSolarDemo(state: SolarDemoState, input: FrameInput) -> (SolarDemoState, FrameOutput) {
+    let newState = incrementTick(state);
+    let output = buildFrameOutput(newState);
+    (newState, output)
+}
+
+-- =============================================================================
+-- Accessors for Go Integration
+-- =============================================================================
+
+export pure func getSolarDemoPlanets() -> [SolarPlanet] = createPlanets()
+
+export pure func getInitialCameraPos() -> Vector3 = { x: 300.0, y: 100.0, z: 200.0 }

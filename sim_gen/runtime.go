@@ -477,6 +477,28 @@ func ConvertToBoolSlice(v interface{}) []bool {
 	return result
 }
 
+// ConvertToFloat64Slice converts []interface{} to []float64.
+func ConvertToFloat64Slice(v interface{}) []float64 {
+	if v == nil {
+		return nil
+	}
+	// Passthrough if already []float64
+	if fs, ok := v.([]float64); ok {
+		return fs
+	}
+	slice, ok := v.([]interface{})
+	if !ok {
+		return nil
+	}
+	result := make([]float64, len(slice))
+	for i, elem := range slice {
+		if f, ok := elem.(float64); ok {
+			result[i] = f
+		}
+	}
+	return result
+}
+
 // FromList creates an array from a list.
 // In Go, both arrays and lists are []interface{}.
 func FromList(xs interface{}) interface{} {
@@ -1001,6 +1023,30 @@ func ConvertToKeyEventSlice(v interface{}) []*KeyEvent {
 	return out
 }
 
+// ConvertToLightSourceSlice converts []interface{} to []*LightSource.
+// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
+func ConvertToLightSourceSlice(v interface{}) []*LightSource {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToLightSourceSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*LightSource{}
+	}
+	out := make([]*LightSource, len(src))
+	for i, e := range src {
+		elem, ok := e.(*LightSource)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToLightSourceSlice: element %d: expected *LightSource, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
 // ConvertToMoveStateSlice converts []interface{} to []*MoveState.
 // M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
 func ConvertToMoveStateSlice(v interface{}) []*MoveState {
@@ -1427,6 +1473,894 @@ func ConvertToViewportShapeSlice(v interface{}) []*ViewportShape {
 		elem, ok := e.(*ViewportShape)
 		if !ok {
 			panic(fmt.Sprintf("ConvertToViewportShapeSlice: element %d: expected *ViewportShape, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToAmbientSettingsSlice converts []interface{} to []*AmbientSettings.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToAmbientSettingsSlice(v interface{}) []*AmbientSettings {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToAmbientSettingsSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*AmbientSettings{}
+	}
+	out := make([]*AmbientSettings, len(src))
+	for i, e := range src {
+		elem, ok := e.(*AmbientSettings)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToAmbientSettingsSlice: element %d: expected *AmbientSettings, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToArrivalInputSlice converts []interface{} to []*ArrivalInput.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToArrivalInputSlice(v interface{}) []*ArrivalInput {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToArrivalInputSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*ArrivalInput{}
+	}
+	out := make([]*ArrivalInput, len(src))
+	for i, e := range src {
+		elem, ok := e.(*ArrivalInput)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToArrivalInputSlice: element %d: expected *ArrivalInput, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToArrivalStateSlice converts []interface{} to []*ArrivalState.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToArrivalStateSlice(v interface{}) []*ArrivalState {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToArrivalStateSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*ArrivalState{}
+	}
+	out := make([]*ArrivalState, len(src))
+	for i, e := range src {
+		elem, ok := e.(*ArrivalState)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToArrivalStateSlice: element %d: expected *ArrivalState, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToBridgeStateSlice converts []interface{} to []*BridgeState.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToBridgeStateSlice(v interface{}) []*BridgeState {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToBridgeStateSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*BridgeState{}
+	}
+	out := make([]*BridgeState, len(src))
+	for i, e := range src {
+		elem, ok := e.(*BridgeState)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToBridgeStateSlice: element %d: expected *BridgeState, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToCameraSlice converts []interface{} to []*Camera.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToCameraSlice(v interface{}) []*Camera {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToCameraSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*Camera{}
+	}
+	out := make([]*Camera, len(src))
+	for i, e := range src {
+		elem, ok := e.(*Camera)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToCameraSlice: element %d: expected *Camera, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToColorSlice converts []interface{} to []*Color.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToColorSlice(v interface{}) []*Color {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToColorSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*Color{}
+	}
+	out := make([]*Color, len(src))
+	for i, e := range src {
+		elem, ok := e.(*Color)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToColorSlice: element %d: expected *Color, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToCoordSlice converts []interface{} to []*Coord.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToCoordSlice(v interface{}) []*Coord {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToCoordSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*Coord{}
+	}
+	out := make([]*Coord, len(src))
+	for i, e := range src {
+		elem, ok := e.(*Coord)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToCoordSlice: element %d: expected *Coord, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToCrewIDSlice converts []interface{} to []*CrewID.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToCrewIDSlice(v interface{}) []*CrewID {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToCrewIDSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*CrewID{}
+	}
+	out := make([]*CrewID, len(src))
+	for i, e := range src {
+		elem, ok := e.(*CrewID)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToCrewIDSlice: element %d: expected *CrewID, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToDeckInfoSlice converts []interface{} to []*DeckInfo.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToDeckInfoSlice(v interface{}) []*DeckInfo {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToDeckInfoSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*DeckInfo{}
+	}
+	out := make([]*DeckInfo, len(src))
+	for i, e := range src {
+		elem, ok := e.(*DeckInfo)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToDeckInfoSlice: element %d: expected *DeckInfo, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToDomeStateSlice converts []interface{} to []*DomeState.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToDomeStateSlice(v interface{}) []*DomeState {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToDomeStateSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*DomeState{}
+	}
+	out := make([]*DomeState, len(src))
+	for i, e := range src {
+		elem, ok := e.(*DomeState)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToDomeStateSlice: element %d: expected *DomeState, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToDomeViewStateSlice converts []interface{} to []*DomeViewState.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToDomeViewStateSlice(v interface{}) []*DomeViewState {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToDomeViewStateSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*DomeViewState{}
+	}
+	out := make([]*DomeViewState, len(src))
+	for i, e := range src {
+		elem, ok := e.(*DomeViewState)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToDomeViewStateSlice: element %d: expected *DomeViewState, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToFrameInputSlice converts []interface{} to []*FrameInput.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToFrameInputSlice(v interface{}) []*FrameInput {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToFrameInputSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*FrameInput{}
+	}
+	out := make([]*FrameInput, len(src))
+	for i, e := range src {
+		elem, ok := e.(*FrameInput)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToFrameInputSlice: element %d: expected *FrameInput, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToFrameOutputSlice converts []interface{} to []*FrameOutput.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToFrameOutputSlice(v interface{}) []*FrameOutput {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToFrameOutputSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*FrameOutput{}
+	}
+	out := make([]*FrameOutput, len(src))
+	for i, e := range src {
+		elem, ok := e.(*FrameOutput)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToFrameOutputSlice: element %d: expected *FrameOutput, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToGRContextSlice converts []interface{} to []*GRContext.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToGRContextSlice(v interface{}) []*GRContext {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToGRContextSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*GRContext{}
+	}
+	out := make([]*GRContext, len(src))
+	for i, e := range src {
+		elem, ok := e.(*GRContext)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToGRContextSlice: element %d: expected *GRContext, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToIsoMoveSlice converts []interface{} to []*IsoMove.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToIsoMoveSlice(v interface{}) []*IsoMove {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToIsoMoveSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*IsoMove{}
+	}
+	out := make([]*IsoMove, len(src))
+	for i, e := range src {
+		elem, ok := e.(*IsoMove)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToIsoMoveSlice: element %d: expected *IsoMove, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToIsoWalkStateSlice converts []interface{} to []*IsoWalkState.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToIsoWalkStateSlice(v interface{}) []*IsoWalkState {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToIsoWalkStateSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*IsoWalkState{}
+	}
+	out := make([]*IsoWalkState, len(src))
+	for i, e := range src {
+		elem, ok := e.(*IsoWalkState)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToIsoWalkStateSlice: element %d: expected *IsoWalkState, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToLightingContextSlice converts []interface{} to []*LightingContext.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToLightingContextSlice(v interface{}) []*LightingContext {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToLightingContextSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*LightingContext{}
+	}
+	out := make([]*LightingContext, len(src))
+	for i, e := range src {
+		elem, ok := e.(*LightingContext)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToLightingContextSlice: element %d: expected *LightingContext, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToMoonSlice converts []interface{} to []*Moon.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToMoonSlice(v interface{}) []*Moon {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToMoonSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*Moon{}
+	}
+	out := make([]*Moon, len(src))
+	for i, e := range src {
+		elem, ok := e.(*Moon)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToMoonSlice: element %d: expected *Moon, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToMouseStateSlice converts []interface{} to []*MouseState.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToMouseStateSlice(v interface{}) []*MouseState {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToMouseStateSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*MouseState{}
+	}
+	out := make([]*MouseState, len(src))
+	for i, e := range src {
+		elem, ok := e.(*MouseState)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToMouseStateSlice: element %d: expected *MouseState, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToPlanetSlice converts []interface{} to []*Planet.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToPlanetSlice(v interface{}) []*Planet {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToPlanetSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*Planet{}
+	}
+	out := make([]*Planet, len(src))
+	for i, e := range src {
+		elem, ok := e.(*Planet)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToPlanetSlice: element %d: expected *Planet, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToPlanetStateSlice converts []interface{} to []*PlanetState.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToPlanetStateSlice(v interface{}) []*PlanetState {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToPlanetStateSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*PlanetState{}
+	}
+	out := make([]*PlanetState, len(src))
+	for i, e := range src {
+		elem, ok := e.(*PlanetState)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToPlanetStateSlice: element %d: expected *PlanetState, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToRGBColorSlice converts []interface{} to []*RGBColor.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToRGBColorSlice(v interface{}) []*RGBColor {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToRGBColorSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*RGBColor{}
+	}
+	out := make([]*RGBColor, len(src))
+	for i, e := range src {
+		elem, ok := e.(*RGBColor)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToRGBColorSlice: element %d: expected *RGBColor, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToRelativityContextSlice converts []interface{} to []*RelativityContext.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToRelativityContextSlice(v interface{}) []*RelativityContext {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToRelativityContextSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*RelativityContext{}
+	}
+	out := make([]*RelativityContext, len(src))
+	for i, e := range src {
+		elem, ok := e.(*RelativityContext)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToRelativityContextSlice: element %d: expected *RelativityContext, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToRingBandSlice converts []interface{} to []*RingBand.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToRingBandSlice(v interface{}) []*RingBand {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToRingBandSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*RingBand{}
+	}
+	out := make([]*RingBand, len(src))
+	for i, e := range src {
+		elem, ok := e.(*RingBand)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToRingBandSlice: element %d: expected *RingBand, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToSRContextSlice converts []interface{} to []*SRContext.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToSRContextSlice(v interface{}) []*SRContext {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToSRContextSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*SRContext{}
+	}
+	out := make([]*SRContext, len(src))
+	for i, e := range src {
+		elem, ok := e.(*SRContext)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToSRContextSlice: element %d: expected *SRContext, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToShipLevelsSlice converts []interface{} to []*ShipLevels.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToShipLevelsSlice(v interface{}) []*ShipLevels {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToShipLevelsSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*ShipLevels{}
+	}
+	out := make([]*ShipLevels, len(src))
+	for i, e := range src {
+		elem, ok := e.(*ShipLevels)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToShipLevelsSlice: element %d: expected *ShipLevels, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToSolarDemoStateSlice converts []interface{} to []*SolarDemoState.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToSolarDemoStateSlice(v interface{}) []*SolarDemoState {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToSolarDemoStateSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*SolarDemoState{}
+	}
+	out := make([]*SolarDemoState, len(src))
+	for i, e := range src {
+		elem, ok := e.(*SolarDemoState)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToSolarDemoStateSlice: element %d: expected *SolarDemoState, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToSolarPlanetSlice converts []interface{} to []*SolarPlanet.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToSolarPlanetSlice(v interface{}) []*SolarPlanet {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToSolarPlanetSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*SolarPlanet{}
+	}
+	out := make([]*SolarPlanet, len(src))
+	for i, e := range src {
+		elem, ok := e.(*SolarPlanet)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToSolarPlanetSlice: element %d: expected *SolarPlanet, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToStarCatalogSlice converts []interface{} to []*StarCatalog.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToStarCatalogSlice(v interface{}) []*StarCatalog {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToStarCatalogSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*StarCatalog{}
+	}
+	out := make([]*StarCatalog, len(src))
+	for i, e := range src {
+		elem, ok := e.(*StarCatalog)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToStarCatalogSlice: element %d: expected *StarCatalog, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToStarSystemSlice converts []interface{} to []*StarSystem.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToStarSystemSlice(v interface{}) []*StarSystem {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToStarSystemSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*StarSystem{}
+	}
+	out := make([]*StarSystem, len(src))
+	for i, e := range src {
+		elem, ok := e.(*StarSystem)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToStarSystemSlice: element %d: expected *StarSystem, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToStrutSlice converts []interface{} to []*Strut.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToStrutSlice(v interface{}) []*Strut {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToStrutSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*Strut{}
+	}
+	out := make([]*Strut, len(src))
+	for i, e := range src {
+		elem, ok := e.(*Strut)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToStrutSlice: element %d: expected *Strut, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToSystemPosSlice converts []interface{} to []*SystemPos.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToSystemPosSlice(v interface{}) []*SystemPos {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToSystemPosSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*SystemPos{}
+	}
+	out := make([]*SystemPos, len(src))
+	for i, e := range src {
+		elem, ok := e.(*SystemPos)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToSystemPosSlice: element %d: expected *SystemPos, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToTransparentTileSlice converts []interface{} to []*TransparentTile.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToTransparentTileSlice(v interface{}) []*TransparentTile {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToTransparentTileSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*TransparentTile{}
+	}
+	out := make([]*TransparentTile, len(src))
+	for i, e := range src {
+		elem, ok := e.(*TransparentTile)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToTransparentTileSlice: element %d: expected *TransparentTile, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToVec3Slice converts []interface{} to []*Vec3.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToVec3Slice(v interface{}) []*Vec3 {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToVec3Slice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*Vec3{}
+	}
+	out := make([]*Vec3, len(src))
+	for i, e := range src {
+		elem, ok := e.(*Vec3)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToVec3Slice: element %d: expected *Vec3, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToVector3Slice converts []interface{} to []*Vector3.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToVector3Slice(v interface{}) []*Vector3 {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToVector3Slice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*Vector3{}
+	}
+	out := make([]*Vector3, len(src))
+	for i, e := range src {
+		elem, ok := e.(*Vector3)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToVector3Slice: element %d: expected *Vector3, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToViewportDefSlice converts []interface{} to []*ViewportDef.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToViewportDefSlice(v interface{}) []*ViewportDef {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToViewportDefSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*ViewportDef{}
+	}
+	out := make([]*ViewportDef, len(src))
+	for i, e := range src {
+		elem, ok := e.(*ViewportDef)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToViewportDefSlice: element %d: expected *ViewportDef, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToWorldSlice converts []interface{} to []*World.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToWorldSlice(v interface{}) []*World {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToWorldSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*World{}
+	}
+	out := make([]*World, len(src))
+	for i, e := range src {
+		elem, ok := e.(*World)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToWorldSlice: element %d: expected *World, got %T", i, e))
 		}
 		out[i] = elem
 	}
