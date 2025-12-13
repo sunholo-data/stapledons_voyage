@@ -1,6 +1,7 @@
 package shader
 
 import (
+	"log"
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -132,6 +133,7 @@ func (s *SRWarp) Apply(dst, src *ebiten.Image) bool {
 
 	shader, err := s.manager.Get("sr_warp")
 	if err != nil {
+		log.Printf("SR shader error: %v", err)
 		return false
 	}
 

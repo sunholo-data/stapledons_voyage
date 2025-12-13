@@ -1,6 +1,8 @@
 package shader
 
 import (
+	"log"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"stapledons_voyage/engine/relativity"
 )
@@ -115,6 +117,7 @@ func (g *GRWarp) Apply(dst, src *ebiten.Image) bool {
 
 	shader, err := g.manager.Get("gr_lensing")
 	if err != nil {
+		log.Printf("GR shader error: %v", err)
 		return false
 	}
 

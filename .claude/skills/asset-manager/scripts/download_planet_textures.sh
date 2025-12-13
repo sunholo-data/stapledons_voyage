@@ -1,92 +1,73 @@
 #!/bin/bash
-# Asset Manager - Download Equirectangular Planet Textures
-# Downloads proper UV-mappable textures for 3D sphere rendering
-# Source: Solar System Scope (CC BY 4.0) - https://www.solarsystemscope.com/textures/
+# Download equirectangular planet textures from Solar System Scope
+# License: CC BY 4.0 - https://www.solarsystemscope.com/textures/
+#
+# Usage: ./download_planet_textures.sh [resolution]
+#   resolution: 2k (default), 4k, 8k
 
 set -e
+cd "$(dirname "$0")/../../../../assets/planets"
 
-usage() {
-    echo "Usage: $0 [resolution]"
-    echo ""
-    echo "Resolutions:"
-    echo "  2k    - 2048x1024 (default, good for game use)"
-    echo "  4k    - 4096x2048 (high quality)"
-    echo "  8k    - 8192x4096 (very high quality, large files)"
-    echo ""
-    echo "Downloads equirectangular planet textures to assets/planets/"
-    echo "These are 2:1 aspect ratio maps suitable for sphere UV mapping."
-    exit 1
-}
+RESOLUTION="${1:-2k}"
 
-RES="${1:-2k}"
-
-# Find project root
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
-DEST_DIR="$PROJECT_ROOT/assets/planets"
-
-mkdir -p "$DEST_DIR"
+echo "=== Downloading planet textures (${RESOLUTION}) ==="
 
 # Base URL for Solar System Scope textures
-# License: CC BY 4.0 - Attribution required
 BASE_URL="https://www.solarsystemscope.com/textures/download"
 
-echo "=== Downloading Equirectangular Planet Textures ==="
-echo "Resolution: $RES"
-echo "Destination: $DEST_DIR/"
-echo "Source: Solar System Scope (CC BY 4.0)"
-echo ""
-
+# Function to download texture with retry
 download_texture() {
     local name="$1"
-    local filename="$2"
-    local desc="$3"
+    local url="$2"
+    local output="$3"
 
-    echo "Downloading $name ($desc)..."
+    if [ -f "$output" ] && [ $(stat -f%z "$output" 2>/dev/null || stat -c%s "$output" 2>/dev/null) -gt 10000 ]; then
+        echo "  [SKIP] $name already exists"
+        return 0
+    fi
 
-    # Solar System Scope URL format
-    local url="${BASE_URL}/${RES}_${filename}.jpg"
-    local dest="$DEST_DIR/${name}.jpg"
+    echo "  [DOWNLOAD] $name..."
+    # Use browser-like headers to avoid 403
+    curl -L -f -o "$output" \
+        -H "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36" \
+        -H "Accept: image/webp,image/apng,image/*,*/*;q=0.8" \
+        -H "Referer: https://www.solarsystemscope.com/textures/" \
+        "$url" 2>/dev/null
 
-    if curl -s -L -o "$dest" "$url" 2>/dev/null; then
-        # Verify it's actually an image
-        if file "$dest" | grep -q "JPEG"; then
-            local size=$(du -h "$dest" | cut -f1)
-            local dims=$(file "$dest" | grep -oE '[0-9]+x[0-9]+' | head -1)
-            echo "  ✓ $name: $dims, $size"
-        else
-            echo "  ✗ $name: Download failed (not a valid image)"
-            rm -f "$dest"
-        fi
+    # Verify it's actually an image
+    if file "$output" | grep -q "image\|JPEG\|PNG"; then
+        local size=$(ls -lh "$output" | awk '{print $5}')
+        echo "  [OK] $name ($size)"
+        return 0
     else
-        echo "  ✗ $name: Network error"
+        echo "  [FAIL] $name (not an image)"
+        rm -f "$output"
+        return 1
     fi
 }
 
-# Solar System planets - using Solar System Scope's file naming
-download_texture "mercury" "mercury" "rocky planet, cratered"
-download_texture "venus_surface" "venus_surface" "surface map (radar)"
-download_texture "venus_atmosphere" "venus_atmosphere" "cloud layer"
-download_texture "earth_daymap" "earth_daymap" "day side"
-download_texture "earth_nightmap" "earth_nightmap" "city lights"
-download_texture "earth_clouds" "earth_clouds" "cloud layer"
-download_texture "moon" "moon" "lunar surface"
-download_texture "mars" "mars" "red planet"
-download_texture "jupiter" "jupiter" "gas giant"
-download_texture "saturn" "saturn" "gas giant (no rings)"
-download_texture "saturn_ring" "saturn_ring_alpha" "ring system"
-download_texture "uranus" "uranus" "ice giant"
-download_texture "neptune" "neptune" "ice giant"
-download_texture "pluto" "pluto" "dwarf planet"
+# Planets (most should already exist)
+echo ""
+echo "--- Planets ---"
+download_texture "Sun" "${BASE_URL}/${RESOLUTION}_sun.jpg" "sun.jpg" || true
+download_texture "Mercury" "${BASE_URL}/${RESOLUTION}_mercury.jpg" "mercury.jpg" || true
+download_texture "Venus Surface" "${BASE_URL}/${RESOLUTION}_venus_surface.jpg" "venus_surface.jpg" || true
+download_texture "Earth" "${BASE_URL}/${RESOLUTION}_earth_daymap.jpg" "earth_daymap.jpg" || true
+download_texture "Moon" "${BASE_URL}/${RESOLUTION}_moon.jpg" "moon.jpg" || true
+download_texture "Mars" "${BASE_URL}/${RESOLUTION}_mars.jpg" "mars.jpg" || true
+download_texture "Jupiter" "${BASE_URL}/${RESOLUTION}_jupiter.jpg" "jupiter.jpg" || true
+download_texture "Saturn" "${BASE_URL}/${RESOLUTION}_saturn.jpg" "saturn.jpg" || true
+download_texture "Uranus" "${BASE_URL}/${RESOLUTION}_uranus.jpg" "uranus.jpg" || true
+download_texture "Neptune" "${BASE_URL}/${RESOLUTION}_neptune.jpg" "neptune.jpg" || true
+
+# Dwarf planets (fictional textures from SSS)
+echo ""
+echo "--- Dwarf Planets ---"
+download_texture "Ceres" "${BASE_URL}/${RESOLUTION}_ceres_fictional.jpg" "ceres.jpg" || true
+download_texture "Eris" "${BASE_URL}/${RESOLUTION}_eris_fictional.jpg" "eris.jpg" || true
+download_texture "Haumea" "${BASE_URL}/${RESOLUTION}_haumea_fictional.jpg" "haumea.jpg" || true
+download_texture "Makemake" "${BASE_URL}/${RESOLUTION}_makemake_fictional.jpg" "makemake.jpg" || true
 
 echo ""
-echo "=== Download Complete ==="
-echo ""
-echo "These textures use equirectangular projection (2:1 aspect ratio)"
-echo "and are suitable for UV mapping onto 3D spheres in Tetra3D."
-echo ""
-echo "License: CC BY 4.0 - Credit 'Solar System Scope' in game credits."
-echo "         https://www.solarsystemscope.com/textures/"
-echo ""
-echo "For Saturn, use saturn.jpg for the planet body and saturn_ring.jpg"
-echo "for the ring system (alpha channel defines ring density)."
+echo "=== Download complete ==="
+ls -la *.jpg *.png 2>/dev/null | head -30

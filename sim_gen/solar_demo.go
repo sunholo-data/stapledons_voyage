@@ -2,7 +2,7 @@
 package sim_gen
 
 func createMercury_impl(_unused0 interface{}) interface{} {
-	return &SolarPlanet{Name: "Mercury", PosX: float64(40), PosY: float64(0), PosZ: float64(0), Radius: float64(2), ColorRgba: int64(2155905279), TextureName: "mercury", Rotation: float64(0), RotationSpeed: float64(0.005), HasRings: false, RingColor: int64(0)}
+	return &SolarPlanet{Name: "Mercury", PosX: float64(40), PosY: float64(0), PosZ: float64(0), Radius: float64(2), ColorRgba: int64(2155905279), TextureName: "mercury", Rotation: float64(0), RotationSpeed: float64(0.005), HasRings: false, RingColor: int64(0), OrbitRadius: float64(40), OrbitSpeed: float64(0.04), OrbitPhase: float64(0), ParentName: ""}
 }
 
 func createMercury() *SolarPlanet {
@@ -10,7 +10,7 @@ func createMercury() *SolarPlanet {
 }
 
 func createVenus_impl(_unused0 interface{}) interface{} {
-	return &SolarPlanet{Name: "Venus", PosX: float64(60), PosY: float64(0), PosZ: float64(0), Radius: float64(4), ColorRgba: int64(3873169663), TextureName: "venus", Rotation: float64(0), RotationSpeed: float64(0.003), HasRings: false, RingColor: int64(0)}
+	return &SolarPlanet{Name: "Venus", PosX: float64(60), PosY: float64(0), PosZ: float64(0), Radius: float64(4), ColorRgba: int64(3873169663), TextureName: "venus", Rotation: float64(0), RotationSpeed: float64(0.003), HasRings: false, RingColor: int64(0), OrbitRadius: float64(60), OrbitSpeed: float64(0.03), OrbitPhase: float64(0.7), ParentName: ""}
 }
 
 func createVenus() *SolarPlanet {
@@ -18,7 +18,7 @@ func createVenus() *SolarPlanet {
 }
 
 func createEarth_impl(_unused0 interface{}) interface{} {
-	return &SolarPlanet{Name: "Earth", PosX: float64(80), PosY: float64(0), PosZ: float64(0), Radius: float64(4.5), ColorRgba: int64(846014719), TextureName: "earth", Rotation: float64(0), RotationSpeed: float64(0.01), HasRings: false, RingColor: int64(0)}
+	return &SolarPlanet{Name: "Earth", PosX: float64(80), PosY: float64(0), PosZ: float64(0), Radius: float64(4.5), ColorRgba: int64(846014719), TextureName: "earth", Rotation: float64(0), RotationSpeed: float64(0.01), HasRings: false, RingColor: int64(0), OrbitRadius: float64(80), OrbitSpeed: float64(0.025), OrbitPhase: float64(1.5), ParentName: ""}
 }
 
 func createEarth() *SolarPlanet {
@@ -26,7 +26,7 @@ func createEarth() *SolarPlanet {
 }
 
 func createMars_impl(_unused0 interface{}) interface{} {
-	return &SolarPlanet{Name: "Mars", PosX: float64(100), PosY: float64(0), PosZ: float64(0), Radius: float64(3), ColorRgba: int64(3359519487), TextureName: "mars", Rotation: float64(0), RotationSpeed: float64(0.009), HasRings: false, RingColor: int64(0)}
+	return &SolarPlanet{Name: "Mars", PosX: float64(100), PosY: float64(0), PosZ: float64(0), Radius: float64(3), ColorRgba: int64(3359519487), TextureName: "mars", Rotation: float64(0), RotationSpeed: float64(0.009), HasRings: false, RingColor: int64(0), OrbitRadius: float64(100), OrbitSpeed: float64(0.02), OrbitPhase: float64(2.3), ParentName: ""}
 }
 
 func createMars() *SolarPlanet {
@@ -34,7 +34,7 @@ func createMars() *SolarPlanet {
 }
 
 func createJupiter_impl(_unused0 interface{}) interface{} {
-	return &SolarPlanet{Name: "Jupiter", PosX: float64(150), PosY: float64(0), PosZ: float64(0), Radius: float64(15), ColorRgba: int64(3365143807), TextureName: "jupiter", Rotation: float64(0), RotationSpeed: float64(0.02), HasRings: false, RingColor: int64(0)}
+	return &SolarPlanet{Name: "Jupiter", PosX: float64(150), PosY: float64(0), PosZ: float64(0), Radius: float64(15), ColorRgba: int64(3365143807), TextureName: "jupiter", Rotation: float64(0), RotationSpeed: float64(0.02), HasRings: false, RingColor: int64(0), OrbitRadius: float64(150), OrbitSpeed: float64(0.012), OrbitPhase: float64(3.1), ParentName: ""}
 }
 
 func createJupiter() *SolarPlanet {
@@ -42,7 +42,7 @@ func createJupiter() *SolarPlanet {
 }
 
 func createSaturn_impl(_unused0 interface{}) interface{} {
-	return &SolarPlanet{Name: "Saturn", PosX: float64(200), PosY: float64(0), PosZ: float64(0), Radius: float64(12), ColorRgba: int64(3703430399), TextureName: "saturn", Rotation: float64(0), RotationSpeed: float64(0.018), HasRings: true, RingColor: int64(3570993280)}
+	return &SolarPlanet{Name: "Saturn", PosX: float64(200), PosY: float64(0), PosZ: float64(0), Radius: float64(12), ColorRgba: int64(3703430399), TextureName: "saturn", Rotation: float64(0), RotationSpeed: float64(0.018), HasRings: true, RingColor: int64(3570993280), OrbitRadius: float64(200), OrbitSpeed: float64(0.008), OrbitPhase: float64(4), ParentName: ""}
 }
 
 func createSaturn() *SolarPlanet {
@@ -50,7 +50,7 @@ func createSaturn() *SolarPlanet {
 }
 
 func createUranus_impl(_unused0 interface{}) interface{} {
-	return &SolarPlanet{Name: "Uranus", PosX: float64(280), PosY: float64(0), PosZ: float64(0), Radius: float64(8), ColorRgba: int64(2529579775), TextureName: "uranus", Rotation: float64(0), RotationSpeed: float64(0.012), HasRings: true, RingColor: int64(1010763328)}
+	return &SolarPlanet{Name: "Uranus", PosX: float64(280), PosY: float64(0), PosZ: float64(0), Radius: float64(8), ColorRgba: int64(2529579775), TextureName: "uranus", Rotation: float64(0), RotationSpeed: float64(0.012), HasRings: true, RingColor: int64(1010763328), OrbitRadius: float64(280), OrbitSpeed: float64(0.005), OrbitPhase: float64(5.2), ParentName: ""}
 }
 
 func createUranus() *SolarPlanet {
@@ -58,7 +58,7 @@ func createUranus() *SolarPlanet {
 }
 
 func createNeptune_impl(_unused0 interface{}) interface{} {
-	return &SolarPlanet{Name: "Neptune", PosX: float64(350), PosY: float64(0), PosZ: float64(0), Radius: float64(7), ColorRgba: int64(846014719), TextureName: "neptune", Rotation: float64(0), RotationSpeed: float64(0.011), HasRings: false, RingColor: int64(0)}
+	return &SolarPlanet{Name: "Neptune", PosX: float64(350), PosY: float64(0), PosZ: float64(0), Radius: float64(7), ColorRgba: int64(846014719), TextureName: "neptune", Rotation: float64(0), RotationSpeed: float64(0.011), HasRings: false, RingColor: int64(0), OrbitRadius: float64(350), OrbitSpeed: float64(0.003), OrbitPhase: float64(6), ParentName: ""}
 }
 
 func createNeptune() *SolarPlanet {
@@ -66,11 +66,339 @@ func createNeptune() *SolarPlanet {
 }
 
 func createSun_impl(_unused0 interface{}) interface{} {
-	return &SolarPlanet{Name: "Sun", PosX: float64(0), PosY: float64(0), PosZ: float64(0), Radius: float64(20), ColorRgba: int64(4290925311), TextureName: "sun", Rotation: float64(0), RotationSpeed: float64(0.001), HasRings: false, RingColor: int64(0)}
+	return &SolarPlanet{Name: "Sun", PosX: float64(0), PosY: float64(0), PosZ: float64(0), Radius: float64(20), ColorRgba: int64(4290925311), TextureName: "sun", Rotation: float64(0), RotationSpeed: float64(0.001), HasRings: false, RingColor: int64(0), OrbitRadius: float64(0), OrbitSpeed: float64(0), OrbitPhase: float64(0), ParentName: ""}
 }
 
 func createSun() *SolarPlanet {
 	return createSun_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createMoon_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Moon", PosX: float64(0), PosY: float64(0), PosZ: float64(0), Radius: float64(1.2), ColorRgba: int64(2829099263), TextureName: "moon", Rotation: float64(0), RotationSpeed: float64(0.002), HasRings: false, RingColor: int64(0), OrbitRadius: float64(5), OrbitSpeed: float64(0.08), OrbitPhase: float64(1.6), ParentName: "Earth"}
+}
+
+func createMoon() *SolarPlanet {
+	return createMoon_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createIo_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Io", PosX: float64(0), PosY: float64(0), PosZ: float64(0), Radius: float64(1.3), ColorRgba: int64(4039131391), TextureName: "io", Rotation: float64(0), RotationSpeed: float64(0.008), HasRings: false, RingColor: int64(0), OrbitRadius: float64(4), OrbitSpeed: float64(0.15), OrbitPhase: float64(0), ParentName: "Jupiter"}
+}
+
+func createIo() *SolarPlanet {
+	return createIo_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createEuropa_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Europa", PosX: float64(0), PosY: float64(0), PosZ: float64(0), Radius: float64(1.1), ColorRgba: int64(3368520959), TextureName: "europa", Rotation: float64(0), RotationSpeed: float64(0.005), HasRings: false, RingColor: int64(0), OrbitRadius: float64(6), OrbitSpeed: float64(0.12), OrbitPhase: float64(1.5), ParentName: "Jupiter"}
+}
+
+func createEuropa() *SolarPlanet {
+	return createEuropa_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createGanymede_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Ganymede", PosX: float64(0), PosY: float64(0), PosZ: float64(0), Radius: float64(1.8), ColorRgba: int64(2500202911), TextureName: "ganymede", Rotation: float64(0), RotationSpeed: float64(0.003), HasRings: false, RingColor: int64(0), OrbitRadius: float64(8), OrbitSpeed: float64(0.09), OrbitPhase: float64(3), ParentName: "Jupiter"}
+}
+
+func createGanymede() *SolarPlanet {
+	return createGanymede_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createCallisto_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Callisto", PosX: float64(0), PosY: float64(0), PosZ: float64(0), Radius: float64(1.7), ColorRgba: int64(1751607551), TextureName: "callisto", Rotation: float64(0), RotationSpeed: float64(0.002), HasRings: false, RingColor: int64(0), OrbitRadius: float64(12), OrbitSpeed: float64(0.06), OrbitPhase: float64(4.5), ParentName: "Jupiter"}
+}
+
+func createCallisto() *SolarPlanet {
+	return createCallisto_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createMimas_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Mimas", PosX: float64(0), PosY: float64(0), PosZ: float64(0), Radius: float64(0.15), ColorRgba: int64(2829099263), TextureName: "mimas", Rotation: float64(0), RotationSpeed: float64(0.008), HasRings: false, RingColor: int64(0), OrbitRadius: float64(1.5), OrbitSpeed: float64(0.18), OrbitPhase: float64(0), ParentName: "Saturn"}
+}
+
+func createMimas() *SolarPlanet {
+	return createMimas_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createEnceladus_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Enceladus", PosX: float64(0), PosY: float64(0), PosZ: float64(0), Radius: float64(0.2), ColorRgba: int64(4294967295), TextureName: "enceladus", Rotation: float64(0), RotationSpeed: float64(0.007), HasRings: false, RingColor: int64(0), OrbitRadius: float64(2), OrbitSpeed: float64(0.16), OrbitPhase: float64(1), ParentName: "Saturn"}
+}
+
+func createEnceladus() *SolarPlanet {
+	return createEnceladus_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createTethys_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Tethys", PosX: float64(0), PosY: float64(0), PosZ: float64(0), Radius: float64(0.4), ColorRgba: int64(4294967295), TextureName: "tethys", Rotation: float64(0), RotationSpeed: float64(0.006), HasRings: false, RingColor: int64(0), OrbitRadius: float64(3), OrbitSpeed: float64(0.14), OrbitPhase: float64(2), ParentName: "Saturn"}
+}
+
+func createTethys() *SolarPlanet {
+	return createTethys_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createDione_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Dione", PosX: float64(0), PosY: float64(0), PosZ: float64(0), Radius: float64(0.4), ColorRgba: int64(4294967295), TextureName: "dione", Rotation: float64(0), RotationSpeed: float64(0.005), HasRings: false, RingColor: int64(0), OrbitRadius: float64(4), OrbitSpeed: float64(0.12), OrbitPhase: float64(3), ParentName: "Saturn"}
+}
+
+func createDione() *SolarPlanet {
+	return createDione_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createRhea_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Rhea", PosX: float64(0), PosY: float64(0), PosZ: float64(0), Radius: float64(0.5), ColorRgba: int64(2829099263), TextureName: "rhea", Rotation: float64(0), RotationSpeed: float64(0.004), HasRings: false, RingColor: int64(0), OrbitRadius: float64(6), OrbitSpeed: float64(0.1), OrbitPhase: float64(4), ParentName: "Saturn"}
+}
+
+func createRhea() *SolarPlanet {
+	return createRhea_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createTitan_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Titan", PosX: float64(0), PosY: float64(0), PosZ: float64(0), Radius: float64(1.8), ColorRgba: int64(3903365375), TextureName: "titan", Rotation: float64(0), RotationSpeed: float64(0.003), HasRings: false, RingColor: int64(0), OrbitRadius: float64(10), OrbitSpeed: float64(0.07), OrbitPhase: float64(5), ParentName: "Saturn"}
+}
+
+func createTitan() *SolarPlanet {
+	return createTitan_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createIapetus_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Iapetus", PosX: float64(0), PosY: float64(0), PosZ: float64(0), Radius: float64(0.5), ColorRgba: int64(2829099263), TextureName: "iapetus", Rotation: float64(0), RotationSpeed: float64(0.002), HasRings: false, RingColor: int64(0), OrbitRadius: float64(14), OrbitSpeed: float64(0.04), OrbitPhase: float64(6), ParentName: "Saturn"}
+}
+
+func createIapetus() *SolarPlanet {
+	return createIapetus_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createMiranda_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Miranda", PosX: float64(0), PosY: float64(0), PosZ: float64(0), Radius: float64(0.18), ColorRgba: int64(2829099263), TextureName: "miranda", Rotation: float64(0), RotationSpeed: float64(0.006), HasRings: false, RingColor: int64(0), OrbitRadius: float64(1), OrbitSpeed: float64(0.15), OrbitPhase: float64(0), ParentName: "Uranus"}
+}
+
+func createMiranda() *SolarPlanet {
+	return createMiranda_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createAriel_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Ariel", PosX: float64(0), PosY: float64(0), PosZ: float64(0), Radius: float64(0.4), ColorRgba: int64(2829099263), TextureName: "ariel", Rotation: float64(0), RotationSpeed: float64(0.004), HasRings: false, RingColor: int64(0), OrbitRadius: float64(3), OrbitSpeed: float64(0.12), OrbitPhase: float64(1.5), ParentName: "Uranus"}
+}
+
+func createAriel() *SolarPlanet {
+	return createAriel_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createUmbriel_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Umbriel", PosX: float64(0), PosY: float64(0), PosZ: float64(0), Radius: float64(0.4), ColorRgba: int64(1751607551), TextureName: "umbriel", Rotation: float64(0), RotationSpeed: float64(0.004), HasRings: false, RingColor: int64(0), OrbitRadius: float64(4), OrbitSpeed: float64(0.1), OrbitPhase: float64(3), ParentName: "Uranus"}
+}
+
+func createUmbriel() *SolarPlanet {
+	return createUmbriel_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createTitania_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Titania", PosX: float64(0), PosY: float64(0), PosZ: float64(0), Radius: float64(0.55), ColorRgba: int64(2829099263), TextureName: "titania", Rotation: float64(0), RotationSpeed: float64(0.003), HasRings: false, RingColor: int64(0), OrbitRadius: float64(6), OrbitSpeed: float64(0.08), OrbitPhase: float64(4.5), ParentName: "Uranus"}
+}
+
+func createTitania() *SolarPlanet {
+	return createTitania_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createOberon_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Oberon", PosX: float64(0), PosY: float64(0), PosZ: float64(0), Radius: float64(0.53), ColorRgba: int64(2829099263), TextureName: "oberon", Rotation: float64(0), RotationSpeed: float64(0.003), HasRings: false, RingColor: int64(0), OrbitRadius: float64(8), OrbitSpeed: float64(0.06), OrbitPhase: float64(6), ParentName: "Uranus"}
+}
+
+func createOberon() *SolarPlanet {
+	return createOberon_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createTriton_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Triton", PosX: float64(0), PosY: float64(0), PosZ: float64(0), Radius: float64(0.95), ColorRgba: int64(3774808831), TextureName: "triton", Rotation: float64(0), RotationSpeed: float64(0.004), HasRings: false, RingColor: int64(0), OrbitRadius: float64(6), OrbitSpeed: float64(0.08), OrbitPhase: float64(0), ParentName: "Neptune"}
+}
+
+func createTriton() *SolarPlanet {
+	return createTriton_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createProteus_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Proteus", PosX: float64(0), PosY: float64(0), PosZ: float64(0), Radius: float64(0.15), ColorRgba: int64(1751607551), TextureName: "proteus", Rotation: float64(0), RotationSpeed: float64(0.005), HasRings: false, RingColor: int64(0), OrbitRadius: float64(2), OrbitSpeed: float64(0.15), OrbitPhase: float64(2), ParentName: "Neptune"}
+}
+
+func createProteus() *SolarPlanet {
+	return createProteus_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createPluto_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Pluto", PosX: float64(400), PosY: float64(0), PosZ: float64(0), Radius: float64(0.8), ColorRgba: int64(3569747711), TextureName: "pluto", Rotation: float64(0), RotationSpeed: float64(0.002), HasRings: false, RingColor: int64(0), OrbitRadius: float64(400), OrbitSpeed: float64(0.002), OrbitPhase: float64(0.5), ParentName: ""}
+}
+
+func createPluto() *SolarPlanet {
+	return createPluto_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createCharon_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Charon", PosX: float64(0), PosY: float64(0), PosZ: float64(0), Radius: float64(0.42), ColorRgba: int64(2829099263), TextureName: "charon", Rotation: float64(0), RotationSpeed: float64(0.002), HasRings: false, RingColor: int64(0), OrbitRadius: float64(2), OrbitSpeed: float64(0.05), OrbitPhase: float64(0), ParentName: "Pluto"}
+}
+
+func createCharon() *SolarPlanet {
+	return createCharon_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createEris_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Eris", PosX: float64(500), PosY: float64(0), PosZ: float64(0), Radius: float64(0.8), ColorRgba: int64(3907522815), TextureName: "eris", Rotation: float64(0), RotationSpeed: float64(0.001), HasRings: false, RingColor: int64(0), OrbitRadius: float64(500), OrbitSpeed: float64(0.001), OrbitPhase: float64(2), ParentName: ""}
+}
+
+func createEris() *SolarPlanet {
+	return createEris_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createHaumea_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Haumea", PosX: float64(450), PosY: float64(0), PosZ: float64(0), Radius: float64(0.55), ColorRgba: int64(4042322175), TextureName: "haumea", Rotation: float64(0), RotationSpeed: float64(0.015), HasRings: true, RingColor: int64(2155905279), OrbitRadius: float64(450), OrbitSpeed: float64(0.0015), OrbitPhase: float64(3.5), ParentName: ""}
+}
+
+func createHaumea() *SolarPlanet {
+	return createHaumea_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createMakemake_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Makemake", PosX: float64(460), PosY: float64(0), PosZ: float64(0), Radius: float64(0.5), ColorRgba: int64(3366084863), TextureName: "makemake", Rotation: float64(0), RotationSpeed: float64(0.003), HasRings: false, RingColor: int64(0), OrbitRadius: float64(460), OrbitSpeed: float64(0.0012), OrbitPhase: float64(1.2), ParentName: ""}
+}
+
+func createMakemake() *SolarPlanet {
+	return createMakemake_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createCeres_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Ceres", PosX: float64(120), PosY: float64(0), PosZ: float64(0), Radius: float64(0.33), ColorRgba: int64(2425393407), TextureName: "ceres", Rotation: float64(0), RotationSpeed: float64(0.006), HasRings: false, RingColor: int64(0), OrbitRadius: float64(120), OrbitSpeed: float64(0.018), OrbitPhase: float64(2.8), ParentName: ""}
+}
+
+func createCeres() *SolarPlanet {
+	return createCeres_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createSedna_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Sedna", PosX: float64(600), PosY: float64(0), PosZ: float64(0), Radius: float64(0.35), ColorRgba: int64(3362623743), TextureName: "sedna", Rotation: float64(0), RotationSpeed: float64(0.002), HasRings: false, RingColor: int64(0), OrbitRadius: float64(600), OrbitSpeed: float64(0.0005), OrbitPhase: float64(4.5), ParentName: ""}
+}
+
+func createSedna() *SolarPlanet {
+	return createSedna_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createQuaoar_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Quaoar", PosX: float64(430), PosY: float64(0), PosZ: float64(0), Radius: float64(0.39), ColorRgba: int64(2962440447), TextureName: "quaoar", Rotation: float64(0), RotationSpeed: float64(0.003), HasRings: true, RingColor: int64(1751607551), OrbitRadius: float64(430), OrbitSpeed: float64(0.0018), OrbitPhase: float64(5), ParentName: ""}
+}
+
+func createQuaoar() *SolarPlanet {
+	return createQuaoar_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createOrcus_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Orcus", PosX: float64(420), PosY: float64(0), PosZ: float64(0), Radius: float64(0.32), ColorRgba: int64(2560137471), TextureName: "orcus", Rotation: float64(0), RotationSpeed: float64(0.003), HasRings: false, RingColor: int64(0), OrbitRadius: float64(420), OrbitSpeed: float64(0.002), OrbitPhase: float64(0.8), ParentName: ""}
+}
+
+func createOrcus() *SolarPlanet {
+	return createOrcus_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createGonggong_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Gonggong", PosX: float64(480), PosY: float64(0), PosZ: float64(0), Radius: float64(0.43), ColorRgba: int64(3497119999), TextureName: "gonggong", Rotation: float64(0), RotationSpeed: float64(0.002), HasRings: false, RingColor: int64(0), OrbitRadius: float64(480), OrbitSpeed: float64(0.0008), OrbitPhase: float64(1.8), ParentName: ""}
+}
+
+func createGonggong() *SolarPlanet {
+	return createGonggong_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createVesta_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Vesta", PosX: float64(115), PosY: float64(0), PosZ: float64(0), Radius: float64(0.18), ColorRgba: int64(2560137471), TextureName: "vesta", Rotation: float64(0), RotationSpeed: float64(0.009), HasRings: false, RingColor: int64(0), OrbitRadius: float64(115), OrbitSpeed: float64(0.019), OrbitPhase: float64(2.5), ParentName: ""}
+}
+
+func createVesta() *SolarPlanet {
+	return createVesta_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createPallas_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Pallas", PosX: float64(118), PosY: float64(0), PosZ: float64(0), Radius: float64(0.18), ColorRgba: int64(1886417151), TextureName: "pallas", Rotation: float64(0), RotationSpeed: float64(0.008), HasRings: false, RingColor: int64(0), OrbitRadius: float64(118), OrbitSpeed: float64(0.0185), OrbitPhase: float64(2.6), ParentName: ""}
+}
+
+func createPallas() *SolarPlanet {
+	return createPallas_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createHygiea_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Hygiea", PosX: float64(125), PosY: float64(0), PosZ: float64(0), Radius: float64(0.15), ColorRgba: int64(1347440895), TextureName: "hygiea", Rotation: float64(0), RotationSpeed: float64(0.005), HasRings: false, RingColor: int64(0), OrbitRadius: float64(125), OrbitSpeed: float64(0.017), OrbitPhase: float64(2.9), ParentName: ""}
+}
+
+func createHygiea() *SolarPlanet {
+	return createHygiea_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createInteramnia_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Interamnia", PosX: float64(127), PosY: float64(0), PosZ: float64(0), Radius: float64(0.11), ColorRgba: int64(1616928063), TextureName: "interamnia", Rotation: float64(0), RotationSpeed: float64(0.006), HasRings: false, RingColor: int64(0), OrbitRadius: float64(127), OrbitSpeed: float64(0.0165), OrbitPhase: float64(2.95), ParentName: ""}
+}
+
+func createInteramnia() *SolarPlanet {
+	return createInteramnia_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createDavida_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Davida", PosX: float64(130), PosY: float64(0), PosZ: float64(0), Radius: float64(0.1), ColorRgba: int64(1347440895), TextureName: "davida", Rotation: float64(0), RotationSpeed: float64(0.007), HasRings: false, RingColor: int64(0), OrbitRadius: float64(130), OrbitSpeed: float64(0.016), OrbitPhase: float64(3), ParentName: ""}
+}
+
+func createDavida() *SolarPlanet {
+	return createDavida_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createSylvia_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Sylvia", PosX: float64(132), PosY: float64(0), PosZ: float64(0), Radius: float64(0.1), ColorRgba: int64(1347440895), TextureName: "sylvia", Rotation: float64(0), RotationSpeed: float64(0.008), HasRings: false, RingColor: int64(0), OrbitRadius: float64(132), OrbitSpeed: float64(0.0155), OrbitPhase: float64(3.02), ParentName: ""}
+}
+
+func createSylvia() *SolarPlanet {
+	return createSylvia_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createEunomia_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Eunomia", PosX: float64(122), PosY: float64(0), PosZ: float64(0), Radius: float64(0.09), ColorRgba: int64(2829099263), TextureName: "eunomia", Rotation: float64(0), RotationSpeed: float64(0.007), HasRings: false, RingColor: int64(0), OrbitRadius: float64(122), OrbitSpeed: float64(0.0175), OrbitPhase: float64(2.85), ParentName: ""}
+}
+
+func createEunomia() *SolarPlanet {
+	return createEunomia_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createEuphrosyne_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Euphrosyne", PosX: float64(128), PosY: float64(0), PosZ: float64(0), Radius: float64(0.09), ColorRgba: int64(1078001983), TextureName: "euphrosyne", Rotation: float64(0), RotationSpeed: float64(0.006), HasRings: false, RingColor: int64(0), OrbitRadius: float64(128), OrbitSpeed: float64(0.0163), OrbitPhase: float64(2.97), ParentName: ""}
+}
+
+func createEuphrosyne() *SolarPlanet {
+	return createEuphrosyne_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createJuno_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Juno", PosX: float64(116), PosY: float64(0), PosZ: float64(0), Radius: float64(0.085), ColorRgba: int64(2829099263), TextureName: "juno", Rotation: float64(0), RotationSpeed: float64(0.009), HasRings: false, RingColor: int64(0), OrbitRadius: float64(116), OrbitSpeed: float64(0.0195), OrbitPhase: float64(2.55), ParentName: ""}
+}
+
+func createJuno() *SolarPlanet {
+	return createJuno_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createCybele_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Cybele", PosX: float64(135), PosY: float64(0), PosZ: float64(0), Radius: float64(0.08), ColorRgba: int64(1347440895), TextureName: "cybele", Rotation: float64(0), RotationSpeed: float64(0.005), HasRings: false, RingColor: int64(0), OrbitRadius: float64(135), OrbitSpeed: float64(0.015), OrbitPhase: float64(3.05), ParentName: ""}
+}
+
+func createCybele() *SolarPlanet {
+	return createCybele_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createChariklo_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Chariklo", PosX: float64(240), PosY: float64(0), PosZ: float64(0), Radius: float64(0.09), ColorRgba: int64(1616928063), TextureName: "chariklo", Rotation: float64(0), RotationSpeed: float64(0.004), HasRings: true, RingColor: int64(2155905279), OrbitRadius: float64(240), OrbitSpeed: float64(0.006), OrbitPhase: float64(4.5), ParentName: ""}
+}
+
+func createChariklo() *SolarPlanet {
+	return createChariklo_impl(struct{}{}).(*SolarPlanet)
+}
+
+func createChiron_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Chiron", PosX: float64(220), PosY: float64(0), PosZ: float64(0), Radius: float64(0.08), ColorRgba: int64(2021161279), TextureName: "chiron", Rotation: float64(0), RotationSpeed: float64(0.004), HasRings: false, RingColor: int64(0), OrbitRadius: float64(220), OrbitSpeed: float64(0.007), OrbitPhase: float64(4.3), ParentName: ""}
+}
+
+func createChiron() *SolarPlanet {
+	return createChiron_impl(struct{}{}).(*SolarPlanet)
 }
 
 func createPlanets_impl(_unused0 interface{}) interface{} {
@@ -90,6 +418,121 @@ func createPlanets() []*SolarPlanet {
 	return ConvertToSolarPlanetSlice(createPlanets_impl(struct{}{}))
 }
 
+func createMoons_impl(_unused0 interface{}) interface{} {
+	var tmp10 interface{} = createMoon_impl(struct{}{})
+	var tmp11 interface{} = createGanymede_impl(struct{}{})
+	var tmp12 interface{} = createCallisto_impl(struct{}{})
+	var tmp13 interface{} = createIo_impl(struct{}{})
+	var tmp14 interface{} = createEuropa_impl(struct{}{})
+	var tmp15 interface{} = createTitan_impl(struct{}{})
+	var tmp16 interface{} = createRhea_impl(struct{}{})
+	var tmp17 interface{} = createIapetus_impl(struct{}{})
+	var tmp18 interface{} = createDione_impl(struct{}{})
+	var tmp19 interface{} = createTethys_impl(struct{}{})
+	var tmp20 interface{} = createEnceladus_impl(struct{}{})
+	var tmp21 interface{} = createMimas_impl(struct{}{})
+	var tmp22 interface{} = createTitania_impl(struct{}{})
+	var tmp23 interface{} = createOberon_impl(struct{}{})
+	var tmp24 interface{} = createUmbriel_impl(struct{}{})
+	var tmp25 interface{} = createAriel_impl(struct{}{})
+	var tmp26 interface{} = createMiranda_impl(struct{}{})
+	var tmp27 interface{} = createTriton_impl(struct{}{})
+	var tmp28 interface{} = createProteus_impl(struct{}{})
+	return []interface{}{tmp10, tmp11, tmp12, tmp13, tmp14, tmp15, tmp16, tmp17, tmp18, tmp19, tmp20, tmp21, tmp22, tmp23, tmp24, tmp25, tmp26, tmp27, tmp28}
+}
+
+func createMoons() []*SolarPlanet {
+	return ConvertToSolarPlanetSlice(createMoons_impl(struct{}{}))
+}
+
+func createDwarfPlanets_impl(_unused0 interface{}) interface{} {
+	var tmp29 interface{} = createPluto_impl(struct{}{})
+	var tmp30 interface{} = createCharon_impl(struct{}{})
+	var tmp31 interface{} = createEris_impl(struct{}{})
+	var tmp32 interface{} = createHaumea_impl(struct{}{})
+	var tmp33 interface{} = createMakemake_impl(struct{}{})
+	var tmp34 interface{} = createCeres_impl(struct{}{})
+	var tmp35 interface{} = createSedna_impl(struct{}{})
+	var tmp36 interface{} = createQuaoar_impl(struct{}{})
+	var tmp37 interface{} = createOrcus_impl(struct{}{})
+	var tmp38 interface{} = createGonggong_impl(struct{}{})
+	return []interface{}{tmp29, tmp30, tmp31, tmp32, tmp33, tmp34, tmp35, tmp36, tmp37, tmp38}
+}
+
+func createDwarfPlanets() []*SolarPlanet {
+	return ConvertToSolarPlanetSlice(createDwarfPlanets_impl(struct{}{}))
+}
+
+func createAsteroids_impl(_unused0 interface{}) interface{} {
+	var tmp39 interface{} = createVesta_impl(struct{}{})
+	var tmp40 interface{} = createPallas_impl(struct{}{})
+	var tmp41 interface{} = createHygiea_impl(struct{}{})
+	var tmp42 interface{} = createInteramnia_impl(struct{}{})
+	var tmp43 interface{} = createDavida_impl(struct{}{})
+	var tmp44 interface{} = createSylvia_impl(struct{}{})
+	var tmp45 interface{} = createEunomia_impl(struct{}{})
+	var tmp46 interface{} = createEuphrosyne_impl(struct{}{})
+	var tmp47 interface{} = createJuno_impl(struct{}{})
+	var tmp48 interface{} = createCybele_impl(struct{}{})
+	return []interface{}{tmp39, tmp40, tmp41, tmp42, tmp43, tmp44, tmp45, tmp46, tmp47, tmp48}
+}
+
+func createAsteroids() []*SolarPlanet {
+	return ConvertToSolarPlanetSlice(createAsteroids_impl(struct{}{}))
+}
+
+func createCentaurs_impl(_unused0 interface{}) interface{} {
+	var tmp49 interface{} = createChariklo_impl(struct{}{})
+	var tmp50 interface{} = createChiron_impl(struct{}{})
+	return []interface{}{tmp49, tmp50}
+}
+
+func createCentaurs() []*SolarPlanet {
+	return ConvertToSolarPlanetSlice(createCentaurs_impl(struct{}{}))
+}
+
+func concatLists_impl(a interface{}, b interface{}) interface{} {
+	return func() interface{} {
+		_scrutinee := a
+		_ = _scrutinee // suppress unused
+		if ListLen(_scrutinee) == 0 {
+			return b
+		} else if ListLen(_scrutinee) >= 1 {
+			x := ListHead(_scrutinee)
+			_ = x // suppress unused
+			xs := ListTail(_scrutinee)
+			_ = xs // suppress unused
+			return func() interface{} {
+				var tmp51 interface{} = concatLists_impl(xs, b)
+				_ = tmp51 // suppress unused
+				return Cons(x, tmp51)
+			}()
+		} else {
+			panic("non-exhaustive match")
+		}
+	}()
+}
+
+func concatLists(a []*SolarPlanet, b []*SolarPlanet) []*SolarPlanet {
+	return ConvertToSolarPlanetSlice(concatLists_impl(a, b))
+}
+
+func createAllBodies_impl(_unused0 interface{}) interface{} {
+	var planets interface{} = createPlanets_impl(struct{}{})
+	var moons interface{} = createMoons_impl(struct{}{})
+	var dwarfs interface{} = createDwarfPlanets_impl(struct{}{})
+	var asteroids interface{} = createAsteroids_impl(struct{}{})
+	var centaurs interface{} = createCentaurs_impl(struct{}{})
+	var withMoons interface{} = concatLists_impl(planets, moons)
+	var withDwarfs interface{} = concatLists_impl(withMoons, dwarfs)
+	var withAsteroids interface{} = concatLists_impl(withDwarfs, asteroids)
+	return concatLists_impl(withAsteroids, centaurs)
+}
+
+func createAllBodies() []*SolarPlanet {
+	return ConvertToSolarPlanetSlice(createAllBodies_impl(struct{}{}))
+}
+
 func initSolarDemo_impl(_unused0 interface{}) interface{} {
 	return &SolarDemoState{Tick: int64(0), CameraX: float64(300), CameraY: float64(100), CameraZ: float64(200), LookAtX: float64(0), LookAtY: float64(0), LookAtZ: float64(0), ShipVelocity: float64(0), GrEnabled: false, GrCenterX: float64(0.5), GrCenterY: float64(0.5), GrPhi: float64(0.001), SunEnergy: float64(8000), AmbientLevel: float64(0.2)}
 }
@@ -99,8 +542,8 @@ func InitSolarDemo() *SolarDemoState {
 }
 
 func buildAmbientSettings_impl(level interface{}) interface{} {
-	var tmp10 interface{} = &RGBColor{R: float64(0.08), G: float64(0.08), B: float64(0.1)}
-	return &AmbientSettings{Energy: level.(float64), Color: tmp10.(*RGBColor)}
+	var tmp52 interface{} = &RGBColor{R: float64(0.08), G: float64(0.08), B: float64(0.1)}
+	return &AmbientSettings{Energy: level.(float64), Color: tmp52.(*RGBColor)}
 }
 
 func buildAmbientSettings(level float64) *AmbientSettings {
@@ -108,8 +551,8 @@ func buildAmbientSettings(level float64) *AmbientSettings {
 }
 
 func buildSunLight_impl(energy interface{}) interface{} {
-	var tmp11 interface{} = &RGBColor{R: float64(1), G: float64(0.95), B: float64(0.85)}
-	return &LightSource{Id: "sun", X: float64(0), Y: float64(0), Z: float64(0), Energy: energy.(float64), Color: tmp11.(*RGBColor), Range: float64(0)}
+	var tmp53 interface{} = &RGBColor{R: float64(1), G: float64(0.95), B: float64(0.85)}
+	return &LightSource{Id: "sun", X: float64(0), Y: float64(0), Z: float64(0), Energy: energy.(float64), Color: tmp53.(*RGBColor), Range: float64(0)}
 }
 
 func buildSunLight(energy float64) *LightSource {
@@ -117,10 +560,10 @@ func buildSunLight(energy float64) *LightSource {
 }
 
 func buildLightingContext_impl(sunEnergy interface{}, ambientLevel interface{}) interface{} {
-	var tmp12 interface{} = buildAmbientSettings_impl(ambientLevel)
-	var tmp13 interface{} = buildSunLight_impl(sunEnergy)
-	var tmp14 interface{} = []interface{}{tmp13}
-	return &LightingContext{Enabled: true, Ambient: tmp12.(*AmbientSettings), Lights: ConvertToLightSourceSlice(tmp14), LightMultiplier: float64(1)}
+	var tmp54 interface{} = buildAmbientSettings_impl(ambientLevel)
+	var tmp55 interface{} = buildSunLight_impl(sunEnergy)
+	var tmp56 interface{} = []interface{}{tmp55}
+	return &LightingContext{Enabled: true, Ambient: tmp54.(*AmbientSettings), Lights: ConvertToLightSourceSlice(tmp56), LightMultiplier: float64(1)}
 }
 
 func buildLightingContext(sunEnergy float64, ambientLevel float64) *LightingContext {
@@ -128,8 +571,8 @@ func buildLightingContext(sunEnergy float64, ambientLevel float64) *LightingCont
 }
 
 func buildSRContext_impl(velocity interface{}) interface{} {
-	var tmp15 interface{} = GtFloat(velocity, float64(0.01))
-	return &SRContext{Enabled: tmp15.(bool), Velocity: velocity.(float64), Gamma: float64(1), ViewAngle: float64(0)}
+	var tmp57 interface{} = GtFloat(velocity, float64(0.01))
+	return &SRContext{Enabled: tmp57.(bool), Velocity: velocity.(float64), Gamma: float64(1), ViewAngle: float64(0)}
 }
 
 func buildSRContext(velocity float64) *SRContext {
@@ -145,9 +588,9 @@ func buildGRContext(enabled bool, centerX float64, centerY float64, phi float64)
 }
 
 func buildRelativityContext_impl(velocity interface{}, grEnabled interface{}, grCenterX interface{}, grCenterY interface{}, grPhi interface{}) interface{} {
-	var tmp16 interface{} = buildSRContext_impl(velocity)
-	var tmp17 interface{} = buildGRContext_impl(grEnabled, grCenterX, grCenterY, grPhi)
-	return &RelativityContext{Sr: tmp16.(*SRContext), Gr: tmp17.(*GRContext)}
+	var tmp58 interface{} = buildSRContext_impl(velocity)
+	var tmp59 interface{} = buildGRContext_impl(grEnabled, grCenterX, grCenterY, grPhi)
+	return &RelativityContext{Sr: tmp58.(*SRContext), Gr: tmp59.(*GRContext)}
 }
 
 func buildRelativityContext(velocity float64, grEnabled bool, grCenterX float64, grCenterY float64, grPhi float64) *RelativityContext {
@@ -155,14 +598,14 @@ func buildRelativityContext(velocity float64, grEnabled bool, grCenterX float64,
 }
 
 func planetToDrawCmd_impl(p interface{}, z interface{}) interface{} {
-	var tmp18 interface{} = FieldGet(p, "name")
-	var tmp19 interface{} = FieldGet(p, "posX")
-	var tmp20 interface{} = FieldGet(p, "posY")
-	var tmp21 interface{} = FieldGet(p, "radius")
-	var tmp22 interface{} = FieldGet(p, "rotation")
-	var tmp23 interface{} = FieldGet(p, "hasRings")
-	var tmp24 interface{} = FieldGet(p, "ringColor")
-	return NewDrawCmdTexturedPlanet(tmp18.(string), tmp19.(float64), tmp20.(float64), tmp21.(float64), tmp22.(float64), tmp23.(bool), tmp24.(int64), z.(int64))
+	var tmp60 interface{} = FieldGet(p, "name")
+	var tmp61 interface{} = FieldGet(p, "posX")
+	var tmp62 interface{} = FieldGet(p, "posY")
+	var tmp63 interface{} = FieldGet(p, "radius")
+	var tmp64 interface{} = FieldGet(p, "rotation")
+	var tmp65 interface{} = FieldGet(p, "hasRings")
+	var tmp66 interface{} = FieldGet(p, "ringColor")
+	return NewDrawCmdTexturedPlanet(tmp60.(string), tmp61.(float64), tmp62.(float64), tmp63.(float64), tmp64.(float64), tmp65.(bool), tmp66.(int64), z.(int64))
 }
 
 func planetToDrawCmd(p *SolarPlanet, z int64) *DrawCmd {
@@ -181,11 +624,11 @@ func mapPlanetsToDrawCmds_impl(planets interface{}, z interface{}) interface{} {
 			rest := ListTail(_scrutinee)
 			_ = rest // suppress unused
 			return func() interface{} {
-				var tmp25 interface{} = planetToDrawCmd_impl(p, z)
-				_ = tmp25 // suppress unused
-				var tmp26 interface{} = mapPlanetsToDrawCmds_impl(rest, z)
-				_ = tmp26 // suppress unused
-				return Cons(tmp25, tmp26)
+				var tmp67 interface{} = planetToDrawCmd_impl(p, z)
+				_ = tmp67 // suppress unused
+				var tmp68 interface{} = mapPlanetsToDrawCmds_impl(rest, z)
+				_ = tmp68 // suppress unused
+				return Cons(tmp67, tmp68)
 			}()
 		} else {
 			panic("non-exhaustive match")
@@ -209,20 +652,26 @@ func generateDrawCommands(sunEnergy float64) []*DrawCmd {
 }
 
 func updatePlanetRotation_impl(p interface{}) interface{} {
-	var tmp27 interface{} = FieldGet(p, "name")
-	var tmp28 interface{} = FieldGet(p, "posX")
-	var tmp29 interface{} = FieldGet(p, "posY")
-	var tmp30 interface{} = FieldGet(p, "posZ")
-	var tmp31 interface{} = FieldGet(p, "radius")
-	var tmp32 interface{} = FieldGet(p, "colorRgba")
-	var tmp33 interface{} = FieldGet(p, "textureName")
-	var tmp34 interface{} = FieldGet(p, "rotation")
-	var tmp35 interface{} = FieldGet(p, "rotationSpeed")
-	var tmp36 interface{} = AddFloat(tmp34, tmp35)
-	var tmp37 interface{} = FieldGet(p, "rotationSpeed")
-	var tmp38 interface{} = FieldGet(p, "hasRings")
-	var tmp39 interface{} = FieldGet(p, "ringColor")
-	return &SolarPlanet{Name: tmp27.(string), PosX: tmp28.(float64), PosY: tmp29.(float64), PosZ: tmp30.(float64), Radius: tmp31.(float64), ColorRgba: tmp32.(int64), TextureName: tmp33.(string), Rotation: tmp36.(float64), RotationSpeed: tmp37.(float64), HasRings: tmp38.(bool), RingColor: tmp39.(int64)}
+	var tmp69 interface{} = FieldGet(p, "name")
+	var tmp70 interface{} = FieldGet(p, "posX")
+	var tmp71 interface{} = FieldGet(p, "posY")
+	var tmp72 interface{} = FieldGet(p, "posZ")
+	var tmp73 interface{} = FieldGet(p, "radius")
+	var tmp74 interface{} = FieldGet(p, "colorRgba")
+	var tmp75 interface{} = FieldGet(p, "textureName")
+	var tmp76 interface{} = FieldGet(p, "rotation")
+	var tmp77 interface{} = FieldGet(p, "rotationSpeed")
+	var tmp78 interface{} = AddFloat(tmp76, tmp77)
+	var tmp79 interface{} = FieldGet(p, "rotationSpeed")
+	var tmp80 interface{} = FieldGet(p, "hasRings")
+	var tmp81 interface{} = FieldGet(p, "ringColor")
+	var tmp82 interface{} = FieldGet(p, "orbitRadius")
+	var tmp83 interface{} = FieldGet(p, "orbitSpeed")
+	var tmp84 interface{} = FieldGet(p, "orbitPhase")
+	var tmp85 interface{} = FieldGet(p, "orbitSpeed")
+	var tmp86 interface{} = AddFloat(tmp84, tmp85)
+	var tmp87 interface{} = FieldGet(p, "parentName")
+	return &SolarPlanet{Name: tmp69.(string), PosX: tmp70.(float64), PosY: tmp71.(float64), PosZ: tmp72.(float64), Radius: tmp73.(float64), ColorRgba: tmp74.(int64), TextureName: tmp75.(string), Rotation: tmp78.(float64), RotationSpeed: tmp79.(float64), HasRings: tmp80.(bool), RingColor: tmp81.(int64), OrbitRadius: tmp82.(float64), OrbitSpeed: tmp83.(float64), OrbitPhase: tmp86.(float64), ParentName: tmp87.(string)}
 }
 
 func updatePlanetRotation(p *SolarPlanet) *SolarPlanet {
@@ -241,11 +690,11 @@ func updatePlanetRotations_impl(planets interface{}) interface{} {
 			rest := ListTail(_scrutinee)
 			_ = rest // suppress unused
 			return func() interface{} {
-				var tmp40 interface{} = updatePlanetRotation_impl(p)
-				_ = tmp40 // suppress unused
-				var tmp41 interface{} = updatePlanetRotations_impl(rest)
-				_ = tmp41 // suppress unused
-				return Cons(tmp40, tmp41)
+				var tmp88 interface{} = updatePlanetRotation_impl(p)
+				_ = tmp88 // suppress unused
+				var tmp89 interface{} = updatePlanetRotations_impl(rest)
+				_ = tmp89 // suppress unused
+				return Cons(tmp88, tmp89)
 			}()
 		} else {
 			panic("non-exhaustive match")
@@ -258,9 +707,9 @@ func updatePlanetRotations(planets []*SolarPlanet) []*SolarPlanet {
 }
 
 func buildCamera_impl(state interface{}) interface{} {
-	var tmp42 interface{} = FieldGet(state, "cameraX")
-	var tmp43 interface{} = FieldGet(state, "cameraY")
-	return &Camera{X: tmp42.(float64), Y: tmp43.(float64), Zoom: float64(1)}
+	var tmp90 interface{} = FieldGet(state, "cameraX")
+	var tmp91 interface{} = FieldGet(state, "cameraY")
+	return &Camera{X: tmp90.(float64), Y: tmp91.(float64), Zoom: float64(1)}
 }
 
 func buildCamera(state *SolarDemoState) *Camera {
@@ -269,34 +718,34 @@ func buildCamera(state *SolarDemoState) *Camera {
 
 func buildFrameOutput_impl(state interface{}) interface{} {
 	var drawCmds interface{} = func() interface{} {
-		var tmp54 interface{} = FieldGet(state, "sunEnergy")
-		_ = tmp54 // suppress unused
-		return generateDrawCommands_impl(tmp54)
+		var tmp102 interface{} = FieldGet(state, "sunEnergy")
+		_ = tmp102 // suppress unused
+		return generateDrawCommands_impl(tmp102)
 	}()
 	var lighting interface{} = func() interface{} {
-		var tmp52 interface{} = FieldGet(state, "sunEnergy")
-		_ = tmp52 // suppress unused
-		var tmp53 interface{} = FieldGet(state, "ambientLevel")
-		_ = tmp53 // suppress unused
-		return buildLightingContext_impl(tmp52, tmp53)
+		var tmp100 interface{} = FieldGet(state, "sunEnergy")
+		_ = tmp100 // suppress unused
+		var tmp101 interface{} = FieldGet(state, "ambientLevel")
+		_ = tmp101 // suppress unused
+		return buildLightingContext_impl(tmp100, tmp101)
 	}()
 	var relativity interface{} = func() interface{} {
-		var tmp47 interface{} = FieldGet(state, "shipVelocity")
-		_ = tmp47 // suppress unused
-		var tmp48 interface{} = FieldGet(state, "grEnabled")
-		_ = tmp48 // suppress unused
-		var tmp49 interface{} = FieldGet(state, "grCenterX")
-		_ = tmp49 // suppress unused
-		var tmp50 interface{} = FieldGet(state, "grCenterY")
-		_ = tmp50 // suppress unused
-		var tmp51 interface{} = FieldGet(state, "grPhi")
-		_ = tmp51 // suppress unused
-		return buildRelativityContext_impl(tmp47, tmp48, tmp49, tmp50, tmp51)
+		var tmp95 interface{} = FieldGet(state, "shipVelocity")
+		_ = tmp95 // suppress unused
+		var tmp96 interface{} = FieldGet(state, "grEnabled")
+		_ = tmp96 // suppress unused
+		var tmp97 interface{} = FieldGet(state, "grCenterX")
+		_ = tmp97 // suppress unused
+		var tmp98 interface{} = FieldGet(state, "grCenterY")
+		_ = tmp98 // suppress unused
+		var tmp99 interface{} = FieldGet(state, "grPhi")
+		_ = tmp99 // suppress unused
+		return buildRelativityContext_impl(tmp95, tmp96, tmp97, tmp98, tmp99)
 	}()
-	var tmp44 interface{} = []interface{}{}
-	var tmp45 interface{} = []interface{}{}
-	var tmp46 interface{} = buildCamera_impl(state)
-	return &FrameOutput{Draw: ConvertToDrawCmdSlice(drawCmds), Sounds: ConvertToInt64Slice(tmp44), Debug: ConvertToStringSlice(tmp45), Camera: tmp46.(*Camera), Relativity: relativity.(*RelativityContext), Lighting: lighting.(*LightingContext)}
+	var tmp92 interface{} = []interface{}{}
+	var tmp93 interface{} = []interface{}{}
+	var tmp94 interface{} = buildCamera_impl(state)
+	return &FrameOutput{Draw: ConvertToDrawCmdSlice(drawCmds), Sounds: ConvertToInt64Slice(tmp92), Debug: ConvertToStringSlice(tmp93), Camera: tmp94.(*Camera), Relativity: relativity.(*RelativityContext), Lighting: lighting.(*LightingContext)}
 }
 
 func buildFrameOutput(state *SolarDemoState) *FrameOutput {
@@ -304,22 +753,22 @@ func buildFrameOutput(state *SolarDemoState) *FrameOutput {
 }
 
 func incrementTick_impl(state interface{}) interface{} {
-	var tmp55 interface{} = FieldGet(state, "tick")
-	var tmp56 interface{} = AddInt(tmp55, int64(1))
-	var tmp57 interface{} = FieldGet(state, "cameraX")
-	var tmp58 interface{} = FieldGet(state, "cameraY")
-	var tmp59 interface{} = FieldGet(state, "cameraZ")
-	var tmp60 interface{} = FieldGet(state, "lookAtX")
-	var tmp61 interface{} = FieldGet(state, "lookAtY")
-	var tmp62 interface{} = FieldGet(state, "lookAtZ")
-	var tmp63 interface{} = FieldGet(state, "shipVelocity")
-	var tmp64 interface{} = FieldGet(state, "grEnabled")
-	var tmp65 interface{} = FieldGet(state, "grCenterX")
-	var tmp66 interface{} = FieldGet(state, "grCenterY")
-	var tmp67 interface{} = FieldGet(state, "grPhi")
-	var tmp68 interface{} = FieldGet(state, "sunEnergy")
-	var tmp69 interface{} = FieldGet(state, "ambientLevel")
-	return &SolarDemoState{Tick: tmp56.(int64), CameraX: tmp57.(float64), CameraY: tmp58.(float64), CameraZ: tmp59.(float64), LookAtX: tmp60.(float64), LookAtY: tmp61.(float64), LookAtZ: tmp62.(float64), ShipVelocity: tmp63.(float64), GrEnabled: tmp64.(bool), GrCenterX: tmp65.(float64), GrCenterY: tmp66.(float64), GrPhi: tmp67.(float64), SunEnergy: tmp68.(float64), AmbientLevel: tmp69.(float64)}
+	var tmp103 interface{} = FieldGet(state, "tick")
+	var tmp104 interface{} = AddInt(tmp103, int64(1))
+	var tmp105 interface{} = FieldGet(state, "cameraX")
+	var tmp106 interface{} = FieldGet(state, "cameraY")
+	var tmp107 interface{} = FieldGet(state, "cameraZ")
+	var tmp108 interface{} = FieldGet(state, "lookAtX")
+	var tmp109 interface{} = FieldGet(state, "lookAtY")
+	var tmp110 interface{} = FieldGet(state, "lookAtZ")
+	var tmp111 interface{} = FieldGet(state, "shipVelocity")
+	var tmp112 interface{} = FieldGet(state, "grEnabled")
+	var tmp113 interface{} = FieldGet(state, "grCenterX")
+	var tmp114 interface{} = FieldGet(state, "grCenterY")
+	var tmp115 interface{} = FieldGet(state, "grPhi")
+	var tmp116 interface{} = FieldGet(state, "sunEnergy")
+	var tmp117 interface{} = FieldGet(state, "ambientLevel")
+	return &SolarDemoState{Tick: tmp104.(int64), CameraX: tmp105.(float64), CameraY: tmp106.(float64), CameraZ: tmp107.(float64), LookAtX: tmp108.(float64), LookAtY: tmp109.(float64), LookAtZ: tmp110.(float64), ShipVelocity: tmp111.(float64), GrEnabled: tmp112.(bool), GrCenterX: tmp113.(float64), GrCenterY: tmp114.(float64), GrPhi: tmp115.(float64), SunEnergy: tmp116.(float64), AmbientLevel: tmp117.(float64)}
 }
 
 func incrementTick(state *SolarDemoState) *SolarDemoState {
@@ -342,6 +791,14 @@ func getSolarDemoPlanets_impl(_unused0 interface{}) interface{} {
 
 func GetSolarDemoPlanets() []*SolarPlanet {
 	return ConvertToSolarPlanetSlice(getSolarDemoPlanets_impl(struct{}{}))
+}
+
+func getAllSolarSystemBodies_impl(_unused0 interface{}) interface{} {
+	return createAllBodies_impl(struct{}{})
+}
+
+func GetAllSolarSystemBodies() []*SolarPlanet {
+	return ConvertToSolarPlanetSlice(getAllSolarSystemBodies_impl(struct{}{}))
 }
 
 func getInitialCameraPos_impl(_unused0 interface{}) interface{} {

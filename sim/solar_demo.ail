@@ -40,6 +40,7 @@ export type RingBand = {
 }
 
 -- Planet with all visual properties (SolarPlanet to avoid collision with bridge.ail Planet)
+-- parentName: empty for planets/sun, parent body name for moons (e.g., "Earth" for Moon)
 export type SolarPlanet = {
     name: string,
     posX: float,
@@ -51,7 +52,11 @@ export type SolarPlanet = {
     rotation: float,
     rotationSpeed: float,
     hasRings: bool,
-    ringColor: int
+    ringColor: int,
+    orbitRadius: float,
+    orbitSpeed: float,
+    orbitPhase: float,
+    parentName: string
 }
 
 -- Demo state (owned by AILANG, rendered by Go)
@@ -76,45 +81,251 @@ export type SolarDemoState = {
 -- Planet Creation Helpers (colors as decimal RGBA)
 -- =============================================================================
 
--- Mercury: gray rock (0x808080FF = 2155905279)
+-- Mercury: gray rock (0x808080FF = 2155905279) - orbit: 40 AU, fast orbit
 pure func createMercury() -> SolarPlanet =
-    { name: "Mercury", posX: 40.0, posY: 0.0, posZ: 0.0, radius: 2.0, colorRgba: 2155905279, textureName: "mercury", rotation: 0.0, rotationSpeed: 0.005, hasRings: false, ringColor: 0 }
+    { name: "Mercury", posX: 40.0, posY: 0.0, posZ: 0.0, radius: 2.0, colorRgba: 2155905279, textureName: "mercury", rotation: 0.0, rotationSpeed: 0.005, hasRings: false, ringColor: 0, orbitRadius: 40.0, orbitSpeed: 0.04, orbitPhase: 0.0, parentName: "" }
 
--- Venus: yellow-white (0xE6D9A0FF = 3873169663)
+-- Venus: yellow-white (0xE6D9A0FF = 3873169663) - orbit: 60 AU
 pure func createVenus() -> SolarPlanet =
-    { name: "Venus", posX: 60.0, posY: 0.0, posZ: 0.0, radius: 4.0, colorRgba: 3873169663, textureName: "venus", rotation: 0.0, rotationSpeed: 0.003, hasRings: false, ringColor: 0 }
+    { name: "Venus", posX: 60.0, posY: 0.0, posZ: 0.0, radius: 4.0, colorRgba: 3873169663, textureName: "venus", rotation: 0.0, rotationSpeed: 0.003, hasRings: false, ringColor: 0, orbitRadius: 60.0, orbitSpeed: 0.03, orbitPhase: 0.7, parentName: "" }
 
--- Earth: blue (0x3264C8FF = 846014719)
+-- Earth: blue (0x3264C8FF = 846014719) - orbit: 80 AU
 pure func createEarth() -> SolarPlanet =
-    { name: "Earth", posX: 80.0, posY: 0.0, posZ: 0.0, radius: 4.5, colorRgba: 846014719, textureName: "earth", rotation: 0.0, rotationSpeed: 0.01, hasRings: false, ringColor: 0 }
+    { name: "Earth", posX: 80.0, posY: 0.0, posZ: 0.0, radius: 4.5, colorRgba: 846014719, textureName: "earth", rotation: 0.0, rotationSpeed: 0.01, hasRings: false, ringColor: 0, orbitRadius: 80.0, orbitSpeed: 0.025, orbitPhase: 1.5, parentName: "" }
 
--- Mars: red (0xC84632FF = 3359519487)
+-- Mars: red (0xC84632FF = 3359519487) - orbit: 100 AU
 pure func createMars() -> SolarPlanet =
-    { name: "Mars", posX: 100.0, posY: 0.0, posZ: 0.0, radius: 3.0, colorRgba: 3359519487, textureName: "mars", rotation: 0.0, rotationSpeed: 0.009, hasRings: false, ringColor: 0 }
+    { name: "Mars", posX: 100.0, posY: 0.0, posZ: 0.0, radius: 3.0, colorRgba: 3359519487, textureName: "mars", rotation: 0.0, rotationSpeed: 0.009, hasRings: false, ringColor: 0, orbitRadius: 100.0, orbitSpeed: 0.02, orbitPhase: 2.3, parentName: "" }
 
--- Jupiter: tan (0xC89664FF = 3365143807)
+-- Jupiter: tan (0xC89664FF = 3365143807) - orbit: 150 AU
 pure func createJupiter() -> SolarPlanet =
-    { name: "Jupiter", posX: 150.0, posY: 0.0, posZ: 0.0, radius: 15.0, colorRgba: 3365143807, textureName: "jupiter", rotation: 0.0, rotationSpeed: 0.02, hasRings: false, ringColor: 0 }
+    { name: "Jupiter", posX: 150.0, posY: 0.0, posZ: 0.0, radius: 15.0, colorRgba: 3365143807, textureName: "jupiter", rotation: 0.0, rotationSpeed: 0.02, hasRings: false, ringColor: 0, orbitRadius: 150.0, orbitSpeed: 0.012, orbitPhase: 3.1, parentName: "" }
 
--- Saturn: tan with rings (0xDCBE8CFF = 3703430399, ring: 0xD4C8A880 = 3570993280)
+-- Saturn: tan with rings (0xDCBE8CFF = 3703430399, ring: 0xD4C8A880 = 3570993280) - orbit: 200 AU
 pure func createSaturn() -> SolarPlanet =
-    { name: "Saturn", posX: 200.0, posY: 0.0, posZ: 0.0, radius: 12.0, colorRgba: 3703430399, textureName: "saturn", rotation: 0.0, rotationSpeed: 0.018, hasRings: true, ringColor: 3570993280 }
+    { name: "Saturn", posX: 200.0, posY: 0.0, posZ: 0.0, radius: 12.0, colorRgba: 3703430399, textureName: "saturn", rotation: 0.0, rotationSpeed: 0.018, hasRings: true, ringColor: 3570993280, orbitRadius: 200.0, orbitSpeed: 0.008, orbitPhase: 4.0, parentName: "" }
 
--- Uranus: cyan with thin rings (0x96C8D2FF = 2529579775, ring: 0x3C3C4640 = 1010763328)
+-- Uranus: cyan with thin rings (0x96C8D2FF = 2529579775, ring: 0x3C3C4640 = 1010763328) - orbit: 280 AU
 pure func createUranus() -> SolarPlanet =
-    { name: "Uranus", posX: 280.0, posY: 0.0, posZ: 0.0, radius: 8.0, colorRgba: 2529579775, textureName: "uranus", rotation: 0.0, rotationSpeed: 0.012, hasRings: true, ringColor: 1010763328 }
+    { name: "Uranus", posX: 280.0, posY: 0.0, posZ: 0.0, radius: 8.0, colorRgba: 2529579775, textureName: "uranus", rotation: 0.0, rotationSpeed: 0.012, hasRings: true, ringColor: 1010763328, orbitRadius: 280.0, orbitSpeed: 0.005, orbitPhase: 5.2, parentName: "" }
 
--- Neptune: blue (0x3264C8FF = 846014719)
+-- Neptune: blue (0x3264C8FF = 846014719) - orbit: 350 AU
 pure func createNeptune() -> SolarPlanet =
-    { name: "Neptune", posX: 350.0, posY: 0.0, posZ: 0.0, radius: 7.0, colorRgba: 846014719, textureName: "neptune", rotation: 0.0, rotationSpeed: 0.011, hasRings: false, ringColor: 0 }
+    { name: "Neptune", posX: 350.0, posY: 0.0, posZ: 0.0, radius: 7.0, colorRgba: 846014719, textureName: "neptune", rotation: 0.0, rotationSpeed: 0.011, hasRings: false, ringColor: 0, orbitRadius: 350.0, orbitSpeed: 0.003, orbitPhase: 6.0, parentName: "" }
 
--- Sun: yellow (0xFFC832FF = 4290925311)
+-- Sun: yellow (0xFFC832FF = 4290925311) - stationary at origin
 pure func createSun() -> SolarPlanet =
-    { name: "Sun", posX: 0.0, posY: 0.0, posZ: 0.0, radius: 20.0, colorRgba: 4290925311, textureName: "sun", rotation: 0.0, rotationSpeed: 0.001, hasRings: false, ringColor: 0 }
+    { name: "Sun", posX: 0.0, posY: 0.0, posZ: 0.0, radius: 20.0, colorRgba: 4290925311, textureName: "sun", rotation: 0.0, rotationSpeed: 0.001, hasRings: false, ringColor: 0, orbitRadius: 0.0, orbitSpeed: 0.0, orbitPhase: 0.0, parentName: "" }
 
--- Create all planets
+-- =============================================================================
+-- Major Moons (orbitRadius is now distance from parent, not Sun)
+-- =============================================================================
+
+-- Earth's Moon: gray (0xA8A8A8FF = 2829099263) - orbits Earth
+pure func createMoon() -> SolarPlanet =
+    { name: "Moon", posX: 0.0, posY: 0.0, posZ: 0.0, radius: 1.2, colorRgba: 2829099263, textureName: "moon", rotation: 0.0, rotationSpeed: 0.002, hasRings: false, ringColor: 0, orbitRadius: 5.0, orbitSpeed: 0.08, orbitPhase: 1.6, parentName: "Earth" }
+
+-- Jupiter's Moons (Galilean moons orbit Jupiter)
+pure func createIo() -> SolarPlanet =
+    { name: "Io", posX: 0.0, posY: 0.0, posZ: 0.0, radius: 1.3, colorRgba: 4039131391, textureName: "io", rotation: 0.0, rotationSpeed: 0.008, hasRings: false, ringColor: 0, orbitRadius: 4.0, orbitSpeed: 0.15, orbitPhase: 0.0, parentName: "Jupiter" }
+
+pure func createEuropa() -> SolarPlanet =
+    { name: "Europa", posX: 0.0, posY: 0.0, posZ: 0.0, radius: 1.1, colorRgba: 3368520959, textureName: "europa", rotation: 0.0, rotationSpeed: 0.005, hasRings: false, ringColor: 0, orbitRadius: 6.0, orbitSpeed: 0.12, orbitPhase: 1.5, parentName: "Jupiter" }
+
+pure func createGanymede() -> SolarPlanet =
+    { name: "Ganymede", posX: 0.0, posY: 0.0, posZ: 0.0, radius: 1.8, colorRgba: 2500202911, textureName: "ganymede", rotation: 0.0, rotationSpeed: 0.003, hasRings: false, ringColor: 0, orbitRadius: 8.0, orbitSpeed: 0.09, orbitPhase: 3.0, parentName: "Jupiter" }
+
+pure func createCallisto() -> SolarPlanet =
+    { name: "Callisto", posX: 0.0, posY: 0.0, posZ: 0.0, radius: 1.7, colorRgba: 1751607551, textureName: "callisto", rotation: 0.0, rotationSpeed: 0.002, hasRings: false, ringColor: 0, orbitRadius: 12.0, orbitSpeed: 0.06, orbitPhase: 4.5, parentName: "Jupiter" }
+
+-- Saturn's Moons (orbit Saturn)
+pure func createMimas() -> SolarPlanet =
+    { name: "Mimas", posX: 0.0, posY: 0.0, posZ: 0.0, radius: 0.15, colorRgba: 2829099263, textureName: "mimas", rotation: 0.0, rotationSpeed: 0.008, hasRings: false, ringColor: 0, orbitRadius: 1.5, orbitSpeed: 0.18, orbitPhase: 0.0, parentName: "Saturn" }
+
+pure func createEnceladus() -> SolarPlanet =
+    { name: "Enceladus", posX: 0.0, posY: 0.0, posZ: 0.0, radius: 0.2, colorRgba: 4294967295, textureName: "enceladus", rotation: 0.0, rotationSpeed: 0.007, hasRings: false, ringColor: 0, orbitRadius: 2.0, orbitSpeed: 0.16, orbitPhase: 1.0, parentName: "Saturn" }
+
+pure func createTethys() -> SolarPlanet =
+    { name: "Tethys", posX: 0.0, posY: 0.0, posZ: 0.0, radius: 0.4, colorRgba: 4294967295, textureName: "tethys", rotation: 0.0, rotationSpeed: 0.006, hasRings: false, ringColor: 0, orbitRadius: 3.0, orbitSpeed: 0.14, orbitPhase: 2.0, parentName: "Saturn" }
+
+pure func createDione() -> SolarPlanet =
+    { name: "Dione", posX: 0.0, posY: 0.0, posZ: 0.0, radius: 0.4, colorRgba: 4294967295, textureName: "dione", rotation: 0.0, rotationSpeed: 0.005, hasRings: false, ringColor: 0, orbitRadius: 4.0, orbitSpeed: 0.12, orbitPhase: 3.0, parentName: "Saturn" }
+
+pure func createRhea() -> SolarPlanet =
+    { name: "Rhea", posX: 0.0, posY: 0.0, posZ: 0.0, radius: 0.5, colorRgba: 2829099263, textureName: "rhea", rotation: 0.0, rotationSpeed: 0.004, hasRings: false, ringColor: 0, orbitRadius: 6.0, orbitSpeed: 0.10, orbitPhase: 4.0, parentName: "Saturn" }
+
+pure func createTitan() -> SolarPlanet =
+    { name: "Titan", posX: 0.0, posY: 0.0, posZ: 0.0, radius: 1.8, colorRgba: 3903365375, textureName: "titan", rotation: 0.0, rotationSpeed: 0.003, hasRings: false, ringColor: 0, orbitRadius: 10.0, orbitSpeed: 0.07, orbitPhase: 5.0, parentName: "Saturn" }
+
+pure func createIapetus() -> SolarPlanet =
+    { name: "Iapetus", posX: 0.0, posY: 0.0, posZ: 0.0, radius: 0.5, colorRgba: 2829099263, textureName: "iapetus", rotation: 0.0, rotationSpeed: 0.002, hasRings: false, ringColor: 0, orbitRadius: 14.0, orbitSpeed: 0.04, orbitPhase: 6.0, parentName: "Saturn" }
+
+-- Uranus's Moons (orbit Uranus)
+pure func createMiranda() -> SolarPlanet =
+    { name: "Miranda", posX: 0.0, posY: 0.0, posZ: 0.0, radius: 0.18, colorRgba: 2829099263, textureName: "miranda", rotation: 0.0, rotationSpeed: 0.006, hasRings: false, ringColor: 0, orbitRadius: 1.0, orbitSpeed: 0.15, orbitPhase: 0.0, parentName: "Uranus" }
+
+pure func createAriel() -> SolarPlanet =
+    { name: "Ariel", posX: 0.0, posY: 0.0, posZ: 0.0, radius: 0.4, colorRgba: 2829099263, textureName: "ariel", rotation: 0.0, rotationSpeed: 0.004, hasRings: false, ringColor: 0, orbitRadius: 3.0, orbitSpeed: 0.12, orbitPhase: 1.5, parentName: "Uranus" }
+
+pure func createUmbriel() -> SolarPlanet =
+    { name: "Umbriel", posX: 0.0, posY: 0.0, posZ: 0.0, radius: 0.4, colorRgba: 1751607551, textureName: "umbriel", rotation: 0.0, rotationSpeed: 0.004, hasRings: false, ringColor: 0, orbitRadius: 4.0, orbitSpeed: 0.10, orbitPhase: 3.0, parentName: "Uranus" }
+
+pure func createTitania() -> SolarPlanet =
+    { name: "Titania", posX: 0.0, posY: 0.0, posZ: 0.0, radius: 0.55, colorRgba: 2829099263, textureName: "titania", rotation: 0.0, rotationSpeed: 0.003, hasRings: false, ringColor: 0, orbitRadius: 6.0, orbitSpeed: 0.08, orbitPhase: 4.5, parentName: "Uranus" }
+
+pure func createOberon() -> SolarPlanet =
+    { name: "Oberon", posX: 0.0, posY: 0.0, posZ: 0.0, radius: 0.53, colorRgba: 2829099263, textureName: "oberon", rotation: 0.0, rotationSpeed: 0.003, hasRings: false, ringColor: 0, orbitRadius: 8.0, orbitSpeed: 0.06, orbitPhase: 6.0, parentName: "Uranus" }
+
+-- Neptune's Moons (orbit Neptune)
+pure func createTriton() -> SolarPlanet =
+    { name: "Triton", posX: 0.0, posY: 0.0, posZ: 0.0, radius: 0.95, colorRgba: 3774808831, textureName: "triton", rotation: 0.0, rotationSpeed: 0.004, hasRings: false, ringColor: 0, orbitRadius: 6.0, orbitSpeed: 0.08, orbitPhase: 0.0, parentName: "Neptune" }
+
+pure func createProteus() -> SolarPlanet =
+    { name: "Proteus", posX: 0.0, posY: 0.0, posZ: 0.0, radius: 0.15, colorRgba: 1751607551, textureName: "proteus", rotation: 0.0, rotationSpeed: 0.005, hasRings: false, ringColor: 0, orbitRadius: 2.0, orbitSpeed: 0.15, orbitPhase: 2.0, parentName: "Neptune" }
+
+-- =============================================================================
+-- Dwarf Planets (outer solar system)
+-- =============================================================================
+
+-- Pluto with Charon: tan-brown (0xD4B896FF = 3569747711) - orbit: 400 AU
+pure func createPluto() -> SolarPlanet =
+    { name: "Pluto", posX: 400.0, posY: 0.0, posZ: 0.0, radius: 0.8, colorRgba: 3569747711, textureName: "pluto", rotation: 0.0, rotationSpeed: 0.002, hasRings: false, ringColor: 0, orbitRadius: 400.0, orbitSpeed: 0.002, orbitPhase: 0.5, parentName: "" }
+
+-- Charon orbits Pluto (binary system)
+pure func createCharon() -> SolarPlanet =
+    { name: "Charon", posX: 0.0, posY: 0.0, posZ: 0.0, radius: 0.42, colorRgba: 2829099263, textureName: "charon", rotation: 0.0, rotationSpeed: 0.002, hasRings: false, ringColor: 0, orbitRadius: 2.0, orbitSpeed: 0.05, orbitPhase: 0.0, parentName: "Pluto" }
+
+-- Eris: pale (0xE8E8E0FF = 3907522815) - orbit: 500 AU (very distant)
+pure func createEris() -> SolarPlanet =
+    { name: "Eris", posX: 500.0, posY: 0.0, posZ: 0.0, radius: 0.8, colorRgba: 3907522815, textureName: "eris", rotation: 0.0, rotationSpeed: 0.001, hasRings: false, ringColor: 0, orbitRadius: 500.0, orbitSpeed: 0.001, orbitPhase: 2.0, parentName: "" }
+
+-- Haumea: elongated white (0xF0F0F0FF = 4042322175) - orbit: 450 AU
+pure func createHaumea() -> SolarPlanet =
+    { name: "Haumea", posX: 450.0, posY: 0.0, posZ: 0.0, radius: 0.55, colorRgba: 4042322175, textureName: "haumea", rotation: 0.0, rotationSpeed: 0.015, hasRings: true, ringColor: 2155905279, orbitRadius: 450.0, orbitSpeed: 0.0015, orbitPhase: 3.5, parentName: "" }
+
+-- Makemake: reddish-brown (0xC8A080FF = 3366084863) - orbit: 460 AU
+pure func createMakemake() -> SolarPlanet =
+    { name: "Makemake", posX: 460.0, posY: 0.0, posZ: 0.0, radius: 0.5, colorRgba: 3366084863, textureName: "makemake", rotation: 0.0, rotationSpeed: 0.003, hasRings: false, ringColor: 0, orbitRadius: 460.0, orbitSpeed: 0.0012, orbitPhase: 1.2, parentName: "" }
+
+-- Ceres: gray (0x909090FF = 2425393407) - orbit: 120 AU (asteroid belt)
+pure func createCeres() -> SolarPlanet =
+    { name: "Ceres", posX: 120.0, posY: 0.0, posZ: 0.0, radius: 0.33, colorRgba: 2425393407, textureName: "ceres", rotation: 0.0, rotationSpeed: 0.006, hasRings: false, ringColor: 0, orbitRadius: 120.0, orbitSpeed: 0.018, orbitPhase: 2.8, parentName: "" }
+
+-- Sedna: very red (0xC87050FF = 3362623743) - orbit: 600 AU (very distant)
+pure func createSedna() -> SolarPlanet =
+    { name: "Sedna", posX: 600.0, posY: 0.0, posZ: 0.0, radius: 0.35, colorRgba: 3362623743, textureName: "sedna", rotation: 0.0, rotationSpeed: 0.002, hasRings: false, ringColor: 0, orbitRadius: 600.0, orbitSpeed: 0.0005, orbitPhase: 4.5, parentName: "" }
+
+-- Quaoar: red-gray (0xB09080FF = 2962440447) - orbit: 430 AU
+pure func createQuaoar() -> SolarPlanet =
+    { name: "Quaoar", posX: 430.0, posY: 0.0, posZ: 0.0, radius: 0.39, colorRgba: 2962440447, textureName: "quaoar", rotation: 0.0, rotationSpeed: 0.003, hasRings: true, ringColor: 1751607551, orbitRadius: 430.0, orbitSpeed: 0.0018, orbitPhase: 5.0, parentName: "" }
+
+-- Orcus: gray (0x989898FF = 2560137471) - orbit: 420 AU
+pure func createOrcus() -> SolarPlanet =
+    { name: "Orcus", posX: 420.0, posY: 0.0, posZ: 0.0, radius: 0.32, colorRgba: 2560137471, textureName: "orcus", rotation: 0.0, rotationSpeed: 0.003, hasRings: false, ringColor: 0, orbitRadius: 420.0, orbitSpeed: 0.002, orbitPhase: 0.8, parentName: "" }
+
+-- Gonggong: very red (0xD07060FF = 3497119999) - orbit: 480 AU
+pure func createGonggong() -> SolarPlanet =
+    { name: "Gonggong", posX: 480.0, posY: 0.0, posZ: 0.0, radius: 0.43, colorRgba: 3497119999, textureName: "gonggong", rotation: 0.0, rotationSpeed: 0.002, hasRings: false, ringColor: 0, orbitRadius: 480.0, orbitSpeed: 0.0008, orbitPhase: 1.8, parentName: "" }
+
+-- =============================================================================
+-- Large Asteroids (main belt between Mars and Jupiter: 110-140 AU)
+-- =============================================================================
+
+-- Vesta: light gray (0x989898FF = 2560137471) - orbit: 115 AU
+pure func createVesta() -> SolarPlanet =
+    { name: "Vesta", posX: 115.0, posY: 0.0, posZ: 0.0, radius: 0.18, colorRgba: 2560137471, textureName: "vesta", rotation: 0.0, rotationSpeed: 0.009, hasRings: false, ringColor: 0, orbitRadius: 115.0, orbitSpeed: 0.019, orbitPhase: 2.5, parentName: "" }
+
+-- Pallas: dark gray (0x707070FF = 1886417151) - orbit: 118 AU
+pure func createPallas() -> SolarPlanet =
+    { name: "Pallas", posX: 118.0, posY: 0.0, posZ: 0.0, radius: 0.18, colorRgba: 1886417151, textureName: "pallas", rotation: 0.0, rotationSpeed: 0.008, hasRings: false, ringColor: 0, orbitRadius: 118.0, orbitSpeed: 0.0185, orbitPhase: 2.6, parentName: "" }
+
+-- Hygiea: very dark (0x505050FF = 1347440895) - orbit: 125 AU
+pure func createHygiea() -> SolarPlanet =
+    { name: "Hygiea", posX: 125.0, posY: 0.0, posZ: 0.0, radius: 0.15, colorRgba: 1347440895, textureName: "hygiea", rotation: 0.0, rotationSpeed: 0.005, hasRings: false, ringColor: 0, orbitRadius: 125.0, orbitSpeed: 0.017, orbitPhase: 2.9, parentName: "" }
+
+-- Interamnia: dark gray - orbit: 127 AU
+pure func createInteramnia() -> SolarPlanet =
+    { name: "Interamnia", posX: 127.0, posY: 0.0, posZ: 0.0, radius: 0.11, colorRgba: 1616928063, textureName: "interamnia", rotation: 0.0, rotationSpeed: 0.006, hasRings: false, ringColor: 0, orbitRadius: 127.0, orbitSpeed: 0.0165, orbitPhase: 2.95, parentName: "" }
+
+-- Davida: dark - orbit: 130 AU
+pure func createDavida() -> SolarPlanet =
+    { name: "Davida", posX: 130.0, posY: 0.0, posZ: 0.0, radius: 0.1, colorRgba: 1347440895, textureName: "davida", rotation: 0.0, rotationSpeed: 0.007, hasRings: false, ringColor: 0, orbitRadius: 130.0, orbitSpeed: 0.016, orbitPhase: 3.0, parentName: "" }
+
+-- Sylvia: dark with moons - orbit: 132 AU
+pure func createSylvia() -> SolarPlanet =
+    { name: "Sylvia", posX: 132.0, posY: 0.0, posZ: 0.0, radius: 0.1, colorRgba: 1347440895, textureName: "sylvia", rotation: 0.0, rotationSpeed: 0.008, hasRings: false, ringColor: 0, orbitRadius: 132.0, orbitSpeed: 0.0155, orbitPhase: 3.02, parentName: "" }
+
+-- Eunomia: light (S-type) - orbit: 122 AU
+pure func createEunomia() -> SolarPlanet =
+    { name: "Eunomia", posX: 122.0, posY: 0.0, posZ: 0.0, radius: 0.09, colorRgba: 2829099263, textureName: "eunomia", rotation: 0.0, rotationSpeed: 0.007, hasRings: false, ringColor: 0, orbitRadius: 122.0, orbitSpeed: 0.0175, orbitPhase: 2.85, parentName: "" }
+
+-- Euphrosyne: very dark - orbit: 128 AU
+pure func createEuphrosyne() -> SolarPlanet =
+    { name: "Euphrosyne", posX: 128.0, posY: 0.0, posZ: 0.0, radius: 0.09, colorRgba: 1078001983, textureName: "euphrosyne", rotation: 0.0, rotationSpeed: 0.006, hasRings: false, ringColor: 0, orbitRadius: 128.0, orbitSpeed: 0.0163, orbitPhase: 2.97, parentName: "" }
+
+-- Juno: light (S-type) - orbit: 116 AU
+pure func createJuno() -> SolarPlanet =
+    { name: "Juno", posX: 116.0, posY: 0.0, posZ: 0.0, radius: 0.085, colorRgba: 2829099263, textureName: "juno", rotation: 0.0, rotationSpeed: 0.009, hasRings: false, ringColor: 0, orbitRadius: 116.0, orbitSpeed: 0.0195, orbitPhase: 2.55, parentName: "" }
+
+-- Cybele: dark (C-type) - orbit: 135 AU
+pure func createCybele() -> SolarPlanet =
+    { name: "Cybele", posX: 135.0, posY: 0.0, posZ: 0.0, radius: 0.08, colorRgba: 1347440895, textureName: "cybele", rotation: 0.0, rotationSpeed: 0.005, hasRings: false, ringColor: 0, orbitRadius: 135.0, orbitSpeed: 0.015, orbitPhase: 3.05, parentName: "" }
+
+-- =============================================================================
+-- Centaurs (between Jupiter and Neptune)
+-- =============================================================================
+
+-- Chariklo: dark with rings! - orbit: 240 AU
+pure func createChariklo() -> SolarPlanet =
+    { name: "Chariklo", posX: 240.0, posY: 0.0, posZ: 0.0, radius: 0.09, colorRgba: 1616928063, textureName: "chariklo", rotation: 0.0, rotationSpeed: 0.004, hasRings: true, ringColor: 2155905279, orbitRadius: 240.0, orbitSpeed: 0.006, orbitPhase: 4.5, parentName: "" }
+
+-- Chiron: gray - orbit: 220 AU
+pure func createChiron() -> SolarPlanet =
+    { name: "Chiron", posX: 220.0, posY: 0.0, posZ: 0.0, radius: 0.08, colorRgba: 2021161279, textureName: "chiron", rotation: 0.0, rotationSpeed: 0.004, hasRings: false, ringColor: 0, orbitRadius: 220.0, orbitSpeed: 0.007, orbitPhase: 4.3, parentName: "" }
+
+-- =============================================================================
+-- Create all celestial bodies
+-- =============================================================================
+
 pure func createPlanets() -> [SolarPlanet] =
     [ createSun(), createMercury(), createVenus(), createEarth(), createMars(), createJupiter(), createSaturn(), createUranus(), createNeptune() ]
+
+pure func createMoons() -> [SolarPlanet] =
+    [ createMoon(), createGanymede(), createCallisto(), createIo(), createEuropa(),
+      createTitan(), createRhea(), createIapetus(), createDione(), createTethys(), createEnceladus(), createMimas(),
+      createTitania(), createOberon(), createUmbriel(), createAriel(), createMiranda(),
+      createTriton(), createProteus() ]
+
+pure func createDwarfPlanets() -> [SolarPlanet] =
+    [ createPluto(), createCharon(), createEris(), createHaumea(), createMakemake(), createCeres(),
+      createSedna(), createQuaoar(), createOrcus(), createGonggong() ]
+
+pure func createAsteroids() -> [SolarPlanet] =
+    [ createVesta(), createPallas(), createHygiea(), createInteramnia(), createDavida(),
+      createSylvia(), createEunomia(), createEuphrosyne(), createJuno(), createCybele() ]
+
+pure func createCentaurs() -> [SolarPlanet] =
+    [ createChariklo(), createChiron() ]
+
+-- Helper to concatenate lists
+pure func concatLists(a: [SolarPlanet], b: [SolarPlanet]) -> [SolarPlanet] =
+    match a {
+        [] => b,
+        x :: xs => x :: concatLists(xs, b)
+    }
+
+-- Get ALL solar system objects (60+ bodies)
+pure func createAllBodies() -> [SolarPlanet] {
+    let planets = createPlanets();
+    let moons = createMoons();
+    let dwarfs = createDwarfPlanets();
+    let asteroids = createAsteroids();
+    let centaurs = createCentaurs();
+    let withMoons = concatLists(planets, moons);
+    let withDwarfs = concatLists(withMoons, dwarfs);
+    let withAsteroids = concatLists(withDwarfs, asteroids);
+    concatLists(withAsteroids, centaurs)
+}
 
 -- =============================================================================
 -- State Initialization
@@ -174,7 +385,7 @@ pure func generateDrawCommands(sunEnergy: float) -> [DrawCmd] {
 -- =============================================================================
 
 pure func updatePlanetRotation(p: SolarPlanet) -> SolarPlanet =
-    { name: p.name, posX: p.posX, posY: p.posY, posZ: p.posZ, radius: p.radius, colorRgba: p.colorRgba, textureName: p.textureName, rotation: p.rotation + p.rotationSpeed, rotationSpeed: p.rotationSpeed, hasRings: p.hasRings, ringColor: p.ringColor }
+    { name: p.name, posX: p.posX, posY: p.posY, posZ: p.posZ, radius: p.radius, colorRgba: p.colorRgba, textureName: p.textureName, rotation: p.rotation + p.rotationSpeed, rotationSpeed: p.rotationSpeed, hasRings: p.hasRings, ringColor: p.ringColor, orbitRadius: p.orbitRadius, orbitSpeed: p.orbitSpeed, orbitPhase: p.orbitPhase + p.orbitSpeed, parentName: p.parentName }
 
 pure func updatePlanetRotations(planets: [SolarPlanet]) -> [SolarPlanet] =
     match planets {
@@ -205,6 +416,10 @@ export pure func stepSolarDemo(state: SolarDemoState, input: FrameInput) -> (Sol
 -- Accessors for Go Integration
 -- =============================================================================
 
+-- Returns just planets (for backwards compatibility)
 export pure func getSolarDemoPlanets() -> [SolarPlanet] = createPlanets()
+
+-- Returns ALL solar system objects (60+ bodies)
+export pure func getAllSolarSystemBodies() -> [SolarPlanet] = createAllBodies()
 
 export pure func getInitialCameraPos() -> Vector3 = { x: 300.0, y: 100.0, z: 200.0 }

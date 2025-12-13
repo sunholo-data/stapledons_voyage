@@ -2962,6 +2962,10 @@ type SolarPlanet struct {
 	RotationSpeed float64
 	HasRings      bool
 	RingColor     int64
+	OrbitRadius   float64
+	OrbitSpeed    float64
+	OrbitPhase    float64
+	ParentName    string
 }
 
 // SolarDemoState is a record type

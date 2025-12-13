@@ -325,6 +325,27 @@ func SaturnRingBands(planetRadius float64) []RingBand {
 	return MakeRingBands(planetRadius, SaturnRingSpecs)
 }
 
+// UranusRingSpecs defines Uranus's ring bands as portable multipliers.
+// Uranus's rings are very dark (albedo ~0.05), narrow, and have a blue-grey tint.
+// Main ring system extends from ~1.64 to ~2.0 Uranian radii.
+// Made more visible for game purposes while keeping distinct from Saturn's tan rings.
+var UranusRingSpecs = []RingBandSpec{
+	// Inner rings (6, 5, 4, Alpha, Beta) - grouped, dark blue-grey
+	{InnerMult: 1.64, OuterMult: 1.75,
+		Color: color.RGBA{60, 70, 90, 255}, Opacity: 0.35, Density: 0.3},
+	// Middle rings (Eta, Gamma, Delta) - narrow, blue-grey
+	{InnerMult: 1.78, OuterMult: 1.85,
+		Color: color.RGBA{70, 80, 100, 255}, Opacity: 0.4, Density: 0.4},
+	// Epsilon ring (brightest of Uranus's rings, still dark blue-grey)
+	{InnerMult: 1.95, OuterMult: 2.0,
+		Color: color.RGBA{80, 90, 110, 255}, Opacity: 0.5, Density: 0.6},
+}
+
+// UranusRingBands returns preset ring bands matching Uranus's main rings.
+func UranusRingBands(planetRadius float64) []RingBand {
+	return MakeRingBands(planetRadius, UranusRingSpecs)
+}
+
 // NewMultiBandRing creates a ring system with multiple concentric bands.
 // Each band can have different color, opacity, and density.
 func NewMultiBandRing(name string, bands []RingBand) []*Ring {

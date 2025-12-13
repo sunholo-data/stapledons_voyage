@@ -2332,7 +2332,7 @@ func tryMovePlayer_impl(state interface{}, dir interface{}) interface{} {
 				_ = tmp393 // suppress unused
 				var tmp394 interface{} = FieldGet(newPos, "y")
 				_ = tmp394 // suppress unused
-				return RecordUpdate(state, map[string]interface{}{"playerFacing": dir, "moveState": tmp392, "cameraX": tmp393, "cameraY": tmp394, "playerPos": newPos})
+				return RecordUpdate(state, map[string]interface{}{"playerPos": newPos, "playerFacing": dir, "moveState": tmp392, "cameraX": tmp393, "cameraY": tmp394})
 			}()
 		}
 		return RecordUpdate(state, map[string]interface{}{"playerFacing": dir, "moveState": NewMoveStateMoveIdle()})
@@ -2373,10 +2373,10 @@ func tryMovePlayerIso_impl(state interface{}, move interface{}) interface{} {
 				_ = tmp397 // suppress unused
 				var tmp398 interface{} = NewMoveStateMoveWalking(facing.(*Direction))
 				_ = tmp398 // suppress unused
-				return RecordUpdate(state, map[string]interface{}{"playerPos": tmp397, "playerFacing": facing, "moveState": tmp398, "cameraX": newX, "cameraY": newY})
+				return RecordUpdate(state, map[string]interface{}{"playerFacing": facing, "moveState": tmp398, "cameraX": newX, "cameraY": newY, "playerPos": tmp397})
 			}()
 		}
-		return RecordUpdate(state, map[string]interface{}{"moveState": NewMoveStateMoveIdle(), "playerFacing": facing})
+		return RecordUpdate(state, map[string]interface{}{"playerFacing": facing, "moveState": NewMoveStateMoveIdle()})
 	}()
 }
 
@@ -2634,7 +2634,7 @@ func tryMoveCrew_impl(crew interface{}, dir interface{}, state interface{}) inte
 	var tmp433 interface{} = isWalkable_impl(state, tmp431, tmp432)
 	return func() interface{} {
 		if tmp433.(bool) {
-			return RecordUpdate(crew, map[string]interface{}{"facing": dir, "pos": newPos})
+			return RecordUpdate(crew, map[string]interface{}{"pos": newPos, "facing": dir})
 		}
 		return RecordUpdate(crew, map[string]interface{}{"facing": dir})
 	}()
@@ -2718,7 +2718,7 @@ func stepBridge_impl(state interface{}, frame interface{}) interface{} {
 		_ = tmp442 // suppress unused
 		return updateCrewRec_impl(tmp442, frame, state)
 	}()
-	return RecordUpdate(state, map[string]interface{}{"crewPositions": updatedCrew, "domeState": updatedDome, "domeView": updatedDomeView, "tick": frame})
+	return RecordUpdate(state, map[string]interface{}{"domeState": updatedDome, "domeView": updatedDomeView, "tick": frame, "crewPositions": updatedCrew})
 }
 
 func StepBridge(state *BridgeState, frame int64) *BridgeState {
