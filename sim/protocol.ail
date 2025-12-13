@@ -178,6 +178,44 @@ export type RelativityContext = {
 }
 
 -- =============================================================================
+-- Lighting Types (for 3D scene illumination)
+-- =============================================================================
+
+-- Color in RGB float format (0.0-1.0 per channel)
+export type RGBColor = {
+    r: float,
+    g: float,
+    b: float
+}
+
+-- Light source definition (for stars and other luminous objects)
+-- The engine creates PointLights from these
+export type LightSource = {
+    id: string,          -- Unique identifier (e.g., "sun_light")
+    x: float,            -- World position X
+    y: float,            -- World position Y
+    z: float,            -- World position Z
+    energy: float,       -- Light energy/intensity (8000+ for stars at solar system distances)
+    color: RGBColor,     -- Spectral light color (e.g., G-type star: 1.0, 0.95, 0.85)
+    range: float         -- Maximum light range (0 = infinite)
+}
+
+-- Ambient light settings
+export type AmbientSettings = {
+    energy: float,       -- Ambient intensity (0.0-2.0, default 1.0)
+    color: RGBColor      -- Ambient color (e.g., 0.08, 0.08, 0.1 for deep space)
+}
+
+-- Combined lighting context for 3D scenes
+-- AILANG sets this each frame to control scene illumination
+export type LightingContext = {
+    enabled: bool,                -- Master lighting enable (false = all surfaces fully lit)
+    ambient: AmbientSettings,     -- Ambient light settings
+    lights: [LightSource],        -- Active light sources
+    lightMultiplier: float        -- Global light intensity multiplier (0.1-3.0)
+}
+
+-- =============================================================================
 -- Output Types
 -- =============================================================================
 
@@ -187,5 +225,6 @@ export type FrameOutput = {
     sounds: [int],
     debug: [string],
     camera: Camera,
-    relativity: RelativityContext  -- SR/GR shader context
+    relativity: RelativityContext,  -- SR/GR shader context
+    lighting: LightingContext       -- 3D scene lighting control
 }

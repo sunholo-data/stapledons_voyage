@@ -202,6 +202,7 @@ func NewGame(objectCount int, screenshotFrame int, screenshotPath string, testMo
 		starLights:        starLights,
 		ambientLight:      ambient,
 		lightMultiplier:   1.0,
+		ambientLevel:      1.0,
 	}
 }
 
@@ -266,8 +267,8 @@ func createTestPlanets(manager *lod.Manager, scene3D *tetra.Scene) []*Planet3D {
 	return planets
 }
 
-// updateLightIntensities updates all light sources based on the light multiplier.
-func (g *Game) updateLightIntensities() {
+// updateStarLightIntensities updates star light sources based on the light multiplier.
+func (g *Game) updateStarLightIntensities() {
 	// Update star lights (scale their base energy by the multiplier)
 	for i, light := range g.starLights {
 		if i < len(g.planets) {
@@ -280,11 +281,12 @@ func (g *Game) updateLightIntensities() {
 			}
 		}
 	}
+}
 
-	// Update ambient light
+// updateAmbientLight updates ambient light energy based on ambientLevel.
+func (g *Game) updateAmbientLight() {
 	if g.ambientLight != nil {
-		// Base ambient is 1.0, scale by multiplier
-		g.ambientLight.SetEnergy(g.lightMultiplier)
+		g.ambientLight.SetEnergy(g.ambientLevel)
 	}
 }
 
@@ -489,29 +491,48 @@ func (g *Game) Update() error {
 		log.Printf("Velocity reset to 0")
 	}
 
-	// [: Decrease light intensity
+	// [: Decrease star light intensity
 	if ebiten.IsKeyPressed(ebiten.KeyLeftBracket) {
 		g.lightMultiplier -= 0.02
 		if g.lightMultiplier < 0.1 {
 			g.lightMultiplier = 0.1
 		}
-		g.updateLightIntensities()
+		g.updateStarLightIntensities()
 	}
 
-	// ]: Increase light intensity
+	// ]: Increase star light intensity
 	if ebiten.IsKeyPressed(ebiten.KeyRightBracket) {
 		g.lightMultiplier += 0.02
 		if g.lightMultiplier > 3.0 {
 			g.lightMultiplier = 3.0
 		}
-		g.updateLightIntensities()
+		g.updateStarLightIntensities()
 	}
 
 	// L: Reset light intensity to default
 	if inpututil.IsKeyJustPressed(ebiten.KeyL) {
 		g.lightMultiplier = 1.0
-		g.updateLightIntensities()
-		log.Printf("Light intensity reset to 1.0")
+		g.ambientLevel = 1.0
+		g.updateStarLightIntensities()
+		g.updateAmbientLight()
+	}
+
+	// ;: Decrease ambient light
+	if ebiten.IsKeyPressed(ebiten.KeySemicolon) {
+		g.ambientLevel -= 0.02
+		if g.ambientLevel < 0.0 {
+			g.ambientLevel = 0.0
+		}
+		g.updateAmbientLight()
+	}
+
+	// ': Increase ambient light
+	if ebiten.IsKeyPressed(ebiten.KeyApostrophe) {
+		g.ambientLevel += 0.02
+		if g.ambientLevel > 2.0 {
+			g.ambientLevel = 2.0
+		}
+		g.updateAmbientLight()
 	}
 
 	// Update LOD manager with explicit delta time for smooth transitions
@@ -718,7 +739,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			"  Transitioning: %d\n"+
 			"\n"+
 			"Lighting:\n"+
-			"  Multiplier: %.1fx\n"+
+			"  Star Light: %.1fx\n"+
+			"  Ambient:    %.1fx\n"+
 			"  Sources:    %d\n"+
 			"\n"+
 			"Relativistic Effects:\n"+
@@ -730,8 +752,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			"Controls:\n"+
 			"  WASD/Arrows: Move | Q/E: Up/Down\n"+
 			"  Shift: Fast | R: Reset position\n"+
-			"  [ / ]: Decrease/Increase light\n"+
-			"  L: Reset light | 1/2: SR/GR warp\n"+
+			"  [ / ]: Star light | ; / ': Ambient\n"+
+			"  L: Reset lights | 1/2: SR/GR warp\n"+
 			"  3: Cycle GR | +/-/0: Velocity",
 		modeStr,
 		g.fps,
@@ -745,6 +767,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		stats.VisibleCount,
 		len(transitioning),
 		g.lightMultiplier,
+		g.ambientLevel,
 		len(g.starLights),
 		g.velocity*100,
 		gamma,

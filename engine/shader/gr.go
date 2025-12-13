@@ -73,8 +73,11 @@ func (g *GRWarp) SetDemoMode(centerX, centerY, rs, phi float32) {
 // CycleDemoIntensity cycles through demo intensity levels.
 // Returns the new danger level string.
 func (g *GRWarp) CycleDemoIntensity() string {
-	// Cycle: Subtle -> Strong -> Extreme -> Subtle
+	// Cycle: Faint -> Subtle -> Strong -> Extreme -> Faint
 	switch {
+	case g.demoPhi < 0.0002:
+		g.demoPhi = 0.0005 // Subtle
+		return "Subtle"
 	case g.demoPhi < 0.001:
 		g.demoPhi = 0.005 // Strong
 		return "Strong"
@@ -82,8 +85,8 @@ func (g *GRWarp) CycleDemoIntensity() string {
 		g.demoPhi = 0.05 // Extreme
 		return "Extreme"
 	default:
-		g.demoPhi = 0.0005 // Subtle
-		return "Subtle"
+		g.demoPhi = 0.0001 // Faint (barely perceptible)
+		return "Faint"
 	}
 }
 
@@ -150,8 +153,10 @@ func (g *GRWarp) buildDemoUniforms() map[string]any {
 		maxRadius = 0.4 // 40% of screen for Extreme
 	case g.demoPhi >= 0.001:
 		maxRadius = 0.25 // 25% for Strong
-	default:
+	case g.demoPhi >= 0.0002:
 		maxRadius = 0.15 // 15% for Subtle
+	default:
+		maxRadius = 0.08 // 8% for Faint (barely noticeable)
 	}
 
 	return map[string]any{

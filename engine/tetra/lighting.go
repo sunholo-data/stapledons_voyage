@@ -86,6 +86,11 @@ func (a *AmbientLight) SetEnergy(energy float64) {
 	a.light.SetEnergy(float32(energy))
 }
 
+// SetColor sets the ambient light's color.
+func (a *AmbientLight) SetColor(r, g, b float64) {
+	a.light.SetColor(tetra3d.NewColor(float32(r), float32(g), float32(b), 1))
+}
+
 // Light returns the underlying Tetra3D ambient light.
 func (a *AmbientLight) Light() *tetra3d.AmbientLight {
 	return a.light
