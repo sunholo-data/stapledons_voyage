@@ -484,12 +484,42 @@ s.camera.SetLocalRotation(lookMatrix)
 
 ### Ring System
 
+**Simple Ring:**
 ```go
 ring := tetra.NewRing("saturn_rings", innerRadius, outerRadius, nil)
 ring.AddToScene(scene)
 ring.SetPosition(0, 0, 0)  // Same as planet
 ring.SetTilt(27 * math.Pi / 180)  // Saturn's 27° tilt
 ```
+
+**Multi-Band Dust Ring System (Saturn-style):**
+```go
+// Use preset Saturn ring bands (C, B, A rings with Cassini Division gap)
+ringBands := tetra.SaturnRingBands(planetRadius)
+ringSystem := tetra.NewRingSystem("saturn", ringBands)
+ringSystem.AddToScene(scene)
+ringSystem.SetPosition(0, 0, 0)
+ringSystem.SetTilt(27 * math.Pi / 180)
+
+// Or define custom bands:
+bands := []tetra.RingBand{
+    {InnerRadius: 1.24 * r, OuterRadius: 1.53 * r, Color: dusty, Opacity: 0.3, Density: 0.4},
+    {InnerRadius: 1.53 * r, OuterRadius: 1.95 * r, Color: cream, Opacity: 0.7, Density: 0.9},
+    {InnerRadius: 2.03 * r, OuterRadius: 2.27 * r, Color: tan, Opacity: 0.5, Density: 0.7},
+}
+ringSystem := tetra.NewRingSystem("custom", bands)
+```
+
+**RingBand Properties:**
+| Property | Type | Description |
+|----------|------|-------------|
+| InnerRadius | float64 | Inner edge distance from planet center |
+| OuterRadius | float64 | Outer edge distance from planet center |
+| Color | color.RGBA | Base color of the ring band |
+| Opacity | float64 | 0.0-1.0, transparency (lower = more dust-like) |
+| Density | float64 | 0.0-1.0, affects vertex color variation |
+
+**Dust Effect:** Rings use `TransparencyModeTransparent` with per-vertex color/alpha variation to simulate dust clumping. Inner vertices are slightly darker and more transparent; outer vertices are brighter.
 
 **Material Options:**
 - With texture: `TransparencyModeAlphaClip` for ring gaps

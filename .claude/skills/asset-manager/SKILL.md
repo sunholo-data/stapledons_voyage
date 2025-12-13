@@ -11,11 +11,18 @@ Generate, organize, and manage visual assets for Stapledon's Voyage using AI ima
 
 **Most common usage:**
 ```bash
-# Generate a new isometric tile
-.claude/skills/asset-manager/scripts/generate_asset.sh tile "alien_crystal" "purple crystal formations, sci-fi, alien world"
+# Generate a new asset (uses voyage ai CLI under the hood)
+.claude/skills/asset-manager/scripts/generate_asset.sh tile "alien_crystal" "purple crystal formations, sci-fi"
 
-# Generate an entity sprite sheet
-.claude/skills/asset-manager/scripts/generate_asset.sh entity "alien_merchant" "alien trader, four-armed, robes"
+# Generate bridge-specific assets
+.claude/skills/asset-manager/scripts/generate_asset.sh console "weapons" "torpedo targeting display, red warning lights"
+.claude/skills/asset-manager/scripts/generate_asset.sh crew "pilot" "blue uniform pilot, 4 poses in 2x2 grid"
+
+# Preview prompt without generating
+.claude/skills/asset-manager/scripts/generate_asset.sh console "helm" "pilot controls" --dry-run
+
+# Organize generated asset with auto-optimization
+.claude/skills/asset-manager/scripts/organize_asset.sh assets/generated/response_xxx.png console helm --optimize
 
 # Check what assets exist
 .claude/skills/asset-manager/scripts/status.sh
@@ -46,6 +53,27 @@ Invoke this skill when:
 | **Portrait** | 128x128 px | `assets/sprites/portraits/` | PNG |
 | **Planet Sprite** | 256x256 px | `assets/sprites/planets/` | PNG, transparent |
 
+### Ship Interior Assets
+
+Interior sprites for any ship area (bridge, engineering, cargo, quarters, etc.):
+
+| Type | Dimensions | Location | Format | Notes |
+|------|------------|----------|--------|-------|
+| **Interior Tile** | 64x32 px | `assets/sprites/{area}/tiles/` | PNG | Metallic floors, glow accents |
+| **Console/Station** | 128x96 px | `assets/sprites/{area}/consoles/` | PNG | Isometric workstations |
+| **Crew/Character** | 128x128 px | `assets/sprites/{area}/crew/` | PNG | 4-frame pose sheet |
+| **Furniture** | 64-128 px | `assets/sprites/{area}/props/` | PNG | Chairs, tables, equipment |
+
+**Sprite Sheet Layouts for Animation:**
+- **Horizontal (4x1)**: 4 frames in a row - ideal for walk cycles, total 128x48 px
+- **Grid (2x2)**: 4 frames in 2x2 - ideal for directional poses, each ~256x256 in 1024x1024 from AI
+
+**Prompt Tips for Better Integration:**
+- Specify "4 frames in HORIZONTAL row" or "4 frames in 2x2 GRID" explicitly
+- Request specific pixel dimensions, even if AI generates larger (we resize)
+- Use "transparent background" for all sprites
+- Add "isometric perspective" for consistent angle
+
 ### 3D Textures (for Tetra3D sphere rendering)
 
 | Type | Dimensions | Location | Format | Notes |
@@ -56,10 +84,53 @@ Invoke this skill when:
 
 **Important:** Planet textures for 3D rendering MUST use equirectangular projection (2:1 aspect ratio) to wrap correctly on spheres. Square photos will distort at the poles.
 
+## Image Optimization
+
+AI image generation (via Gemini/Imagen) produces high-resolution 1024x1024 images. These need to be resized for game use.
+
+### Optimization Workflow
+
+```
+AI Generation (1024x1024) → Review → Organize → Resize → Manifest → Test
+```
+
+**When to Optimize:**
+- Always optimize game sprites (tiles, entities, consoles)
+- Keep high-res for backgrounds and reference textures
+- Optimization happens at organize time with `--optimize` flag or separately
+
+**Auto-Optimization Sizes:**
+
+| Asset Type | Target Size | Notes |
+|------------|-------------|-------|
+| Isometric Tile | 64x32 | Diamond shape preserved |
+| Entity/Creature | 128x48 | 4-frame horizontal sheet |
+| Console/Station | 128x96 | Isometric workstation |
+| Crew/Character | 128x128 | 4-frame pose sheet |
+| Star | 16x16 | Glow preserved |
+| Planet | 256x256 | Detail preserved |
+| Portrait | 128x128 | Readable at 64x64 |
+| Background | Keep original | No resize |
+
+**Resize Quality:**
+Uses Catmull-Rom interpolation (high quality, built into Go - no ImageMagick needed).
+
+### Manual Optimization
+
+```bash
+# Resize to specific dimensions
+.claude/skills/asset-manager/scripts/optimize_asset.sh assets/sprites/bridge/consoles/helm.png 128 96
+
+# Auto-detect size from path
+.claude/skills/asset-manager/scripts/optimize_asset.sh assets/sprites/iso_tiles/crystal.png
+
+# Original is backed up as *_original.png
+```
+
 ## Available Scripts
 
-### `scripts/generate_asset.sh <type> <name> <prompt>`
-Generate a new asset using AI with proper styling and dimensions.
+### `scripts/generate_asset.sh <type> <name> <prompt> [--dry-run]`
+Generate a new asset using AI with proper styling and dimensions. Uses `voyage ai` CLI.
 
 ```bash
 # Generate isometric tile
@@ -72,12 +143,26 @@ Generate a new asset using AI with proper styling and dimensions.
 .claude/skills/asset-manager/scripts/generate_asset.sh portrait captain "human ship captain, weathered, wise"
 ```
 
-### `scripts/organize_asset.sh <source> <type> <name>`
-Move a generated image to the correct location with proper naming.
+### `scripts/organize_asset.sh <source> <type> <name> [--optimize]`
+Move a generated image to the correct location with proper naming. Optionally resize to game dimensions.
 
 ```bash
 # Move generated image to assets
 .claude/skills/asset-manager/scripts/organize_asset.sh assets/generated/response_123.png tile alien_grass
+
+# Move AND resize to game-ready dimensions
+.claude/skills/asset-manager/scripts/organize_asset.sh assets/generated/response_456.png console helm --optimize
+```
+
+### `scripts/optimize_asset.sh <image_path> [width] [height]`
+Resize an image to game-ready dimensions. Auto-detects target size from path if not specified.
+
+```bash
+# Auto-detect size from asset path
+.claude/skills/asset-manager/scripts/optimize_asset.sh assets/sprites/iso_tiles/crystal.png
+
+# Specify exact dimensions
+.claude/skills/asset-manager/scripts/optimize_asset.sh assets/generated/temp.png 128 96
 ```
 
 ### `scripts/update_manifest.sh`

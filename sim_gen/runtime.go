@@ -251,6 +251,16 @@ func EqInt(a, b interface{}) interface{} {
 	return toInt64(a) == toInt64(b)
 }
 
+// EqString compares two strings for equality.
+func EqString(a, b interface{}) interface{} {
+	return a.(string) == b.(string)
+}
+
+// EqFloat compares two floats for equality.
+func EqFloat(a, b interface{}) interface{} {
+	return toFloat64(a) == toFloat64(b)
+}
+
 // LtInt compares two integers (less than).
 func LtInt(a, b interface{}) interface{} {
 	return toInt64(a) < toInt64(b)

@@ -1797,7 +1797,7 @@ func renderInteractionPrompt_impl(state interface{}) interface{} {
 			return func() interface{} {
 				_scrutinee := interactable
 				_ = _scrutinee // suppress unused
-				_adt := _scrutinee
+				_adt := _scrutinee.(*InteractableID)
 				switch _adt.Kind {
 				case InteractableIDKindInteractConsole:
 					station := _adt.InteractConsole.Value0
@@ -1888,7 +1888,7 @@ func renderSelectedPanel_impl(state interface{}) interface{} {
 			return func() interface{} {
 				_scrutinee := interactable
 				_ = _scrutinee // suppress unused
-				_adt := _scrutinee
+				_adt := _scrutinee.(*InteractableID)
 				switch _adt.Kind {
 				case InteractableIDKindInteractConsole:
 					station := _adt.InteractConsole.Value0
@@ -2273,7 +2273,7 @@ func tryMovePlayer_impl(state interface{}, dir interface{}) interface{} {
 				_ = tmp409 // suppress unused
 				var tmp410 interface{} = FieldGet(newPos, "y")
 				_ = tmp410 // suppress unused
-				return RecordUpdate(state, map[string]interface{}{"cameraY": tmp410, "playerPos": newPos, "playerFacing": dir, "moveState": tmp408, "cameraX": tmp409})
+				return RecordUpdate(state, map[string]interface{}{"playerFacing": dir, "moveState": tmp408, "cameraX": tmp409, "cameraY": tmp410, "playerPos": newPos})
 			}()
 		}
 		return RecordUpdate(state, map[string]interface{}{"playerFacing": dir, "moveState": NewMoveStateMoveIdle()})
@@ -2380,7 +2380,7 @@ func findNearbyInteractable_impl(state interface{}) interface{} {
 			station := _adt.Some.Value0
 			_ = station // suppress unused
 			return func() interface{} {
-				var tmp428 interface{} = NewInteractableIDInteractConsole(station)
+				var tmp428 interface{} = NewInteractableIDInteractConsole(station.(*BridgeStation))
 				_ = tmp428 // suppress unused
 				return NewOptionSome(tmp428)
 			}()
@@ -2618,7 +2618,7 @@ func stepBridge_impl(state interface{}, frame interface{}) interface{} {
 		_ = tmp451 // suppress unused
 		return updateCrewRec_impl(tmp451, frame, state)
 	}()
-	return RecordUpdate(state, map[string]interface{}{"domeView": updatedDomeView, "tick": frame, "crewPositions": updatedCrew, "domeState": updatedDome})
+	return RecordUpdate(state, map[string]interface{}{"crewPositions": updatedCrew, "domeState": updatedDome, "domeView": updatedDomeView, "tick": frame})
 }
 
 func StepBridge(state *BridgeState, frame int64) *BridgeState {

@@ -62,6 +62,43 @@
     "201": {"file": "stars/star_white.png", "width": 16, "height": 16, "type": "star"},
     "202": {"file": "stars/star_yellow.png", "width": 16, "height": 16, "type": "star"},
     "203": {"file": "stars/star_orange.png", "width": 16, "height": 16, "type": "star"},
-    "204": {"file": "stars/star_red.png", "width": 16, "height": 16, "type": "star"}
+    "204": {"file": "stars/star_red.png", "width": 16, "height": 16, "type": "star"},
+
+    "1000": {"file": "bridge/tiles/bridge_floor.png", "width": 1024, "height": 1024, "type": "bridge_tile"},
+
+    "1100": {"file": "bridge/consoles/helm.png", "width": 1024, "height": 1024, "type": "console"},
+    "1101": {"file": "bridge/consoles/navigation.png", "width": 1024, "height": 1024, "type": "console"},
+    "1102": {"file": "bridge/consoles/science.png", "width": 1024, "height": 1024, "type": "console"},
+    "1103": {"file": "bridge/consoles/comms.png", "width": 1024, "height": 1024, "type": "console"},
+    "1104": {"file": "bridge/consoles/engineering.png", "width": 1024, "height": 1024, "type": "console"},
+    "1105": {"file": "bridge/consoles/captain_chair.png", "width": 1024, "height": 1024, "type": "console"},
+
+    "1200": {
+      "file": "bridge/crew/crew_blue.png",
+      "width": 1024, "height": 1024, "type": "crew",
+      "frameWidth": 512, "frameHeight": 512,
+      "animations": {
+        "idle": {"startFrame": 0, "frameCount": 1, "fps": 0},
+        "walk": {"startFrame": 0, "frameCount": 4, "fps": 6}
+      }
+    },
+    "1201": {
+      "file": "bridge/crew/captain.png",
+      "width": 1024, "height": 1024, "type": "crew",
+      "frameWidth": 512, "frameHeight": 512,
+      "animations": {
+        "idle": {"startFrame": 0, "frameCount": 1, "fps": 0},
+        "walk": {"startFrame": 0, "frameCount": 4, "fps": 6}
+      }
+    },
+    "1202": {
+      "file": "bridge/crew/engineer.png",
+      "width": 1024, "height": 1024, "type": "crew",
+      "frameWidth": 512, "frameHeight": 512,
+      "animations": {
+        "idle": {"startFrame": 0, "frameCount": 1, "fps": 0},
+        "walk": {"startFrame": 0, "frameCount": 4, "fps": 6}
+      }
+    }
   }
 }

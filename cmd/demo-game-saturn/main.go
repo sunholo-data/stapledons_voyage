@@ -44,6 +44,15 @@ var (
 	cameraHeight    = flag.Float64("height", 3.0, "Camera height above ring plane")
 )
 
+// Moon represents a moon orbiting Saturn
+type Moon struct {
+	planet      *tetra.Planet
+	orbitRadius float64 // Distance from Saturn
+	orbitSpeed  float64 // Radians per second
+	orbitAngle  float64 // Current angle
+	orbitTilt   float64 // Inclination above ring plane
+}
+
 // SaturnGame is the main game struct
 type SaturnGame struct {
 	// AILANG state (for saturn data)
@@ -54,6 +63,7 @@ type SaturnGame struct {
 	scene3D    *tetra.Scene
 	saturn     *tetra.Planet
 	ringSystem *tetra.RingSystem // Multi-band dust rings
+	moons      []*Moon           // Orbiting moons
 	sun        *tetra.SunLight
 	ambient    *tetra.AmbientLight
 
@@ -153,6 +163,10 @@ func (g *SaturnGame) setup3DScene(screenW, screenH int) {
 	log.Printf("Ring system: %d bands with dust effects, tilt=%.1f deg",
 		len(ringBands), *ringTilt)
 
+	// Create moons orbiting Saturn
+	g.moons = g.createMoons(saturnRadius)
+	log.Printf("Created %d moons", len(g.moons))
+
 	// Add lighting - from above/side for good ring visibility
 	g.sun = tetra.NewSunLight()
 	g.sun.SetPosition(30, 20, 30) // Light from above-right
@@ -165,6 +179,52 @@ func (g *SaturnGame) setup3DScene(screenW, screenH int) {
 	g.updateCameraOrbit()
 
 	log.Printf("Saturn at origin, camera orbiting at distance %.1f", g.cameraDistance)
+}
+
+// createMoons creates Saturn's major moons
+func (g *SaturnGame) createMoons(saturnRadius float64) []*Moon {
+	moons := []*Moon{
+		// Titan - largest moon, orange-ish (thick atmosphere)
+		{
+			planet:      tetra.NewPlanet("titan", 0.4, color.RGBA{210, 160, 100, 255}),
+			orbitRadius: saturnRadius * 4.0,
+			orbitSpeed:  0.15,
+			orbitAngle:  0,
+			orbitTilt:   0.1,
+		},
+		// Enceladus - icy white, small
+		{
+			planet:      tetra.NewPlanet("enceladus", 0.15, color.RGBA{240, 245, 255, 255}),
+			orbitRadius: saturnRadius * 2.8,
+			orbitSpeed:  0.4,
+			orbitAngle:  math.Pi / 3,
+			orbitTilt:   0.0,
+		},
+		// Mimas - small gray "Death Star" moon
+		{
+			planet:      tetra.NewPlanet("mimas", 0.12, color.RGBA{180, 180, 190, 255}),
+			orbitRadius: saturnRadius * 2.5,
+			orbitSpeed:  0.5,
+			orbitAngle:  math.Pi,
+			orbitTilt:   -0.05,
+		},
+	}
+
+	// Add all moons to scene and set initial positions
+	for _, moon := range moons {
+		moon.planet.AddToScene(g.scene3D)
+		g.updateMoonPosition(moon)
+	}
+
+	return moons
+}
+
+// updateMoonPosition calculates moon position based on orbit
+func (g *SaturnGame) updateMoonPosition(moon *Moon) {
+	x := moon.orbitRadius * math.Cos(moon.orbitAngle)
+	z := moon.orbitRadius * math.Sin(moon.orbitAngle)
+	y := moon.orbitTilt * moon.orbitRadius * math.Sin(moon.orbitAngle*2)
+	moon.planet.SetPosition(x, y, z)
 }
 
 // updateCameraOrbit positions the camera in orbit around Saturn and points it at Saturn
@@ -212,6 +272,15 @@ func (g *SaturnGame) Update() error {
 
 	// Ring system rotates slowly with Saturn
 	g.ringSystem.Update(dt * 0.05)
+
+	// Update moon orbits
+	for _, moon := range g.moons {
+		moon.orbitAngle += moon.orbitSpeed * dt
+		if moon.orbitAngle > 2*math.Pi {
+			moon.orbitAngle -= 2 * math.Pi
+		}
+		g.updateMoonPosition(moon)
+	}
 
 	return nil
 }

@@ -15,12 +15,38 @@ type Ring struct {
 }
 
 // RingBand defines a single band within a ring system (e.g., Saturn's A, B, C rings).
+// InnerRadius and OuterRadius are absolute distances from planet center.
 type RingBand struct {
-	InnerRadius float64     // Inner edge (planet radii multiplier)
-	OuterRadius float64     // Outer edge
-	Color       color.RGBA  // Band color
-	Opacity     float64     // 0.0-1.0 (for dust transparency)
-	Density     float64     // 0.0-1.0 (affects vertex color variation)
+	InnerRadius float64    // Inner edge (absolute distance from planet center)
+	OuterRadius float64    // Outer edge (absolute distance from planet center)
+	Color       color.RGBA // Band color
+	Opacity     float64    // 0.0-1.0 (for dust transparency)
+	Density     float64    // 0.0-1.0 (affects vertex color variation)
+}
+
+// RingBandSpec defines a ring band using planet radii multipliers.
+// This is the portable format - convert to RingBand with MakeRingBands().
+type RingBandSpec struct {
+	InnerMult float64    // Inner edge as planet radii multiplier (1.0 = planet surface)
+	OuterMult float64    // Outer edge as planet radii multiplier
+	Color     color.RGBA // Band color
+	Opacity   float64    // 0.0-1.0 (for dust transparency)
+	Density   float64    // 0.0-1.0 (affects vertex color variation)
+}
+
+// MakeRingBands converts portable RingBandSpecs to absolute RingBands for a given planet radius.
+func MakeRingBands(planetRadius float64, specs []RingBandSpec) []RingBand {
+	bands := make([]RingBand, len(specs))
+	for i, spec := range specs {
+		bands[i] = RingBand{
+			InnerRadius: spec.InnerMult * planetRadius,
+			OuterRadius: spec.OuterMult * planetRadius,
+			Color:       spec.Color,
+			Opacity:     spec.Opacity,
+			Density:     spec.Density,
+		}
+	}
+	return bands
 }
 
 // NewRing creates a ring around a planet.
@@ -274,31 +300,29 @@ func NewRingMeshWithVertexColors(segments int, innerRadius, outerRadius float32,
 	return mesh
 }
 
+// SaturnRingSpecs defines Saturn's ring bands as portable multipliers.
+// Saturn's rings (scaled to planet radii):
+// D Ring: 1.11-1.24 (very faint) - not included
+// C Ring: 1.24-1.53 (dim, inner)
+// B Ring: 1.53-1.95 (brightest)
+// Cassini Division: 1.95-2.03 (gap)
+// A Ring: 2.03-2.27 (bright)
+// F Ring: 2.33 (narrow) - not included
+var SaturnRingSpecs = []RingBandSpec{
+	// C Ring (inner, dim)
+	{InnerMult: 1.24, OuterMult: 1.53,
+		Color: color.RGBA{180, 160, 130, 255}, Opacity: 0.3, Density: 0.4},
+	// B Ring (main, brightest)
+	{InnerMult: 1.53, OuterMult: 1.95,
+		Color: color.RGBA{220, 205, 170, 255}, Opacity: 0.7, Density: 0.9},
+	// A Ring (outer, bright)
+	{InnerMult: 2.03, OuterMult: 2.27,
+		Color: color.RGBA{210, 190, 150, 255}, Opacity: 0.5, Density: 0.7},
+}
+
 // SaturnRingBands returns preset ring bands matching Saturn's main rings.
 func SaturnRingBands(planetRadius float64) []RingBand {
-	// Saturn's rings (scaled to planet radii):
-	// D Ring: 1.11-1.24 (very faint)
-	// C Ring: 1.24-1.53 (dim, inner)
-	// B Ring: 1.53-1.95 (brightest)
-	// Cassini Division: 1.95-2.03 (gap)
-	// A Ring: 2.03-2.27 (bright)
-	// F Ring: 2.33 (narrow)
-
-	tan := color.RGBA{210, 190, 150, 255}
-	cream := color.RGBA{220, 205, 170, 255}
-	dusty := color.RGBA{180, 160, 130, 255}
-
-	return []RingBand{
-		// C Ring (inner, dim)
-		{InnerRadius: 1.24 * planetRadius, OuterRadius: 1.53 * planetRadius,
-			Color: dusty, Opacity: 0.3, Density: 0.4},
-		// B Ring (main, brightest)
-		{InnerRadius: 1.53 * planetRadius, OuterRadius: 1.95 * planetRadius,
-			Color: cream, Opacity: 0.7, Density: 0.9},
-		// A Ring (outer, bright)
-		{InnerRadius: 2.03 * planetRadius, OuterRadius: 2.27 * planetRadius,
-			Color: tan, Opacity: 0.5, Density: 0.7},
-	}
+	return MakeRingBands(planetRadius, SaturnRingSpecs)
 }
 
 // NewMultiBandRing creates a ring system with multiple concentric bands.

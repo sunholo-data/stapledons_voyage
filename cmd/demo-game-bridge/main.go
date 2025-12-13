@@ -160,8 +160,10 @@ func (g *DemoGame) drawHUD(screen *ebiten.Image) {
 	// Draw velocity HUD in top-right corner
 	g.drawVelocityHUD(screen)
 
-	// Help at bottom
-	y = float64(display.InternalHeight) - 30
+	// Controls at bottom
+	y = float64(display.InternalHeight) - 60
+	ebitenutil.DebugPrintAt(screen, "Controls: WASD/Arrows = Move | E = Interact | Escape = Close", 10, int(y))
+	y += lineHeight
 	ebitenutil.DebugPrintAt(screen, "Bubble Ship - Cruising through Solar System", 10, int(y))
 	y += lineHeight
 	if !*debug {
