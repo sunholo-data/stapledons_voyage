@@ -1,6 +1,6 @@
 # Engine Capabilities Reference
 
-**Status**: Active (Updated 2025-12-12 - Multi-Level Ship)
+**Status**: Active (Updated 2025-12-13 - LOD System)
 **Purpose**: Comprehensive reference for all Go/Ebiten engine capabilities
 **Audience**: Sprint executor, design docs, AI agents working on the game
 
@@ -16,6 +16,8 @@
 | **Viewport compositing** | `engine/render/viewport*.go` | **Working** |
 | **Multi-level ship** | `engine/render/deck*.go, spire.go` | **Working** |
 | **Celestial system** | `sim/celestial.ail` | **Working** |
+| **LOD system** | `engine/lod/` | **Working** |
+| 3D scene (Tetra3D) | `engine/tetra/` | Working |
 | SR/GR physics | `engine/relativity/` | Working |
 | Shader effects | `engine/shader/` | Working |
 | Input capture | `engine/input/` | Working |
@@ -533,6 +535,183 @@ ringSystem := tetra.NewRingSystem("custom", bands)
 bin/demo-game-saturn --screenshot 120     # Saturn with rings
 bin/demo-engine-lookat --mode camera-track # LookAt test
 ```
+
+---
+
+## 4c. Level of Detail (LOD) System
+
+**Files:** `engine/lod/` (config.go, manager.go, object.go, billboard.go, circles.go, points.go, camera.go)
+
+The LOD system enables rendering thousands of celestial objects efficiently by switching detail levels based on apparent screen size.
+
+### LOD Tiers
+
+| Tier | Condition | Rendering |
+|------|-----------|-----------|
+| **Full3D** | >= 12px radius | Tetra3D mesh with textures |
+| **Billboard** | >= 6px radius | 2D sprite (textured, spherical projection) |
+| **Circle** | >= 3px radius | Filled circle (texture-derived color) |
+| **Point** | >= 1px radius | Single pixel (scaled 1-3px near threshold) |
+| **Culled** | < 1px or off-screen | Not rendered |
+
+### Configuration
+
+```go
+config := lod.DefaultConfig()
+// Thresholds are apparent RADIUS in pixels
+config.Full3DPixels    = 12   // 24px diameter for 3D
+config.BillboardPixels = 6    // 12px diameter for billboard
+config.CirclePixels    = 3    // 6px diameter for circle
+config.PointPixels     = 1    // Below 1px = culled
+
+config.Hysteresis      = 0.2  // 20% buffer prevents flickering
+config.TransitionTime  = 0.3  // 300ms smooth fade between tiers
+config.Max3DObjects    = 30   // Limit expensive 3D renders
+config.UseApparentSize = true // Pixel-based (not distance-based)
+```
+
+**Preset Configurations:**
+| Config | Full3D | Billboard | Circle | Point | Use Case |
+|--------|--------|-----------|--------|-------|----------|
+| `DefaultConfig()` | 12px | 6px | 3px | 1px | General use |
+| `GalaxyConfig()` | 60px | 20px | 6px | 1.5px | Galaxy-scale |
+| `SystemConfig()` | 100px | 30px | 10px | 2px | Star system detail |
+
+### Hysteresis
+
+Prevents rapid tier flickering at boundaries:
+- **Upgrade** threshold: exact value (e.g., 12px)
+- **Downgrade** threshold: value × (1 - hysteresis) (e.g., 9.6px)
+
+Objects won't rapidly switch between tiers when hovering near a boundary.
+
+### LOD Manager
+
+```go
+manager := lod.NewManager(config)
+
+// Add objects
+obj := lod.NewObject("earth", position, radius, color)
+manager.Add(obj)
+
+// Update each frame (computes tiers, transitions)
+manager.UpdateWithDT(camera, deltaTime)
+
+// Get objects by tier for rendering
+points := manager.GetTierPoint()
+circles := manager.GetTierCircle()
+billboards := manager.GetTierBillboard()
+full3D := manager.GetTier3D()
+transitioning := manager.GetTransitioning()
+
+// Stats
+stats := manager.Stats()
+fmt.Printf("Visible: %d, Full3D: %d, Culled: %d",
+    stats.VisibleCount, stats.Full3DCount, stats.CulledCount)
+```
+
+### Renderers
+
+**PointRenderer:**
+```go
+pr := lod.NewPointRenderer()
+pr.RenderPointsDirect(screen, points)           // Single pixels
+pr.RenderPointsScaled(screen, points, 3.0)      // Size scales near threshold
+pr.RenderPointWithAlpha(screen, obj, 0.5)       // For transitions
+```
+
+**CircleRenderer:**
+```go
+cr := lod.NewCircleRenderer()
+cr.RenderCircles(screen, circles)               // Filled circles
+cr.RenderCirclesWithGlow(screen, circles, 1.5)  // With outer glow (stars)
+cr.RenderCircleWithAlpha(screen, obj, 0.5)      // For transitions
+```
+
+**BillboardRenderer:**
+```go
+br := lod.NewBillboardRenderer()
+br.SetDefaultSprite(defaultSprite)
+br.RenderBillboards(screen, billboards, spriteMap)
+br.RenderBillboardWithAlpha(screen, obj, 0.5, spriteMap)
+```
+
+### Texture-Derived Colors
+
+Extract average color from planet textures for consistent appearance across tiers:
+
+```go
+// Load planet texture
+texture := loadTexture("assets/planets/earth.jpg")
+
+// Extract average color for circles/points
+avgColor := lod.ExtractAverageColor(texture)
+lodObj.Color = avgColor  // Circle/point will match texture
+
+// Create billboard sprite from texture (spherical projection + lighting)
+billboard := lod.CreateBillboardFromTexture(texture, 128)
+```
+
+### Billboard Creation
+
+**From Texture (recommended):**
+```go
+// Spherical projection with lighting - looks like actual 3D planet
+billboard := lod.CreateBillboardFromTexture(texture, 128)
+```
+
+**Procedural:**
+```go
+// Simple gradient sphere
+planet := lod.CreateDefaultPlanetSprite(128, color.RGBA{50, 100, 200, 255})
+
+// Star with glow
+star := lod.CreateDefaultStarSprite(128, color.RGBA{255, 255, 200, 255})
+```
+
+### Smooth Transitions
+
+Objects transitioning between tiers are rendered with alpha blending:
+
+```go
+for _, obj := range manager.GetTransitioning() {
+    prevAlpha := obj.PreviousAlpha()  // 1.0 → 0.0 as transition completes
+
+    switch obj.PreviousTier {
+    case lod.TierPoint:
+        pointRenderer.RenderPointWithAlpha(screen, obj, prevAlpha)
+    case lod.TierCircle:
+        circleRenderer.RenderCircleWithAlpha(screen, obj, prevAlpha)
+    case lod.TierBillboard:
+        billboardRenderer.RenderBillboardWithAlpha(screen, obj, prevAlpha, sprites)
+    }
+}
+```
+
+### Simple Camera
+
+For LOD calculations (not Tetra3D):
+
+```go
+camera := lod.NewSimpleCamera(screenWidth, screenHeight)
+camera.Pos = lod.Vector3{X: 0, Y: 50, Z: 500}
+camera.LookAt = lod.Vector3{X: 0, Y: 0, Z: 0}
+camera.Fov = 60
+camera.Far = 20000
+```
+
+### Demo
+
+```bash
+bin/demo-lod --test              # 4 textured planets (Sun, Earth, Jupiter, Neptune)
+bin/demo-lod --objects 5000      # Random star field stress test
+```
+
+**Controls:**
+- WASD/Arrows: Move camera
+- Q/E: Up/down
+- Shift: Fast move
+- R: Reset position
 
 ---
 
@@ -1248,4 +1427,4 @@ sortKey = layer × 10000 + screenY
 ---
 
 **Document created**: 2025-12-06
-**Last updated**: 2025-12-12 (3D Scene/LookAt, Multi-level ship system)
+**Last updated**: 2025-12-13 (LOD System with apparent-size thresholds, hysteresis, smooth transitions)
