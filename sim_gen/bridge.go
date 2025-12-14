@@ -2373,7 +2373,7 @@ func tryMovePlayerIso_impl(state interface{}, move interface{}) interface{} {
 				_ = tmp397 // suppress unused
 				var tmp398 interface{} = NewMoveStateMoveWalking(facing.(*Direction))
 				_ = tmp398 // suppress unused
-				return RecordUpdate(state, map[string]interface{}{"playerFacing": facing, "moveState": tmp398, "cameraX": newX, "cameraY": newY, "playerPos": tmp397})
+				return RecordUpdate(state, map[string]interface{}{"playerPos": tmp397, "playerFacing": facing, "moveState": tmp398, "cameraX": newX, "cameraY": newY})
 			}()
 		}
 		return RecordUpdate(state, map[string]interface{}{"playerFacing": facing, "moveState": NewMoveStateMoveIdle()})
@@ -2718,7 +2718,7 @@ func stepBridge_impl(state interface{}, frame interface{}) interface{} {
 		_ = tmp442 // suppress unused
 		return updateCrewRec_impl(tmp442, frame, state)
 	}()
-	return RecordUpdate(state, map[string]interface{}{"domeState": updatedDome, "domeView": updatedDomeView, "tick": frame, "crewPositions": updatedCrew})
+	return RecordUpdate(state, map[string]interface{}{"crewPositions": updatedCrew, "domeState": updatedDome, "domeView": updatedDomeView, "tick": frame})
 }
 
 func StepBridge(state *BridgeState, frame int64) *BridgeState {

@@ -524,7 +524,7 @@ func demoUpdateCamera_impl(state interface{}) interface{} {
 		_ = tmp59 // suppress unused
 		return AddFloat(tmp56, tmp59)
 	}()
-	return RecordUpdate(state, map[string]interface{}{"camY": newCamY, "camX": newCamX})
+	return RecordUpdate(state, map[string]interface{}{"camX": newCamX, "camY": newCamY})
 }
 
 func demoUpdateCamera(state *IsoWalkState) *IsoWalkState {

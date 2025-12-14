@@ -1817,6 +1817,18 @@ type LightingContext struct {
 	LightMultiplier float64
 }
 
+// LODConfig is a record type
+type LODConfig struct {
+	Enabled         bool
+	TransitionTime  float64
+	Hysteresis      float64
+	Full3DPixels    float64
+	BillboardPixels float64
+	CirclePixels    float64
+	PointPixels     float64
+	Max3DObjects    int64
+}
+
 // FrameOutput is a record type
 type FrameOutput struct {
 	Draw       []*DrawCmd
@@ -1825,6 +1837,7 @@ type FrameOutput struct {
 	Camera     *Camera
 	Relativity *RelativityContext
 	Lighting   *LightingContext
+	Lod        *LODConfig
 }
 
 // OptionKind discriminates between variants of Option

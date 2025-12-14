@@ -216,6 +216,27 @@ export type LightingContext = {
 }
 
 -- =============================================================================
+-- LOD (Level of Detail) Types
+-- =============================================================================
+
+-- LOD configuration for controlling render tier transitions
+-- AILANG sets this to control the tradeoff between smoothness and visual artifacts
+export type LODConfig = {
+    enabled: bool,             -- Master LOD enable (false = always use highest detail)
+    transitionTime: float,     -- Tier transition duration in seconds (0 = instant, 0.3 = smooth)
+                               -- Note: instant (0) prevents flickering but causes "popping"
+                               -- smooth (>0) can cause alpha-blend flickering with overlapping sprites
+    hysteresis: float,         -- Size change required to switch tiers (0.0-0.5, default 0.2)
+                               -- Higher values = less frequent tier changes = less popping
+                               -- Example: 0.4 means 40% size change needed to switch
+    full3DPixels: float,       -- Minimum apparent pixels for Full3D tier (default 12)
+    billboardPixels: float,    -- Minimum apparent pixels for Billboard tier (default 6)
+    circlePixels: float,       -- Minimum apparent pixels for Circle tier (default 3)
+    pointPixels: float,        -- Minimum apparent pixels for Point tier (default 1)
+    max3DObjects: int          -- Maximum objects in Full3D tier (GPU budget, default 30)
+}
+
+-- =============================================================================
 -- Output Types
 -- =============================================================================
 
@@ -226,5 +247,6 @@ export type FrameOutput = {
     debug: [string],
     camera: Camera,
     relativity: RelativityContext,  -- SR/GR shader context
-    lighting: LightingContext       -- 3D scene lighting control
+    lighting: LightingContext,      -- 3D scene lighting control
+    lod: LODConfig                  -- LOD tier configuration
 }

@@ -1863,6 +1863,30 @@ func ConvertToIsoWalkStateSlice(v interface{}) []*IsoWalkState {
 	return out
 }
 
+// ConvertToLODConfigSlice converts []interface{} to []*LODConfig.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToLODConfigSlice(v interface{}) []*LODConfig {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToLODConfigSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*LODConfig{}
+	}
+	out := make([]*LODConfig, len(src))
+	for i, e := range src {
+		elem, ok := e.(*LODConfig)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToLODConfigSlice: element %d: expected *LODConfig, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
 // ConvertToLightingContextSlice converts []interface{} to []*LightingContext.
 // M-CODEGEN-UNIFIED-SLICE: Record slice converter.
 func ConvertToLightingContextSlice(v interface{}) []*LightingContext {

@@ -1,7 +1,7 @@
 module sim/step
 
 -- Import types from protocol and world modules (imports fixed in v0.4.9)
-import sim/protocol (FrameInput, FrameOutput, DrawCmd, Rect, Coord, PlayerAction, ActionNone, Camera, CircleRGBA, Text)
+import sim/protocol (FrameInput, FrameOutput, DrawCmd, Rect, Coord, PlayerAction, ActionNone, Camera, CircleRGBA, Text, LODConfig)
 import sim/world (World, PlanetState, Tile, Selection, SelectionNone, SelectionTile, ViewMode, ViewBridge, ViewPlanet, ViewGalaxyMap)
 import sim/npc_ai (NPC, PatternStatic, PatternRandomWalk, PatternPatrol, Direction, North, South, East, West, updateAllNPCs)
 import sim/bridge (BridgeState, initBridge, renderBridge, stepBridge)
@@ -231,6 +231,9 @@ export func step(world: World, input: FrameInput) -> (World, FrameOutput) ! {Ran
     let ambientSettings = { energy: 1.0, color: { r: 1.0, g: 1.0, b: 1.0 } };
     let lightingCtx = { enabled: false, ambient: ambientSettings, lights: [], lightMultiplier: 1.0 };
 
-    let output = { draw: drawCmds, sounds: [], debug: [], camera: cam, relativity: relCtx, lighting: lightingCtx };
+    -- Default LOD config (instant transitions to prevent flickering, high hysteresis to reduce popping)
+    let lodConfig = { enabled: true, transitionTime: 0.0, hysteresis: 0.4, full3DPixels: 12.0, billboardPixels: 6.0, circlePixels: 3.0, pointPixels: 1.0, max3DObjects: 30 };
+
+    let output = { draw: drawCmds, sounds: [], debug: [], camera: cam, relativity: relCtx, lighting: lightingCtx, lod: lodConfig };
     (newWorld, output)
 }

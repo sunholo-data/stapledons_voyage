@@ -540,7 +540,7 @@ func updatePlanetView_impl(world interface{}, input interface{}, newTick interfa
 		_ = tmp99 // suppress unused
 		return updateAllNPCs_impl(tmp95, tmp97, tmp99)
 	}()
-	return RecordUpdate(world, map[string]interface{}{"selection": newSelection, "tick": newTick, "npcs": updatedNpcs})
+	return RecordUpdate(world, map[string]interface{}{"tick": newTick, "npcs": updatedNpcs, "selection": newSelection})
 }
 
 func updatePlanetView(world *World, input *FrameInput, newTick int64) *World {
@@ -588,12 +588,13 @@ func step_impl(world interface{}, input interface{}) interface{} {
 		_ = tmp102 // suppress unused
 		return &LightingContext{Enabled: false, Ambient: ambientSettings.(*AmbientSettings), Lights: ConvertToLightSourceSlice(tmp102), LightMultiplier: float64(1)}
 	}()
+	var lodConfig interface{} = &LODConfig{Enabled: true, TransitionTime: float64(0), Hysteresis: float64(0.4), Full3DPixels: float64(12), BillboardPixels: float64(6), CirclePixels: float64(3), PointPixels: float64(1), Max3DObjects: int64(30)}
 	var output interface{} = func() interface{} {
 		var tmp100 interface{} = []interface{}{}
 		_ = tmp100 // suppress unused
 		var tmp101 interface{} = []interface{}{}
 		_ = tmp101 // suppress unused
-		return &FrameOutput{Draw: ConvertToDrawCmdSlice(drawCmds), Sounds: ConvertToInt64Slice(tmp100), Debug: ConvertToStringSlice(tmp101), Camera: cam.(*Camera), Relativity: relCtx.(*RelativityContext), Lighting: lightingCtx.(*LightingContext)}
+		return &FrameOutput{Draw: ConvertToDrawCmdSlice(drawCmds), Sounds: ConvertToInt64Slice(tmp100), Debug: ConvertToStringSlice(tmp101), Camera: cam.(*Camera), Relativity: relCtx.(*RelativityContext), Lighting: lightingCtx.(*LightingContext), Lod: lodConfig.(*LODConfig)}
 	}()
 	return []interface{}{newWorld, output}
 }

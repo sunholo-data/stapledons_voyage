@@ -716,36 +716,45 @@ func buildCamera(state *SolarDemoState) *Camera {
 	return buildCamera_impl(state).(*Camera)
 }
 
+func buildDefaultLODConfig_impl(_unused0 interface{}) interface{} {
+	return &LODConfig{Enabled: true, TransitionTime: float64(0), Hysteresis: float64(0.4), Full3DPixels: float64(12), BillboardPixels: float64(6), CirclePixels: float64(3), PointPixels: float64(1), Max3DObjects: int64(30)}
+}
+
+func buildDefaultLODConfig() *LODConfig {
+	return buildDefaultLODConfig_impl(struct{}{}).(*LODConfig)
+}
+
 func buildFrameOutput_impl(state interface{}) interface{} {
 	var drawCmds interface{} = func() interface{} {
-		var tmp102 interface{} = FieldGet(state, "sunEnergy")
-		_ = tmp102 // suppress unused
-		return generateDrawCommands_impl(tmp102)
+		var tmp103 interface{} = FieldGet(state, "sunEnergy")
+		_ = tmp103 // suppress unused
+		return generateDrawCommands_impl(tmp103)
 	}()
 	var lighting interface{} = func() interface{} {
-		var tmp100 interface{} = FieldGet(state, "sunEnergy")
-		_ = tmp100 // suppress unused
-		var tmp101 interface{} = FieldGet(state, "ambientLevel")
+		var tmp101 interface{} = FieldGet(state, "sunEnergy")
 		_ = tmp101 // suppress unused
-		return buildLightingContext_impl(tmp100, tmp101)
+		var tmp102 interface{} = FieldGet(state, "ambientLevel")
+		_ = tmp102 // suppress unused
+		return buildLightingContext_impl(tmp101, tmp102)
 	}()
 	var relativity interface{} = func() interface{} {
-		var tmp95 interface{} = FieldGet(state, "shipVelocity")
-		_ = tmp95 // suppress unused
-		var tmp96 interface{} = FieldGet(state, "grEnabled")
+		var tmp96 interface{} = FieldGet(state, "shipVelocity")
 		_ = tmp96 // suppress unused
-		var tmp97 interface{} = FieldGet(state, "grCenterX")
+		var tmp97 interface{} = FieldGet(state, "grEnabled")
 		_ = tmp97 // suppress unused
-		var tmp98 interface{} = FieldGet(state, "grCenterY")
+		var tmp98 interface{} = FieldGet(state, "grCenterX")
 		_ = tmp98 // suppress unused
-		var tmp99 interface{} = FieldGet(state, "grPhi")
+		var tmp99 interface{} = FieldGet(state, "grCenterY")
 		_ = tmp99 // suppress unused
-		return buildRelativityContext_impl(tmp95, tmp96, tmp97, tmp98, tmp99)
+		var tmp100 interface{} = FieldGet(state, "grPhi")
+		_ = tmp100 // suppress unused
+		return buildRelativityContext_impl(tmp96, tmp97, tmp98, tmp99, tmp100)
 	}()
 	var tmp92 interface{} = []interface{}{}
 	var tmp93 interface{} = []interface{}{}
 	var tmp94 interface{} = buildCamera_impl(state)
-	return &FrameOutput{Draw: ConvertToDrawCmdSlice(drawCmds), Sounds: ConvertToInt64Slice(tmp92), Debug: ConvertToStringSlice(tmp93), Camera: tmp94.(*Camera), Relativity: relativity.(*RelativityContext), Lighting: lighting.(*LightingContext)}
+	var tmp95 interface{} = buildDefaultLODConfig_impl(struct{}{})
+	return &FrameOutput{Draw: ConvertToDrawCmdSlice(drawCmds), Sounds: ConvertToInt64Slice(tmp92), Debug: ConvertToStringSlice(tmp93), Camera: tmp94.(*Camera), Relativity: relativity.(*RelativityContext), Lighting: lighting.(*LightingContext), Lod: tmp95.(*LODConfig)}
 }
 
 func buildFrameOutput(state *SolarDemoState) *FrameOutput {
@@ -753,22 +762,22 @@ func buildFrameOutput(state *SolarDemoState) *FrameOutput {
 }
 
 func incrementTick_impl(state interface{}) interface{} {
-	var tmp103 interface{} = FieldGet(state, "tick")
-	var tmp104 interface{} = AddInt(tmp103, int64(1))
-	var tmp105 interface{} = FieldGet(state, "cameraX")
-	var tmp106 interface{} = FieldGet(state, "cameraY")
-	var tmp107 interface{} = FieldGet(state, "cameraZ")
-	var tmp108 interface{} = FieldGet(state, "lookAtX")
-	var tmp109 interface{} = FieldGet(state, "lookAtY")
-	var tmp110 interface{} = FieldGet(state, "lookAtZ")
-	var tmp111 interface{} = FieldGet(state, "shipVelocity")
-	var tmp112 interface{} = FieldGet(state, "grEnabled")
-	var tmp113 interface{} = FieldGet(state, "grCenterX")
-	var tmp114 interface{} = FieldGet(state, "grCenterY")
-	var tmp115 interface{} = FieldGet(state, "grPhi")
-	var tmp116 interface{} = FieldGet(state, "sunEnergy")
-	var tmp117 interface{} = FieldGet(state, "ambientLevel")
-	return &SolarDemoState{Tick: tmp104.(int64), CameraX: tmp105.(float64), CameraY: tmp106.(float64), CameraZ: tmp107.(float64), LookAtX: tmp108.(float64), LookAtY: tmp109.(float64), LookAtZ: tmp110.(float64), ShipVelocity: tmp111.(float64), GrEnabled: tmp112.(bool), GrCenterX: tmp113.(float64), GrCenterY: tmp114.(float64), GrPhi: tmp115.(float64), SunEnergy: tmp116.(float64), AmbientLevel: tmp117.(float64)}
+	var tmp104 interface{} = FieldGet(state, "tick")
+	var tmp105 interface{} = AddInt(tmp104, int64(1))
+	var tmp106 interface{} = FieldGet(state, "cameraX")
+	var tmp107 interface{} = FieldGet(state, "cameraY")
+	var tmp108 interface{} = FieldGet(state, "cameraZ")
+	var tmp109 interface{} = FieldGet(state, "lookAtX")
+	var tmp110 interface{} = FieldGet(state, "lookAtY")
+	var tmp111 interface{} = FieldGet(state, "lookAtZ")
+	var tmp112 interface{} = FieldGet(state, "shipVelocity")
+	var tmp113 interface{} = FieldGet(state, "grEnabled")
+	var tmp114 interface{} = FieldGet(state, "grCenterX")
+	var tmp115 interface{} = FieldGet(state, "grCenterY")
+	var tmp116 interface{} = FieldGet(state, "grPhi")
+	var tmp117 interface{} = FieldGet(state, "sunEnergy")
+	var tmp118 interface{} = FieldGet(state, "ambientLevel")
+	return &SolarDemoState{Tick: tmp105.(int64), CameraX: tmp106.(float64), CameraY: tmp107.(float64), CameraZ: tmp108.(float64), LookAtX: tmp109.(float64), LookAtY: tmp110.(float64), LookAtZ: tmp111.(float64), ShipVelocity: tmp112.(float64), GrEnabled: tmp113.(bool), GrCenterX: tmp114.(float64), GrCenterY: tmp115.(float64), GrPhi: tmp116.(float64), SunEnergy: tmp117.(float64), AmbientLevel: tmp118.(float64)}
 }
 
 func incrementTick(state *SolarDemoState) *SolarDemoState {

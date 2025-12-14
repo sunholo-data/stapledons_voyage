@@ -396,11 +396,15 @@ pure func updatePlanetRotations(planets: [SolarPlanet]) -> [SolarPlanet] =
 pure func buildCamera(state: SolarDemoState) -> Camera =
     { x: state.cameraX, y: state.cameraY, zoom: 1.0 }
 
+-- Default LOD config (engine handles LOD, so we return sensible defaults)
+pure func buildDefaultLODConfig() -> LODConfig =
+    { enabled: true, transitionTime: 0.0, hysteresis: 0.4, full3DPixels: 12.0, billboardPixels: 6.0, circlePixels: 3.0, pointPixels: 1.0, max3DObjects: 30 }
+
 pure func buildFrameOutput(state: SolarDemoState) -> FrameOutput {
     let drawCmds = generateDrawCommands(state.sunEnergy);
     let lighting = buildLightingContext(state.sunEnergy, state.ambientLevel);
     let relativity = buildRelativityContext(state.shipVelocity, state.grEnabled, state.grCenterX, state.grCenterY, state.grPhi);
-    { draw: drawCmds, sounds: [], debug: [], camera: buildCamera(state), relativity: relativity, lighting: lighting }
+    { draw: drawCmds, sounds: [], debug: [], camera: buildCamera(state), relativity: relativity, lighting: lighting, lod: buildDefaultLODConfig() }
 }
 
 pure func incrementTick(state: SolarDemoState) -> SolarDemoState =
