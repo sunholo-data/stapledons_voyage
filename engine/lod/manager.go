@@ -140,12 +140,19 @@ func (m *Manager) UpdateWithDT(camera Camera, dt float64) {
 	}
 
 	// Sort objects by distance (closest first) and importance
-	sort.Slice(m.objects, func(i, j int) bool {
+	// Use SliceStable + ID tiebreaker to prevent flickering from sort instability
+	sort.SliceStable(m.objects, func(i, j int) bool {
 		// Higher importance always wins
 		if m.objects[i].Importance != m.objects[j].Importance {
 			return m.objects[i].Importance > m.objects[j].Importance
 		}
-		return m.objects[i].Distance < m.objects[j].Distance
+		// Same distance bucket = use ID for deterministic order
+		bucketI := int(m.objects[i].Distance / distanceBucketSize)
+		bucketJ := int(m.objects[j].Distance / distanceBucketSize)
+		if bucketI != bucketJ {
+			return bucketI < bucketJ // Closer buckets first
+		}
+		return m.objects[i].ID < m.objects[j].ID
 	})
 
 	// Distribute objects into tier lists

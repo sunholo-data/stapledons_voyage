@@ -142,3 +142,14 @@ func (s *Scene) IsLightingEnabled() bool {
 func (s *Scene) World() *tetra3d.World {
 	return s.scene.World
 }
+
+// SetFar sets the camera's far clipping plane.
+// Objects beyond this distance won't be rendered.
+func (s *Scene) SetFar(far float64) {
+	s.camera.SetFar(float32(far))
+}
+
+// SetNear sets the camera's near clipping plane.
+func (s *Scene) SetNear(near float64) {
+	s.camera.SetNear(float32(near))
+}

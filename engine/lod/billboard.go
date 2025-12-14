@@ -3,6 +3,7 @@ package lod
 import (
 	"image/color"
 	"math"
+	"sort"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
@@ -37,14 +38,42 @@ type BillboardObject struct {
 	Sprite *ebiten.Image
 }
 
+// distanceBucketSize is the distance quantization for sort ordering.
+// Objects within the same "bucket" sort by ID for deterministic ordering.
+// Larger values = more stable sorting but less accurate depth ordering.
+// Value of 1.0 means objects within 1 unit of each other sort by ID.
+const distanceBucketSize = 1.0
+
+// DistanceBucketSize returns the current bucket size for debugging.
+func DistanceBucketSize() float64 {
+	return distanceBucketSize
+}
+
 // RenderBillboards draws all billboard-tier objects as camera-facing sprites.
 // Sprites are scaled based on apparent radius and centered on screen position.
+// Objects are sorted back-to-front (farthest first) to prevent z-fighting when overlapping.
 func (br *BillboardRenderer) RenderBillboards(screen *ebiten.Image, objects []*Object, sprites map[string]*ebiten.Image) {
 	if len(objects) == 0 {
 		return
 	}
 
-	for _, obj := range objects {
+	// Sort by distance (farthest first) for correct back-to-front rendering
+	// Use quantized distance comparison to prevent flickering from float precision
+	sorted := make([]*Object, len(objects))
+	copy(sorted, objects)
+	sort.SliceStable(sorted, func(i, j int) bool {
+		// Quantize distances to buckets for stable sorting
+		// Objects in the same bucket (within distanceBucketSize) sort by ID
+		bucketI := int(sorted[i].Distance / distanceBucketSize)
+		bucketJ := int(sorted[j].Distance / distanceBucketSize)
+		if bucketI != bucketJ {
+			return bucketI > bucketJ // Farther buckets first (back-to-front)
+		}
+		// Same bucket: use ID for deterministic ordering
+		return sorted[i].ID < sorted[j].ID
+	})
+
+	for _, obj := range sorted {
 		if !obj.Visible {
 			continue
 		}
