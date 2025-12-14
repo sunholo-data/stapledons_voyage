@@ -8,15 +8,16 @@ import (
 )
 
 func TestLayerParallaxFactors(t *testing.T) {
-	// Verify expected parallax factors
+	// Verify expected parallax factors for the 20-layer system
+	// Layer0 = fixed at infinity (0.0), Layer6 = mid-distance (0.3), Layer16 = scene (1.0)
 	tests := []struct {
 		layer    depth.Layer
 		expected float64
 	}{
-		{depth.LayerDeepBackground, 0.1},
-		{depth.LayerMidBackground, 0.3},
-		{depth.LayerScene, 1.0},
-		{depth.LayerForeground, 1.0},
+		{depth.LayerDeepBackground, 0.0}, // Layer0: fixed at infinity
+		{depth.LayerMidBackground, 0.3},  // Layer6: mid-distance
+		{depth.LayerScene, 1.0},          // Layer16: main scene
+		{depth.LayerForeground, 1.0},     // Layer19: UI (screen-fixed)
 	}
 
 	for _, tc := range tests {
@@ -31,10 +32,10 @@ func TestParallaxCameraForLayer(t *testing.T) {
 	cam := NewParallaxCamera(1280, 960)
 	cam.SetPosition(100, 200)
 
-	// Test DeepBackground layer (0.1x)
+	// Test DeepBackground layer (0.0x - fixed at infinity)
 	x, y := cam.ForLayer(depth.LayerDeepBackground)
-	if x != 10 || y != 20 {
-		t.Errorf("DeepBackground: got (%v, %v), want (10, 20)", x, y)
+	if x != 0 || y != 0 {
+		t.Errorf("DeepBackground: got (%v, %v), want (0, 0)", x, y)
 	}
 
 	// Test MidBackground layer (0.3x)
@@ -65,10 +66,10 @@ func TestParallaxCameraTransformForLayer(t *testing.T) {
 		t.Errorf("Scene OffsetX: got %v, want %v", transform.OffsetX, expectedOffsetX)
 	}
 
-	// DeepBackground layer moves 0.1x, so effective camera is (10, 0)
-	// OffsetX = 640 - 10*1 = 630
+	// DeepBackground layer moves 0.0x (fixed at infinity), so effective camera is (0, 0)
+	// OffsetX = 640 - 0*1 = 640
 	bgTransform := cam.TransformForLayer(depth.LayerDeepBackground)
-	expectedBgOffsetX := 630.0
+	expectedBgOffsetX := 640.0
 	if bgTransform.OffsetX != expectedBgOffsetX {
 		t.Errorf("DeepBackground OffsetX: got %v, want %v", bgTransform.OffsetX, expectedBgOffsetX)
 	}
@@ -122,14 +123,15 @@ func floatEquals(a, b, epsilon float64) bool {
 }
 
 func TestLayerNames(t *testing.T) {
+	// 20-layer system uses descriptive prefixed names
 	names := []struct {
 		layer    depth.Layer
 		expected string
 	}{
-		{depth.LayerDeepBackground, "DeepBackground"},
-		{depth.LayerMidBackground, "MidBackground"},
-		{depth.LayerScene, "Scene"},
-		{depth.LayerForeground, "Foreground"},
+		{depth.LayerDeepBackground, "L0-Space"},       // Layer0
+		{depth.LayerMidBackground, "L6-MidDistance"},  // Layer6
+		{depth.LayerScene, "L16-Scene"},               // Layer16
+		{depth.LayerForeground, "L19-UI"},             // Layer19
 	}
 
 	for _, tc := range names {

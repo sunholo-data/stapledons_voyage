@@ -64,7 +64,12 @@ func TestAddRemove(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
-	m := NewManager(DefaultConfig())
+	// Use distance-based config with instant transitions for predictable test behavior
+	config := DefaultConfig()
+	config.UseApparentSize = false // Use distance-based thresholds
+	config.TransitionTime = 0      // Instant transitions
+	m := NewManager(config)
+
 	camera := NewSimpleCamera(800, 600)
 	camera.Pos = Vector3{0, 0, 100}
 	camera.LookAt = Vector3{0, 0, 0}
