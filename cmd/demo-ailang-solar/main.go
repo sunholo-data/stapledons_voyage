@@ -573,10 +573,10 @@ func (g *Game) Update() error {
 
 	// Update planet visibility based on LOD tier
 	for _, p := range g.planets {
-		if p.lodObj.CurrentTier == lod.TierFull3D {
-			p.planet.Model().SetVisible(true, true)
-		} else {
-			p.planet.Model().SetVisible(false, true)
+		is3D := p.lodObj.CurrentTier == lod.TierFull3D
+		p.planet.Model().SetVisible(is3D, true)
+		if p.rings != nil {
+			p.rings.SetVisible(is3D)
 		}
 		p.planet.Update(dt)
 	}

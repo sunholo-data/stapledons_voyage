@@ -40,10 +40,18 @@ export type PlayerAction =
 -- Click kind for mouse button identification
 export type ClickKind = ClickLeft | ClickRight | ClickMiddle
 
+-- Input for flight-style camera controls
+export type FlightInput = {
+    w: bool, a: bool, s: bool, d: bool,
+    up: bool, down: bool, left: bool, right: bool,
+    shift: bool
+}
+
 -- Frame input from engine (extended for isometric tiles)
 export type FrameInput = {
     mouse: MouseState,
     keys: [KeyEvent],
+    flight: FlightInput,
     clickedThisFrame: bool,
     worldMouseX: float,
     worldMouseY: float,

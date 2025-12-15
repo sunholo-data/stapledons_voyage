@@ -277,7 +277,9 @@ func generateStar_impl(seed interface{}, cellX interface{}, cellY interface{}, c
 		_ = tmp28 // suppress unused
 		return ConcatString("PStar-", tmp28)
 	}()
-	return makeStar_impl(starId, name, x, y, z, spectral, hasHZ)
+	var radius interface{} = radiusForSpectral_impl(spectral)
+	var temp interface{} = temperatureForSpectral_impl(spectral)
+	return makeStar_impl(starId, name, x, y, z, spectral, radius, temp, hasHZ)
 }
 
 func GenerateStar(seed int64, cellX int64, cellY int64, cellZ int64, cellSize float64) *Star {

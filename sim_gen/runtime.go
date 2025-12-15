@@ -1743,6 +1743,30 @@ func ConvertToDomeViewStateSlice(v interface{}) []*DomeViewState {
 	return out
 }
 
+// ConvertToFlightInputSlice converts []interface{} to []*FlightInput.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToFlightInputSlice(v interface{}) []*FlightInput {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToFlightInputSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*FlightInput{}
+	}
+	out := make([]*FlightInput, len(src))
+	for i, e := range src {
+		elem, ok := e.(*FlightInput)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToFlightInputSlice: element %d: expected *FlightInput, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
 // ConvertToFrameInputSlice converts []interface{} to []*FrameInput.
 // M-CODEGEN-UNIFIED-SLICE: Record slice converter.
 func ConvertToFrameInputSlice(v interface{}) []*FrameInput {
@@ -2217,6 +2241,30 @@ func ConvertToStarSystemSlice(v interface{}) []*StarSystem {
 		elem, ok := e.(*StarSystem)
 		if !ok {
 			panic(fmt.Sprintf("ConvertToStarSystemSlice: element %d: expected *StarSystem, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToStarmapVisualsStateSlice converts []interface{} to []*StarmapVisualsState.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToStarmapVisualsStateSlice(v interface{}) []*StarmapVisualsState {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToStarmapVisualsStateSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*StarmapVisualsState{}
+	}
+	out := make([]*StarmapVisualsState, len(src))
+	for i, e := range src {
+		elem, ok := e.(*StarmapVisualsState)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToStarmapVisualsStateSlice: element %d: expected *StarmapVisualsState, got %T", i, e))
 		}
 		out[i] = elem
 	}

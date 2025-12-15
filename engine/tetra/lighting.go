@@ -141,3 +141,8 @@ func (s *StarLight) AddToScene(scene *Scene) {
 func (s *StarLight) Light() *tetra3d.PointLight {
 	return s.light
 }
+
+// Name returns the light's name.
+func (s *StarLight) Name() string {
+	return s.light.Name()
+}

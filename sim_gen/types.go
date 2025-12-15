@@ -1067,10 +1067,24 @@ func (v *ClickKind) IsClickMiddle() bool {
 	return v.Kind == ClickKindKindClickMiddle
 }
 
+// FlightInput is a record type
+type FlightInput struct {
+	W     bool
+	A     bool
+	S     bool
+	D     bool
+	Up    bool
+	Down  bool
+	Left  bool
+	Right bool
+	Shift bool
+}
+
 // FrameInput is a record type
 type FrameInput struct {
 	Mouse            *MouseState
 	Keys             []*KeyEvent
+	Flight           *FlightInput
 	ClickedThisFrame bool
 	WorldMouseX      float64
 	WorldMouseY      float64
@@ -2742,6 +2756,8 @@ type Star struct {
 	Pos         *Vec3
 	Spectral    *SpectralType
 	Luminosity  float64
+	Radius      float64
+	Temperature int64
 	HasHZPlanet bool
 }
 
@@ -2997,6 +3013,18 @@ type SolarDemoState struct {
 	GrPhi        float64
 	SunEnergy    float64
 	AmbientLevel float64
+}
+
+// StarmapVisualsState is a record type
+type StarmapVisualsState struct {
+	Tick    int64
+	CameraX float64
+	CameraY float64
+	CameraZ float64
+	LookAtX float64
+	LookAtY float64
+	LookAtZ float64
+	Stars   []*Star
 }
 
 // Tile is a record type

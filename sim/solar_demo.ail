@@ -125,6 +125,10 @@ pure func createSun() -> SolarPlanet =
 pure func createMoon() -> SolarPlanet =
     { name: "Moon", posX: 0.0, posY: 0.0, posZ: 0.0, radius: 1.2, colorRgba: 2829099263, textureName: "moon", rotation: 0.0, rotationSpeed: 0.002, hasRings: false, ringColor: 0, orbitRadius: 5.0, orbitSpeed: 0.08, orbitPhase: 1.6, parentName: "Earth" }
 
+-- Gemini: Earth's fictional second moon (blue-green)
+pure func createGemini() -> SolarPlanet =
+    { name: "Gemini", posX: 0.0, posY: 0.0, posZ: 0.0, radius: 0.8, colorRgba: 849014719, textureName: "moon", rotation: 0.0, rotationSpeed: 0.002, hasRings: false, ringColor: 0, orbitRadius: 8.0, orbitSpeed: 0.05, orbitPhase: 3.2, parentName: "Earth" }
+
 -- Jupiter's Moons (Galilean moons orbit Jupiter)
 pure func createIo() -> SolarPlanet =
     { name: "Io", posX: 0.0, posY: 0.0, posZ: 0.0, radius: 1.3, colorRgba: 4039131391, textureName: "io", rotation: 0.0, rotationSpeed: 0.008, hasRings: false, ringColor: 0, orbitRadius: 4.0, orbitSpeed: 0.15, orbitPhase: 0.0, parentName: "Jupiter" }
@@ -291,7 +295,7 @@ pure func createPlanets() -> [SolarPlanet] =
     [ createSun(), createMercury(), createVenus(), createEarth(), createMars(), createJupiter(), createSaturn(), createUranus(), createNeptune() ]
 
 pure func createMoons() -> [SolarPlanet] =
-    [ createMoon(), createGanymede(), createCallisto(), createIo(), createEuropa(),
+    [ createMoon(), createGemini(), createGanymede(), createCallisto(), createIo(), createEuropa(),
       createTitan(), createRhea(), createIapetus(), createDione(), createTethys(), createEnceladus(), createMimas(),
       createTitania(), createOberon(), createUmbriel(), createAriel(), createMiranda(),
       createTriton(), createProteus() ]

@@ -220,7 +220,7 @@ func nearestStar_impl(cat interface{}, pos interface{}) interface{} {
 				_ = tmp27 // suppress unused
 				var tmp28 interface{} = vec3Zero_impl(struct{}{})
 				_ = tmp28 // suppress unused
-				return &Star{Id: tmp27.(int64), Name: "NONE", Pos: tmp28.(*Vec3), Spectral: NewSpectralTypeM(), Luminosity: float64(0), HasHZPlanet: false}
+				return &Star{Id: tmp27.(int64), Name: "NONE", Pos: tmp28.(*Vec3), Spectral: NewSpectralTypeM(), Luminosity: float64(0), Radius: float64(0), Temperature: int64(0), HasHZPlanet: false}
 			}()
 		} else if ListLen(_scrutinee) >= 1 {
 			first := ListHead(_scrutinee)
@@ -290,6 +290,66 @@ func LuminosityForSpectral(spec *SpectralType) float64 {
 	return luminosityForSpectral_impl(spec).(float64)
 }
 
+func radiusForSpectral_impl(spec interface{}) interface{} {
+	return func() interface{} {
+		_scrutinee := spec
+		_ = _scrutinee // suppress unused
+		_adt := _scrutinee.(*SpectralType)
+		switch _adt.Kind {
+		case SpectralTypeKindO:
+			return float64(8)
+		case SpectralTypeKindB:
+			return float64(4)
+		case SpectralTypeKindA:
+			return float64(2)
+		case SpectralTypeKindF:
+			return float64(1.4)
+		case SpectralTypeKindG:
+			return float64(1)
+		case SpectralTypeKindK:
+			return float64(0.8)
+		case SpectralTypeKindM:
+			return float64(0.3)
+		default:
+			panic("non-exhaustive match")
+		}
+	}()
+}
+
+func RadiusForSpectral(spec *SpectralType) float64 {
+	return radiusForSpectral_impl(spec).(float64)
+}
+
+func temperatureForSpectral_impl(spec interface{}) interface{} {
+	return func() interface{} {
+		_scrutinee := spec
+		_ = _scrutinee // suppress unused
+		_adt := _scrutinee.(*SpectralType)
+		switch _adt.Kind {
+		case SpectralTypeKindO:
+			return int64(33000)
+		case SpectralTypeKindB:
+			return int64(15000)
+		case SpectralTypeKindA:
+			return int64(8500)
+		case SpectralTypeKindF:
+			return int64(6500)
+		case SpectralTypeKindG:
+			return int64(5800)
+		case SpectralTypeKindK:
+			return int64(4500)
+		case SpectralTypeKindM:
+			return int64(3200)
+		default:
+			panic("non-exhaustive match")
+		}
+	}()
+}
+
+func TemperatureForSpectral(spec *SpectralType) int64 {
+	return temperatureForSpectral_impl(spec).(int64)
+}
+
 func spectralColor_impl(spec interface{}) interface{} {
 	return func() interface{} {
 		_scrutinee := spec
@@ -320,18 +380,18 @@ func SpectralColor(spec *SpectralType) int64 {
 	return spectralColor_impl(spec).(int64)
 }
 
-func makeStar_impl(id interface{}, name interface{}, x interface{}, y interface{}, z interface{}, spec interface{}, hasHZ interface{}) interface{} {
+func makeStar_impl(id interface{}, name interface{}, x interface{}, y interface{}, z interface{}, spec interface{}, radius interface{}, temp interface{}, hasHZ interface{}) interface{} {
 	var tmp35 interface{} = makeVec3_impl(x, y, z)
 	var tmp36 interface{} = luminosityForSpectral_impl(spec)
-	return &Star{Id: id.(int64), Name: name.(string), Pos: tmp35.(*Vec3), Spectral: spec.(*SpectralType), Luminosity: tmp36.(float64), HasHZPlanet: hasHZ.(bool)}
+	return &Star{Id: id.(int64), Name: name.(string), Pos: tmp35.(*Vec3), Spectral: spec.(*SpectralType), Luminosity: tmp36.(float64), Radius: radius.(float64), Temperature: temp.(int64), HasHZPlanet: hasHZ.(bool)}
 }
 
-func MakeStar(id int64, name string, x float64, y float64, z float64, spec *SpectralType, hasHZ bool) *Star {
-	return makeStar_impl(id, name, x, y, z, spec, hasHZ).(*Star)
+func MakeStar(id int64, name string, x float64, y float64, z float64, spec *SpectralType, radius float64, temp int64, hasHZ bool) *Star {
+	return makeStar_impl(id, name, x, y, z, spec, radius, temp, hasHZ).(*Star)
 }
 
 func makeSol_impl(_unused0 interface{}) interface{} {
-	return makeStar_impl(int64(0), "Sol", float64(0), float64(0), float64(0), NewSpectralTypeG(), true)
+	return makeStar_impl(int64(0), "Sol", float64(0), float64(0), float64(0), NewSpectralTypeG(), float64(1), int64(5778), true)
 }
 
 func MakeSol() *Star {
@@ -348,7 +408,7 @@ func initLocalCatalog_impl(_unused0 interface{}) interface{} {
 		_ = tmp39 // suppress unused
 		var tmp40 interface{} = NegFloat(float64(3.77))
 		_ = tmp40 // suppress unused
-		var tmp41 interface{} = makeStar_impl(int64(1), "Proxima Centauri", tmp38, tmp39, tmp40, NewSpectralTypeM(), true)
+		var tmp41 interface{} = makeStar_impl(int64(1), "Proxima Centauri", tmp38, tmp39, tmp40, NewSpectralTypeM(), float64(0.15), int64(3042), true)
 		_ = tmp41 // suppress unused
 		var tmp42 interface{} = NegFloat(float64(1.64))
 		_ = tmp42 // suppress unused
@@ -356,7 +416,7 @@ func initLocalCatalog_impl(_unused0 interface{}) interface{} {
 		_ = tmp43 // suppress unused
 		var tmp44 interface{} = NegFloat(float64(3.84))
 		_ = tmp44 // suppress unused
-		var tmp45 interface{} = makeStar_impl(int64(2), "Alpha Centauri A", tmp42, tmp43, tmp44, NewSpectralTypeG(), true)
+		var tmp45 interface{} = makeStar_impl(int64(2), "Alpha Centauri A", tmp42, tmp43, tmp44, NewSpectralTypeG(), float64(1.22), int64(5790), true)
 		_ = tmp45 // suppress unused
 		var tmp46 interface{} = NegFloat(float64(1.64))
 		_ = tmp46 // suppress unused
@@ -364,55 +424,55 @@ func initLocalCatalog_impl(_unused0 interface{}) interface{} {
 		_ = tmp47 // suppress unused
 		var tmp48 interface{} = NegFloat(float64(3.84))
 		_ = tmp48 // suppress unused
-		var tmp49 interface{} = makeStar_impl(int64(3), "Alpha Centauri B", tmp46, tmp47, tmp48, NewSpectralTypeK(), true)
+		var tmp49 interface{} = makeStar_impl(int64(3), "Alpha Centauri B", tmp46, tmp47, tmp48, NewSpectralTypeK(), float64(0.86), int64(5260), true)
 		_ = tmp49 // suppress unused
 		var tmp50 interface{} = NegFloat(float64(0.06))
 		_ = tmp50 // suppress unused
-		var tmp51 interface{} = makeStar_impl(int64(4), "Barnard's Star", tmp50, float64(5.94), float64(0.49), NewSpectralTypeM(), false)
+		var tmp51 interface{} = makeStar_impl(int64(4), "Barnard's Star", tmp50, float64(5.94), float64(0.49), NewSpectralTypeM(), float64(0.2), int64(3134), false)
 		_ = tmp51 // suppress unused
 		var tmp52 interface{} = NegFloat(float64(7.43))
 		_ = tmp52 // suppress unused
 		var tmp53 interface{} = NegFloat(float64(0.66))
 		_ = tmp53 // suppress unused
-		var tmp54 interface{} = makeStar_impl(int64(5), "Wolf 359", tmp52, float64(2.11), tmp53, NewSpectralTypeM(), false)
+		var tmp54 interface{} = makeStar_impl(int64(5), "Wolf 359", tmp52, float64(2.11), tmp53, NewSpectralTypeM(), float64(0.16), int64(2800), false)
 		_ = tmp54 // suppress unused
 		var tmp55 interface{} = NegFloat(float64(6.52))
 		_ = tmp55 // suppress unused
 		var tmp56 interface{} = NegFloat(float64(1.9))
 		_ = tmp56 // suppress unused
-		var tmp57 interface{} = makeStar_impl(int64(6), "Lalande 21185", tmp55, tmp56, float64(4.88), NewSpectralTypeM(), true)
+		var tmp57 interface{} = makeStar_impl(int64(6), "Lalande 21185", tmp55, tmp56, float64(4.88), NewSpectralTypeM(), float64(0.39), int64(3550), true)
 		_ = tmp57 // suppress unused
 		var tmp58 interface{} = NegFloat(float64(1.61))
 		_ = tmp58 // suppress unused
 		var tmp59 interface{} = NegFloat(float64(2.47))
 		_ = tmp59 // suppress unused
-		var tmp60 interface{} = makeStar_impl(int64(7), "Sirius A", tmp58, float64(8.06), tmp59, NewSpectralTypeA(), false)
+		var tmp60 interface{} = makeStar_impl(int64(7), "Sirius A", tmp58, float64(8.06), tmp59, NewSpectralTypeA(), float64(1.71), int64(9940), false)
 		_ = tmp60 // suppress unused
 		var tmp61 interface{} = NegFloat(float64(1.61))
 		_ = tmp61 // suppress unused
 		var tmp62 interface{} = NegFloat(float64(2.47))
 		_ = tmp62 // suppress unused
-		var tmp63 interface{} = makeStar_impl(int64(8), "Sirius B", tmp61, float64(8.06), tmp62, NewSpectralTypeA(), false)
+		var tmp63 interface{} = makeStar_impl(int64(8), "Sirius B", tmp61, float64(8.06), tmp62, NewSpectralTypeA(), float64(0.0084), int64(25200), false)
 		_ = tmp63 // suppress unused
 		var tmp64 interface{} = NegFloat(float64(0.8))
 		_ = tmp64 // suppress unused
-		var tmp65 interface{} = makeStar_impl(int64(9), "Luyten 726-8 A", float64(8.56), tmp64, float64(1.28), NewSpectralTypeM(), false)
+		var tmp65 interface{} = makeStar_impl(int64(9), "Luyten 726-8 A", float64(8.56), tmp64, float64(1.28), NewSpectralTypeM(), float64(0.14), int64(2670), false)
 		_ = tmp65 // suppress unused
 		var tmp66 interface{} = NegFloat(float64(8.87))
 		_ = tmp66 // suppress unused
 		var tmp67 interface{} = NegFloat(float64(3.32))
 		_ = tmp67 // suppress unused
-		var tmp68 interface{} = makeStar_impl(int64(10), "Ross 154", float64(1.91), tmp66, tmp67, NewSpectralTypeM(), false)
+		var tmp68 interface{} = makeStar_impl(int64(10), "Ross 154", float64(1.91), tmp66, tmp67, NewSpectralTypeM(), float64(0.24), int64(3340), false)
 		_ = tmp68 // suppress unused
 		var tmp69 interface{} = NegFloat(float64(0.59))
 		_ = tmp69 // suppress unused
-		var tmp70 interface{} = makeStar_impl(int64(11), "Ross 248", float64(7.38), tmp69, float64(7.19), NewSpectralTypeM(), false)
+		var tmp70 interface{} = makeStar_impl(int64(11), "Ross 248", float64(7.38), tmp69, float64(7.19), NewSpectralTypeM(), float64(0.16), int64(2800), false)
 		_ = tmp70 // suppress unused
 		var tmp71 interface{} = NegFloat(float64(6.22))
 		_ = tmp71 // suppress unused
 		var tmp72 interface{} = NegFloat(float64(1.73))
 		_ = tmp72 // suppress unused
-		var tmp73 interface{} = makeStar_impl(int64(12), "Epsilon Eridani", tmp71, float64(8.31), tmp72, NewSpectralTypeK(), true)
+		var tmp73 interface{} = makeStar_impl(int64(12), "Epsilon Eridani", tmp71, float64(8.31), tmp72, NewSpectralTypeK(), float64(0.74), int64(5084), true)
 		_ = tmp73 // suppress unused
 		var tmp74 interface{} = NegFloat(float64(8.46))
 		_ = tmp74 // suppress unused
@@ -420,39 +480,39 @@ func initLocalCatalog_impl(_unused0 interface{}) interface{} {
 		_ = tmp75 // suppress unused
 		var tmp76 interface{} = NegFloat(float64(6.3))
 		_ = tmp76 // suppress unused
-		var tmp77 interface{} = makeStar_impl(int64(13), "Lacaille 9352", tmp74, tmp75, tmp76, NewSpectralTypeM(), false)
+		var tmp77 interface{} = makeStar_impl(int64(13), "Lacaille 9352", tmp74, tmp75, tmp76, NewSpectralTypeM(), float64(0.46), int64(3626), false)
 		_ = tmp77 // suppress unused
 		var tmp78 interface{} = NegFloat(float64(10.9))
 		_ = tmp78 // suppress unused
 		var tmp79 interface{} = NegFloat(float64(1.35))
 		_ = tmp79 // suppress unused
-		var tmp80 interface{} = makeStar_impl(int64(14), "Ross 128", tmp78, float64(0.58), tmp79, NewSpectralTypeM(), true)
+		var tmp80 interface{} = makeStar_impl(int64(14), "Ross 128", tmp78, float64(0.58), tmp79, NewSpectralTypeM(), float64(0.21), int64(3192), true)
 		_ = tmp80 // suppress unused
 		var tmp81 interface{} = NegFloat(float64(2.97))
 		_ = tmp81 // suppress unused
-		var tmp82 interface{} = makeStar_impl(int64(15), "EZ Aquarii A", float64(10.19), float64(3.79), tmp81, NewSpectralTypeM(), false)
+		var tmp82 interface{} = makeStar_impl(int64(15), "EZ Aquarii A", float64(10.19), float64(3.79), tmp81, NewSpectralTypeM(), float64(0.12), int64(2800), false)
 		_ = tmp82 // suppress unused
 		var tmp83 interface{} = NegFloat(float64(4.77))
 		_ = tmp83 // suppress unused
 		var tmp84 interface{} = NegFloat(float64(0.39))
 		_ = tmp84 // suppress unused
-		var tmp85 interface{} = makeStar_impl(int64(16), "Procyon A", tmp83, float64(10.31), tmp84, NewSpectralTypeF(), false)
+		var tmp85 interface{} = makeStar_impl(int64(16), "Procyon A", tmp83, float64(10.31), tmp84, NewSpectralTypeF(), float64(2.05), int64(6530), false)
 		_ = tmp85 // suppress unused
 		var tmp86 interface{} = NegFloat(float64(6.06))
 		_ = tmp86 // suppress unused
-		var tmp87 interface{} = makeStar_impl(int64(17), "61 Cygni A", float64(6.4), tmp86, float64(7.14), NewSpectralTypeK(), false)
+		var tmp87 interface{} = makeStar_impl(int64(17), "61 Cygni A", float64(6.4), tmp86, float64(7.14), NewSpectralTypeK(), float64(0.67), int64(4520), false)
 		_ = tmp87 // suppress unused
 		var tmp88 interface{} = NegFloat(float64(6.06))
 		_ = tmp88 // suppress unused
-		var tmp89 interface{} = makeStar_impl(int64(18), "61 Cygni B", float64(6.4), tmp88, float64(7.14), NewSpectralTypeK(), false)
+		var tmp89 interface{} = makeStar_impl(int64(18), "61 Cygni B", float64(6.4), tmp88, float64(7.14), NewSpectralTypeK(), float64(0.6), int64(4110), false)
 		_ = tmp89 // suppress unused
 		var tmp90 interface{} = NegFloat(float64(7.59))
 		_ = tmp90 // suppress unused
-		var tmp91 interface{} = makeStar_impl(int64(19), "Struve 2398 A", float64(7.02), tmp90, float64(4.73), NewSpectralTypeM(), false)
+		var tmp91 interface{} = makeStar_impl(int64(19), "Struve 2398 A", float64(7.02), tmp90, float64(4.73), NewSpectralTypeM(), float64(0.35), int64(3480), false)
 		_ = tmp91 // suppress unused
 		var tmp92 interface{} = NegFloat(float64(10.84))
 		_ = tmp92 // suppress unused
-		var tmp93 interface{} = makeStar_impl(int64(20), "Groombridge 34 A", float64(0.05), float64(4.18), tmp92, NewSpectralTypeM(), false)
+		var tmp93 interface{} = makeStar_impl(int64(20), "Groombridge 34 A", float64(0.05), float64(4.18), tmp92, NewSpectralTypeM(), float64(0.38), int64(3596), false)
 		_ = tmp93 // suppress unused
 		return []interface{}{tmp37, tmp41, tmp45, tmp49, tmp51, tmp54, tmp57, tmp60, tmp63, tmp65, tmp68, tmp70, tmp73, tmp77, tmp80, tmp82, tmp85, tmp87, tmp89, tmp91, tmp93}
 	}()

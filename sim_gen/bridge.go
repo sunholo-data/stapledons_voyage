@@ -2332,7 +2332,7 @@ func tryMovePlayer_impl(state interface{}, dir interface{}) interface{} {
 				_ = tmp393 // suppress unused
 				var tmp394 interface{} = FieldGet(newPos, "y")
 				_ = tmp394 // suppress unused
-				return RecordUpdate(state, map[string]interface{}{"playerPos": newPos, "playerFacing": dir, "moveState": tmp392, "cameraX": tmp393, "cameraY": tmp394})
+				return RecordUpdate(state, map[string]interface{}{"moveState": tmp392, "cameraX": tmp393, "cameraY": tmp394, "playerPos": newPos, "playerFacing": dir})
 			}()
 		}
 		return RecordUpdate(state, map[string]interface{}{"playerFacing": dir, "moveState": NewMoveStateMoveIdle()})
@@ -2373,7 +2373,7 @@ func tryMovePlayerIso_impl(state interface{}, move interface{}) interface{} {
 				_ = tmp397 // suppress unused
 				var tmp398 interface{} = NewMoveStateMoveWalking(facing.(*Direction))
 				_ = tmp398 // suppress unused
-				return RecordUpdate(state, map[string]interface{}{"playerPos": tmp397, "playerFacing": facing, "moveState": tmp398, "cameraX": newX, "cameraY": newY})
+				return RecordUpdate(state, map[string]interface{}{"moveState": tmp398, "cameraX": newX, "cameraY": newY, "playerPos": tmp397, "playerFacing": facing})
 			}()
 		}
 		return RecordUpdate(state, map[string]interface{}{"playerFacing": facing, "moveState": NewMoveStateMoveIdle()})

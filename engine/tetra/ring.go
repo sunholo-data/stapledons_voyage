@@ -397,6 +397,13 @@ func (rs *RingSystem) SetTilt(radians float64) {
 	}
 }
 
+// SetVisible sets the visibility for all ring bands.
+func (rs *RingSystem) SetVisible(visible bool) {
+	for _, ring := range rs.rings {
+		ring.model.SetVisible(visible, true)
+	}
+}
+
 // Update updates all ring bands.
 func (rs *RingSystem) Update(dt float64) {
 	for _, ring := range rs.rings {

@@ -7,7 +7,11 @@ module sim/galaxy_model
 
 import std/math (sqrt, exp, sin, cos)
 import std/rand (rand_float, rand_int)
-import sim/starmap (Star, Vec3, SpectralType, O, B, A, F, G, K, M, makeStar, spectralFromRoll, makeVec3)
+import sim/starmap (
+    Star, Vec3, SpectralType, O, B, A, F, G, K, M,
+    makeStar, spectralFromRoll, makeVec3,
+    radiusForSpectral, temperatureForSpectral
+)
 
 -- =============================================================================
 -- Galaxy Parameters (Milky Way-like)
@@ -115,7 +119,11 @@ export pure func generateStar(seed: int, cellX: int, cellY: int, cellZ: int, cel
     -- Generate name (procedural catalog number)
     let name = "PStar-" ++ intToString(starId);
 
-    makeStar(starId, name, x, y, z, spectral, hasHZ)
+    -- Get radius and temperature for spectral type
+    let radius = radiusForSpectral(spectral);
+    let temp = temperatureForSpectral(spectral);
+
+    makeStar(starId, name, x, y, z, spectral, radius, temp, hasHZ)
 }
 
 -- =============================================================================

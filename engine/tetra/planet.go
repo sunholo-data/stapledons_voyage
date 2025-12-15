@@ -181,3 +181,10 @@ func (p *Planet) SetShadeless(shadeless bool) {
 func (p *Planet) IsShadeless() bool {
 	return p.material.Shadeless
 }
+
+// SetColorModulation sets the color multiplier for textured planets.
+// This tints the texture without replacing it. Values are 0.0-1.0 for RGB.
+// Use (1,1,1) for no tint, lower values to darken, higher to brighten.
+func (p *Planet) SetColorModulation(r, g, b float64) {
+	p.material.Color = tetra3d.NewColor(float32(r), float32(g), float32(b), 1)
+}

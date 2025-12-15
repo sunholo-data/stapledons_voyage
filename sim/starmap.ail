@@ -54,6 +54,8 @@ export type Star = {
     pos: Vec3,
     spectral: SpectralType,
     luminosity: float,
+    radius: float,
+    temperature: int,
     hasHZPlanet: bool
 }
 
@@ -144,6 +146,8 @@ export pure func nearestStar(cat: StarCatalog, pos: Vec3) -> Star {
                 pos: vec3Zero(),
                 spectral: M,
                 luminosity: 0.0,
+                radius: 0.0,
+                temperature: 0,
                 hasHZPlanet: false
             }
         },
@@ -192,6 +196,32 @@ export pure func luminosityForSpectral(spec: SpectralType) -> float {
     }
 }
 
+-- Get typical radius for a main-sequence star of a spectral type (in solar radii)
+export pure func radiusForSpectral(spec: SpectralType) -> float {
+    match spec {
+        O => 8.0,      -- O-type main sequence
+        B => 4.0,      -- B-type main sequence
+        A => 2.0,      -- A-type main sequence
+        F => 1.4,      -- F-type main sequence
+        G => 1.0,      -- G-type main sequence (like Sun)
+        K => 0.8,      -- K-type main sequence
+        M => 0.3       -- M-type main sequence (red dwarf)
+    }
+}
+
+-- Get typical surface temperature for a main-sequence star (in Kelvin)
+export pure func temperatureForSpectral(spec: SpectralType) -> int {
+    match spec {
+        O => 33000,
+        B => 15000,
+        A => 8500,
+        F => 6500,
+        G => 5800,
+        K => 4500,
+        M => 3200
+    }
+}
+
 -- Get color packed as RGBA decimal for a spectral type
 -- Format: 0xRRGGBBAA as decimal integer
 export pure func spectralColor(spec: SpectralType) -> int {
@@ -211,20 +241,22 @@ export pure func spectralColor(spec: SpectralType) -> int {
 -- =============================================================================
 
 -- Create a star with given properties
-export pure func makeStar(id: int, name: string, x: float, y: float, z: float, spec: SpectralType, hasHZ: bool) -> Star {
+export pure func makeStar(id: int, name: string, x: float, y: float, z: float, spec: SpectralType, radius: float, temp: int, hasHZ: bool) -> Star {
     {
         id: id,
         name: name,
         pos: makeVec3(x, y, z),
         spectral: spec,
         luminosity: luminosityForSpectral(spec),
+        radius: radius,
+        temperature: temp,
         hasHZPlanet: hasHZ
     }
 }
 
 -- Sol (our Sun) at origin
 export pure func makeSol() -> Star {
-    makeStar(0, "Sol", 0.0, 0.0, 0.0, G, true)
+    makeStar(0, "Sol", 0.0, 0.0, 0.0, G, 1.0, 5778, true)
 }
 
 -- =============================================================================
@@ -238,45 +270,45 @@ export pure func initLocalCatalog() -> StarCatalog {
     let stars = [
         makeSol(),
         -- Proxima Centauri (4.24 ly) - M dwarf, closest star
-        makeStar(1, "Proxima Centauri", -1.55, -1.32, -3.77, M, true),
+        makeStar(1, "Proxima Centauri", -1.55, -1.32, -3.77, M, 0.15, 3042, true),
         -- Alpha Centauri A (4.37 ly) - G-type like Sun
-        makeStar(2, "Alpha Centauri A", -1.64, -1.36, -3.84, G, true),
+        makeStar(2, "Alpha Centauri A", -1.64, -1.36, -3.84, G, 1.22, 5790, true),
         -- Alpha Centauri B (4.37 ly) - K-type
-        makeStar(3, "Alpha Centauri B", -1.64, -1.36, -3.84, K, true),
+        makeStar(3, "Alpha Centauri B", -1.64, -1.36, -3.84, K, 0.86, 5260, true),
         -- Barnard's Star (5.96 ly) - M dwarf, high proper motion
-        makeStar(4, "Barnard's Star", -0.06, 5.94, 0.49, M, false),
+        makeStar(4, "Barnard's Star", -0.06, 5.94, 0.49, M, 0.20, 3134, false),
         -- Wolf 359 (7.86 ly) - M dwarf, flare star
-        makeStar(5, "Wolf 359", -7.43, 2.11, -0.66, M, false),
+        makeStar(5, "Wolf 359", -7.43, 2.11, -0.66, M, 0.16, 2800, false),
         -- Lalande 21185 (8.29 ly) - M dwarf
-        makeStar(6, "Lalande 21185", -6.52, -1.90, 4.88, M, true),
+        makeStar(6, "Lalande 21185", -6.52, -1.90, 4.88, M, 0.39, 3550, true),
         -- Sirius A (8.60 ly) - A-type, brightest star in sky
-        makeStar(7, "Sirius A", -1.61, 8.06, -2.47, A, false),
-        -- Sirius B (8.60 ly) - White dwarf companion
-        makeStar(8, "Sirius B", -1.61, 8.06, -2.47, A, false),
+        makeStar(7, "Sirius A", -1.61, 8.06, -2.47, A, 1.71, 9940, false),
+        -- Sirius B (8.60 ly) - White dwarf companion (using A-type for now)
+        makeStar(8, "Sirius B", -1.61, 8.06, -2.47, A, 0.0084, 25200, false),
         -- Luyten 726-8 A / UV Ceti (8.73 ly) - M dwarf, flare star
-        makeStar(9, "Luyten 726-8 A", 8.56, -0.80, 1.28, M, false),
+        makeStar(9, "Luyten 726-8 A", 8.56, -0.80, 1.28, M, 0.14, 2670, false),
         -- Ross 154 (9.69 ly) - M dwarf
-        makeStar(10, "Ross 154", 1.91, -8.87, -3.32, M, false),
+        makeStar(10, "Ross 154", 1.91, -8.87, -3.32, M, 0.24, 3340, false),
         -- Ross 248 (10.32 ly) - M dwarf
-        makeStar(11, "Ross 248", 7.38, -0.59, 7.19, M, false),
+        makeStar(11, "Ross 248", 7.38, -0.59, 7.19, M, 0.16, 2800, false),
         -- Epsilon Eridani (10.52 ly) - K dwarf with known planets
-        makeStar(12, "Epsilon Eridani", -6.22, 8.31, -1.73, K, true),
+        makeStar(12, "Epsilon Eridani", -6.22, 8.31, -1.73, K, 0.74, 5084, true),
         -- Lacaille 9352 (10.74 ly) - M dwarf
-        makeStar(13, "Lacaille 9352", -8.46, -2.00, -6.30, M, false),
+        makeStar(13, "Lacaille 9352", -8.46, -2.00, -6.30, M, 0.46, 3626, false),
         -- Ross 128 (11.01 ly) - M dwarf with Earth-mass planet
-        makeStar(14, "Ross 128", -10.90, 0.58, -1.35, M, true),
+        makeStar(14, "Ross 128", -10.90, 0.58, -1.35, M, 0.21, 3192, true),
         -- EZ Aquarii A (11.27 ly) - M dwarf triple system
-        makeStar(15, "EZ Aquarii A", 10.19, 3.79, -2.97, M, false),
+        makeStar(15, "EZ Aquarii A", 10.19, 3.79, -2.97, M, 0.12, 2800, false),
         -- Procyon A (11.46 ly) - F-type, bright star
-        makeStar(16, "Procyon A", -4.77, 10.31, -0.39, F, false),
+        makeStar(16, "Procyon A", -4.77, 10.31, -0.39, F, 2.05, 6530, false),
         -- 61 Cygni A (11.40 ly) - K dwarf binary
-        makeStar(17, "61 Cygni A", 6.40, -6.06, 7.14, K, false),
+        makeStar(17, "61 Cygni A", 6.40, -6.06, 7.14, K, 0.67, 4520, false),
         -- 61 Cygni B (11.40 ly) - K dwarf companion
-        makeStar(18, "61 Cygni B", 6.40, -6.06, 7.14, K, false),
+        makeStar(18, "61 Cygni B", 6.40, -6.06, 7.14, K, 0.60, 4110, false),
         -- Struve 2398 A (11.52 ly) - M dwarf binary
-        makeStar(19, "Struve 2398 A", 7.02, -7.59, 4.73, M, false),
+        makeStar(19, "Struve 2398 A", 7.02, -7.59, 4.73, M, 0.35, 3480, false),
         -- Groombridge 34 A (11.62 ly) - M dwarf
-        makeStar(20, "Groombridge 34 A", 0.05, 4.18, -10.84, M, false)
+        makeStar(20, "Groombridge 34 A", 0.05, 4.18, -10.84, M, 0.38, 3596, false)
     ];
     { stars: stars, solIndex: 0 }
 }

@@ -81,6 +81,14 @@ func createMoon() *SolarPlanet {
 	return createMoon_impl(struct{}{}).(*SolarPlanet)
 }
 
+func createGemini_impl(_unused0 interface{}) interface{} {
+	return &SolarPlanet{Name: "Gemini", PosX: float64(0), PosY: float64(0), PosZ: float64(0), Radius: float64(0.8), ColorRgba: int64(849014719), TextureName: "moon", Rotation: float64(0), RotationSpeed: float64(0.002), HasRings: false, RingColor: int64(0), OrbitRadius: float64(8), OrbitSpeed: float64(0.05), OrbitPhase: float64(3.2), ParentName: "Earth"}
+}
+
+func createGemini() *SolarPlanet {
+	return createGemini_impl(struct{}{}).(*SolarPlanet)
+}
+
 func createIo_impl(_unused0 interface{}) interface{} {
 	return &SolarPlanet{Name: "Io", PosX: float64(0), PosY: float64(0), PosZ: float64(0), Radius: float64(1.3), ColorRgba: int64(4039131391), TextureName: "io", Rotation: float64(0), RotationSpeed: float64(0.008), HasRings: false, RingColor: int64(0), OrbitRadius: float64(4), OrbitSpeed: float64(0.15), OrbitPhase: float64(0), ParentName: "Jupiter"}
 }
@@ -420,25 +428,26 @@ func createPlanets() []*SolarPlanet {
 
 func createMoons_impl(_unused0 interface{}) interface{} {
 	var tmp10 interface{} = createMoon_impl(struct{}{})
-	var tmp11 interface{} = createGanymede_impl(struct{}{})
-	var tmp12 interface{} = createCallisto_impl(struct{}{})
-	var tmp13 interface{} = createIo_impl(struct{}{})
-	var tmp14 interface{} = createEuropa_impl(struct{}{})
-	var tmp15 interface{} = createTitan_impl(struct{}{})
-	var tmp16 interface{} = createRhea_impl(struct{}{})
-	var tmp17 interface{} = createIapetus_impl(struct{}{})
-	var tmp18 interface{} = createDione_impl(struct{}{})
-	var tmp19 interface{} = createTethys_impl(struct{}{})
-	var tmp20 interface{} = createEnceladus_impl(struct{}{})
-	var tmp21 interface{} = createMimas_impl(struct{}{})
-	var tmp22 interface{} = createTitania_impl(struct{}{})
-	var tmp23 interface{} = createOberon_impl(struct{}{})
-	var tmp24 interface{} = createUmbriel_impl(struct{}{})
-	var tmp25 interface{} = createAriel_impl(struct{}{})
-	var tmp26 interface{} = createMiranda_impl(struct{}{})
-	var tmp27 interface{} = createTriton_impl(struct{}{})
-	var tmp28 interface{} = createProteus_impl(struct{}{})
-	return []interface{}{tmp10, tmp11, tmp12, tmp13, tmp14, tmp15, tmp16, tmp17, tmp18, tmp19, tmp20, tmp21, tmp22, tmp23, tmp24, tmp25, tmp26, tmp27, tmp28}
+	var tmp11 interface{} = createGemini_impl(struct{}{})
+	var tmp12 interface{} = createGanymede_impl(struct{}{})
+	var tmp13 interface{} = createCallisto_impl(struct{}{})
+	var tmp14 interface{} = createIo_impl(struct{}{})
+	var tmp15 interface{} = createEuropa_impl(struct{}{})
+	var tmp16 interface{} = createTitan_impl(struct{}{})
+	var tmp17 interface{} = createRhea_impl(struct{}{})
+	var tmp18 interface{} = createIapetus_impl(struct{}{})
+	var tmp19 interface{} = createDione_impl(struct{}{})
+	var tmp20 interface{} = createTethys_impl(struct{}{})
+	var tmp21 interface{} = createEnceladus_impl(struct{}{})
+	var tmp22 interface{} = createMimas_impl(struct{}{})
+	var tmp23 interface{} = createTitania_impl(struct{}{})
+	var tmp24 interface{} = createOberon_impl(struct{}{})
+	var tmp25 interface{} = createUmbriel_impl(struct{}{})
+	var tmp26 interface{} = createAriel_impl(struct{}{})
+	var tmp27 interface{} = createMiranda_impl(struct{}{})
+	var tmp28 interface{} = createTriton_impl(struct{}{})
+	var tmp29 interface{} = createProteus_impl(struct{}{})
+	return []interface{}{tmp10, tmp11, tmp12, tmp13, tmp14, tmp15, tmp16, tmp17, tmp18, tmp19, tmp20, tmp21, tmp22, tmp23, tmp24, tmp25, tmp26, tmp27, tmp28, tmp29}
 }
 
 func createMoons() []*SolarPlanet {
@@ -446,17 +455,17 @@ func createMoons() []*SolarPlanet {
 }
 
 func createDwarfPlanets_impl(_unused0 interface{}) interface{} {
-	var tmp29 interface{} = createPluto_impl(struct{}{})
-	var tmp30 interface{} = createCharon_impl(struct{}{})
-	var tmp31 interface{} = createEris_impl(struct{}{})
-	var tmp32 interface{} = createHaumea_impl(struct{}{})
-	var tmp33 interface{} = createMakemake_impl(struct{}{})
-	var tmp34 interface{} = createCeres_impl(struct{}{})
-	var tmp35 interface{} = createSedna_impl(struct{}{})
-	var tmp36 interface{} = createQuaoar_impl(struct{}{})
-	var tmp37 interface{} = createOrcus_impl(struct{}{})
-	var tmp38 interface{} = createGonggong_impl(struct{}{})
-	return []interface{}{tmp29, tmp30, tmp31, tmp32, tmp33, tmp34, tmp35, tmp36, tmp37, tmp38}
+	var tmp30 interface{} = createPluto_impl(struct{}{})
+	var tmp31 interface{} = createCharon_impl(struct{}{})
+	var tmp32 interface{} = createEris_impl(struct{}{})
+	var tmp33 interface{} = createHaumea_impl(struct{}{})
+	var tmp34 interface{} = createMakemake_impl(struct{}{})
+	var tmp35 interface{} = createCeres_impl(struct{}{})
+	var tmp36 interface{} = createSedna_impl(struct{}{})
+	var tmp37 interface{} = createQuaoar_impl(struct{}{})
+	var tmp38 interface{} = createOrcus_impl(struct{}{})
+	var tmp39 interface{} = createGonggong_impl(struct{}{})
+	return []interface{}{tmp30, tmp31, tmp32, tmp33, tmp34, tmp35, tmp36, tmp37, tmp38, tmp39}
 }
 
 func createDwarfPlanets() []*SolarPlanet {
@@ -464,17 +473,17 @@ func createDwarfPlanets() []*SolarPlanet {
 }
 
 func createAsteroids_impl(_unused0 interface{}) interface{} {
-	var tmp39 interface{} = createVesta_impl(struct{}{})
-	var tmp40 interface{} = createPallas_impl(struct{}{})
-	var tmp41 interface{} = createHygiea_impl(struct{}{})
-	var tmp42 interface{} = createInteramnia_impl(struct{}{})
-	var tmp43 interface{} = createDavida_impl(struct{}{})
-	var tmp44 interface{} = createSylvia_impl(struct{}{})
-	var tmp45 interface{} = createEunomia_impl(struct{}{})
-	var tmp46 interface{} = createEuphrosyne_impl(struct{}{})
-	var tmp47 interface{} = createJuno_impl(struct{}{})
-	var tmp48 interface{} = createCybele_impl(struct{}{})
-	return []interface{}{tmp39, tmp40, tmp41, tmp42, tmp43, tmp44, tmp45, tmp46, tmp47, tmp48}
+	var tmp40 interface{} = createVesta_impl(struct{}{})
+	var tmp41 interface{} = createPallas_impl(struct{}{})
+	var tmp42 interface{} = createHygiea_impl(struct{}{})
+	var tmp43 interface{} = createInteramnia_impl(struct{}{})
+	var tmp44 interface{} = createDavida_impl(struct{}{})
+	var tmp45 interface{} = createSylvia_impl(struct{}{})
+	var tmp46 interface{} = createEunomia_impl(struct{}{})
+	var tmp47 interface{} = createEuphrosyne_impl(struct{}{})
+	var tmp48 interface{} = createJuno_impl(struct{}{})
+	var tmp49 interface{} = createCybele_impl(struct{}{})
+	return []interface{}{tmp40, tmp41, tmp42, tmp43, tmp44, tmp45, tmp46, tmp47, tmp48, tmp49}
 }
 
 func createAsteroids() []*SolarPlanet {
@@ -482,9 +491,9 @@ func createAsteroids() []*SolarPlanet {
 }
 
 func createCentaurs_impl(_unused0 interface{}) interface{} {
-	var tmp49 interface{} = createChariklo_impl(struct{}{})
-	var tmp50 interface{} = createChiron_impl(struct{}{})
-	return []interface{}{tmp49, tmp50}
+	var tmp50 interface{} = createChariklo_impl(struct{}{})
+	var tmp51 interface{} = createChiron_impl(struct{}{})
+	return []interface{}{tmp50, tmp51}
 }
 
 func createCentaurs() []*SolarPlanet {
@@ -503,9 +512,9 @@ func concatLists_impl(a interface{}, b interface{}) interface{} {
 			xs := ListTail(_scrutinee)
 			_ = xs // suppress unused
 			return func() interface{} {
-				var tmp51 interface{} = concatLists_impl(xs, b)
-				_ = tmp51 // suppress unused
-				return Cons(x, tmp51)
+				var tmp52 interface{} = concatLists_impl(xs, b)
+				_ = tmp52 // suppress unused
+				return Cons(x, tmp52)
 			}()
 		} else {
 			panic("non-exhaustive match")
@@ -542,8 +551,8 @@ func InitSolarDemo() *SolarDemoState {
 }
 
 func buildAmbientSettings_impl(level interface{}) interface{} {
-	var tmp52 interface{} = &RGBColor{R: float64(0.08), G: float64(0.08), B: float64(0.1)}
-	return &AmbientSettings{Energy: level.(float64), Color: tmp52.(*RGBColor)}
+	var tmp53 interface{} = &RGBColor{R: float64(0.08), G: float64(0.08), B: float64(0.1)}
+	return &AmbientSettings{Energy: level.(float64), Color: tmp53.(*RGBColor)}
 }
 
 func buildAmbientSettings(level float64) *AmbientSettings {
@@ -551,8 +560,8 @@ func buildAmbientSettings(level float64) *AmbientSettings {
 }
 
 func buildSunLight_impl(energy interface{}) interface{} {
-	var tmp53 interface{} = &RGBColor{R: float64(1), G: float64(0.95), B: float64(0.85)}
-	return &LightSource{Id: "sun", X: float64(0), Y: float64(0), Z: float64(0), Energy: energy.(float64), Color: tmp53.(*RGBColor), Range: float64(0)}
+	var tmp54 interface{} = &RGBColor{R: float64(1), G: float64(0.95), B: float64(0.85)}
+	return &LightSource{Id: "sun", X: float64(0), Y: float64(0), Z: float64(0), Energy: energy.(float64), Color: tmp54.(*RGBColor), Range: float64(0)}
 }
 
 func buildSunLight(energy float64) *LightSource {
@@ -560,10 +569,10 @@ func buildSunLight(energy float64) *LightSource {
 }
 
 func buildLightingContext_impl(sunEnergy interface{}, ambientLevel interface{}) interface{} {
-	var tmp54 interface{} = buildAmbientSettings_impl(ambientLevel)
-	var tmp55 interface{} = buildSunLight_impl(sunEnergy)
-	var tmp56 interface{} = []interface{}{tmp55}
-	return &LightingContext{Enabled: true, Ambient: tmp54.(*AmbientSettings), Lights: ConvertToLightSourceSlice(tmp56), LightMultiplier: float64(1)}
+	var tmp55 interface{} = buildAmbientSettings_impl(ambientLevel)
+	var tmp56 interface{} = buildSunLight_impl(sunEnergy)
+	var tmp57 interface{} = []interface{}{tmp56}
+	return &LightingContext{Enabled: true, Ambient: tmp55.(*AmbientSettings), Lights: ConvertToLightSourceSlice(tmp57), LightMultiplier: float64(1)}
 }
 
 func buildLightingContext(sunEnergy float64, ambientLevel float64) *LightingContext {
@@ -571,8 +580,8 @@ func buildLightingContext(sunEnergy float64, ambientLevel float64) *LightingCont
 }
 
 func buildSRContext_impl(velocity interface{}) interface{} {
-	var tmp57 interface{} = GtFloat(velocity, float64(0.01))
-	return &SRContext{Enabled: tmp57.(bool), Velocity: velocity.(float64), Gamma: float64(1), ViewAngle: float64(0)}
+	var tmp58 interface{} = GtFloat(velocity, float64(0.01))
+	return &SRContext{Enabled: tmp58.(bool), Velocity: velocity.(float64), Gamma: float64(1), ViewAngle: float64(0)}
 }
 
 func buildSRContext(velocity float64) *SRContext {
@@ -588,9 +597,9 @@ func buildGRContext(enabled bool, centerX float64, centerY float64, phi float64)
 }
 
 func buildRelativityContext_impl(velocity interface{}, grEnabled interface{}, grCenterX interface{}, grCenterY interface{}, grPhi interface{}) interface{} {
-	var tmp58 interface{} = buildSRContext_impl(velocity)
-	var tmp59 interface{} = buildGRContext_impl(grEnabled, grCenterX, grCenterY, grPhi)
-	return &RelativityContext{Sr: tmp58.(*SRContext), Gr: tmp59.(*GRContext)}
+	var tmp59 interface{} = buildSRContext_impl(velocity)
+	var tmp60 interface{} = buildGRContext_impl(grEnabled, grCenterX, grCenterY, grPhi)
+	return &RelativityContext{Sr: tmp59.(*SRContext), Gr: tmp60.(*GRContext)}
 }
 
 func buildRelativityContext(velocity float64, grEnabled bool, grCenterX float64, grCenterY float64, grPhi float64) *RelativityContext {
@@ -598,14 +607,14 @@ func buildRelativityContext(velocity float64, grEnabled bool, grCenterX float64,
 }
 
 func planetToDrawCmd_impl(p interface{}, z interface{}) interface{} {
-	var tmp60 interface{} = FieldGet(p, "name")
-	var tmp61 interface{} = FieldGet(p, "posX")
-	var tmp62 interface{} = FieldGet(p, "posY")
-	var tmp63 interface{} = FieldGet(p, "radius")
-	var tmp64 interface{} = FieldGet(p, "rotation")
-	var tmp65 interface{} = FieldGet(p, "hasRings")
-	var tmp66 interface{} = FieldGet(p, "ringColor")
-	return NewDrawCmdTexturedPlanet(tmp60.(string), tmp61.(float64), tmp62.(float64), tmp63.(float64), tmp64.(float64), tmp65.(bool), tmp66.(int64), z.(int64))
+	var tmp61 interface{} = FieldGet(p, "name")
+	var tmp62 interface{} = FieldGet(p, "posX")
+	var tmp63 interface{} = FieldGet(p, "posY")
+	var tmp64 interface{} = FieldGet(p, "radius")
+	var tmp65 interface{} = FieldGet(p, "rotation")
+	var tmp66 interface{} = FieldGet(p, "hasRings")
+	var tmp67 interface{} = FieldGet(p, "ringColor")
+	return NewDrawCmdTexturedPlanet(tmp61.(string), tmp62.(float64), tmp63.(float64), tmp64.(float64), tmp65.(float64), tmp66.(bool), tmp67.(int64), z.(int64))
 }
 
 func planetToDrawCmd(p *SolarPlanet, z int64) *DrawCmd {
@@ -624,11 +633,11 @@ func mapPlanetsToDrawCmds_impl(planets interface{}, z interface{}) interface{} {
 			rest := ListTail(_scrutinee)
 			_ = rest // suppress unused
 			return func() interface{} {
-				var tmp67 interface{} = planetToDrawCmd_impl(p, z)
-				_ = tmp67 // suppress unused
-				var tmp68 interface{} = mapPlanetsToDrawCmds_impl(rest, z)
+				var tmp68 interface{} = planetToDrawCmd_impl(p, z)
 				_ = tmp68 // suppress unused
-				return Cons(tmp67, tmp68)
+				var tmp69 interface{} = mapPlanetsToDrawCmds_impl(rest, z)
+				_ = tmp69 // suppress unused
+				return Cons(tmp68, tmp69)
 			}()
 		} else {
 			panic("non-exhaustive match")
@@ -652,26 +661,26 @@ func generateDrawCommands(sunEnergy float64) []*DrawCmd {
 }
 
 func updatePlanetRotation_impl(p interface{}) interface{} {
-	var tmp69 interface{} = FieldGet(p, "name")
-	var tmp70 interface{} = FieldGet(p, "posX")
-	var tmp71 interface{} = FieldGet(p, "posY")
-	var tmp72 interface{} = FieldGet(p, "posZ")
-	var tmp73 interface{} = FieldGet(p, "radius")
-	var tmp74 interface{} = FieldGet(p, "colorRgba")
-	var tmp75 interface{} = FieldGet(p, "textureName")
-	var tmp76 interface{} = FieldGet(p, "rotation")
-	var tmp77 interface{} = FieldGet(p, "rotationSpeed")
-	var tmp78 interface{} = AddFloat(tmp76, tmp77)
-	var tmp79 interface{} = FieldGet(p, "rotationSpeed")
-	var tmp80 interface{} = FieldGet(p, "hasRings")
-	var tmp81 interface{} = FieldGet(p, "ringColor")
-	var tmp82 interface{} = FieldGet(p, "orbitRadius")
-	var tmp83 interface{} = FieldGet(p, "orbitSpeed")
-	var tmp84 interface{} = FieldGet(p, "orbitPhase")
-	var tmp85 interface{} = FieldGet(p, "orbitSpeed")
-	var tmp86 interface{} = AddFloat(tmp84, tmp85)
-	var tmp87 interface{} = FieldGet(p, "parentName")
-	return &SolarPlanet{Name: tmp69.(string), PosX: tmp70.(float64), PosY: tmp71.(float64), PosZ: tmp72.(float64), Radius: tmp73.(float64), ColorRgba: tmp74.(int64), TextureName: tmp75.(string), Rotation: tmp78.(float64), RotationSpeed: tmp79.(float64), HasRings: tmp80.(bool), RingColor: tmp81.(int64), OrbitRadius: tmp82.(float64), OrbitSpeed: tmp83.(float64), OrbitPhase: tmp86.(float64), ParentName: tmp87.(string)}
+	var tmp70 interface{} = FieldGet(p, "name")
+	var tmp71 interface{} = FieldGet(p, "posX")
+	var tmp72 interface{} = FieldGet(p, "posY")
+	var tmp73 interface{} = FieldGet(p, "posZ")
+	var tmp74 interface{} = FieldGet(p, "radius")
+	var tmp75 interface{} = FieldGet(p, "colorRgba")
+	var tmp76 interface{} = FieldGet(p, "textureName")
+	var tmp77 interface{} = FieldGet(p, "rotation")
+	var tmp78 interface{} = FieldGet(p, "rotationSpeed")
+	var tmp79 interface{} = AddFloat(tmp77, tmp78)
+	var tmp80 interface{} = FieldGet(p, "rotationSpeed")
+	var tmp81 interface{} = FieldGet(p, "hasRings")
+	var tmp82 interface{} = FieldGet(p, "ringColor")
+	var tmp83 interface{} = FieldGet(p, "orbitRadius")
+	var tmp84 interface{} = FieldGet(p, "orbitSpeed")
+	var tmp85 interface{} = FieldGet(p, "orbitPhase")
+	var tmp86 interface{} = FieldGet(p, "orbitSpeed")
+	var tmp87 interface{} = AddFloat(tmp85, tmp86)
+	var tmp88 interface{} = FieldGet(p, "parentName")
+	return &SolarPlanet{Name: tmp70.(string), PosX: tmp71.(float64), PosY: tmp72.(float64), PosZ: tmp73.(float64), Radius: tmp74.(float64), ColorRgba: tmp75.(int64), TextureName: tmp76.(string), Rotation: tmp79.(float64), RotationSpeed: tmp80.(float64), HasRings: tmp81.(bool), RingColor: tmp82.(int64), OrbitRadius: tmp83.(float64), OrbitSpeed: tmp84.(float64), OrbitPhase: tmp87.(float64), ParentName: tmp88.(string)}
 }
 
 func updatePlanetRotation(p *SolarPlanet) *SolarPlanet {
@@ -690,11 +699,11 @@ func updatePlanetRotations_impl(planets interface{}) interface{} {
 			rest := ListTail(_scrutinee)
 			_ = rest // suppress unused
 			return func() interface{} {
-				var tmp88 interface{} = updatePlanetRotation_impl(p)
-				_ = tmp88 // suppress unused
-				var tmp89 interface{} = updatePlanetRotations_impl(rest)
+				var tmp89 interface{} = updatePlanetRotation_impl(p)
 				_ = tmp89 // suppress unused
-				return Cons(tmp88, tmp89)
+				var tmp90 interface{} = updatePlanetRotations_impl(rest)
+				_ = tmp90 // suppress unused
+				return Cons(tmp89, tmp90)
 			}()
 		} else {
 			panic("non-exhaustive match")
@@ -707,9 +716,9 @@ func updatePlanetRotations(planets []*SolarPlanet) []*SolarPlanet {
 }
 
 func buildCamera_impl(state interface{}) interface{} {
-	var tmp90 interface{} = FieldGet(state, "cameraX")
-	var tmp91 interface{} = FieldGet(state, "cameraY")
-	return &Camera{X: tmp90.(float64), Y: tmp91.(float64), Zoom: float64(1)}
+	var tmp91 interface{} = FieldGet(state, "cameraX")
+	var tmp92 interface{} = FieldGet(state, "cameraY")
+	return &Camera{X: tmp91.(float64), Y: tmp92.(float64), Zoom: float64(1)}
 }
 
 func buildCamera(state *SolarDemoState) *Camera {
@@ -726,35 +735,35 @@ func buildDefaultLODConfig() *LODConfig {
 
 func buildFrameOutput_impl(state interface{}) interface{} {
 	var drawCmds interface{} = func() interface{} {
-		var tmp103 interface{} = FieldGet(state, "sunEnergy")
-		_ = tmp103 // suppress unused
-		return generateDrawCommands_impl(tmp103)
+		var tmp104 interface{} = FieldGet(state, "sunEnergy")
+		_ = tmp104 // suppress unused
+		return generateDrawCommands_impl(tmp104)
 	}()
 	var lighting interface{} = func() interface{} {
-		var tmp101 interface{} = FieldGet(state, "sunEnergy")
-		_ = tmp101 // suppress unused
-		var tmp102 interface{} = FieldGet(state, "ambientLevel")
+		var tmp102 interface{} = FieldGet(state, "sunEnergy")
 		_ = tmp102 // suppress unused
-		return buildLightingContext_impl(tmp101, tmp102)
+		var tmp103 interface{} = FieldGet(state, "ambientLevel")
+		_ = tmp103 // suppress unused
+		return buildLightingContext_impl(tmp102, tmp103)
 	}()
 	var relativity interface{} = func() interface{} {
-		var tmp96 interface{} = FieldGet(state, "shipVelocity")
-		_ = tmp96 // suppress unused
-		var tmp97 interface{} = FieldGet(state, "grEnabled")
+		var tmp97 interface{} = FieldGet(state, "shipVelocity")
 		_ = tmp97 // suppress unused
-		var tmp98 interface{} = FieldGet(state, "grCenterX")
+		var tmp98 interface{} = FieldGet(state, "grEnabled")
 		_ = tmp98 // suppress unused
-		var tmp99 interface{} = FieldGet(state, "grCenterY")
+		var tmp99 interface{} = FieldGet(state, "grCenterX")
 		_ = tmp99 // suppress unused
-		var tmp100 interface{} = FieldGet(state, "grPhi")
+		var tmp100 interface{} = FieldGet(state, "grCenterY")
 		_ = tmp100 // suppress unused
-		return buildRelativityContext_impl(tmp96, tmp97, tmp98, tmp99, tmp100)
+		var tmp101 interface{} = FieldGet(state, "grPhi")
+		_ = tmp101 // suppress unused
+		return buildRelativityContext_impl(tmp97, tmp98, tmp99, tmp100, tmp101)
 	}()
-	var tmp92 interface{} = []interface{}{}
 	var tmp93 interface{} = []interface{}{}
-	var tmp94 interface{} = buildCamera_impl(state)
-	var tmp95 interface{} = buildDefaultLODConfig_impl(struct{}{})
-	return &FrameOutput{Draw: ConvertToDrawCmdSlice(drawCmds), Sounds: ConvertToInt64Slice(tmp92), Debug: ConvertToStringSlice(tmp93), Camera: tmp94.(*Camera), Relativity: relativity.(*RelativityContext), Lighting: lighting.(*LightingContext), Lod: tmp95.(*LODConfig)}
+	var tmp94 interface{} = []interface{}{}
+	var tmp95 interface{} = buildCamera_impl(state)
+	var tmp96 interface{} = buildDefaultLODConfig_impl(struct{}{})
+	return &FrameOutput{Draw: ConvertToDrawCmdSlice(drawCmds), Sounds: ConvertToInt64Slice(tmp93), Debug: ConvertToStringSlice(tmp94), Camera: tmp95.(*Camera), Relativity: relativity.(*RelativityContext), Lighting: lighting.(*LightingContext), Lod: tmp96.(*LODConfig)}
 }
 
 func buildFrameOutput(state *SolarDemoState) *FrameOutput {
@@ -762,22 +771,22 @@ func buildFrameOutput(state *SolarDemoState) *FrameOutput {
 }
 
 func incrementTick_impl(state interface{}) interface{} {
-	var tmp104 interface{} = FieldGet(state, "tick")
-	var tmp105 interface{} = AddInt(tmp104, int64(1))
-	var tmp106 interface{} = FieldGet(state, "cameraX")
-	var tmp107 interface{} = FieldGet(state, "cameraY")
-	var tmp108 interface{} = FieldGet(state, "cameraZ")
-	var tmp109 interface{} = FieldGet(state, "lookAtX")
-	var tmp110 interface{} = FieldGet(state, "lookAtY")
-	var tmp111 interface{} = FieldGet(state, "lookAtZ")
-	var tmp112 interface{} = FieldGet(state, "shipVelocity")
-	var tmp113 interface{} = FieldGet(state, "grEnabled")
-	var tmp114 interface{} = FieldGet(state, "grCenterX")
-	var tmp115 interface{} = FieldGet(state, "grCenterY")
-	var tmp116 interface{} = FieldGet(state, "grPhi")
-	var tmp117 interface{} = FieldGet(state, "sunEnergy")
-	var tmp118 interface{} = FieldGet(state, "ambientLevel")
-	return &SolarDemoState{Tick: tmp105.(int64), CameraX: tmp106.(float64), CameraY: tmp107.(float64), CameraZ: tmp108.(float64), LookAtX: tmp109.(float64), LookAtY: tmp110.(float64), LookAtZ: tmp111.(float64), ShipVelocity: tmp112.(float64), GrEnabled: tmp113.(bool), GrCenterX: tmp114.(float64), GrCenterY: tmp115.(float64), GrPhi: tmp116.(float64), SunEnergy: tmp117.(float64), AmbientLevel: tmp118.(float64)}
+	var tmp105 interface{} = FieldGet(state, "tick")
+	var tmp106 interface{} = AddInt(tmp105, int64(1))
+	var tmp107 interface{} = FieldGet(state, "cameraX")
+	var tmp108 interface{} = FieldGet(state, "cameraY")
+	var tmp109 interface{} = FieldGet(state, "cameraZ")
+	var tmp110 interface{} = FieldGet(state, "lookAtX")
+	var tmp111 interface{} = FieldGet(state, "lookAtY")
+	var tmp112 interface{} = FieldGet(state, "lookAtZ")
+	var tmp113 interface{} = FieldGet(state, "shipVelocity")
+	var tmp114 interface{} = FieldGet(state, "grEnabled")
+	var tmp115 interface{} = FieldGet(state, "grCenterX")
+	var tmp116 interface{} = FieldGet(state, "grCenterY")
+	var tmp117 interface{} = FieldGet(state, "grPhi")
+	var tmp118 interface{} = FieldGet(state, "sunEnergy")
+	var tmp119 interface{} = FieldGet(state, "ambientLevel")
+	return &SolarDemoState{Tick: tmp106.(int64), CameraX: tmp107.(float64), CameraY: tmp108.(float64), CameraZ: tmp109.(float64), LookAtX: tmp110.(float64), LookAtY: tmp111.(float64), LookAtZ: tmp112.(float64), ShipVelocity: tmp113.(float64), GrEnabled: tmp114.(bool), GrCenterX: tmp115.(float64), GrCenterY: tmp116.(float64), GrPhi: tmp117.(float64), SunEnergy: tmp118.(float64), AmbientLevel: tmp119.(float64)}
 }
 
 func incrementTick(state *SolarDemoState) *SolarDemoState {

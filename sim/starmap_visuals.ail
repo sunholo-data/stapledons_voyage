@@ -1,0 +1,186 @@
+module sim/starmap_visuals
+
+-- =============================================================================
+-- Starmap Visuals Demo
+-- This simulation is the "brain" for the starmap renderer. It handles
+-- camera logic, LOD calculations, and generates draw commands for the Go engine.
+-- =============================================================================
+
+import std/math (sqrt)
+import sim/starmap (StarCatalog, initLocalCatalog, SpectralType, O, B, A, F, G, K, M, spectralColor, Vec3)
+import sim/protocol (
+    FrameInput, FrameOutput, DrawCmd, Camera,
+    FlightInput,
+    LightingContext, RelativityContext, LODConfig, -- Use default for now
+    Star as StarDrawCmd  -- Import Star DrawCmd constructor
+)
+
+-- =============================================================================
+-- State
+-- =============================================================================
+
+export type StarmapVisualsState = {
+    tick: int,
+    cameraX: float,
+    cameraY: float,
+    cameraZ: float,
+    lookAtX: float,
+    lookAtY: float,
+    lookAtZ: float,
+    stars: [Star]
+}
+
+-- =============================================================================
+-- Initialization
+-- =============================================================================
+
+export pure func initStarmapVisuals() -> StarmapVisualsState = {
+    let catalog = initLocalCatalog();
+    {
+        tick: 0,
+        cameraX: 0.0,
+        cameraY: 0.0,
+        cameraZ: 20.0, -- Start 20 ly from Sol
+        lookAtX: 0.0,
+        lookAtY: 0.0,
+        lookAtZ: 0.0,
+        stars: catalog.stars
+    }
+}
+
+-- =============================================================================
+-- LOD Logic in AILANG
+-- =============================================================================
+
+-- Approximate screen projection to get apparent size
+-- This is a simplified version of what the Go engine does.
+pure func apparentRadius(starPos: Vec3, starRadius: float, camPos: Vec3) -> float {
+    let dx = starPos.x - camPos.x;
+    let dy = starPos.y - camPos.y;
+    let dz = starPos.z - camPos.z;
+    let dist = sqrt(dx*dx + dy*dy + dz*dz);
+
+    -- Avoid division by zero
+    if dist < 0.01 then
+        10000.0 -- Very large if camera is inside star
+    else {
+        -- Simplified projection: (radius / distance) * fov_scale
+        -- fov_scale for 60 FOV and 720p height is ~623.
+        let fovScale = 623.0;
+        (starRadius / dist) * fovScale
+    }
+}
+
+-- Determine texture path from spectral type
+pure func textureForSpectral(spec: SpectralType) -> string {
+    match spec {
+        O => "star_blue.png",
+        B => "star_blue.png",
+        A => "star_white.png",
+        F => "star_white.png",
+        G => "star_yellow.png",
+        K => "star_orange.png",
+        M => "star_red.png"
+    }
+}
+
+-- Map spectral type to sprite ID (assumes star sprites loaded in order)
+pure func spriteIdForSpectral(spec: SpectralType) -> int {
+    match spec {
+        O => 0,  -- star_blue
+        B => 0,  -- star_blue
+        A => 1,  -- star_white
+        F => 1,  -- star_white
+        G => 2,  -- star_yellow
+        K => 3,  -- star_orange
+        M => 4   -- star_red
+    }
+}
+
+-- Generate a DrawCmd for a single star based on its distance
+-- Uses the Star DrawCmd which is a 2D screen-space star rendering
+pure func generateStarDrawCmd(star: Star, camPos: Vec3) -> DrawCmd {
+    -- For LOD calculation, we need an arbitrary visible radius
+    let lodRadius = 0.1;
+    let size = apparentRadius(star.pos, lodRadius, camPos);
+
+    -- Simple orthographic projection for demo (proper perspective would need matrix math)
+    -- Project 3D position to 2D: just use x and y, ignore z for this simplified version
+    let screenX = 640.0 + star.pos.x * 20.0;  -- Center at 640, scale by 20
+    let screenY = 360.0 - star.pos.y * 20.0;  -- Center at 360, flip Y, scale by 20
+
+    -- Scale based on apparent size and distance (closer = larger)
+    let scale = if size > 10.0 then 2.0 else if size > 5.0 then 1.5 else if size > 1.0 then 1.0 else 0.5;
+
+    -- Alpha based on distance (closer = more visible)
+    let alpha = if size > 1.0 then 1.0 else size;
+
+    -- Get sprite ID based on spectral type
+    let spriteId = spriteIdForSpectral(star.spectral);
+
+    -- Render as Star DrawCmd (2D screen-space star)
+    Star(screenX, screenY, spriteId, scale, alpha, 10)
+}
+
+-- Recursive helper to map stars to draw commands
+pure func mapStarsToCmds(stars: [Star], camPos: Vec3) -> [DrawCmd] {
+    match stars {
+        [] => [],
+        s :: rest => generateStarDrawCmd(s, camPos) :: mapStarsToCmds(rest, camPos)
+    }
+}
+
+-- Generate all DrawCmds for the frame
+pure func generateStarmapDrawCommands(state: StarmapVisualsState) -> [DrawCmd] {
+    let camPos = { x: state.cameraX, y: state.cameraY, z: state.cameraZ };
+    mapStarsToCmds(state.stars, camPos)
+}
+
+
+-- =============================================================================
+-- Update Step
+-- =============================================================================
+
+-- Update camera based on user input
+pure func updateCamera(state: StarmapVisualsState, input: FlightInput) -> StarmapVisualsState {
+    let speed = if input.shift then 20.0 else 5.0; -- 20 ly/s or 5 ly/s
+    let dx = if input.left then 0.0 - speed else if input.right then speed else 0.0;
+    let dy = if input.down then 0.0 - speed else if input.up then speed else 0.0;
+    let dz = if input.w then 0.0 - speed else if input.s then speed else 0.0;
+
+    {
+        tick: state.tick + 1,
+        cameraX: state.cameraX + dx,
+        cameraY: state.cameraY + dy,
+        cameraZ: state.cameraZ + dz,
+        lookAtX: state.lookAtX,
+        lookAtY: state.lookAtY,
+        lookAtZ: state.lookAtZ,
+        stars: state.stars
+    }
+}
+
+-- The main step function called by the Go engine
+export pure func stepStarmapVisuals(state: StarmapVisualsState, input: FrameInput) -> (StarmapVisualsState, FrameOutput) {
+    let newState = updateCamera(state, input.flight);
+    let drawCmds = generateStarmapDrawCommands(newState);
+    let camera = { x: newState.cameraX, y: newState.cameraY, zoom: 1.0 }; -- Simplified camera for now
+
+    -- Return empty/default contexts for now
+    let lighting = { enabled: false, ambient: { energy: 0.0, color: {r:0.0,g:0.0,b:0.0}}, lights: [], lightMultiplier: 1.0};
+    let relativity = { sr: {enabled: false, velocity: 0.0, gamma: 1.0, viewAngle: 0.0}, gr: {enabled: false, centerX:0.5, centerY: 0.5, phi:0.0, rs: 0.0, objectType: "none"}};
+    let lod = { enabled: false, transitionTime: 0.0, hysteresis: 0.0, full3DPixels: 0.0, billboardPixels: 0.0, circlePixels: 0.0, pointPixels: 0.0, max3DObjects: 0 };
+
+
+    let output = {
+        draw: drawCmds,
+        sounds: [],
+        debug: [],
+        camera: camera,
+        lighting: lighting,
+        relativity: relativity,
+        lod: lod
+    };
+
+    (newState, output)
+}

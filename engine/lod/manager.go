@@ -312,7 +312,23 @@ func (m *Manager) GetTierPoint() []*Object {
 
 // GetTransitioning returns objects currently transitioning between tiers.
 // These objects should be rendered in both their old and new tier with blending.
+// The slice is sorted back-to-front for correct alpha blending.
 func (m *Manager) GetTransitioning() []*Object {
+	if len(m.transitioning) > 1 {
+		// Sort back-to-front (farthest first) with stable ID tiebreaker for correct alpha blending.
+		// This is critical to prevent closer transparent objects from being occluded by farther ones.
+		bucketSize := DistanceBucketSize()
+		sort.SliceStable(m.transitioning, func(i, j int) bool {
+			// Quantize distances to buckets for stable sorting
+			bucketI := int(m.transitioning[i].Distance / bucketSize)
+			bucketJ := int(m.transitioning[j].Distance / bucketSize)
+			if bucketI != bucketJ {
+				return bucketI > bucketJ // Farther buckets first (back-to-front)
+			}
+			// Same bucket: use ID for deterministic ordering
+			return m.transitioning[i].ID < m.transitioning[j].ID
+		})
+	}
 	return m.transitioning
 }
 

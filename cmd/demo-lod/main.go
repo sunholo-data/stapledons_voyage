@@ -935,20 +935,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	// Layer 5: Render transitioning objects with blending
 	// Objects transitioning between tiers are rendered with alpha to smoothly
-	// fade between their old and new representations
-	// CRITICAL: Sort transitioning objects back-to-front to prevent flickering
+	// fade between their old and new representations.
+	// The slice from GetTransitioning is now pre-sorted back-to-front by the engine.
 	if !g.noTransitions && len(transitioning) > 0 {
-		// Sort back-to-front (farthest first) with stable ID tiebreaker
-		bucketSize := lod.DistanceBucketSize()
-		sort.SliceStable(transitioning, func(i, j int) bool {
-			bucketI := int(transitioning[i].Distance / bucketSize)
-			bucketJ := int(transitioning[j].Distance / bucketSize)
-			if bucketI != bucketJ {
-				return bucketI > bucketJ // Farther first (back-to-front)
-			}
-			return transitioning[i].ID < transitioning[j].ID
-		})
-
 		for _, obj := range transitioning {
 			// Skip objects already rendered in their target tier above
 			// We only need to render the "fading out" previous tier representation
