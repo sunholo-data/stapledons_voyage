@@ -423,26 +423,53 @@ func (g *Game) filterOverlappingBillboards(billboards []*lod.Object, full3D []*l
 }
 
 // initializeBillboards creates billboard sprites from planet textures.
-// This must be called after the game loop starts because texture.At()
-// internally calls ReadPixels which requires the game loop to be running.
+// Uses texture caching - billboards are shared by planets with the same texture.
+// This prevents creating thousands of textures which would exhaust GPU memory.
 func (g *Game) initializeBillboards() {
-	for _, p := range g.planets {
-		if p.texture != nil && p.billboard == nil {
-			// Extract average color from texture for circle/point rendering
-			avgColor := lod.ExtractAverageColor(p.texture)
-			p.lodObj.Color = avgColor
-			log.Printf("Extracted color for %s: R=%d G=%d B=%d", p.lodObj.ID, avgColor.R, avgColor.G, avgColor.B)
+	// Cache billboards by texture pointer - only create one billboard per unique texture
+	// With ~14 planet textures + sun, this creates at most 15 billboards instead of 5000
+	textureBillboards := make(map[*ebiten.Image]*ebiten.Image)
+	textureColors := make(map[*ebiten.Image]color.RGBA)
 
-			// Create billboard from the planet's texture
-			p.billboard = lod.CreateBillboardFromTexture(p.texture, 128)
-			g.planetSprites[p.lodObj.ID] = p.billboard
-			log.Printf("Created billboard for %s from texture", p.lodObj.ID)
-		} else if p.billboard == nil {
-			// No texture, use a colored procedural billboard
-			p.billboard = lod.CreateDefaultPlanetSprite(128, p.lodObj.Color)
-			g.planetSprites[p.lodObj.ID] = p.billboard
-			log.Printf("Created procedural billboard for %s", p.lodObj.ID)
+	// First pass: create one billboard per unique texture
+	for _, p := range g.planets {
+		if p.texture == nil {
+			continue
 		}
+
+		// Check if we already processed this texture
+		if _, exists := textureBillboards[p.texture]; exists {
+			continue
+		}
+
+		// Extract average color from texture for circle/point rendering
+		avgColor := lod.ExtractAverageColor(p.texture)
+		textureColors[p.texture] = avgColor
+
+		// Create billboard from the texture
+		billboard := lod.CreateBillboardFromTexture(p.texture, 128)
+		textureBillboards[p.texture] = billboard
+	}
+
+	log.Printf("Created %d cached billboard textures (for %d objects)", len(textureBillboards), len(g.planets))
+
+	// Create one procedural billboard for objects without textures
+	var proceduralBillboard *ebiten.Image
+
+	// Second pass: assign shared billboards to all planets
+	for _, p := range g.planets {
+		if p.texture != nil {
+			// Use cached billboard and color
+			p.billboard = textureBillboards[p.texture]
+			p.lodObj.Color = textureColors[p.texture]
+		} else {
+			// Use shared procedural billboard
+			if proceduralBillboard == nil {
+				proceduralBillboard = lod.CreateDefaultPlanetSprite(128, p.lodObj.Color)
+			}
+			p.billboard = proceduralBillboard
+		}
+		g.planetSprites[p.lodObj.ID] = p.billboard
 	}
 }
 

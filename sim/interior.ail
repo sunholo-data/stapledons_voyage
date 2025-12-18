@@ -1,0 +1,489 @@
+module sim/interior
+
+-- =============================================================================
+-- 3D Interior Module
+-- First-person 3D ship interior navigation using Tetra3D engine
+-- =============================================================================
+
+import sim/protocol (
+    Coord, DrawCmd, FrameInput, KeyEvent,
+    Camera3D, Room3D, Prop3D, Billboard3D, Text, RectRGBA
+)
+import std/option (Option, Some, None)
+import std/list (concat)
+import std/math (sin, cos, PI)
+
+-- =============================================================================
+-- Constants
+-- =============================================================================
+
+-- Movement speeds (meters per frame at 60 FPS)
+pure func moveSpeed() -> float { 0.08 }
+pure func runSpeed() -> float { 0.16 }
+pure func lookSensitivity() -> float { 0.002 }
+
+-- Camera constraints
+pure func minPitch() -> float { 0.0 - 1.4 }  -- Look down limit (radians)
+pure func maxPitch() -> float { 1.4 }         -- Look up limit (radians)
+pure func eyeHeight() -> float { 1.7 }        -- Player eye height in meters
+
+-- Default room dimensions (can be configured per room)
+pure func defaultRoomWidth() -> float { 8.0 }
+pure func defaultRoomDepth() -> float { 6.0 }
+pure func defaultRoomHeight() -> float { 3.0 }
+
+-- Colors (RGBA as decimal integers)
+pure func colorFloorDefault() -> int { 1296649727 }    -- #4D596640 - Blue-gray metallic
+pure func colorWallDefault() -> int { 1515870463 }     -- #5A6670FF - Lighter walls
+pure func colorCeilingDefault() -> int { 859126016 }   -- #333340FF - Dark ceiling
+pure func colorConsoleDefault() -> int { 276865279 }   -- #108099FF - Cyan console
+pure func colorChairDefault() -> int { 2150379007 }    -- #806040FF - Brown-ish
+pure func colorUIBg() -> int { 540029132 }             -- #203040CC - Dark UI bg
+
+-- Layer constants
+pure func layerUI() -> int { 100 }
+
+-- =============================================================================
+-- 3D Position Type
+-- =============================================================================
+
+-- 3D position in meters
+export type Vec3 = { x: float, y: float, z: float }
+
+-- Create a Vec3
+pure func vec3(x: float, y: float, z: float) -> Vec3 {
+    { x: x, y: y, z: z }
+}
+
+-- =============================================================================
+-- Room Types
+-- =============================================================================
+
+-- Room definition (static geometry)
+export type RoomDef = {
+    width: float,
+    depth: float,
+    height: float,
+    floorTex: string,     -- Texture asset name (empty = use color)
+    wallTex: string,
+    ceilingTex: string,
+    floorColor: int,
+    wallColor: int,
+    ceilingColor: int
+}
+
+-- Prop definition (furniture/console in room)
+export type PropDef = {
+    id: string,
+    pos: Vec3,
+    scaleX: float,
+    scaleY: float,
+    scaleZ: float,
+    texture: string,
+    color: int
+}
+
+-- Character billboard (2D sprite in 3D space)
+export type CharacterDef = {
+    id: string,
+    pos: Vec3,
+    spriteId: int,
+    scale: float
+}
+
+-- Complete room with props and characters
+export type InteriorRoom = {
+    room: RoomDef,
+    props: [PropDef],
+    characters: [CharacterDef]
+}
+
+-- =============================================================================
+-- Interior State
+-- =============================================================================
+
+-- Player state in 3D interior
+export type InteriorPlayer = {
+    pos: Vec3,            -- Position in meters
+    yaw: float,           -- Horizontal rotation (radians, 0 = forward/-Z)
+    pitch: float,         -- Vertical rotation (radians, negative = look down)
+    isRunning: bool
+}
+
+-- Complete interior state
+export type InteriorState = {
+    player: InteriorPlayer,
+    currentRoom: InteriorRoom,
+    fov: float,           -- Field of view in degrees
+    tick: int
+}
+
+-- =============================================================================
+-- Room Constructors
+-- =============================================================================
+
+-- Create default room definition
+export pure func defaultRoom() -> RoomDef {
+    {
+        width: defaultRoomWidth(),
+        depth: defaultRoomDepth(),
+        height: defaultRoomHeight(),
+        floorTex: "",
+        wallTex: "",
+        ceilingTex: "",
+        floorColor: colorFloorDefault(),
+        wallColor: colorWallDefault(),
+        ceilingColor: colorCeilingDefault()
+    }
+}
+
+-- Create room with custom dimensions
+export pure func makeRoom(w: float, d: float, h: float) -> RoomDef {
+    {
+        width: w,
+        depth: d,
+        height: h,
+        floorTex: "",
+        wallTex: "",
+        ceilingTex: "",
+        floorColor: colorFloorDefault(),
+        wallColor: colorWallDefault(),
+        ceilingColor: colorCeilingDefault()
+    }
+}
+
+-- Create room with textures
+export pure func makeRoomTextured(
+    w: float, d: float, h: float,
+    floor: string, wall: string, ceiling: string
+) -> RoomDef {
+    {
+        width: w, depth: d, height: h,
+        floorTex: floor, wallTex: wall, ceilingTex: ceiling,
+        floorColor: colorFloorDefault(),
+        wallColor: colorWallDefault(),
+        ceilingColor: colorCeilingDefault()
+    }
+}
+
+-- =============================================================================
+-- Prop Constructors
+-- =============================================================================
+
+-- Create a console prop
+export pure func makeConsole(id: string, x: float, z: float) -> PropDef {
+    {
+        id: id,
+        pos: vec3(x, 0.5, z),
+        scaleX: 1.5,
+        scaleY: 0.6,
+        scaleZ: 0.5,
+        texture: "",
+        color: colorConsoleDefault()
+    }
+}
+
+-- Create a chair prop
+export pure func makeChair(id: string, x: float, z: float) -> PropDef {
+    {
+        id: id,
+        pos: vec3(x, 0.4, z),
+        scaleX: 0.8,
+        scaleY: 0.8,
+        scaleZ: 0.8,
+        texture: "",
+        color: colorChairDefault()
+    }
+}
+
+-- Create a custom prop
+export pure func makeProp(
+    id: string, x: float, y: float, z: float,
+    sx: float, sy: float, sz: float, color: int
+) -> PropDef {
+    {
+        id: id,
+        pos: vec3(x, y, z),
+        scaleX: sx,
+        scaleY: sy,
+        scaleZ: sz,
+        texture: "",
+        color: color
+    }
+}
+
+-- =============================================================================
+-- Character Constructors
+-- =============================================================================
+
+-- Create a character billboard
+export pure func makeCharacter(id: string, x: float, z: float, sprite: int) -> CharacterDef {
+    {
+        id: id,
+        pos: vec3(x, 0.0, z),  -- Y is floor level, engine adjusts for sprite
+        spriteId: sprite,
+        scale: 1.0
+    }
+}
+
+-- =============================================================================
+-- Bridge Interior Setup
+-- =============================================================================
+
+-- Create the ship's bridge interior
+export pure func createBridgeInterior() -> InteriorRoom {
+    let room = makeRoom(8.0, 6.0, 3.0);
+    let props = [
+        -- Front helm console
+        makeConsole("helm", 0.0, 0.0 - 2.0),
+        -- Side consoles
+        makeConsole("left_console", 0.0 - 3.0, 0.0),
+        makeConsole("right_console", 3.0, 0.0),
+        -- Captain's chair
+        makeChair("captain_chair", 0.0, 1.0)
+    ];
+    let characters = [
+        -- Crew at stations
+        makeCharacter("pilot", 0.0, 0.0 - 1.5, 1200),
+        makeCharacter("engineer", 0.0 - 2.5, 0.0, 1202)
+    ];
+    { room: room, props: props, characters: characters }
+}
+
+-- =============================================================================
+-- Initialize Interior State
+-- =============================================================================
+
+-- Create initial interior state for the bridge
+export pure func initInterior() -> InteriorState {
+    {
+        player: {
+            pos: vec3(0.0, eyeHeight(), 2.0),  -- Start near back of room
+            yaw: 0.0,                           -- Facing forward (-Z)
+            pitch: 0.0 - 0.2,                   -- Slight look down
+            isRunning: false
+        },
+        currentRoom: createBridgeInterior(),
+        fov: 70.0,
+        tick: 0
+    }
+}
+
+-- =============================================================================
+-- Input Processing
+-- =============================================================================
+
+-- Key codes (matching Ebiten)
+pure func keyW() -> int { 22 }
+pure func keyA() -> int { 0 }
+pure func keyS() -> int { 18 }
+pure func keyD() -> int { 3 }
+pure func keySpace() -> int { 54 }
+pure func keyShift() -> int { 78 }
+pure func keyEscape() -> int { 56 }
+
+-- Check if key is in list
+pure func hasKeyRec(keyCode: int, keys: [KeyEvent]) -> bool {
+    match keys {
+        [] => false,
+        k :: rest => if k.key == keyCode && k.kind == "pressed" then true else hasKeyRec(keyCode, rest)
+    }
+}
+
+pure func hasKey(keyCode: int, input: FrameInput) -> bool {
+    hasKeyRec(keyCode, input.keys)
+}
+
+-- Check if shift is held (for running)
+pure func isShiftHeld(input: FrameInput) -> bool {
+    input.flight.shift
+}
+
+-- Calculate movement delta from input and player orientation
+pure func calculateMovement(player: InteriorPlayer, input: FrameInput) -> Vec3 {
+    let speed = if isShiftHeld(input) then runSpeed() else moveSpeed();
+
+    -- Calculate forward/right vectors from yaw
+    let forwardX = sin(player.yaw);
+    let forwardZ = 0.0 - cos(player.yaw);
+    let rightX = cos(player.yaw);
+    let rightZ = sin(player.yaw);
+
+    -- Accumulate movement
+    let dx0 = 0.0;
+    let dz0 = 0.0;
+
+    -- Forward/backward (W/S)
+    let dx1 = if input.flight.w then dx0 + forwardX * speed else dx0;
+    let dz1 = if input.flight.w then dz0 + forwardZ * speed else dz0;
+    let dx2 = if input.flight.s then dx1 - forwardX * speed else dx1;
+    let dz2 = if input.flight.s then dz1 - forwardZ * speed else dz1;
+
+    -- Strafe (A/D)
+    let dx3 = if input.flight.a then dx2 - rightX * speed else dx2;
+    let dz3 = if input.flight.a then dz2 - rightZ * speed else dz2;
+    let dx4 = if input.flight.d then dx3 + rightX * speed else dx3;
+    let dz4 = if input.flight.d then dz3 + rightZ * speed else dz3;
+
+    vec3(dx4, 0.0, dz4)
+}
+
+-- Look delta type (yaw, pitch deltas)
+type LookDelta = { yawDelta: float, pitchDelta: float }
+
+-- Calculate look angle from mouse position (direct mapping, not accumulated)
+-- This matches the engine demo's approach: mouse offset from center = camera angle
+pure func calculateLook(input: FrameInput, screenWidth: float, screenHeight: float) -> LookDelta {
+    -- Mouse position relative to screen center
+    let centerX = screenWidth / 2.0;
+    let centerY = screenHeight / 2.0;
+    let deltaX = input.mouse.x - centerX;
+    let deltaY = centerY - input.mouse.y;  -- Invert Y for natural look
+    -- Direct mapping: yaw sensitivity 0.003, pitch sensitivity 0.002 (matches engine demo)
+    { yawDelta: deltaX * 0.003, pitchDelta: deltaY * 0.002 }
+}
+
+-- Clamp value between min and max
+pure func clamp(value: float, minVal: float, maxVal: float) -> float {
+    if value < minVal then minVal
+    else if value > maxVal then maxVal
+    else value
+}
+
+-- =============================================================================
+-- Collision Detection
+-- =============================================================================
+
+-- Simple room bounds collision
+pure func isInRoomBounds(pos: Vec3, room: RoomDef) -> bool {
+    let halfW = room.width / 2.0;
+    let halfD = room.depth / 2.0;
+    let margin = 0.5;  -- Keep away from walls
+    pos.x > (0.0 - halfW + margin) &&
+    pos.x < (halfW - margin) &&
+    pos.z > (0.0 - halfD + margin) &&
+    pos.z < (halfD - margin)
+}
+
+-- Apply movement with collision detection
+pure func applyMovement(player: InteriorPlayer, delta: Vec3, room: RoomDef) -> InteriorPlayer {
+    let newPos = vec3(
+        player.pos.x + delta.x,
+        player.pos.y,  -- Don't change Y (no jumping yet)
+        player.pos.z + delta.z
+    );
+    if isInRoomBounds(newPos, room) then
+        { player | pos: newPos }
+    else
+        player  -- Collision, don't move
+}
+
+-- =============================================================================
+-- Step Function
+-- =============================================================================
+
+-- Process one frame of interior simulation
+export pure func stepInterior(state: InteriorState, input: FrameInput) -> InteriorState {
+    -- Calculate movement from input
+    let moveDelta = calculateMovement(state.player, input);
+
+    -- Apply movement with collision
+    let movedPlayer = applyMovement(state.player, moveDelta, state.currentRoom.room);
+
+    -- Apply mouse look (direct mapping from mouse position, not accumulated)
+    let lookAngles = calculateLook(input, 1280.0, 720.0);
+    let newYaw = lookAngles.yawDelta;
+    let newPitch = clamp(lookAngles.pitchDelta, minPitch(), maxPitch());
+
+    let updatedPlayer = { movedPlayer |
+        yaw: newYaw,
+        pitch: newPitch,
+        isRunning: isShiftHeld(input)
+    };
+
+    { state | player: updatedPlayer, tick: state.tick + 1 }
+}
+
+-- =============================================================================
+-- Rendering
+-- =============================================================================
+
+-- Render camera setup command
+pure func renderCamera(player: InteriorPlayer, fov: float) -> DrawCmd {
+    Camera3D(
+        player.pos.x, player.pos.y, player.pos.z,
+        player.yaw, player.pitch, fov
+    )
+}
+
+-- Render room geometry
+pure func renderRoom(room: RoomDef) -> DrawCmd {
+    Room3D(
+        room.width, room.depth, room.height,
+        room.floorTex, room.wallTex, room.ceilingTex,
+        room.floorColor, room.wallColor, room.ceilingColor,
+        0  -- z-layer for room
+    )
+}
+
+-- Render a single prop
+pure func renderProp(prop: PropDef) -> DrawCmd {
+    Prop3D(
+        prop.id,
+        prop.pos.x, prop.pos.y, prop.pos.z,
+        prop.scaleX, prop.scaleY, prop.scaleZ,
+        prop.texture, prop.color,
+        1  -- z-layer for props
+    )
+}
+
+-- Render props recursively
+pure func renderPropsRec(props: [PropDef]) -> [DrawCmd] {
+    match props {
+        [] => [],
+        p :: rest => renderProp(p) :: renderPropsRec(rest)
+    }
+}
+
+-- Render a character billboard
+pure func renderCharacter(char: CharacterDef) -> DrawCmd {
+    Billboard3D(
+        char.id,
+        char.pos.x, char.pos.y, char.pos.z,
+        char.spriteId, char.scale,
+        2  -- z-layer for characters
+    )
+}
+
+-- Render characters recursively
+pure func renderCharactersRec(chars: [CharacterDef]) -> [DrawCmd] {
+    match chars {
+        [] => [],
+        c :: rest => renderCharacter(c) :: renderCharactersRec(rest)
+    }
+}
+
+-- Render HUD overlay
+pure func renderHUD(state: InteriorState) -> [DrawCmd] {
+    [
+        -- Position display
+        Text(
+            "3D Interior - WASD: Move | Mouse: Look | Shift: Run",
+            10.0, 20.0, 12, 4294967295, layerUI()
+        )
+    ]
+}
+
+-- Render entire interior scene
+export pure func renderInterior(state: InteriorState) -> [DrawCmd] {
+    let camera = renderCamera(state.player, state.fov);
+    let room = renderRoom(state.currentRoom.room);
+    let props = renderPropsRec(state.currentRoom.props);
+    let chars = renderCharactersRec(state.currentRoom.characters);
+    let hud = renderHUD(state);
+
+    concat(
+        [camera, room],
+        concat(props, concat(chars, hud))
+    )
+}

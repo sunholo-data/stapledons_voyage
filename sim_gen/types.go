@@ -287,1789 +287,6 @@ type ArrivalInput struct {
 	Dt float64
 }
 
-// BridgeStationKind discriminates between variants of BridgeStation
-type BridgeStationKind int
-
-const (
-	BridgeStationKindStationHelm BridgeStationKind = iota
-	BridgeStationKindStationComms
-	BridgeStationKindStationStatus
-	BridgeStationKindStationNav
-	BridgeStationKindStationScience
-	BridgeStationKindStationCaptain
-	BridgeStationKindStationNone
-)
-
-// BridgeStationStationHelm holds data for the StationHelm variant
-type BridgeStationStationHelm struct {
-}
-
-// BridgeStationStationComms holds data for the StationComms variant
-type BridgeStationStationComms struct {
-}
-
-// BridgeStationStationStatus holds data for the StationStatus variant
-type BridgeStationStationStatus struct {
-}
-
-// BridgeStationStationNav holds data for the StationNav variant
-type BridgeStationStationNav struct {
-}
-
-// BridgeStationStationScience holds data for the StationScience variant
-type BridgeStationStationScience struct {
-}
-
-// BridgeStationStationCaptain holds data for the StationCaptain variant
-type BridgeStationStationCaptain struct {
-}
-
-// BridgeStationStationNone holds data for the StationNone variant
-type BridgeStationStationNone struct {
-}
-
-// BridgeStation is a sum type (discriminated union)
-type BridgeStation struct {
-	Kind           BridgeStationKind
-	StationHelm    *BridgeStationStationHelm
-	StationComms   *BridgeStationStationComms
-	StationStatus  *BridgeStationStationStatus
-	StationNav     *BridgeStationStationNav
-	StationScience *BridgeStationStationScience
-	StationCaptain *BridgeStationStationCaptain
-	StationNone    *BridgeStationStationNone
-}
-
-// NewBridgeStationStationHelm creates a new StationHelm variant
-func NewBridgeStationStationHelm() *BridgeStation {
-	return &BridgeStation{
-		Kind:        BridgeStationKindStationHelm,
-		StationHelm: &BridgeStationStationHelm{},
-	}
-}
-
-// NewBridgeStationStationComms creates a new StationComms variant
-func NewBridgeStationStationComms() *BridgeStation {
-	return &BridgeStation{
-		Kind:         BridgeStationKindStationComms,
-		StationComms: &BridgeStationStationComms{},
-	}
-}
-
-// NewBridgeStationStationStatus creates a new StationStatus variant
-func NewBridgeStationStationStatus() *BridgeStation {
-	return &BridgeStation{
-		Kind:          BridgeStationKindStationStatus,
-		StationStatus: &BridgeStationStationStatus{},
-	}
-}
-
-// NewBridgeStationStationNav creates a new StationNav variant
-func NewBridgeStationStationNav() *BridgeStation {
-	return &BridgeStation{
-		Kind:       BridgeStationKindStationNav,
-		StationNav: &BridgeStationStationNav{},
-	}
-}
-
-// NewBridgeStationStationScience creates a new StationScience variant
-func NewBridgeStationStationScience() *BridgeStation {
-	return &BridgeStation{
-		Kind:           BridgeStationKindStationScience,
-		StationScience: &BridgeStationStationScience{},
-	}
-}
-
-// NewBridgeStationStationCaptain creates a new StationCaptain variant
-func NewBridgeStationStationCaptain() *BridgeStation {
-	return &BridgeStation{
-		Kind:           BridgeStationKindStationCaptain,
-		StationCaptain: &BridgeStationStationCaptain{},
-	}
-}
-
-// NewBridgeStationStationNone creates a new StationNone variant
-func NewBridgeStationStationNone() *BridgeStation {
-	return &BridgeStation{
-		Kind:        BridgeStationKindStationNone,
-		StationNone: &BridgeStationStationNone{},
-	}
-}
-
-// IsStationHelm returns true if this is a StationHelm variant
-func (v *BridgeStation) IsStationHelm() bool {
-	return v.Kind == BridgeStationKindStationHelm
-}
-
-// IsStationComms returns true if this is a StationComms variant
-func (v *BridgeStation) IsStationComms() bool {
-	return v.Kind == BridgeStationKindStationComms
-}
-
-// IsStationStatus returns true if this is a StationStatus variant
-func (v *BridgeStation) IsStationStatus() bool {
-	return v.Kind == BridgeStationKindStationStatus
-}
-
-// IsStationNav returns true if this is a StationNav variant
-func (v *BridgeStation) IsStationNav() bool {
-	return v.Kind == BridgeStationKindStationNav
-}
-
-// IsStationScience returns true if this is a StationScience variant
-func (v *BridgeStation) IsStationScience() bool {
-	return v.Kind == BridgeStationKindStationScience
-}
-
-// IsStationCaptain returns true if this is a StationCaptain variant
-func (v *BridgeStation) IsStationCaptain() bool {
-	return v.Kind == BridgeStationKindStationCaptain
-}
-
-// IsStationNone returns true if this is a StationNone variant
-func (v *BridgeStation) IsStationNone() bool {
-	return v.Kind == BridgeStationKindStationNone
-}
-
-// CrewID is a record type
-type CrewID struct {
-	Id   int64
-	Name string
-}
-
-// CrewActivityKind discriminates between variants of CrewActivity
-type CrewActivityKind int
-
-const (
-	CrewActivityKindActivityIdle CrewActivityKind = iota
-	CrewActivityKindActivityWorking
-	CrewActivityKindActivityTalking
-)
-
-// CrewActivityActivityIdle holds data for the ActivityIdle variant
-type CrewActivityActivityIdle struct {
-}
-
-// CrewActivityActivityWorking holds data for the ActivityWorking variant
-type CrewActivityActivityWorking struct {
-}
-
-// CrewActivityActivityTalking holds data for the ActivityTalking variant
-type CrewActivityActivityTalking struct {
-	Value0 *CrewID
-}
-
-// CrewActivity is a sum type (discriminated union)
-type CrewActivity struct {
-	Kind            CrewActivityKind
-	ActivityIdle    *CrewActivityActivityIdle
-	ActivityWorking *CrewActivityActivityWorking
-	ActivityTalking *CrewActivityActivityTalking
-}
-
-// NewCrewActivityActivityIdle creates a new ActivityIdle variant
-func NewCrewActivityActivityIdle() *CrewActivity {
-	return &CrewActivity{
-		Kind:         CrewActivityKindActivityIdle,
-		ActivityIdle: &CrewActivityActivityIdle{},
-	}
-}
-
-// NewCrewActivityActivityWorking creates a new ActivityWorking variant
-func NewCrewActivityActivityWorking() *CrewActivity {
-	return &CrewActivity{
-		Kind:            CrewActivityKindActivityWorking,
-		ActivityWorking: &CrewActivityActivityWorking{},
-	}
-}
-
-// NewCrewActivityActivityTalking creates a new ActivityTalking variant
-func NewCrewActivityActivityTalking(v0 *CrewID) *CrewActivity {
-	return &CrewActivity{
-		Kind:            CrewActivityKindActivityTalking,
-		ActivityTalking: &CrewActivityActivityTalking{Value0: v0},
-	}
-}
-
-// IsActivityIdle returns true if this is a ActivityIdle variant
-func (v *CrewActivity) IsActivityIdle() bool {
-	return v.Kind == CrewActivityKindActivityIdle
-}
-
-// IsActivityWorking returns true if this is a ActivityWorking variant
-func (v *CrewActivity) IsActivityWorking() bool {
-	return v.Kind == CrewActivityKindActivityWorking
-}
-
-// IsActivityTalking returns true if this is a ActivityTalking variant
-func (v *CrewActivity) IsActivityTalking() bool {
-	return v.Kind == CrewActivityKindActivityTalking
-}
-
-// CrewPosition is a record type
-type CrewPosition struct {
-	Crew     *CrewID
-	Station  *BridgeStation
-	Pos      *Coord
-	Facing   *Direction
-	Activity *CrewActivity
-}
-
-// ConsoleState is a record type
-type ConsoleState struct {
-	Station  *BridgeStation
-	Pos      *Coord
-	Active   bool
-	HasAlert bool
-	SpriteId int64
-}
-
-// InteractableIDKind discriminates between variants of InteractableID
-type InteractableIDKind int
-
-const (
-	InteractableIDKindInteractConsole InteractableIDKind = iota
-	InteractableIDKindInteractCrew
-	InteractableIDKindInteractHatch
-)
-
-// InteractableIDInteractConsole holds data for the InteractConsole variant
-type InteractableIDInteractConsole struct {
-	Value0 *BridgeStation
-}
-
-// InteractableIDInteractCrew holds data for the InteractCrew variant
-type InteractableIDInteractCrew struct {
-	Value0 *CrewID
-}
-
-// InteractableIDInteractHatch holds data for the InteractHatch variant
-type InteractableIDInteractHatch struct {
-	Value0 int64
-}
-
-// InteractableID is a sum type (discriminated union)
-type InteractableID struct {
-	Kind            InteractableIDKind
-	InteractConsole *InteractableIDInteractConsole
-	InteractCrew    *InteractableIDInteractCrew
-	InteractHatch   *InteractableIDInteractHatch
-}
-
-// NewInteractableIDInteractConsole creates a new InteractConsole variant
-func NewInteractableIDInteractConsole(v0 *BridgeStation) *InteractableID {
-	return &InteractableID{
-		Kind:            InteractableIDKindInteractConsole,
-		InteractConsole: &InteractableIDInteractConsole{Value0: v0},
-	}
-}
-
-// NewInteractableIDInteractCrew creates a new InteractCrew variant
-func NewInteractableIDInteractCrew(v0 *CrewID) *InteractableID {
-	return &InteractableID{
-		Kind:         InteractableIDKindInteractCrew,
-		InteractCrew: &InteractableIDInteractCrew{Value0: v0},
-	}
-}
-
-// NewInteractableIDInteractHatch creates a new InteractHatch variant
-func NewInteractableIDInteractHatch(v0 int64) *InteractableID {
-	return &InteractableID{
-		Kind:          InteractableIDKindInteractHatch,
-		InteractHatch: &InteractableIDInteractHatch{Value0: v0},
-	}
-}
-
-// IsInteractConsole returns true if this is a InteractConsole variant
-func (v *InteractableID) IsInteractConsole() bool {
-	return v.Kind == InteractableIDKindInteractConsole
-}
-
-// IsInteractCrew returns true if this is a InteractCrew variant
-func (v *InteractableID) IsInteractCrew() bool {
-	return v.Kind == InteractableIDKindInteractCrew
-}
-
-// IsInteractHatch returns true if this is a InteractHatch variant
-func (v *InteractableID) IsInteractHatch() bool {
-	return v.Kind == InteractableIDKindInteractHatch
-}
-
-// DomeViewState is a record type
-type DomeViewState struct {
-	TargetPlanetId int64
-	ShipVelocity   float64
-	ViewAngle      float64
-}
-
-// DomeState is a record type
-type DomeState struct {
-	CruiseTime     float64
-	CruiseDuration float64
-	CruiseVelocity float64
-	CameraZ        float64
-	TargetPlanet   int64
-}
-
-// Planet is a record type
-type Planet struct {
-	Name      string
-	ColorRGBA int64
-	Distance  float64
-	Radius    float64
-	YOffset   float64
-}
-
-// MoveStateKind discriminates between variants of MoveState
-type MoveStateKind int
-
-const (
-	MoveStateKindMoveIdle MoveStateKind = iota
-	MoveStateKindMoveWalking
-	MoveStateKindMoveTransitioning
-)
-
-// MoveStateMoveIdle holds data for the MoveIdle variant
-type MoveStateMoveIdle struct {
-}
-
-// MoveStateMoveWalking holds data for the MoveWalking variant
-type MoveStateMoveWalking struct {
-	Value0 *Direction
-}
-
-// MoveStateMoveTransitioning holds data for the MoveTransitioning variant
-type MoveStateMoveTransitioning struct {
-	Value0 int64
-	Value1 *Coord
-}
-
-// MoveState is a sum type (discriminated union)
-type MoveState struct {
-	Kind              MoveStateKind
-	MoveIdle          *MoveStateMoveIdle
-	MoveWalking       *MoveStateMoveWalking
-	MoveTransitioning *MoveStateMoveTransitioning
-}
-
-// NewMoveStateMoveIdle creates a new MoveIdle variant
-func NewMoveStateMoveIdle() *MoveState {
-	return &MoveState{
-		Kind:     MoveStateKindMoveIdle,
-		MoveIdle: &MoveStateMoveIdle{},
-	}
-}
-
-// NewMoveStateMoveWalking creates a new MoveWalking variant
-func NewMoveStateMoveWalking(v0 *Direction) *MoveState {
-	return &MoveState{
-		Kind:        MoveStateKindMoveWalking,
-		MoveWalking: &MoveStateMoveWalking{Value0: v0},
-	}
-}
-
-// NewMoveStateMoveTransitioning creates a new MoveTransitioning variant
-func NewMoveStateMoveTransitioning(v0 int64, v1 *Coord) *MoveState {
-	return &MoveState{
-		Kind:              MoveStateKindMoveTransitioning,
-		MoveTransitioning: &MoveStateMoveTransitioning{Value0: v0, Value1: v1},
-	}
-}
-
-// IsMoveIdle returns true if this is a MoveIdle variant
-func (v *MoveState) IsMoveIdle() bool {
-	return v.Kind == MoveStateKindMoveIdle
-}
-
-// IsMoveWalking returns true if this is a MoveWalking variant
-func (v *MoveState) IsMoveWalking() bool {
-	return v.Kind == MoveStateKindMoveWalking
-}
-
-// IsMoveTransitioning returns true if this is a MoveTransitioning variant
-func (v *MoveState) IsMoveTransitioning() bool {
-	return v.Kind == MoveStateKindMoveTransitioning
-}
-
-// BridgeState is a record type
-type BridgeState struct {
-	PlayerPos            *Coord
-	PlayerFacing         *Direction
-	MoveState            *MoveState
-	CameraX              int64
-	CameraY              int64
-	CrewPositions        []*CrewPosition
-	Consoles             []*ConsoleState
-	HoveredInteractable  *Option
-	SelectedInteractable *Option
-	DomeView             *DomeViewState
-	DomeState            *DomeState
-	Tick                 int64
-	DiscRadius           int64
-	DiscCenterX          int64
-	DiscCenterY          int64
-}
-
-// BridgeInputResultKind discriminates between variants of BridgeInputResult
-type BridgeInputResultKind int
-
-const (
-	BridgeInputResultKindBridgeStay BridgeInputResultKind = iota
-	BridgeInputResultKindBridgeToGalaxyMap
-	BridgeInputResultKindBridgeToDialogue
-	BridgeInputResultKindBridgeToDeck
-)
-
-// BridgeInputResultBridgeStay holds data for the BridgeStay variant
-type BridgeInputResultBridgeStay struct {
-	Value0 *BridgeState
-}
-
-// BridgeInputResultBridgeToGalaxyMap holds data for the BridgeToGalaxyMap variant
-type BridgeInputResultBridgeToGalaxyMap struct {
-}
-
-// BridgeInputResultBridgeToDialogue holds data for the BridgeToDialogue variant
-type BridgeInputResultBridgeToDialogue struct {
-	Value0 *CrewID
-}
-
-// BridgeInputResultBridgeToDeck holds data for the BridgeToDeck variant
-type BridgeInputResultBridgeToDeck struct {
-	Value0 int64
-	Value1 *Coord
-}
-
-// BridgeInputResult is a sum type (discriminated union)
-type BridgeInputResult struct {
-	Kind              BridgeInputResultKind
-	BridgeStay        *BridgeInputResultBridgeStay
-	BridgeToGalaxyMap *BridgeInputResultBridgeToGalaxyMap
-	BridgeToDialogue  *BridgeInputResultBridgeToDialogue
-	BridgeToDeck      *BridgeInputResultBridgeToDeck
-}
-
-// NewBridgeInputResultBridgeStay creates a new BridgeStay variant
-func NewBridgeInputResultBridgeStay(v0 *BridgeState) *BridgeInputResult {
-	return &BridgeInputResult{
-		Kind:       BridgeInputResultKindBridgeStay,
-		BridgeStay: &BridgeInputResultBridgeStay{Value0: v0},
-	}
-}
-
-// NewBridgeInputResultBridgeToGalaxyMap creates a new BridgeToGalaxyMap variant
-func NewBridgeInputResultBridgeToGalaxyMap() *BridgeInputResult {
-	return &BridgeInputResult{
-		Kind:              BridgeInputResultKindBridgeToGalaxyMap,
-		BridgeToGalaxyMap: &BridgeInputResultBridgeToGalaxyMap{},
-	}
-}
-
-// NewBridgeInputResultBridgeToDialogue creates a new BridgeToDialogue variant
-func NewBridgeInputResultBridgeToDialogue(v0 *CrewID) *BridgeInputResult {
-	return &BridgeInputResult{
-		Kind:             BridgeInputResultKindBridgeToDialogue,
-		BridgeToDialogue: &BridgeInputResultBridgeToDialogue{Value0: v0},
-	}
-}
-
-// NewBridgeInputResultBridgeToDeck creates a new BridgeToDeck variant
-func NewBridgeInputResultBridgeToDeck(v0 int64, v1 *Coord) *BridgeInputResult {
-	return &BridgeInputResult{
-		Kind:         BridgeInputResultKindBridgeToDeck,
-		BridgeToDeck: &BridgeInputResultBridgeToDeck{Value0: v0, Value1: v1},
-	}
-}
-
-// IsBridgeStay returns true if this is a BridgeStay variant
-func (v *BridgeInputResult) IsBridgeStay() bool {
-	return v.Kind == BridgeInputResultKindBridgeStay
-}
-
-// IsBridgeToGalaxyMap returns true if this is a BridgeToGalaxyMap variant
-func (v *BridgeInputResult) IsBridgeToGalaxyMap() bool {
-	return v.Kind == BridgeInputResultKindBridgeToGalaxyMap
-}
-
-// IsBridgeToDialogue returns true if this is a BridgeToDialogue variant
-func (v *BridgeInputResult) IsBridgeToDialogue() bool {
-	return v.Kind == BridgeInputResultKindBridgeToDialogue
-}
-
-// IsBridgeToDeck returns true if this is a BridgeToDeck variant
-func (v *BridgeInputResult) IsBridgeToDeck() bool {
-	return v.Kind == BridgeInputResultKindBridgeToDeck
-}
-
-// Strut is a record type
-type Strut struct {
-	X1       float64
-	Y1       float64
-	X2       float64
-	Y2       float64
-	Parallax float64
-	Color    int64
-}
-
-// IsoMove is a record type
-type IsoMove struct {
-	Dx int64
-	Dy int64
-}
-
-// Coord is a record type
-type Coord struct {
-	X int64
-	Y int64
-}
-
-// Camera is a record type
-type Camera struct {
-	X    float64
-	Y    float64
-	Zoom float64
-}
-
-// MouseState is a record type
-type MouseState struct {
-	X       float64
-	Y       float64
-	Buttons []int64
-}
-
-// KeyEvent is a record type
-type KeyEvent struct {
-	Key  int64
-	Kind string
-}
-
-// StructureTypeKind discriminates between variants of StructureType
-type StructureTypeKind int
-
-const (
-	StructureTypeKindStructureHouse StructureTypeKind = iota
-	StructureTypeKindStructureFarm
-	StructureTypeKindStructureRoad
-)
-
-// StructureTypeStructureHouse holds data for the StructureHouse variant
-type StructureTypeStructureHouse struct {
-}
-
-// StructureTypeStructureFarm holds data for the StructureFarm variant
-type StructureTypeStructureFarm struct {
-}
-
-// StructureTypeStructureRoad holds data for the StructureRoad variant
-type StructureTypeStructureRoad struct {
-}
-
-// StructureType is a sum type (discriminated union)
-type StructureType struct {
-	Kind           StructureTypeKind
-	StructureHouse *StructureTypeStructureHouse
-	StructureFarm  *StructureTypeStructureFarm
-	StructureRoad  *StructureTypeStructureRoad
-}
-
-// NewStructureTypeStructureHouse creates a new StructureHouse variant
-func NewStructureTypeStructureHouse() *StructureType {
-	return &StructureType{
-		Kind:           StructureTypeKindStructureHouse,
-		StructureHouse: &StructureTypeStructureHouse{},
-	}
-}
-
-// NewStructureTypeStructureFarm creates a new StructureFarm variant
-func NewStructureTypeStructureFarm() *StructureType {
-	return &StructureType{
-		Kind:          StructureTypeKindStructureFarm,
-		StructureFarm: &StructureTypeStructureFarm{},
-	}
-}
-
-// NewStructureTypeStructureRoad creates a new StructureRoad variant
-func NewStructureTypeStructureRoad() *StructureType {
-	return &StructureType{
-		Kind:          StructureTypeKindStructureRoad,
-		StructureRoad: &StructureTypeStructureRoad{},
-	}
-}
-
-// IsStructureHouse returns true if this is a StructureHouse variant
-func (v *StructureType) IsStructureHouse() bool {
-	return v.Kind == StructureTypeKindStructureHouse
-}
-
-// IsStructureFarm returns true if this is a StructureFarm variant
-func (v *StructureType) IsStructureFarm() bool {
-	return v.Kind == StructureTypeKindStructureFarm
-}
-
-// IsStructureRoad returns true if this is a StructureRoad variant
-func (v *StructureType) IsStructureRoad() bool {
-	return v.Kind == StructureTypeKindStructureRoad
-}
-
-// PlayerActionKind discriminates between variants of PlayerAction
-type PlayerActionKind int
-
-const (
-	PlayerActionKindActionNone PlayerActionKind = iota
-	PlayerActionKindActionInspect
-	PlayerActionKindActionBuild
-	PlayerActionKindActionClear
-)
-
-// PlayerActionActionNone holds data for the ActionNone variant
-type PlayerActionActionNone struct {
-}
-
-// PlayerActionActionInspect holds data for the ActionInspect variant
-type PlayerActionActionInspect struct {
-}
-
-// PlayerActionActionBuild holds data for the ActionBuild variant
-type PlayerActionActionBuild struct {
-	Value0 *StructureType
-}
-
-// PlayerActionActionClear holds data for the ActionClear variant
-type PlayerActionActionClear struct {
-}
-
-// PlayerAction is a sum type (discriminated union)
-type PlayerAction struct {
-	Kind          PlayerActionKind
-	ActionNone    *PlayerActionActionNone
-	ActionInspect *PlayerActionActionInspect
-	ActionBuild   *PlayerActionActionBuild
-	ActionClear   *PlayerActionActionClear
-}
-
-// NewPlayerActionActionNone creates a new ActionNone variant
-func NewPlayerActionActionNone() *PlayerAction {
-	return &PlayerAction{
-		Kind:       PlayerActionKindActionNone,
-		ActionNone: &PlayerActionActionNone{},
-	}
-}
-
-// NewPlayerActionActionInspect creates a new ActionInspect variant
-func NewPlayerActionActionInspect() *PlayerAction {
-	return &PlayerAction{
-		Kind:          PlayerActionKindActionInspect,
-		ActionInspect: &PlayerActionActionInspect{},
-	}
-}
-
-// NewPlayerActionActionBuild creates a new ActionBuild variant
-func NewPlayerActionActionBuild(v0 *StructureType) *PlayerAction {
-	return &PlayerAction{
-		Kind:        PlayerActionKindActionBuild,
-		ActionBuild: &PlayerActionActionBuild{Value0: v0},
-	}
-}
-
-// NewPlayerActionActionClear creates a new ActionClear variant
-func NewPlayerActionActionClear() *PlayerAction {
-	return &PlayerAction{
-		Kind:        PlayerActionKindActionClear,
-		ActionClear: &PlayerActionActionClear{},
-	}
-}
-
-// IsActionNone returns true if this is a ActionNone variant
-func (v *PlayerAction) IsActionNone() bool {
-	return v.Kind == PlayerActionKindActionNone
-}
-
-// IsActionInspect returns true if this is a ActionInspect variant
-func (v *PlayerAction) IsActionInspect() bool {
-	return v.Kind == PlayerActionKindActionInspect
-}
-
-// IsActionBuild returns true if this is a ActionBuild variant
-func (v *PlayerAction) IsActionBuild() bool {
-	return v.Kind == PlayerActionKindActionBuild
-}
-
-// IsActionClear returns true if this is a ActionClear variant
-func (v *PlayerAction) IsActionClear() bool {
-	return v.Kind == PlayerActionKindActionClear
-}
-
-// ClickKindKind discriminates between variants of ClickKind
-type ClickKindKind int
-
-const (
-	ClickKindKindClickLeft ClickKindKind = iota
-	ClickKindKindClickRight
-	ClickKindKindClickMiddle
-)
-
-// ClickKindClickLeft holds data for the ClickLeft variant
-type ClickKindClickLeft struct {
-}
-
-// ClickKindClickRight holds data for the ClickRight variant
-type ClickKindClickRight struct {
-}
-
-// ClickKindClickMiddle holds data for the ClickMiddle variant
-type ClickKindClickMiddle struct {
-}
-
-// ClickKind is a sum type (discriminated union)
-type ClickKind struct {
-	Kind        ClickKindKind
-	ClickLeft   *ClickKindClickLeft
-	ClickRight  *ClickKindClickRight
-	ClickMiddle *ClickKindClickMiddle
-}
-
-// NewClickKindClickLeft creates a new ClickLeft variant
-func NewClickKindClickLeft() *ClickKind {
-	return &ClickKind{
-		Kind:      ClickKindKindClickLeft,
-		ClickLeft: &ClickKindClickLeft{},
-	}
-}
-
-// NewClickKindClickRight creates a new ClickRight variant
-func NewClickKindClickRight() *ClickKind {
-	return &ClickKind{
-		Kind:       ClickKindKindClickRight,
-		ClickRight: &ClickKindClickRight{},
-	}
-}
-
-// NewClickKindClickMiddle creates a new ClickMiddle variant
-func NewClickKindClickMiddle() *ClickKind {
-	return &ClickKind{
-		Kind:        ClickKindKindClickMiddle,
-		ClickMiddle: &ClickKindClickMiddle{},
-	}
-}
-
-// IsClickLeft returns true if this is a ClickLeft variant
-func (v *ClickKind) IsClickLeft() bool {
-	return v.Kind == ClickKindKindClickLeft
-}
-
-// IsClickRight returns true if this is a ClickRight variant
-func (v *ClickKind) IsClickRight() bool {
-	return v.Kind == ClickKindKindClickRight
-}
-
-// IsClickMiddle returns true if this is a ClickMiddle variant
-func (v *ClickKind) IsClickMiddle() bool {
-	return v.Kind == ClickKindKindClickMiddle
-}
-
-// FlightInput is a record type
-type FlightInput struct {
-	W     bool
-	A     bool
-	S     bool
-	D     bool
-	Up    bool
-	Down  bool
-	Left  bool
-	Right bool
-	Shift bool
-}
-
-// FrameInput is a record type
-type FrameInput struct {
-	Mouse            *MouseState
-	Keys             []*KeyEvent
-	Flight           *FlightInput
-	ClickedThisFrame bool
-	WorldMouseX      float64
-	WorldMouseY      float64
-	TileMouseX       int64
-	TileMouseY       int64
-	ActionRequested  *PlayerAction
-	TestMode         bool
-}
-
-// UiKindKind discriminates between variants of UiKind
-type UiKindKind int
-
-const (
-	UiKindKindUiPanel UiKindKind = iota
-	UiKindKindUiButton
-	UiKindKindUiLabel
-	UiKindKindUiPortrait
-	UiKindKindUiSlider
-	UiKindKindUiProgressBar
-)
-
-// UiKindUiPanel holds data for the UiPanel variant
-type UiKindUiPanel struct {
-}
-
-// UiKindUiButton holds data for the UiButton variant
-type UiKindUiButton struct {
-}
-
-// UiKindUiLabel holds data for the UiLabel variant
-type UiKindUiLabel struct {
-}
-
-// UiKindUiPortrait holds data for the UiPortrait variant
-type UiKindUiPortrait struct {
-}
-
-// UiKindUiSlider holds data for the UiSlider variant
-type UiKindUiSlider struct {
-}
-
-// UiKindUiProgressBar holds data for the UiProgressBar variant
-type UiKindUiProgressBar struct {
-}
-
-// UiKind is a sum type (discriminated union)
-type UiKind struct {
-	Kind          UiKindKind
-	UiPanel       *UiKindUiPanel
-	UiButton      *UiKindUiButton
-	UiLabel       *UiKindUiLabel
-	UiPortrait    *UiKindUiPortrait
-	UiSlider      *UiKindUiSlider
-	UiProgressBar *UiKindUiProgressBar
-}
-
-// NewUiKindUiPanel creates a new UiPanel variant
-func NewUiKindUiPanel() *UiKind {
-	return &UiKind{
-		Kind:    UiKindKindUiPanel,
-		UiPanel: &UiKindUiPanel{},
-	}
-}
-
-// NewUiKindUiButton creates a new UiButton variant
-func NewUiKindUiButton() *UiKind {
-	return &UiKind{
-		Kind:     UiKindKindUiButton,
-		UiButton: &UiKindUiButton{},
-	}
-}
-
-// NewUiKindUiLabel creates a new UiLabel variant
-func NewUiKindUiLabel() *UiKind {
-	return &UiKind{
-		Kind:    UiKindKindUiLabel,
-		UiLabel: &UiKindUiLabel{},
-	}
-}
-
-// NewUiKindUiPortrait creates a new UiPortrait variant
-func NewUiKindUiPortrait() *UiKind {
-	return &UiKind{
-		Kind:       UiKindKindUiPortrait,
-		UiPortrait: &UiKindUiPortrait{},
-	}
-}
-
-// NewUiKindUiSlider creates a new UiSlider variant
-func NewUiKindUiSlider() *UiKind {
-	return &UiKind{
-		Kind:     UiKindKindUiSlider,
-		UiSlider: &UiKindUiSlider{},
-	}
-}
-
-// NewUiKindUiProgressBar creates a new UiProgressBar variant
-func NewUiKindUiProgressBar() *UiKind {
-	return &UiKind{
-		Kind:          UiKindKindUiProgressBar,
-		UiProgressBar: &UiKindUiProgressBar{},
-	}
-}
-
-// IsUiPanel returns true if this is a UiPanel variant
-func (v *UiKind) IsUiPanel() bool {
-	return v.Kind == UiKindKindUiPanel
-}
-
-// IsUiButton returns true if this is a UiButton variant
-func (v *UiKind) IsUiButton() bool {
-	return v.Kind == UiKindKindUiButton
-}
-
-// IsUiLabel returns true if this is a UiLabel variant
-func (v *UiKind) IsUiLabel() bool {
-	return v.Kind == UiKindKindUiLabel
-}
-
-// IsUiPortrait returns true if this is a UiPortrait variant
-func (v *UiKind) IsUiPortrait() bool {
-	return v.Kind == UiKindKindUiPortrait
-}
-
-// IsUiSlider returns true if this is a UiSlider variant
-func (v *UiKind) IsUiSlider() bool {
-	return v.Kind == UiKindKindUiSlider
-}
-
-// IsUiProgressBar returns true if this is a UiProgressBar variant
-func (v *UiKind) IsUiProgressBar() bool {
-	return v.Kind == UiKindKindUiProgressBar
-}
-
-// DrawCmdKind discriminates between variants of DrawCmd
-type DrawCmdKind int
-
-const (
-	DrawCmdKindSprite DrawCmdKind = iota
-	DrawCmdKindRect
-	DrawCmdKindText
-	DrawCmdKindIsoTile
-	DrawCmdKindIsoEntity
-	DrawCmdKindIsoTileAlpha
-	DrawCmdKindUi
-	DrawCmdKindLine
-	DrawCmdKindTextWrapped
-	DrawCmdKindCircle
-	DrawCmdKindRectScreen
-	DrawCmdKindRectRGBA
-	DrawCmdKindCircleRGBA
-	DrawCmdKindGalaxyBg
-	DrawCmdKindStar
-	DrawCmdKindSpaceBg
-	DrawCmdKindSpireBg
-	DrawCmdKindPlanets3D
-	DrawCmdKindBubbleArc
-	DrawCmdKindTexturedPlanet
-	DrawCmdKindMarker
-	DrawCmdKindViewport
-)
-
-// DrawCmdSprite holds data for the Sprite variant
-type DrawCmdSprite struct {
-	Id int64
-	X  float64
-	Y  float64
-	Z  int64
-}
-
-// DrawCmdRect holds data for the Rect variant
-type DrawCmdRect struct {
-	X     float64
-	Y     float64
-	W     float64
-	H     float64
-	Color int64
-	Z     int64
-}
-
-// DrawCmdText holds data for the Text variant
-type DrawCmdText struct {
-	Text     string
-	X        float64
-	Y        float64
-	FontSize int64
-	Color    int64
-	Z        int64
-}
-
-// DrawCmdIsoTile holds data for the IsoTile variant
-type DrawCmdIsoTile struct {
-	Tile     *Coord
-	Height   int64
-	SpriteId int64
-	Layer    int64
-	Color    int64
-}
-
-// DrawCmdIsoEntity holds data for the IsoEntity variant
-type DrawCmdIsoEntity struct {
-	Id       string
-	Tile     *Coord
-	OffsetX  float64
-	OffsetY  float64
-	Height   int64
-	SpriteId int64
-	Layer    int64
-}
-
-// DrawCmdIsoTileAlpha holds data for the IsoTileAlpha variant
-type DrawCmdIsoTileAlpha struct {
-	Tile     *Coord
-	Height   int64
-	SpriteId int64
-	Layer    int64
-	Alpha    float64
-	TintRgba int64
-}
-
-// DrawCmdUi holds data for the Ui variant
-type DrawCmdUi struct {
-	Id       string
-	Kind     *UiKind
-	X        float64
-	Y        float64
-	W        float64
-	H        float64
-	Text     string
-	SpriteId int64
-	Z        int64
-	Color    int64
-	Value    float64
-}
-
-// DrawCmdLine holds data for the Line variant
-type DrawCmdLine struct {
-	X1    float64
-	Y1    float64
-	X2    float64
-	Y2    float64
-	Color int64
-	Width float64
-	Z     int64
-}
-
-// DrawCmdTextWrapped holds data for the TextWrapped variant
-type DrawCmdTextWrapped struct {
-	Text     string
-	X        float64
-	Y        float64
-	MaxWidth float64
-	FontSize int64
-	Color    int64
-	Z        int64
-}
-
-// DrawCmdCircle holds data for the Circle variant
-type DrawCmdCircle struct {
-	X      float64
-	Y      float64
-	Radius float64
-	Color  int64
-	Filled bool
-	Z      int64
-}
-
-// DrawCmdRectScreen holds data for the RectScreen variant
-type DrawCmdRectScreen struct {
-	X     float64
-	Y     float64
-	W     float64
-	H     float64
-	Color int64
-	Z     int64
-}
-
-// DrawCmdRectRGBA holds data for the RectRGBA variant
-type DrawCmdRectRGBA struct {
-	X    float64
-	Y    float64
-	W    float64
-	H    float64
-	Rgba int64
-	Z    int64
-}
-
-// DrawCmdCircleRGBA holds data for the CircleRGBA variant
-type DrawCmdCircleRGBA struct {
-	X      float64
-	Y      float64
-	Radius float64
-	Rgba   int64
-	Filled bool
-	Z      int64
-}
-
-// DrawCmdGalaxyBg holds data for the GalaxyBg variant
-type DrawCmdGalaxyBg struct {
-	Opacity     float64
-	Z           int64
-	SkyViewMode bool
-	ViewLon     float64
-	ViewLat     float64
-	Fov         float64
-}
-
-// DrawCmdStar holds data for the Star variant
-type DrawCmdStar struct {
-	X        float64
-	Y        float64
-	SpriteId int64
-	Scale    float64
-	Alpha    float64
-	Z        int64
-}
-
-// DrawCmdSpaceBg holds data for the SpaceBg variant
-type DrawCmdSpaceBg struct {
-	Z int64
-}
-
-// DrawCmdSpireBg holds data for the SpireBg variant
-type DrawCmdSpireBg struct {
-	Z int64
-}
-
-// DrawCmdPlanets3D holds data for the Planets3D variant
-type DrawCmdPlanets3D struct {
-	Z int64
-}
-
-// DrawCmdBubbleArc holds data for the BubbleArc variant
-type DrawCmdBubbleArc struct {
-	Z int64
-}
-
-// DrawCmdTexturedPlanet holds data for the TexturedPlanet variant
-type DrawCmdTexturedPlanet struct {
-	Name     string
-	X        float64
-	Y        float64
-	Radius   float64
-	Rotation float64
-	HasRings bool
-	RingRgba int64
-	Z        int64
-}
-
-// DrawCmdMarker holds data for the Marker variant
-type DrawCmdMarker struct {
-	X             float64
-	Y             float64
-	W             float64
-	H             float64
-	Rgba          int64
-	ParallaxLayer int64
-	Z             int64
-}
-
-// DrawCmdViewport holds data for the Viewport variant
-type DrawCmdViewport struct {
-	Id            string
-	ShapeType     int64
-	ShapeParams   []float64
-	ContentType   int64
-	ContentParams []float64
-	EffectType    int64
-	EffectParams  []float64
-	Layer         int64
-	EdgeBlend     float64
-	Opacity       float64
-	ScreenX       float64
-	ScreenY       float64
-	Z             int64
-}
-
-// DrawCmd is a sum type (discriminated union)
-type DrawCmd struct {
-	Kind           DrawCmdKind
-	Sprite         *DrawCmdSprite
-	Rect           *DrawCmdRect
-	Text           *DrawCmdText
-	IsoTile        *DrawCmdIsoTile
-	IsoEntity      *DrawCmdIsoEntity
-	IsoTileAlpha   *DrawCmdIsoTileAlpha
-	Ui             *DrawCmdUi
-	Line           *DrawCmdLine
-	TextWrapped    *DrawCmdTextWrapped
-	Circle         *DrawCmdCircle
-	RectScreen     *DrawCmdRectScreen
-	RectRGBA       *DrawCmdRectRGBA
-	CircleRGBA     *DrawCmdCircleRGBA
-	GalaxyBg       *DrawCmdGalaxyBg
-	Star           *DrawCmdStar
-	SpaceBg        *DrawCmdSpaceBg
-	SpireBg        *DrawCmdSpireBg
-	Planets3D      *DrawCmdPlanets3D
-	BubbleArc      *DrawCmdBubbleArc
-	TexturedPlanet *DrawCmdTexturedPlanet
-	Marker         *DrawCmdMarker
-	Viewport       *DrawCmdViewport
-}
-
-// NewDrawCmdSprite creates a new Sprite variant
-func NewDrawCmdSprite(id int64, x float64, y float64, z int64) *DrawCmd {
-	return &DrawCmd{
-		Kind:   DrawCmdKindSprite,
-		Sprite: &DrawCmdSprite{Id: id, X: x, Y: y, Z: z},
-	}
-}
-
-// NewDrawCmdRect creates a new Rect variant
-func NewDrawCmdRect(x float64, y float64, w float64, h float64, color int64, z int64) *DrawCmd {
-	return &DrawCmd{
-		Kind: DrawCmdKindRect,
-		Rect: &DrawCmdRect{X: x, Y: y, W: w, H: h, Color: color, Z: z},
-	}
-}
-
-// NewDrawCmdText creates a new Text variant
-func NewDrawCmdText(text string, x float64, y float64, fontSize int64, color int64, z int64) *DrawCmd {
-	return &DrawCmd{
-		Kind: DrawCmdKindText,
-		Text: &DrawCmdText{Text: text, X: x, Y: y, FontSize: fontSize, Color: color, Z: z},
-	}
-}
-
-// NewDrawCmdIsoTile creates a new IsoTile variant
-func NewDrawCmdIsoTile(tile *Coord, height int64, spriteId int64, layer int64, color int64) *DrawCmd {
-	return &DrawCmd{
-		Kind:    DrawCmdKindIsoTile,
-		IsoTile: &DrawCmdIsoTile{Tile: tile, Height: height, SpriteId: spriteId, Layer: layer, Color: color},
-	}
-}
-
-// NewDrawCmdIsoEntity creates a new IsoEntity variant
-func NewDrawCmdIsoEntity(id string, tile *Coord, offsetX float64, offsetY float64, height int64, spriteId int64, layer int64) *DrawCmd {
-	return &DrawCmd{
-		Kind:      DrawCmdKindIsoEntity,
-		IsoEntity: &DrawCmdIsoEntity{Id: id, Tile: tile, OffsetX: offsetX, OffsetY: offsetY, Height: height, SpriteId: spriteId, Layer: layer},
-	}
-}
-
-// NewDrawCmdIsoTileAlpha creates a new IsoTileAlpha variant
-func NewDrawCmdIsoTileAlpha(tile *Coord, height int64, spriteId int64, layer int64, alpha float64, tintRgba int64) *DrawCmd {
-	return &DrawCmd{
-		Kind:         DrawCmdKindIsoTileAlpha,
-		IsoTileAlpha: &DrawCmdIsoTileAlpha{Tile: tile, Height: height, SpriteId: spriteId, Layer: layer, Alpha: alpha, TintRgba: tintRgba},
-	}
-}
-
-// NewDrawCmdUi creates a new Ui variant
-func NewDrawCmdUi(id string, kind *UiKind, x float64, y float64, w float64, h float64, text string, spriteId int64, z int64, color int64, value float64) *DrawCmd {
-	return &DrawCmd{
-		Kind: DrawCmdKindUi,
-		Ui:   &DrawCmdUi{Id: id, Kind: kind, X: x, Y: y, W: w, H: h, Text: text, SpriteId: spriteId, Z: z, Color: color, Value: value},
-	}
-}
-
-// NewDrawCmdLine creates a new Line variant
-func NewDrawCmdLine(x1 float64, y1 float64, x2 float64, y2 float64, color int64, width float64, z int64) *DrawCmd {
-	return &DrawCmd{
-		Kind: DrawCmdKindLine,
-		Line: &DrawCmdLine{X1: x1, Y1: y1, X2: x2, Y2: y2, Color: color, Width: width, Z: z},
-	}
-}
-
-// NewDrawCmdTextWrapped creates a new TextWrapped variant
-func NewDrawCmdTextWrapped(text string, x float64, y float64, maxWidth float64, fontSize int64, color int64, z int64) *DrawCmd {
-	return &DrawCmd{
-		Kind:        DrawCmdKindTextWrapped,
-		TextWrapped: &DrawCmdTextWrapped{Text: text, X: x, Y: y, MaxWidth: maxWidth, FontSize: fontSize, Color: color, Z: z},
-	}
-}
-
-// NewDrawCmdCircle creates a new Circle variant
-func NewDrawCmdCircle(x float64, y float64, radius float64, color int64, filled bool, z int64) *DrawCmd {
-	return &DrawCmd{
-		Kind:   DrawCmdKindCircle,
-		Circle: &DrawCmdCircle{X: x, Y: y, Radius: radius, Color: color, Filled: filled, Z: z},
-	}
-}
-
-// NewDrawCmdRectScreen creates a new RectScreen variant
-func NewDrawCmdRectScreen(x float64, y float64, w float64, h float64, color int64, z int64) *DrawCmd {
-	return &DrawCmd{
-		Kind:       DrawCmdKindRectScreen,
-		RectScreen: &DrawCmdRectScreen{X: x, Y: y, W: w, H: h, Color: color, Z: z},
-	}
-}
-
-// NewDrawCmdRectRGBA creates a new RectRGBA variant
-func NewDrawCmdRectRGBA(x float64, y float64, w float64, h float64, rgba int64, z int64) *DrawCmd {
-	return &DrawCmd{
-		Kind:     DrawCmdKindRectRGBA,
-		RectRGBA: &DrawCmdRectRGBA{X: x, Y: y, W: w, H: h, Rgba: rgba, Z: z},
-	}
-}
-
-// NewDrawCmdCircleRGBA creates a new CircleRGBA variant
-func NewDrawCmdCircleRGBA(x float64, y float64, radius float64, rgba int64, filled bool, z int64) *DrawCmd {
-	return &DrawCmd{
-		Kind:       DrawCmdKindCircleRGBA,
-		CircleRGBA: &DrawCmdCircleRGBA{X: x, Y: y, Radius: radius, Rgba: rgba, Filled: filled, Z: z},
-	}
-}
-
-// NewDrawCmdGalaxyBg creates a new GalaxyBg variant
-func NewDrawCmdGalaxyBg(opacity float64, z int64, skyViewMode bool, viewLon float64, viewLat float64, fov float64) *DrawCmd {
-	return &DrawCmd{
-		Kind:     DrawCmdKindGalaxyBg,
-		GalaxyBg: &DrawCmdGalaxyBg{Opacity: opacity, Z: z, SkyViewMode: skyViewMode, ViewLon: viewLon, ViewLat: viewLat, Fov: fov},
-	}
-}
-
-// NewDrawCmdStar creates a new Star variant
-func NewDrawCmdStar(x float64, y float64, spriteId int64, scale float64, alpha float64, z int64) *DrawCmd {
-	return &DrawCmd{
-		Kind: DrawCmdKindStar,
-		Star: &DrawCmdStar{X: x, Y: y, SpriteId: spriteId, Scale: scale, Alpha: alpha, Z: z},
-	}
-}
-
-// NewDrawCmdSpaceBg creates a new SpaceBg variant
-func NewDrawCmdSpaceBg(z int64) *DrawCmd {
-	return &DrawCmd{
-		Kind:    DrawCmdKindSpaceBg,
-		SpaceBg: &DrawCmdSpaceBg{Z: z},
-	}
-}
-
-// NewDrawCmdSpireBg creates a new SpireBg variant
-func NewDrawCmdSpireBg(z int64) *DrawCmd {
-	return &DrawCmd{
-		Kind:    DrawCmdKindSpireBg,
-		SpireBg: &DrawCmdSpireBg{Z: z},
-	}
-}
-
-// NewDrawCmdPlanets3D creates a new Planets3D variant
-func NewDrawCmdPlanets3D(z int64) *DrawCmd {
-	return &DrawCmd{
-		Kind:      DrawCmdKindPlanets3D,
-		Planets3D: &DrawCmdPlanets3D{Z: z},
-	}
-}
-
-// NewDrawCmdBubbleArc creates a new BubbleArc variant
-func NewDrawCmdBubbleArc(z int64) *DrawCmd {
-	return &DrawCmd{
-		Kind:      DrawCmdKindBubbleArc,
-		BubbleArc: &DrawCmdBubbleArc{Z: z},
-	}
-}
-
-// NewDrawCmdTexturedPlanet creates a new TexturedPlanet variant
-func NewDrawCmdTexturedPlanet(name string, x float64, y float64, radius float64, rotation float64, hasRings bool, ringRgba int64, z int64) *DrawCmd {
-	return &DrawCmd{
-		Kind:           DrawCmdKindTexturedPlanet,
-		TexturedPlanet: &DrawCmdTexturedPlanet{Name: name, X: x, Y: y, Radius: radius, Rotation: rotation, HasRings: hasRings, RingRgba: ringRgba, Z: z},
-	}
-}
-
-// NewDrawCmdMarker creates a new Marker variant
-func NewDrawCmdMarker(x float64, y float64, w float64, h float64, rgba int64, parallaxLayer int64, z int64) *DrawCmd {
-	return &DrawCmd{
-		Kind:   DrawCmdKindMarker,
-		Marker: &DrawCmdMarker{X: x, Y: y, W: w, H: h, Rgba: rgba, ParallaxLayer: parallaxLayer, Z: z},
-	}
-}
-
-// NewDrawCmdViewport creates a new Viewport variant
-func NewDrawCmdViewport(id string, shapeType int64, shapeParams []float64, contentType int64, contentParams []float64, effectType int64, effectParams []float64, layer int64, edgeBlend float64, opacity float64, screenX float64, screenY float64, z int64) *DrawCmd {
-	return &DrawCmd{
-		Kind:     DrawCmdKindViewport,
-		Viewport: &DrawCmdViewport{Id: id, ShapeType: shapeType, ShapeParams: shapeParams, ContentType: contentType, ContentParams: contentParams, EffectType: effectType, EffectParams: effectParams, Layer: layer, EdgeBlend: edgeBlend, Opacity: opacity, ScreenX: screenX, ScreenY: screenY, Z: z},
-	}
-}
-
-// IsSprite returns true if this is a Sprite variant
-func (v *DrawCmd) IsSprite() bool {
-	return v.Kind == DrawCmdKindSprite
-}
-
-// IsRect returns true if this is a Rect variant
-func (v *DrawCmd) IsRect() bool {
-	return v.Kind == DrawCmdKindRect
-}
-
-// IsText returns true if this is a Text variant
-func (v *DrawCmd) IsText() bool {
-	return v.Kind == DrawCmdKindText
-}
-
-// IsIsoTile returns true if this is a IsoTile variant
-func (v *DrawCmd) IsIsoTile() bool {
-	return v.Kind == DrawCmdKindIsoTile
-}
-
-// IsIsoEntity returns true if this is a IsoEntity variant
-func (v *DrawCmd) IsIsoEntity() bool {
-	return v.Kind == DrawCmdKindIsoEntity
-}
-
-// IsIsoTileAlpha returns true if this is a IsoTileAlpha variant
-func (v *DrawCmd) IsIsoTileAlpha() bool {
-	return v.Kind == DrawCmdKindIsoTileAlpha
-}
-
-// IsUi returns true if this is a Ui variant
-func (v *DrawCmd) IsUi() bool {
-	return v.Kind == DrawCmdKindUi
-}
-
-// IsLine returns true if this is a Line variant
-func (v *DrawCmd) IsLine() bool {
-	return v.Kind == DrawCmdKindLine
-}
-
-// IsTextWrapped returns true if this is a TextWrapped variant
-func (v *DrawCmd) IsTextWrapped() bool {
-	return v.Kind == DrawCmdKindTextWrapped
-}
-
-// IsCircle returns true if this is a Circle variant
-func (v *DrawCmd) IsCircle() bool {
-	return v.Kind == DrawCmdKindCircle
-}
-
-// IsRectScreen returns true if this is a RectScreen variant
-func (v *DrawCmd) IsRectScreen() bool {
-	return v.Kind == DrawCmdKindRectScreen
-}
-
-// IsRectRGBA returns true if this is a RectRGBA variant
-func (v *DrawCmd) IsRectRGBA() bool {
-	return v.Kind == DrawCmdKindRectRGBA
-}
-
-// IsCircleRGBA returns true if this is a CircleRGBA variant
-func (v *DrawCmd) IsCircleRGBA() bool {
-	return v.Kind == DrawCmdKindCircleRGBA
-}
-
-// IsGalaxyBg returns true if this is a GalaxyBg variant
-func (v *DrawCmd) IsGalaxyBg() bool {
-	return v.Kind == DrawCmdKindGalaxyBg
-}
-
-// IsStar returns true if this is a Star variant
-func (v *DrawCmd) IsStar() bool {
-	return v.Kind == DrawCmdKindStar
-}
-
-// IsSpaceBg returns true if this is a SpaceBg variant
-func (v *DrawCmd) IsSpaceBg() bool {
-	return v.Kind == DrawCmdKindSpaceBg
-}
-
-// IsSpireBg returns true if this is a SpireBg variant
-func (v *DrawCmd) IsSpireBg() bool {
-	return v.Kind == DrawCmdKindSpireBg
-}
-
-// IsPlanets3D returns true if this is a Planets3D variant
-func (v *DrawCmd) IsPlanets3D() bool {
-	return v.Kind == DrawCmdKindPlanets3D
-}
-
-// IsBubbleArc returns true if this is a BubbleArc variant
-func (v *DrawCmd) IsBubbleArc() bool {
-	return v.Kind == DrawCmdKindBubbleArc
-}
-
-// IsTexturedPlanet returns true if this is a TexturedPlanet variant
-func (v *DrawCmd) IsTexturedPlanet() bool {
-	return v.Kind == DrawCmdKindTexturedPlanet
-}
-
-// IsMarker returns true if this is a Marker variant
-func (v *DrawCmd) IsMarker() bool {
-	return v.Kind == DrawCmdKindMarker
-}
-
-// IsViewport returns true if this is a Viewport variant
-func (v *DrawCmd) IsViewport() bool {
-	return v.Kind == DrawCmdKindViewport
-}
-
-// SRContext is a record type
-type SRContext struct {
-	Enabled   bool
-	Velocity  float64
-	Gamma     float64
-	ViewAngle float64
-}
-
-// GRContext is a record type
-type GRContext struct {
-	Enabled    bool
-	CenterX    float64
-	CenterY    float64
-	Phi        float64
-	Rs         float64
-	ObjectType string
-}
-
-// RelativityContext is a record type
-type RelativityContext struct {
-	Sr *SRContext
-	Gr *GRContext
-}
-
-// RGBColor is a record type
-type RGBColor struct {
-	R float64
-	G float64
-	B float64
-}
-
-// LightSource is a record type
-type LightSource struct {
-	Id     string
-	X      float64
-	Y      float64
-	Z      float64
-	Energy float64
-	Color  *RGBColor
-	Range  float64
-}
-
-// AmbientSettings is a record type
-type AmbientSettings struct {
-	Energy float64
-	Color  *RGBColor
-}
-
-// LightingContext is a record type
-type LightingContext struct {
-	Enabled         bool
-	Ambient         *AmbientSettings
-	Lights          []*LightSource
-	LightMultiplier float64
-}
-
-// LODConfig is a record type
-type LODConfig struct {
-	Enabled         bool
-	TransitionTime  float64
-	Hysteresis      float64
-	Full3DPixels    float64
-	BillboardPixels float64
-	CirclePixels    float64
-	PointPixels     float64
-	Max3DObjects    int64
-}
-
-// FrameOutput is a record type
-type FrameOutput struct {
-	Draw       []*DrawCmd
-	Sounds     []int64
-	Debug      []string
-	Camera     *Camera
-	Relativity *RelativityContext
-	Lighting   *LightingContext
-	Lod        *LODConfig
-}
-
-// OptionKind discriminates between variants of Option
-type OptionKind int
-
-const (
-	OptionKindSome OptionKind = iota
-	OptionKindNone
-)
-
-// OptionSome holds data for the Some variant
-type OptionSome struct {
-	Value0 interface{}
-}
-
-// OptionNone holds data for the None variant
-type OptionNone struct {
-}
-
-// Option is a sum type (discriminated union)
-type Option struct {
-	Kind OptionKind
-	Some *OptionSome
-	None *OptionNone
-}
-
-// NewOptionSome creates a new Some variant
-func NewOptionSome(v0 interface{}) *Option {
-	return &Option{
-		Kind: OptionKindSome,
-		Some: &OptionSome{Value0: v0},
-	}
-}
-
-// NewOptionNone creates a new None variant
-func NewOptionNone() *Option {
-	return &Option{
-		Kind: OptionKindNone,
-		None: &OptionNone{},
-	}
-}
-
-// IsSome returns true if this is a Some variant
-func (v *Option) IsSome() bool {
-	return v.Kind == OptionKindSome
-}
-
-// IsNone returns true if this is a None variant
-func (v *Option) IsNone() bool {
-	return v.Kind == OptionKindNone
-}
-
-// DirectionKind discriminates between variants of Direction
-type DirectionKind int
-
-const (
-	DirectionKindNorth DirectionKind = iota
-	DirectionKindSouth
-	DirectionKindEast
-	DirectionKindWest
-)
-
-// DirectionNorth holds data for the North variant
-type DirectionNorth struct {
-}
-
-// DirectionSouth holds data for the South variant
-type DirectionSouth struct {
-}
-
-// DirectionEast holds data for the East variant
-type DirectionEast struct {
-}
-
-// DirectionWest holds data for the West variant
-type DirectionWest struct {
-}
-
-// Direction is a sum type (discriminated union)
-type Direction struct {
-	Kind  DirectionKind
-	North *DirectionNorth
-	South *DirectionSouth
-	East  *DirectionEast
-	West  *DirectionWest
-}
-
-// NewDirectionNorth creates a new North variant
-func NewDirectionNorth() *Direction {
-	return &Direction{
-		Kind:  DirectionKindNorth,
-		North: &DirectionNorth{},
-	}
-}
-
-// NewDirectionSouth creates a new South variant
-func NewDirectionSouth() *Direction {
-	return &Direction{
-		Kind:  DirectionKindSouth,
-		South: &DirectionSouth{},
-	}
-}
-
-// NewDirectionEast creates a new East variant
-func NewDirectionEast() *Direction {
-	return &Direction{
-		Kind: DirectionKindEast,
-		East: &DirectionEast{},
-	}
-}
-
-// NewDirectionWest creates a new West variant
-func NewDirectionWest() *Direction {
-	return &Direction{
-		Kind: DirectionKindWest,
-		West: &DirectionWest{},
-	}
-}
-
-// IsNorth returns true if this is a North variant
-func (v *Direction) IsNorth() bool {
-	return v.Kind == DirectionKindNorth
-}
-
-// IsSouth returns true if this is a South variant
-func (v *Direction) IsSouth() bool {
-	return v.Kind == DirectionKindSouth
-}
-
-// IsEast returns true if this is a East variant
-func (v *Direction) IsEast() bool {
-	return v.Kind == DirectionKindEast
-}
-
-// IsWest returns true if this is a West variant
-func (v *Direction) IsWest() bool {
-	return v.Kind == DirectionKindWest
-}
-
-// MovementPatternKind discriminates between variants of MovementPattern
-type MovementPatternKind int
-
-const (
-	MovementPatternKindPatternStatic MovementPatternKind = iota
-	MovementPatternKindPatternRandomWalk
-	MovementPatternKindPatternPatrol
-)
-
-// MovementPatternPatternStatic holds data for the PatternStatic variant
-type MovementPatternPatternStatic struct {
-}
-
-// MovementPatternPatternRandomWalk holds data for the PatternRandomWalk variant
-type MovementPatternPatternRandomWalk struct {
-	Value0 int64
-}
-
-// MovementPatternPatternPatrol holds data for the PatternPatrol variant
-type MovementPatternPatternPatrol struct {
-	Value0 []*Direction
-}
-
-// MovementPattern is a sum type (discriminated union)
-type MovementPattern struct {
-	Kind              MovementPatternKind
-	PatternStatic     *MovementPatternPatternStatic
-	PatternRandomWalk *MovementPatternPatternRandomWalk
-	PatternPatrol     *MovementPatternPatternPatrol
-}
-
-// NewMovementPatternPatternStatic creates a new PatternStatic variant
-func NewMovementPatternPatternStatic() *MovementPattern {
-	return &MovementPattern{
-		Kind:          MovementPatternKindPatternStatic,
-		PatternStatic: &MovementPatternPatternStatic{},
-	}
-}
-
-// NewMovementPatternPatternRandomWalk creates a new PatternRandomWalk variant
-func NewMovementPatternPatternRandomWalk(v0 int64) *MovementPattern {
-	return &MovementPattern{
-		Kind:              MovementPatternKindPatternRandomWalk,
-		PatternRandomWalk: &MovementPatternPatternRandomWalk{Value0: v0},
-	}
-}
-
-// NewMovementPatternPatternPatrol creates a new PatternPatrol variant
-func NewMovementPatternPatternPatrol(v0 []*Direction) *MovementPattern {
-	return &MovementPattern{
-		Kind:          MovementPatternKindPatternPatrol,
-		PatternPatrol: &MovementPatternPatternPatrol{Value0: v0},
-	}
-}
-
-// IsPatternStatic returns true if this is a PatternStatic variant
-func (v *MovementPattern) IsPatternStatic() bool {
-	return v.Kind == MovementPatternKindPatternStatic
-}
-
-// IsPatternRandomWalk returns true if this is a PatternRandomWalk variant
-func (v *MovementPattern) IsPatternRandomWalk() bool {
-	return v.Kind == MovementPatternKindPatternRandomWalk
-}
-
-// IsPatternPatrol returns true if this is a PatternPatrol variant
-func (v *MovementPattern) IsPatternPatrol() bool {
-	return v.Kind == MovementPatternKindPatternPatrol
-}
-
-// NPC is a record type
-type NPC struct {
-	Id          int64
-	Pos         *Coord
-	Pattern     *MovementPattern
-	MoveCounter int64
-	PatrolIndex int64
-}
-
 // Color is a record type
 type Color struct {
 	R int64
@@ -2503,6 +720,1125 @@ type StarSystem struct {
 	Planets  []*CelestialPlanet
 }
 
+// OptionKind discriminates between variants of Option
+type OptionKind int
+
+const (
+	OptionKindSome OptionKind = iota
+	OptionKindNone
+)
+
+// OptionSome holds data for the Some variant
+type OptionSome struct {
+	Value0 interface{}
+}
+
+// OptionNone holds data for the None variant
+type OptionNone struct {
+}
+
+// Option is a sum type (discriminated union)
+type Option struct {
+	Kind OptionKind
+	Some *OptionSome
+	None *OptionNone
+}
+
+// NewOptionSome creates a new Some variant
+func NewOptionSome(v0 interface{}) *Option {
+	return &Option{
+		Kind: OptionKindSome,
+		Some: &OptionSome{Value0: v0},
+	}
+}
+
+// NewOptionNone creates a new None variant
+func NewOptionNone() *Option {
+	return &Option{
+		Kind: OptionKindNone,
+		None: &OptionNone{},
+	}
+}
+
+// IsSome returns true if this is a Some variant
+func (v *Option) IsSome() bool {
+	return v.Kind == OptionKindSome
+}
+
+// IsNone returns true if this is a None variant
+func (v *Option) IsNone() bool {
+	return v.Kind == OptionKindNone
+}
+
+// Coord is a record type
+type Coord struct {
+	X int64
+	Y int64
+}
+
+// Camera is a record type
+type Camera struct {
+	X    float64
+	Y    float64
+	Zoom float64
+}
+
+// MouseState is a record type
+type MouseState struct {
+	X       float64
+	Y       float64
+	Buttons []int64
+}
+
+// KeyEvent is a record type
+type KeyEvent struct {
+	Key  int64
+	Kind string
+}
+
+// StructureTypeKind discriminates between variants of StructureType
+type StructureTypeKind int
+
+const (
+	StructureTypeKindStructureHouse StructureTypeKind = iota
+	StructureTypeKindStructureFarm
+	StructureTypeKindStructureRoad
+)
+
+// StructureTypeStructureHouse holds data for the StructureHouse variant
+type StructureTypeStructureHouse struct {
+}
+
+// StructureTypeStructureFarm holds data for the StructureFarm variant
+type StructureTypeStructureFarm struct {
+}
+
+// StructureTypeStructureRoad holds data for the StructureRoad variant
+type StructureTypeStructureRoad struct {
+}
+
+// StructureType is a sum type (discriminated union)
+type StructureType struct {
+	Kind           StructureTypeKind
+	StructureHouse *StructureTypeStructureHouse
+	StructureFarm  *StructureTypeStructureFarm
+	StructureRoad  *StructureTypeStructureRoad
+}
+
+// NewStructureTypeStructureHouse creates a new StructureHouse variant
+func NewStructureTypeStructureHouse() *StructureType {
+	return &StructureType{
+		Kind:           StructureTypeKindStructureHouse,
+		StructureHouse: &StructureTypeStructureHouse{},
+	}
+}
+
+// NewStructureTypeStructureFarm creates a new StructureFarm variant
+func NewStructureTypeStructureFarm() *StructureType {
+	return &StructureType{
+		Kind:          StructureTypeKindStructureFarm,
+		StructureFarm: &StructureTypeStructureFarm{},
+	}
+}
+
+// NewStructureTypeStructureRoad creates a new StructureRoad variant
+func NewStructureTypeStructureRoad() *StructureType {
+	return &StructureType{
+		Kind:          StructureTypeKindStructureRoad,
+		StructureRoad: &StructureTypeStructureRoad{},
+	}
+}
+
+// IsStructureHouse returns true if this is a StructureHouse variant
+func (v *StructureType) IsStructureHouse() bool {
+	return v.Kind == StructureTypeKindStructureHouse
+}
+
+// IsStructureFarm returns true if this is a StructureFarm variant
+func (v *StructureType) IsStructureFarm() bool {
+	return v.Kind == StructureTypeKindStructureFarm
+}
+
+// IsStructureRoad returns true if this is a StructureRoad variant
+func (v *StructureType) IsStructureRoad() bool {
+	return v.Kind == StructureTypeKindStructureRoad
+}
+
+// PlayerActionKind discriminates between variants of PlayerAction
+type PlayerActionKind int
+
+const (
+	PlayerActionKindActionNone PlayerActionKind = iota
+	PlayerActionKindActionInspect
+	PlayerActionKindActionBuild
+	PlayerActionKindActionClear
+)
+
+// PlayerActionActionNone holds data for the ActionNone variant
+type PlayerActionActionNone struct {
+}
+
+// PlayerActionActionInspect holds data for the ActionInspect variant
+type PlayerActionActionInspect struct {
+}
+
+// PlayerActionActionBuild holds data for the ActionBuild variant
+type PlayerActionActionBuild struct {
+	Value0 *StructureType
+}
+
+// PlayerActionActionClear holds data for the ActionClear variant
+type PlayerActionActionClear struct {
+}
+
+// PlayerAction is a sum type (discriminated union)
+type PlayerAction struct {
+	Kind          PlayerActionKind
+	ActionNone    *PlayerActionActionNone
+	ActionInspect *PlayerActionActionInspect
+	ActionBuild   *PlayerActionActionBuild
+	ActionClear   *PlayerActionActionClear
+}
+
+// NewPlayerActionActionNone creates a new ActionNone variant
+func NewPlayerActionActionNone() *PlayerAction {
+	return &PlayerAction{
+		Kind:       PlayerActionKindActionNone,
+		ActionNone: &PlayerActionActionNone{},
+	}
+}
+
+// NewPlayerActionActionInspect creates a new ActionInspect variant
+func NewPlayerActionActionInspect() *PlayerAction {
+	return &PlayerAction{
+		Kind:          PlayerActionKindActionInspect,
+		ActionInspect: &PlayerActionActionInspect{},
+	}
+}
+
+// NewPlayerActionActionBuild creates a new ActionBuild variant
+func NewPlayerActionActionBuild(v0 *StructureType) *PlayerAction {
+	return &PlayerAction{
+		Kind:        PlayerActionKindActionBuild,
+		ActionBuild: &PlayerActionActionBuild{Value0: v0},
+	}
+}
+
+// NewPlayerActionActionClear creates a new ActionClear variant
+func NewPlayerActionActionClear() *PlayerAction {
+	return &PlayerAction{
+		Kind:        PlayerActionKindActionClear,
+		ActionClear: &PlayerActionActionClear{},
+	}
+}
+
+// IsActionNone returns true if this is a ActionNone variant
+func (v *PlayerAction) IsActionNone() bool {
+	return v.Kind == PlayerActionKindActionNone
+}
+
+// IsActionInspect returns true if this is a ActionInspect variant
+func (v *PlayerAction) IsActionInspect() bool {
+	return v.Kind == PlayerActionKindActionInspect
+}
+
+// IsActionBuild returns true if this is a ActionBuild variant
+func (v *PlayerAction) IsActionBuild() bool {
+	return v.Kind == PlayerActionKindActionBuild
+}
+
+// IsActionClear returns true if this is a ActionClear variant
+func (v *PlayerAction) IsActionClear() bool {
+	return v.Kind == PlayerActionKindActionClear
+}
+
+// ClickKindKind discriminates between variants of ClickKind
+type ClickKindKind int
+
+const (
+	ClickKindKindClickLeft ClickKindKind = iota
+	ClickKindKindClickRight
+	ClickKindKindClickMiddle
+)
+
+// ClickKindClickLeft holds data for the ClickLeft variant
+type ClickKindClickLeft struct {
+}
+
+// ClickKindClickRight holds data for the ClickRight variant
+type ClickKindClickRight struct {
+}
+
+// ClickKindClickMiddle holds data for the ClickMiddle variant
+type ClickKindClickMiddle struct {
+}
+
+// ClickKind is a sum type (discriminated union)
+type ClickKind struct {
+	Kind        ClickKindKind
+	ClickLeft   *ClickKindClickLeft
+	ClickRight  *ClickKindClickRight
+	ClickMiddle *ClickKindClickMiddle
+}
+
+// NewClickKindClickLeft creates a new ClickLeft variant
+func NewClickKindClickLeft() *ClickKind {
+	return &ClickKind{
+		Kind:      ClickKindKindClickLeft,
+		ClickLeft: &ClickKindClickLeft{},
+	}
+}
+
+// NewClickKindClickRight creates a new ClickRight variant
+func NewClickKindClickRight() *ClickKind {
+	return &ClickKind{
+		Kind:       ClickKindKindClickRight,
+		ClickRight: &ClickKindClickRight{},
+	}
+}
+
+// NewClickKindClickMiddle creates a new ClickMiddle variant
+func NewClickKindClickMiddle() *ClickKind {
+	return &ClickKind{
+		Kind:        ClickKindKindClickMiddle,
+		ClickMiddle: &ClickKindClickMiddle{},
+	}
+}
+
+// IsClickLeft returns true if this is a ClickLeft variant
+func (v *ClickKind) IsClickLeft() bool {
+	return v.Kind == ClickKindKindClickLeft
+}
+
+// IsClickRight returns true if this is a ClickRight variant
+func (v *ClickKind) IsClickRight() bool {
+	return v.Kind == ClickKindKindClickRight
+}
+
+// IsClickMiddle returns true if this is a ClickMiddle variant
+func (v *ClickKind) IsClickMiddle() bool {
+	return v.Kind == ClickKindKindClickMiddle
+}
+
+// FlightInput is a record type
+type FlightInput struct {
+	W     bool
+	A     bool
+	S     bool
+	D     bool
+	Up    bool
+	Down  bool
+	Left  bool
+	Right bool
+	Shift bool
+}
+
+// FrameInput is a record type
+type FrameInput struct {
+	Mouse            *MouseState
+	Keys             []*KeyEvent
+	Flight           *FlightInput
+	ClickedThisFrame bool
+	WorldMouseX      float64
+	WorldMouseY      float64
+	ActionRequested  *PlayerAction
+	TestMode         bool
+}
+
+// UiKindKind discriminates between variants of UiKind
+type UiKindKind int
+
+const (
+	UiKindKindUiPanel UiKindKind = iota
+	UiKindKindUiButton
+	UiKindKindUiLabel
+	UiKindKindUiPortrait
+	UiKindKindUiSlider
+	UiKindKindUiProgressBar
+)
+
+// UiKindUiPanel holds data for the UiPanel variant
+type UiKindUiPanel struct {
+}
+
+// UiKindUiButton holds data for the UiButton variant
+type UiKindUiButton struct {
+}
+
+// UiKindUiLabel holds data for the UiLabel variant
+type UiKindUiLabel struct {
+}
+
+// UiKindUiPortrait holds data for the UiPortrait variant
+type UiKindUiPortrait struct {
+}
+
+// UiKindUiSlider holds data for the UiSlider variant
+type UiKindUiSlider struct {
+}
+
+// UiKindUiProgressBar holds data for the UiProgressBar variant
+type UiKindUiProgressBar struct {
+}
+
+// UiKind is a sum type (discriminated union)
+type UiKind struct {
+	Kind          UiKindKind
+	UiPanel       *UiKindUiPanel
+	UiButton      *UiKindUiButton
+	UiLabel       *UiKindUiLabel
+	UiPortrait    *UiKindUiPortrait
+	UiSlider      *UiKindUiSlider
+	UiProgressBar *UiKindUiProgressBar
+}
+
+// NewUiKindUiPanel creates a new UiPanel variant
+func NewUiKindUiPanel() *UiKind {
+	return &UiKind{
+		Kind:    UiKindKindUiPanel,
+		UiPanel: &UiKindUiPanel{},
+	}
+}
+
+// NewUiKindUiButton creates a new UiButton variant
+func NewUiKindUiButton() *UiKind {
+	return &UiKind{
+		Kind:     UiKindKindUiButton,
+		UiButton: &UiKindUiButton{},
+	}
+}
+
+// NewUiKindUiLabel creates a new UiLabel variant
+func NewUiKindUiLabel() *UiKind {
+	return &UiKind{
+		Kind:    UiKindKindUiLabel,
+		UiLabel: &UiKindUiLabel{},
+	}
+}
+
+// NewUiKindUiPortrait creates a new UiPortrait variant
+func NewUiKindUiPortrait() *UiKind {
+	return &UiKind{
+		Kind:       UiKindKindUiPortrait,
+		UiPortrait: &UiKindUiPortrait{},
+	}
+}
+
+// NewUiKindUiSlider creates a new UiSlider variant
+func NewUiKindUiSlider() *UiKind {
+	return &UiKind{
+		Kind:     UiKindKindUiSlider,
+		UiSlider: &UiKindUiSlider{},
+	}
+}
+
+// NewUiKindUiProgressBar creates a new UiProgressBar variant
+func NewUiKindUiProgressBar() *UiKind {
+	return &UiKind{
+		Kind:          UiKindKindUiProgressBar,
+		UiProgressBar: &UiKindUiProgressBar{},
+	}
+}
+
+// IsUiPanel returns true if this is a UiPanel variant
+func (v *UiKind) IsUiPanel() bool {
+	return v.Kind == UiKindKindUiPanel
+}
+
+// IsUiButton returns true if this is a UiButton variant
+func (v *UiKind) IsUiButton() bool {
+	return v.Kind == UiKindKindUiButton
+}
+
+// IsUiLabel returns true if this is a UiLabel variant
+func (v *UiKind) IsUiLabel() bool {
+	return v.Kind == UiKindKindUiLabel
+}
+
+// IsUiPortrait returns true if this is a UiPortrait variant
+func (v *UiKind) IsUiPortrait() bool {
+	return v.Kind == UiKindKindUiPortrait
+}
+
+// IsUiSlider returns true if this is a UiSlider variant
+func (v *UiKind) IsUiSlider() bool {
+	return v.Kind == UiKindKindUiSlider
+}
+
+// IsUiProgressBar returns true if this is a UiProgressBar variant
+func (v *UiKind) IsUiProgressBar() bool {
+	return v.Kind == UiKindKindUiProgressBar
+}
+
+// DrawCmdKind discriminates between variants of DrawCmd
+type DrawCmdKind int
+
+const (
+	DrawCmdKindSprite DrawCmdKind = iota
+	DrawCmdKindRect
+	DrawCmdKindText
+	DrawCmdKindUi
+	DrawCmdKindLine
+	DrawCmdKindTextWrapped
+	DrawCmdKindCircle
+	DrawCmdKindRectScreen
+	DrawCmdKindRectRGBA
+	DrawCmdKindCircleRGBA
+	DrawCmdKindGalaxyBg
+	DrawCmdKindStar
+	DrawCmdKindSpaceBg
+	DrawCmdKindSpireBg
+	DrawCmdKindPlanets3D
+	DrawCmdKindBubbleArc
+	DrawCmdKindTexturedPlanet
+	DrawCmdKindMarker
+	DrawCmdKindCamera3D
+	DrawCmdKindRoom3D
+	DrawCmdKindProp3D
+	DrawCmdKindBillboard3D
+	DrawCmdKindViewport
+)
+
+// DrawCmdSprite holds data for the Sprite variant
+type DrawCmdSprite struct {
+	Id int64
+	X  float64
+	Y  float64
+	Z  int64
+}
+
+// DrawCmdRect holds data for the Rect variant
+type DrawCmdRect struct {
+	X     float64
+	Y     float64
+	W     float64
+	H     float64
+	Color int64
+	Z     int64
+}
+
+// DrawCmdText holds data for the Text variant
+type DrawCmdText struct {
+	Text     string
+	X        float64
+	Y        float64
+	FontSize int64
+	Color    int64
+	Z        int64
+}
+
+// DrawCmdUi holds data for the Ui variant
+type DrawCmdUi struct {
+	Id       string
+	Kind     *UiKind
+	X        float64
+	Y        float64
+	W        float64
+	H        float64
+	Text     string
+	SpriteId int64
+	Z        int64
+	Color    int64
+	Value    float64
+}
+
+// DrawCmdLine holds data for the Line variant
+type DrawCmdLine struct {
+	X1    float64
+	Y1    float64
+	X2    float64
+	Y2    float64
+	Color int64
+	Width float64
+	Z     int64
+}
+
+// DrawCmdTextWrapped holds data for the TextWrapped variant
+type DrawCmdTextWrapped struct {
+	Text     string
+	X        float64
+	Y        float64
+	MaxWidth float64
+	FontSize int64
+	Color    int64
+	Z        int64
+}
+
+// DrawCmdCircle holds data for the Circle variant
+type DrawCmdCircle struct {
+	X      float64
+	Y      float64
+	Radius float64
+	Color  int64
+	Filled bool
+	Z      int64
+}
+
+// DrawCmdRectScreen holds data for the RectScreen variant
+type DrawCmdRectScreen struct {
+	X     float64
+	Y     float64
+	W     float64
+	H     float64
+	Color int64
+	Z     int64
+}
+
+// DrawCmdRectRGBA holds data for the RectRGBA variant
+type DrawCmdRectRGBA struct {
+	X    float64
+	Y    float64
+	W    float64
+	H    float64
+	Rgba int64
+	Z    int64
+}
+
+// DrawCmdCircleRGBA holds data for the CircleRGBA variant
+type DrawCmdCircleRGBA struct {
+	X      float64
+	Y      float64
+	Radius float64
+	Rgba   int64
+	Filled bool
+	Z      int64
+}
+
+// DrawCmdGalaxyBg holds data for the GalaxyBg variant
+type DrawCmdGalaxyBg struct {
+	Opacity     float64
+	Z           int64
+	SkyViewMode bool
+	ViewLon     float64
+	ViewLat     float64
+	Fov         float64
+}
+
+// DrawCmdStar holds data for the Star variant
+type DrawCmdStar struct {
+	X        float64
+	Y        float64
+	SpriteId int64
+	Scale    float64
+	Alpha    float64
+	Z        int64
+}
+
+// DrawCmdSpaceBg holds data for the SpaceBg variant
+type DrawCmdSpaceBg struct {
+	Z int64
+}
+
+// DrawCmdSpireBg holds data for the SpireBg variant
+type DrawCmdSpireBg struct {
+	Z int64
+}
+
+// DrawCmdPlanets3D holds data for the Planets3D variant
+type DrawCmdPlanets3D struct {
+	Z int64
+}
+
+// DrawCmdBubbleArc holds data for the BubbleArc variant
+type DrawCmdBubbleArc struct {
+	Z int64
+}
+
+// DrawCmdTexturedPlanet holds data for the TexturedPlanet variant
+type DrawCmdTexturedPlanet struct {
+	Name     string
+	X        float64
+	Y        float64
+	Radius   float64
+	Rotation float64
+	HasRings bool
+	RingRgba int64
+	Z        int64
+}
+
+// DrawCmdMarker holds data for the Marker variant
+type DrawCmdMarker struct {
+	X             float64
+	Y             float64
+	W             float64
+	H             float64
+	Rgba          int64
+	ParallaxLayer int64
+	Z             int64
+}
+
+// DrawCmdCamera3D holds data for the Camera3D variant
+type DrawCmdCamera3D struct {
+	X     float64
+	Y     float64
+	Z     float64
+	Yaw   float64
+	Pitch float64
+	Fov   float64
+}
+
+// DrawCmdRoom3D holds data for the Room3D variant
+type DrawCmdRoom3D struct {
+	Width        float64
+	Depth        float64
+	Height       float64
+	FloorTex     string
+	WallTex      string
+	CeilingTex   string
+	FloorColor   int64
+	WallColor    int64
+	CeilingColor int64
+	Z            int64
+}
+
+// DrawCmdProp3D holds data for the Prop3D variant
+type DrawCmdProp3D struct {
+	Id      string
+	X       float64
+	Y       float64
+	Z       float64
+	ScaleX  float64
+	ScaleY  float64
+	ScaleZ  float64
+	Texture string
+	Color   int64
+	PropZ   int64
+}
+
+// DrawCmdBillboard3D holds data for the Billboard3D variant
+type DrawCmdBillboard3D struct {
+	Id         string
+	X          float64
+	Y          float64
+	Z          float64
+	SpriteId   int64
+	Scale      float64
+	BillboardZ int64
+}
+
+// DrawCmdViewport holds data for the Viewport variant
+type DrawCmdViewport struct {
+	Id            string
+	ShapeType     int64
+	ShapeParams   []float64
+	ContentType   int64
+	ContentParams []float64
+	EffectType    int64
+	EffectParams  []float64
+	Layer         int64
+	EdgeBlend     float64
+	Opacity       float64
+	ScreenX       float64
+	ScreenY       float64
+	Z             int64
+}
+
+// DrawCmd is a sum type (discriminated union)
+type DrawCmd struct {
+	Kind           DrawCmdKind
+	Sprite         *DrawCmdSprite
+	Rect           *DrawCmdRect
+	Text           *DrawCmdText
+	Ui             *DrawCmdUi
+	Line           *DrawCmdLine
+	TextWrapped    *DrawCmdTextWrapped
+	Circle         *DrawCmdCircle
+	RectScreen     *DrawCmdRectScreen
+	RectRGBA       *DrawCmdRectRGBA
+	CircleRGBA     *DrawCmdCircleRGBA
+	GalaxyBg       *DrawCmdGalaxyBg
+	Star           *DrawCmdStar
+	SpaceBg        *DrawCmdSpaceBg
+	SpireBg        *DrawCmdSpireBg
+	Planets3D      *DrawCmdPlanets3D
+	BubbleArc      *DrawCmdBubbleArc
+	TexturedPlanet *DrawCmdTexturedPlanet
+	Marker         *DrawCmdMarker
+	Camera3D       *DrawCmdCamera3D
+	Room3D         *DrawCmdRoom3D
+	Prop3D         *DrawCmdProp3D
+	Billboard3D    *DrawCmdBillboard3D
+	Viewport       *DrawCmdViewport
+}
+
+// NewDrawCmdSprite creates a new Sprite variant
+func NewDrawCmdSprite(id int64, x float64, y float64, z int64) *DrawCmd {
+	return &DrawCmd{
+		Kind:   DrawCmdKindSprite,
+		Sprite: &DrawCmdSprite{Id: id, X: x, Y: y, Z: z},
+	}
+}
+
+// NewDrawCmdRect creates a new Rect variant
+func NewDrawCmdRect(x float64, y float64, w float64, h float64, color int64, z int64) *DrawCmd {
+	return &DrawCmd{
+		Kind: DrawCmdKindRect,
+		Rect: &DrawCmdRect{X: x, Y: y, W: w, H: h, Color: color, Z: z},
+	}
+}
+
+// NewDrawCmdText creates a new Text variant
+func NewDrawCmdText(text string, x float64, y float64, fontSize int64, color int64, z int64) *DrawCmd {
+	return &DrawCmd{
+		Kind: DrawCmdKindText,
+		Text: &DrawCmdText{Text: text, X: x, Y: y, FontSize: fontSize, Color: color, Z: z},
+	}
+}
+
+// NewDrawCmdUi creates a new Ui variant
+func NewDrawCmdUi(id string, kind *UiKind, x float64, y float64, w float64, h float64, text string, spriteId int64, z int64, color int64, value float64) *DrawCmd {
+	return &DrawCmd{
+		Kind: DrawCmdKindUi,
+		Ui:   &DrawCmdUi{Id: id, Kind: kind, X: x, Y: y, W: w, H: h, Text: text, SpriteId: spriteId, Z: z, Color: color, Value: value},
+	}
+}
+
+// NewDrawCmdLine creates a new Line variant
+func NewDrawCmdLine(x1 float64, y1 float64, x2 float64, y2 float64, color int64, width float64, z int64) *DrawCmd {
+	return &DrawCmd{
+		Kind: DrawCmdKindLine,
+		Line: &DrawCmdLine{X1: x1, Y1: y1, X2: x2, Y2: y2, Color: color, Width: width, Z: z},
+	}
+}
+
+// NewDrawCmdTextWrapped creates a new TextWrapped variant
+func NewDrawCmdTextWrapped(text string, x float64, y float64, maxWidth float64, fontSize int64, color int64, z int64) *DrawCmd {
+	return &DrawCmd{
+		Kind:        DrawCmdKindTextWrapped,
+		TextWrapped: &DrawCmdTextWrapped{Text: text, X: x, Y: y, MaxWidth: maxWidth, FontSize: fontSize, Color: color, Z: z},
+	}
+}
+
+// NewDrawCmdCircle creates a new Circle variant
+func NewDrawCmdCircle(x float64, y float64, radius float64, color int64, filled bool, z int64) *DrawCmd {
+	return &DrawCmd{
+		Kind:   DrawCmdKindCircle,
+		Circle: &DrawCmdCircle{X: x, Y: y, Radius: radius, Color: color, Filled: filled, Z: z},
+	}
+}
+
+// NewDrawCmdRectScreen creates a new RectScreen variant
+func NewDrawCmdRectScreen(x float64, y float64, w float64, h float64, color int64, z int64) *DrawCmd {
+	return &DrawCmd{
+		Kind:       DrawCmdKindRectScreen,
+		RectScreen: &DrawCmdRectScreen{X: x, Y: y, W: w, H: h, Color: color, Z: z},
+	}
+}
+
+// NewDrawCmdRectRGBA creates a new RectRGBA variant
+func NewDrawCmdRectRGBA(x float64, y float64, w float64, h float64, rgba int64, z int64) *DrawCmd {
+	return &DrawCmd{
+		Kind:     DrawCmdKindRectRGBA,
+		RectRGBA: &DrawCmdRectRGBA{X: x, Y: y, W: w, H: h, Rgba: rgba, Z: z},
+	}
+}
+
+// NewDrawCmdCircleRGBA creates a new CircleRGBA variant
+func NewDrawCmdCircleRGBA(x float64, y float64, radius float64, rgba int64, filled bool, z int64) *DrawCmd {
+	return &DrawCmd{
+		Kind:       DrawCmdKindCircleRGBA,
+		CircleRGBA: &DrawCmdCircleRGBA{X: x, Y: y, Radius: radius, Rgba: rgba, Filled: filled, Z: z},
+	}
+}
+
+// NewDrawCmdGalaxyBg creates a new GalaxyBg variant
+func NewDrawCmdGalaxyBg(opacity float64, z int64, skyViewMode bool, viewLon float64, viewLat float64, fov float64) *DrawCmd {
+	return &DrawCmd{
+		Kind:     DrawCmdKindGalaxyBg,
+		GalaxyBg: &DrawCmdGalaxyBg{Opacity: opacity, Z: z, SkyViewMode: skyViewMode, ViewLon: viewLon, ViewLat: viewLat, Fov: fov},
+	}
+}
+
+// NewDrawCmdStar creates a new Star variant
+func NewDrawCmdStar(x float64, y float64, spriteId int64, scale float64, alpha float64, z int64) *DrawCmd {
+	return &DrawCmd{
+		Kind: DrawCmdKindStar,
+		Star: &DrawCmdStar{X: x, Y: y, SpriteId: spriteId, Scale: scale, Alpha: alpha, Z: z},
+	}
+}
+
+// NewDrawCmdSpaceBg creates a new SpaceBg variant
+func NewDrawCmdSpaceBg(z int64) *DrawCmd {
+	return &DrawCmd{
+		Kind:    DrawCmdKindSpaceBg,
+		SpaceBg: &DrawCmdSpaceBg{Z: z},
+	}
+}
+
+// NewDrawCmdSpireBg creates a new SpireBg variant
+func NewDrawCmdSpireBg(z int64) *DrawCmd {
+	return &DrawCmd{
+		Kind:    DrawCmdKindSpireBg,
+		SpireBg: &DrawCmdSpireBg{Z: z},
+	}
+}
+
+// NewDrawCmdPlanets3D creates a new Planets3D variant
+func NewDrawCmdPlanets3D(z int64) *DrawCmd {
+	return &DrawCmd{
+		Kind:      DrawCmdKindPlanets3D,
+		Planets3D: &DrawCmdPlanets3D{Z: z},
+	}
+}
+
+// NewDrawCmdBubbleArc creates a new BubbleArc variant
+func NewDrawCmdBubbleArc(z int64) *DrawCmd {
+	return &DrawCmd{
+		Kind:      DrawCmdKindBubbleArc,
+		BubbleArc: &DrawCmdBubbleArc{Z: z},
+	}
+}
+
+// NewDrawCmdTexturedPlanet creates a new TexturedPlanet variant
+func NewDrawCmdTexturedPlanet(name string, x float64, y float64, radius float64, rotation float64, hasRings bool, ringRgba int64, z int64) *DrawCmd {
+	return &DrawCmd{
+		Kind:           DrawCmdKindTexturedPlanet,
+		TexturedPlanet: &DrawCmdTexturedPlanet{Name: name, X: x, Y: y, Radius: radius, Rotation: rotation, HasRings: hasRings, RingRgba: ringRgba, Z: z},
+	}
+}
+
+// NewDrawCmdMarker creates a new Marker variant
+func NewDrawCmdMarker(x float64, y float64, w float64, h float64, rgba int64, parallaxLayer int64, z int64) *DrawCmd {
+	return &DrawCmd{
+		Kind:   DrawCmdKindMarker,
+		Marker: &DrawCmdMarker{X: x, Y: y, W: w, H: h, Rgba: rgba, ParallaxLayer: parallaxLayer, Z: z},
+	}
+}
+
+// NewDrawCmdCamera3D creates a new Camera3D variant
+func NewDrawCmdCamera3D(x float64, y float64, z float64, yaw float64, pitch float64, fov float64) *DrawCmd {
+	return &DrawCmd{
+		Kind:     DrawCmdKindCamera3D,
+		Camera3D: &DrawCmdCamera3D{X: x, Y: y, Z: z, Yaw: yaw, Pitch: pitch, Fov: fov},
+	}
+}
+
+// NewDrawCmdRoom3D creates a new Room3D variant
+func NewDrawCmdRoom3D(width float64, depth float64, height float64, floorTex string, wallTex string, ceilingTex string, floorColor int64, wallColor int64, ceilingColor int64, z int64) *DrawCmd {
+	return &DrawCmd{
+		Kind:   DrawCmdKindRoom3D,
+		Room3D: &DrawCmdRoom3D{Width: width, Depth: depth, Height: height, FloorTex: floorTex, WallTex: wallTex, CeilingTex: ceilingTex, FloorColor: floorColor, WallColor: wallColor, CeilingColor: ceilingColor, Z: z},
+	}
+}
+
+// NewDrawCmdProp3D creates a new Prop3D variant
+func NewDrawCmdProp3D(id string, x float64, y float64, z float64, scaleX float64, scaleY float64, scaleZ float64, texture string, color int64, propZ int64) *DrawCmd {
+	return &DrawCmd{
+		Kind:   DrawCmdKindProp3D,
+		Prop3D: &DrawCmdProp3D{Id: id, X: x, Y: y, Z: z, ScaleX: scaleX, ScaleY: scaleY, ScaleZ: scaleZ, Texture: texture, Color: color, PropZ: propZ},
+	}
+}
+
+// NewDrawCmdBillboard3D creates a new Billboard3D variant
+func NewDrawCmdBillboard3D(id string, x float64, y float64, z float64, spriteId int64, scale float64, billboardZ int64) *DrawCmd {
+	return &DrawCmd{
+		Kind:        DrawCmdKindBillboard3D,
+		Billboard3D: &DrawCmdBillboard3D{Id: id, X: x, Y: y, Z: z, SpriteId: spriteId, Scale: scale, BillboardZ: billboardZ},
+	}
+}
+
+// NewDrawCmdViewport creates a new Viewport variant
+func NewDrawCmdViewport(id string, shapeType int64, shapeParams []float64, contentType int64, contentParams []float64, effectType int64, effectParams []float64, layer int64, edgeBlend float64, opacity float64, screenX float64, screenY float64, z int64) *DrawCmd {
+	return &DrawCmd{
+		Kind:     DrawCmdKindViewport,
+		Viewport: &DrawCmdViewport{Id: id, ShapeType: shapeType, ShapeParams: shapeParams, ContentType: contentType, ContentParams: contentParams, EffectType: effectType, EffectParams: effectParams, Layer: layer, EdgeBlend: edgeBlend, Opacity: opacity, ScreenX: screenX, ScreenY: screenY, Z: z},
+	}
+}
+
+// IsSprite returns true if this is a Sprite variant
+func (v *DrawCmd) IsSprite() bool {
+	return v.Kind == DrawCmdKindSprite
+}
+
+// IsRect returns true if this is a Rect variant
+func (v *DrawCmd) IsRect() bool {
+	return v.Kind == DrawCmdKindRect
+}
+
+// IsText returns true if this is a Text variant
+func (v *DrawCmd) IsText() bool {
+	return v.Kind == DrawCmdKindText
+}
+
+// IsUi returns true if this is a Ui variant
+func (v *DrawCmd) IsUi() bool {
+	return v.Kind == DrawCmdKindUi
+}
+
+// IsLine returns true if this is a Line variant
+func (v *DrawCmd) IsLine() bool {
+	return v.Kind == DrawCmdKindLine
+}
+
+// IsTextWrapped returns true if this is a TextWrapped variant
+func (v *DrawCmd) IsTextWrapped() bool {
+	return v.Kind == DrawCmdKindTextWrapped
+}
+
+// IsCircle returns true if this is a Circle variant
+func (v *DrawCmd) IsCircle() bool {
+	return v.Kind == DrawCmdKindCircle
+}
+
+// IsRectScreen returns true if this is a RectScreen variant
+func (v *DrawCmd) IsRectScreen() bool {
+	return v.Kind == DrawCmdKindRectScreen
+}
+
+// IsRectRGBA returns true if this is a RectRGBA variant
+func (v *DrawCmd) IsRectRGBA() bool {
+	return v.Kind == DrawCmdKindRectRGBA
+}
+
+// IsCircleRGBA returns true if this is a CircleRGBA variant
+func (v *DrawCmd) IsCircleRGBA() bool {
+	return v.Kind == DrawCmdKindCircleRGBA
+}
+
+// IsGalaxyBg returns true if this is a GalaxyBg variant
+func (v *DrawCmd) IsGalaxyBg() bool {
+	return v.Kind == DrawCmdKindGalaxyBg
+}
+
+// IsStar returns true if this is a Star variant
+func (v *DrawCmd) IsStar() bool {
+	return v.Kind == DrawCmdKindStar
+}
+
+// IsSpaceBg returns true if this is a SpaceBg variant
+func (v *DrawCmd) IsSpaceBg() bool {
+	return v.Kind == DrawCmdKindSpaceBg
+}
+
+// IsSpireBg returns true if this is a SpireBg variant
+func (v *DrawCmd) IsSpireBg() bool {
+	return v.Kind == DrawCmdKindSpireBg
+}
+
+// IsPlanets3D returns true if this is a Planets3D variant
+func (v *DrawCmd) IsPlanets3D() bool {
+	return v.Kind == DrawCmdKindPlanets3D
+}
+
+// IsBubbleArc returns true if this is a BubbleArc variant
+func (v *DrawCmd) IsBubbleArc() bool {
+	return v.Kind == DrawCmdKindBubbleArc
+}
+
+// IsTexturedPlanet returns true if this is a TexturedPlanet variant
+func (v *DrawCmd) IsTexturedPlanet() bool {
+	return v.Kind == DrawCmdKindTexturedPlanet
+}
+
+// IsMarker returns true if this is a Marker variant
+func (v *DrawCmd) IsMarker() bool {
+	return v.Kind == DrawCmdKindMarker
+}
+
+// IsCamera3D returns true if this is a Camera3D variant
+func (v *DrawCmd) IsCamera3D() bool {
+	return v.Kind == DrawCmdKindCamera3D
+}
+
+// IsRoom3D returns true if this is a Room3D variant
+func (v *DrawCmd) IsRoom3D() bool {
+	return v.Kind == DrawCmdKindRoom3D
+}
+
+// IsProp3D returns true if this is a Prop3D variant
+func (v *DrawCmd) IsProp3D() bool {
+	return v.Kind == DrawCmdKindProp3D
+}
+
+// IsBillboard3D returns true if this is a Billboard3D variant
+func (v *DrawCmd) IsBillboard3D() bool {
+	return v.Kind == DrawCmdKindBillboard3D
+}
+
+// IsViewport returns true if this is a Viewport variant
+func (v *DrawCmd) IsViewport() bool {
+	return v.Kind == DrawCmdKindViewport
+}
+
+// SRContext is a record type
+type SRContext struct {
+	Enabled   bool
+	Velocity  float64
+	Gamma     float64
+	ViewAngle float64
+}
+
+// GRContext is a record type
+type GRContext struct {
+	Enabled    bool
+	CenterX    float64
+	CenterY    float64
+	Phi        float64
+	Rs         float64
+	ObjectType string
+}
+
+// RelativityContext is a record type
+type RelativityContext struct {
+	Sr *SRContext
+	Gr *GRContext
+}
+
+// RGBColor is a record type
+type RGBColor struct {
+	R float64
+	G float64
+	B float64
+}
+
+// LightSource is a record type
+type LightSource struct {
+	Id     string
+	X      float64
+	Y      float64
+	Z      float64
+	Energy float64
+	Color  *RGBColor
+	Range  float64
+}
+
+// AmbientSettings is a record type
+type AmbientSettings struct {
+	Energy float64
+	Color  *RGBColor
+}
+
+// LightingContext is a record type
+type LightingContext struct {
+	Enabled         bool
+	Ambient         *AmbientSettings
+	Lights          []*LightSource
+	LightMultiplier float64
+}
+
+// LODConfig is a record type
+type LODConfig struct {
+	Enabled         bool
+	TransitionTime  float64
+	Hysteresis      float64
+	Full3DPixels    float64
+	BillboardPixels float64
+	CirclePixels    float64
+	PointPixels     float64
+	Max3DObjects    int64
+}
+
+// FrameOutput is a record type
+type FrameOutput struct {
+	Draw       []*DrawCmd
+	Sounds     []int64
+	Debug      []string
+	Camera     *Camera
+	Relativity *RelativityContext
+	Lighting   *LightingContext
+	Lod        *LODConfig
+}
+
 // DepthLayerKind discriminates between variants of DepthLayer
 type DepthLayerKind int
 
@@ -2767,15 +2103,231 @@ type StarCatalog struct {
 	SolIndex int64
 }
 
-// IsoWalkState is a record type
-type IsoWalkState struct {
-	PlayerX    int64
-	PlayerY    int64
-	GridWidth  int64
-	GridHeight int64
-	Tick       int64
-	CamX       float64
-	CamY       float64
+// RoomDef is a record type
+type RoomDef struct {
+	Width        float64
+	Depth        float64
+	Height       float64
+	FloorTex     string
+	WallTex      string
+	CeilingTex   string
+	FloorColor   int64
+	WallColor    int64
+	CeilingColor int64
+}
+
+// PropDef is a record type
+type PropDef struct {
+	Id      string
+	Pos     *Vec3
+	ScaleX  float64
+	ScaleY  float64
+	ScaleZ  float64
+	Texture string
+	Color   int64
+}
+
+// CharacterDef is a record type
+type CharacterDef struct {
+	Id       string
+	Pos      *Vec3
+	SpriteId int64
+	Scale    float64
+}
+
+// InteriorRoom is a record type
+type InteriorRoom struct {
+	Room       *RoomDef
+	Props      []*PropDef
+	Characters []*CharacterDef
+}
+
+// InteriorPlayer is a record type
+type InteriorPlayer struct {
+	Pos       *Vec3
+	Yaw       float64
+	Pitch     float64
+	IsRunning bool
+}
+
+// InteriorState is a record type
+type InteriorState struct {
+	Player      *InteriorPlayer
+	CurrentRoom *InteriorRoom
+	Fov         float64
+	Tick        int64
+}
+
+// LookDelta is a record type
+type LookDelta struct {
+	YawDelta   float64
+	PitchDelta float64
+}
+
+// DirectionKind discriminates between variants of Direction
+type DirectionKind int
+
+const (
+	DirectionKindNorth DirectionKind = iota
+	DirectionKindSouth
+	DirectionKindEast
+	DirectionKindWest
+)
+
+// DirectionNorth holds data for the North variant
+type DirectionNorth struct {
+}
+
+// DirectionSouth holds data for the South variant
+type DirectionSouth struct {
+}
+
+// DirectionEast holds data for the East variant
+type DirectionEast struct {
+}
+
+// DirectionWest holds data for the West variant
+type DirectionWest struct {
+}
+
+// Direction is a sum type (discriminated union)
+type Direction struct {
+	Kind  DirectionKind
+	North *DirectionNorth
+	South *DirectionSouth
+	East  *DirectionEast
+	West  *DirectionWest
+}
+
+// NewDirectionNorth creates a new North variant
+func NewDirectionNorth() *Direction {
+	return &Direction{
+		Kind:  DirectionKindNorth,
+		North: &DirectionNorth{},
+	}
+}
+
+// NewDirectionSouth creates a new South variant
+func NewDirectionSouth() *Direction {
+	return &Direction{
+		Kind:  DirectionKindSouth,
+		South: &DirectionSouth{},
+	}
+}
+
+// NewDirectionEast creates a new East variant
+func NewDirectionEast() *Direction {
+	return &Direction{
+		Kind: DirectionKindEast,
+		East: &DirectionEast{},
+	}
+}
+
+// NewDirectionWest creates a new West variant
+func NewDirectionWest() *Direction {
+	return &Direction{
+		Kind: DirectionKindWest,
+		West: &DirectionWest{},
+	}
+}
+
+// IsNorth returns true if this is a North variant
+func (v *Direction) IsNorth() bool {
+	return v.Kind == DirectionKindNorth
+}
+
+// IsSouth returns true if this is a South variant
+func (v *Direction) IsSouth() bool {
+	return v.Kind == DirectionKindSouth
+}
+
+// IsEast returns true if this is a East variant
+func (v *Direction) IsEast() bool {
+	return v.Kind == DirectionKindEast
+}
+
+// IsWest returns true if this is a West variant
+func (v *Direction) IsWest() bool {
+	return v.Kind == DirectionKindWest
+}
+
+// MovementPatternKind discriminates between variants of MovementPattern
+type MovementPatternKind int
+
+const (
+	MovementPatternKindPatternStatic MovementPatternKind = iota
+	MovementPatternKindPatternRandomWalk
+	MovementPatternKindPatternPatrol
+)
+
+// MovementPatternPatternStatic holds data for the PatternStatic variant
+type MovementPatternPatternStatic struct {
+}
+
+// MovementPatternPatternRandomWalk holds data for the PatternRandomWalk variant
+type MovementPatternPatternRandomWalk struct {
+	Value0 int64
+}
+
+// MovementPatternPatternPatrol holds data for the PatternPatrol variant
+type MovementPatternPatternPatrol struct {
+	Value0 []*Direction
+}
+
+// MovementPattern is a sum type (discriminated union)
+type MovementPattern struct {
+	Kind              MovementPatternKind
+	PatternStatic     *MovementPatternPatternStatic
+	PatternRandomWalk *MovementPatternPatternRandomWalk
+	PatternPatrol     *MovementPatternPatternPatrol
+}
+
+// NewMovementPatternPatternStatic creates a new PatternStatic variant
+func NewMovementPatternPatternStatic() *MovementPattern {
+	return &MovementPattern{
+		Kind:          MovementPatternKindPatternStatic,
+		PatternStatic: &MovementPatternPatternStatic{},
+	}
+}
+
+// NewMovementPatternPatternRandomWalk creates a new PatternRandomWalk variant
+func NewMovementPatternPatternRandomWalk(v0 int64) *MovementPattern {
+	return &MovementPattern{
+		Kind:              MovementPatternKindPatternRandomWalk,
+		PatternRandomWalk: &MovementPatternPatternRandomWalk{Value0: v0},
+	}
+}
+
+// NewMovementPatternPatternPatrol creates a new PatternPatrol variant
+func NewMovementPatternPatternPatrol(v0 []*Direction) *MovementPattern {
+	return &MovementPattern{
+		Kind:          MovementPatternKindPatternPatrol,
+		PatternPatrol: &MovementPatternPatternPatrol{Value0: v0},
+	}
+}
+
+// IsPatternStatic returns true if this is a PatternStatic variant
+func (v *MovementPattern) IsPatternStatic() bool {
+	return v.Kind == MovementPatternKindPatternStatic
+}
+
+// IsPatternRandomWalk returns true if this is a PatternRandomWalk variant
+func (v *MovementPattern) IsPatternRandomWalk() bool {
+	return v.Kind == MovementPatternKindPatternRandomWalk
+}
+
+// IsPatternPatrol returns true if this is a PatternPatrol variant
+func (v *MovementPattern) IsPatternPatrol() bool {
+	return v.Kind == MovementPatternKindPatternPatrol
+}
+
+// NPC is a record type
+type NPC struct {
+	Id          int64
+	Pos         *Coord
+	Pattern     *MovementPattern
+	MoveCounter int64
+	PatrolIndex int64
 }
 
 // DeckTypeKind discriminates between variants of DeckType
@@ -3094,13 +2646,13 @@ func (v *Selection) IsSelectionTile() bool {
 type ViewModeKind int
 
 const (
-	ViewModeKindViewBridge ViewModeKind = iota
+	ViewModeKindViewInterior ViewModeKind = iota
 	ViewModeKindViewPlanet
 	ViewModeKindViewGalaxyMap
 )
 
-// ViewModeViewBridge holds data for the ViewBridge variant
-type ViewModeViewBridge struct {
+// ViewModeViewInterior holds data for the ViewInterior variant
+type ViewModeViewInterior struct {
 }
 
 // ViewModeViewPlanet holds data for the ViewPlanet variant
@@ -3114,16 +2666,16 @@ type ViewModeViewGalaxyMap struct {
 // ViewMode is a sum type (discriminated union)
 type ViewMode struct {
 	Kind          ViewModeKind
-	ViewBridge    *ViewModeViewBridge
+	ViewInterior  *ViewModeViewInterior
 	ViewPlanet    *ViewModeViewPlanet
 	ViewGalaxyMap *ViewModeViewGalaxyMap
 }
 
-// NewViewModeViewBridge creates a new ViewBridge variant
-func NewViewModeViewBridge() *ViewMode {
+// NewViewModeViewInterior creates a new ViewInterior variant
+func NewViewModeViewInterior() *ViewMode {
 	return &ViewMode{
-		Kind:       ViewModeKindViewBridge,
-		ViewBridge: &ViewModeViewBridge{},
+		Kind:         ViewModeKindViewInterior,
+		ViewInterior: &ViewModeViewInterior{},
 	}
 }
 
@@ -3143,9 +2695,9 @@ func NewViewModeViewGalaxyMap() *ViewMode {
 	}
 }
 
-// IsViewBridge returns true if this is a ViewBridge variant
-func (v *ViewMode) IsViewBridge() bool {
-	return v.Kind == ViewModeKindViewBridge
+// IsViewInterior returns true if this is a ViewInterior variant
+func (v *ViewMode) IsViewInterior() bool {
+	return v.Kind == ViewModeKindViewInterior
 }
 
 // IsViewPlanet returns true if this is a ViewPlanet variant
@@ -3164,7 +2716,7 @@ type World struct {
 	Planet        *PlanetState
 	Npcs          []*NPC
 	Selection     *Selection
-	Bridge        *BridgeState
+	Interior      *InteriorState
 	ViewMode      *ViewMode
 	StarCatalog   *StarCatalog
 	CurrentSystem *StarSystem

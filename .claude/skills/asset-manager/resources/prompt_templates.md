@@ -23,23 +23,38 @@ hard science fiction, cosmic, deep space, NASA-inspired realism
 
 ## Isometric Tile Templates
 
-### Basic Terrain Tile
+### Basic Terrain Tile (CRITICAL REQUIREMENTS)
 ```
-Create a 64x32 pixel art isometric tile showing [TERRAIN TYPE].
+Create a 64x32 pixel isometric floor tile for [TERRAIN TYPE].
+
+CRITICAL TESSELLATION REQUIREMENTS (ALL MUST BE MET):
+1. EXACT dimensions: 64 pixels wide, 32 pixels tall
+2. Diamond shape ONLY - NO rectangular background
+3. PNG format with full transparency (alpha channel)
+4. Content fills the EXACT isometric diamond shape
+5. Diamond vertices at: top(32,0), right(63,16), bottom(32,31), left(0,16)
+6. Corners at (0,0), (63,0), (0,31), (63,31) MUST be fully transparent (alpha=0)
+7. Approximately 1024 opaque pixels (the diamond area is half of 64x32)
 
 Style: Retro 16-bit pixel art, limited palette (8-12 colors),
-clear outlines, no anti-aliasing, crisp pixels.
+crisp pixels, subtle top-left lighting.
 
-Shape: Diamond/rhombus isometric tile, 2:1 width-to-height ratio.
-Background: Transparent (alpha channel).
-Lighting: Light source from top-left.
+WRONG (will not tessellate):
+- Rectangle with diamond drawn inside it
+- Any opaque pixels at the four corners
+- Diamond that doesn't fill edge to edge
 
-Specific details: [ADDITIONAL DETAILS]
+RIGHT:
+- Pure diamond shape with transparent corners
+- Content extends to diamond vertices
+- Clean edges along the diamond boundary
+
+[ADDITIONAL DETAILS]
 ```
 
 **Examples:**
-- `[TERRAIN TYPE]`: alien crystal formations
-- `[ADDITIONAL DETAILS]`: purple and cyan crystals, bioluminescent glow
+- `[TERRAIN TYPE]`: metallic ship floor, alien crystal formations, futuristic deck plating
+- `[ADDITIONAL DETAILS]`: purple glow accents, panel lines, sci-fi aesthetic
 
 ### Water/Liquid Tile
 ```

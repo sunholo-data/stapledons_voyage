@@ -43,18 +43,6 @@ All defined in `sim/protocol.ail`, rendered by `engine/render/draw.go`.
 | `Line` | `(x1, y1, x2, y2, color, width, z)` | Line with width | Screen |
 | `Circle` | `(x, y, radius, color, filled, z)` | Circle (filled or outline) | Screen |
 
-### Isometric Commands
-
-| Command | Signature | Purpose |
-|---------|-----------|---------|
-| `IsoTile` | `(tile, height, spriteId, layer, color)` | Isometric ground tile |
-| `IsoEntity` | `(id, tile, offsetX, offsetY, height, spriteId, layer)` | Entity with sub-tile positioning |
-
-**Isometric Constants:**
-- `TileWidth = 64.0` world units
-- `TileHeight = 32.0` world units (width/2)
-- `HeightScale = 16.0` units per height level
-
 ### Starmap Commands
 
 | Command | Signature | Purpose |
@@ -783,7 +771,7 @@ DrawCmds are routed to layers by type OR by explicit `parallaxLayer` field:
 |---------|---------------|
 | `GalaxyBg`, `SpaceBg`, `Star` | Layer0 (0.0x) |
 | `SpireBg` | Layer6 (0.3x) |
-| `IsoTile`, `IsoEntity`, `Sprite` | Layer16 (1.0x) |
+| `Sprite` | Layer16 (1.0x) |
 | `Ui`, `Text`, `RectScreen` | Layer19 (UI) |
 | `Marker(parallaxLayer=N)` | LayerN (selectable) |
 
@@ -1362,8 +1350,7 @@ func CaptureToFile(cfg Config) error
 |--------|-------|-----------|-----|
 | World | unbounded float | Camera zoom/pan | Game logic |
 | Screen | 0 to width/height pixels | Direct | Mouse, UI |
-| Tile | integer grid | Isometric projection | Grid navigation |
-| Iso World | tile + offset + height | TileToWorld | 3D entities |
+| 3D World | Vec3 (x, y, z) | Tetra3D projection | First-person 3D |
 | Normalized UI | 0.0-1.0 | Scale to screen | Resolution-independent UI |
 
 ---
@@ -1414,14 +1401,10 @@ effects := shader.NewEffects()
 | 1000-9999 | UI overlay |
 | 10000+ | Reserved |
 
-### Isometric Sort Key
+### Depth Sorting
 
-```
-sortKey = layer × 10000 + screenY
-```
-
-- Layer dominates (higher = on top)
-- Within layer: screenY (further down = behind in iso view)
+- 3D rendering handled by Tetra3D depth buffer
+- 2D overlays sorted by Z value
 - UI always renders last (layer 1000+)
 
 ---

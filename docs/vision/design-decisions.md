@@ -640,3 +640,10 @@ Emotionally: "sad but happy" - bittersweet remembrance.
 
 **Rationale:** Serves Pillar 3 (Time Has Emotional Weight): The ever-present view of space reinforces the journey and isolation. Serves Pillar 5 (Grounded Strangeness): SR effects visible from interior spaces. Serves Pillar 6 (We Are Not Built For This): The cosmic backdrop emphasizes alien environment.
 
+
+## [2025-12-18] Pivot from Isometric to First-Person 3D
+
+**Decision:** Abandon isometric tile-based rendering in favor of full first-person 3D using Tetra engine. Player navigates ship interior with WASD/mouselook. All isometric work (iso_tiles, iso_demo, bridge tiles) deprecated.
+
+**Rationale:** Isometric asset generation produced poor quality results. Tetra engine already renders beautiful space visuals. First-person is more immersive and better serves Pillar 4 (Ship Is Home - you ARE there) and Pillar 6 (We Are Not Built For This - disorientation). Simpler architecture: Tetra scene graph replaces DrawCmd tile rendering.
+

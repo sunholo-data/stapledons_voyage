@@ -71,8 +71,6 @@ export type DrawCmd =
     | Circle(x: float, y: float, radius: float, color: int, filled: bool, z: int)
     | CircleRGBA(x: float, y: float, radius: float, rgba: int, filled: bool, z: int)
     | RectRGBA(x: float, y: float, w: float, h: float, rgba: int, z: int)
-    | IsoTile(tile: Coord, height: int, spriteId: int, layer: int, color: int)
-    | IsoEntity(id: int, tile: Coord, offsetX: float, offsetY: float, height: int, spriteId: int, layer: int)
     | GalaxyBg(opacity: float, z: int, skyViewMode: bool, viewLon: float, viewLat: float, fov: float)
     | Star(x: float, y: float, spriteId: int, scale: float, alpha: float, z: int)
     | SpireBg(z: int)

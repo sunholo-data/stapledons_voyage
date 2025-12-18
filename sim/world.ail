@@ -6,8 +6,8 @@ import sim/protocol (Coord)
 -- Import NPC type from npc_ai (NPC now has MovementPattern)
 import sim/npc_ai (NPC, MovementPattern, PatternStatic, PatternRandomWalk, PatternPatrol, Direction)
 
--- Import BridgeState from bridge module
-import sim/bridge (BridgeState)
+-- Import InteriorState from interior module (3D first-person view)
+import sim/interior (InteriorState)
 
 -- Import StarCatalog for galaxy map
 import sim/starmap (StarCatalog)
@@ -35,7 +35,7 @@ export type Selection =
 
 -- Game view mode (what screen to render)
 export type ViewMode =
-    | ViewBridge      -- Ship bridge interior
+    | ViewInterior    -- 3D ship interior (first-person)
     | ViewPlanet      -- Planet surface (legacy test view)
     | ViewGalaxyMap   -- Galaxy navigation
 
@@ -45,7 +45,7 @@ export type World = {
     planet: PlanetState,
     npcs: [NPC],
     selection: Selection,
-    bridge: BridgeState,
+    interior: InteriorState,
     viewMode: ViewMode,
     starCatalog: StarCatalog,
     currentSystem: StarSystem,

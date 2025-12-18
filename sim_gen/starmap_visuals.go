@@ -73,9 +73,24 @@ func textureForSpectral_impl(spec interface{}) interface{} {
 	return func() interface{} {
 		_scrutinee := spec
 		_ = _scrutinee // suppress unused
-		switch _scrutinee {
-		default:
+		_adt := _scrutinee.(*SpectralType)
+		switch _adt.Kind {
+		case SpectralTypeKindO:
 			return "star_blue.png"
+		case SpectralTypeKindB:
+			return "star_blue.png"
+		case SpectralTypeKindA:
+			return "star_white.png"
+		case SpectralTypeKindF:
+			return "star_white.png"
+		case SpectralTypeKindG:
+			return "star_yellow.png"
+		case SpectralTypeKindK:
+			return "star_orange.png"
+		case SpectralTypeKindM:
+			return "star_red.png"
+		default:
+			panic("non-exhaustive match")
 		}
 	}()
 }
@@ -88,9 +103,24 @@ func spriteIdForSpectral_impl(spec interface{}) interface{} {
 	return func() interface{} {
 		_scrutinee := spec
 		_ = _scrutinee // suppress unused
-		switch _scrutinee {
-		default:
+		_adt := _scrutinee.(*SpectralType)
+		switch _adt.Kind {
+		case SpectralTypeKindO:
 			return int64(0)
+		case SpectralTypeKindB:
+			return int64(0)
+		case SpectralTypeKindA:
+			return int64(1)
+		case SpectralTypeKindF:
+			return int64(1)
+		case SpectralTypeKindG:
+			return int64(2)
+		case SpectralTypeKindK:
+			return int64(3)
+		case SpectralTypeKindM:
+			return int64(4)
+		default:
+			panic("non-exhaustive match")
 		}
 	}()
 }

@@ -134,25 +134,57 @@ The `manifest.json` file registers all sprites for the engine:
 
 ## Dimension Specifications
 
-### Isometric Tiles
-- **Dimensions**: 64x32 pixels
-- **Format**: PNG with alpha channel
-- **Shape**: Diamond (isometric rhombus)
-- **Anchor**: Center-bottom of diamond
+### Isometric Tiles (CRITICAL REQUIREMENTS)
 
+**These requirements MUST be met for proper tessellation:**
+
+| Property | Required Value |
+|----------|----------------|
+| Dimensions | 64x32 pixels (2:1 ratio, EXACT) |
+| Format | PNG with RGBA (alpha channel REQUIRED) |
+| Corners | Must be transparent (alpha=0) at (0,0), (63,0), (0,31), (63,31) |
+| Opaque pixels | ~1024 (±10%) inside diamond shape |
+| Diamond vertices | (32,0), (63,16), (32,31), (0,16) must be opaque |
+
+**Why these matter:**
+1. **Corners transparent**: Adjacent tiles overlap at corners; opaque corners create seams
+2. **Exact diamond**: Content must fill the precise diamond shape, not a rectangle with diamond inside
+3. **~1024 opaque pixels**: Ensures content fills exactly half the bounding box (the diamond)
+
+**Pixel layout (X = opaque, . = transparent):**
 ```
-Pixel layout:
         0         32        64
-   0    ........XX........
-        ......XXXXXX......
-        ....XXXXXXXXXX....
-        ..XXXXXXXXXXXXXX..
-  16    XXXXXXXXXXXXXXXXXX
-        ..XXXXXXXXXXXXXX..
-        ....XXXXXXXXXX....
-        ......XXXXXX......
-  32    ........XX........
+   0    ..............XX..............  (4 pixels wide)
+        ............XXXX..............  (8 pixels wide)
+        ..........XXXXXXXX............
+        ........XXXXXXXXXXXX..........
+        ......XXXXXXXXXXXXXX..........
+        ....XXXXXXXXXXXXXXXXXX........
+        ..XXXXXXXXXXXXXXXXXXXXXX......
+        XXXXXXXXXXXXXXXXXXXXXXXXXX....
+  16    XXXXXXXXXXXXXXXXXXXXXXXXXXXX..  (64 pixels wide - full)
+        XXXXXXXXXXXXXXXXXXXXXXXXXXXX..  (64 pixels wide - full)
+        ..XXXXXXXXXXXXXXXXXXXXXX......
+        ....XXXXXXXXXXXXXXXXXX........
+        ......XXXXXXXXXXXXXX..........
+        ........XXXXXXXXXXXX..........
+        ..........XXXXXXXX............
+        ............XXXX..............
+  32    ..............XX..............  (4 pixels wide)
 ```
+
+**Row-by-row width formula:**
+```
+pixels_wide = rows_from_edge * 4
+where rows_from_edge = min(row + 1, 32 - row)
+```
+
+**Verification:**
+```bash
+go run ./cmd/tile-check  # Check all tiles
+```
+
+**Reference tile:** `assets/sprites/iso_tiles/water.png` (passes all checks)
 
 ### Entity Sprites
 - **Single frame**: 32x48 pixels

@@ -2,10 +2,13 @@ package lod
 
 import (
 	"image/color"
+	"log"
 	"math"
 	"sort"
 
 	"github.com/hajimehoshi/ebiten/v2"
+
+	"stapledons_voyage/engine/textures"
 )
 
 // BillboardRenderer handles rendering of camera-facing 2D sprites.
@@ -233,8 +236,14 @@ func (br *BillboardRenderer) RenderBillboardWithAlpha(screen *ebiten.Image, obj 
 
 // CreateDefaultPlanetSprite creates a simple circular sprite for planets.
 // Can be used as a placeholder billboard.
+// Uses the texture budget system to prevent memory exhaustion.
 func CreateDefaultPlanetSprite(size int, col color.RGBA) *ebiten.Image {
-	img := ebiten.NewImage(size, size)
+	img, err := textures.NewImageSafe(size, size)
+	if err != nil {
+		log.Printf("[lod] WARNING: Failed to create planet sprite: %v", err)
+		return nil
+	}
+
 	center := float64(size) / 2
 	radiusSq := center * center
 
@@ -264,6 +273,7 @@ func CreateDefaultPlanetSprite(size int, col color.RGBA) *ebiten.Image {
 
 // ExtractAverageColor samples an equirectangular texture and returns the average color.
 // This is useful for deriving circle/point colors that match the texture appearance.
+// Optimized to do a single GPU readback instead of per-pixel reads.
 func ExtractAverageColor(texture *ebiten.Image) color.RGBA {
 	if texture == nil {
 		return color.RGBA{200, 200, 200, 255}
@@ -272,6 +282,10 @@ func ExtractAverageColor(texture *ebiten.Image) color.RGBA {
 	bounds := texture.Bounds()
 	texW := bounds.Dx()
 	texH := bounds.Dy()
+
+	// Single GPU readback - much faster than per-pixel At() calls
+	pixels := make([]byte, texW*texH*4)
+	texture.ReadPixels(pixels)
 
 	// Sample a grid of pixels for efficiency (not every pixel)
 	sampleStep := 8
@@ -284,14 +298,18 @@ func ExtractAverageColor(texture *ebiten.Image) color.RGBA {
 
 	for y := 0; y < texH; y += sampleStep {
 		for x := 0; x < texW; x += sampleStep {
-			c := texture.At(x, y)
-			r, g, b, a := c.RGBA()
+			idx := (y*texW + x) * 4
+			r := float64(pixels[idx])
+			g := float64(pixels[idx+1])
+			b := float64(pixels[idx+2])
+			a := float64(pixels[idx+3])
+
 			if a > 0 {
 				// Weight by alpha
-				alpha := float64(a) / 65535.0
-				totalR += float64(r>>8) * alpha
-				totalG += float64(g>>8) * alpha
-				totalB += float64(b>>8) * alpha
+				alpha := a / 255.0
+				totalR += r * alpha
+				totalG += g * alpha
+				totalB += b * alpha
 				count += alpha
 			}
 		}
@@ -312,15 +330,27 @@ func ExtractAverageColor(texture *ebiten.Image) color.RGBA {
 // CreateBillboardFromTexture creates a billboard sprite from an equirectangular planet texture.
 // This samples the texture with spherical projection and adds lighting for a 3D appearance.
 // The result looks much closer to the actual 3D planet than a solid color sprite.
+// Uses the texture budget system to prevent memory exhaustion.
+// Optimized to do a single GPU readback instead of per-pixel reads.
 func CreateBillboardFromTexture(texture *ebiten.Image, size int) *ebiten.Image {
 	if texture == nil {
 		return CreateDefaultPlanetSprite(size, color.RGBA{200, 200, 200, 255})
 	}
 
-	img := ebiten.NewImage(size, size)
+	img, err := textures.NewImageSafe(size, size)
+	if err != nil {
+		log.Printf("[lod] WARNING: Failed to create billboard from texture: %v", err)
+		return nil
+	}
 	texBounds := texture.Bounds()
-	texW := float64(texBounds.Dx())
-	texH := float64(texBounds.Dy())
+	texW := texBounds.Dx()
+	texH := texBounds.Dy()
+	texWf := float64(texW)
+	texHf := float64(texH)
+
+	// Single GPU readback - much faster than per-pixel At() calls
+	texPixels := make([]byte, texW*texH*4)
+	texture.ReadPixels(texPixels)
 
 	center := float64(size) / 2
 	radius := center - 1 // Slight inset to avoid edge artifacts
@@ -346,22 +376,26 @@ func CreateBillboardFromTexture(texture *ebiten.Image, size int) *ebiten.Image {
 
 			// Calculate spherical coordinates for texture lookup
 			// phi: longitude (0 to 2π), theta: latitude (0 to π)
-			phi := math.Atan2(nx, nz) + math.Pi   // Rotate so front-center is at center of texture
-			theta := math.Acos(-ny)                // -ny because Y is inverted in screen space
+			phi := math.Atan2(nx, nz) + math.Pi // Rotate so front-center is at center of texture
+			theta := math.Acos(-ny)             // -ny because Y is inverted in screen space
 
 			// Map to texture coordinates
 			u := phi / (2 * math.Pi) // 0 to 1
-			v := theta / math.Pi      // 0 to 1
+			v := theta / math.Pi     // 0 to 1
 
 			// Sample texture (with wrapping)
-			texX := int(u*texW) % int(texW)
-			texY := int(v*texH) % int(texH)
+			texX := int(u*texWf) % texW
+			texY := int(v*texHf) % texH
 			if texX < 0 {
-				texX += int(texW)
+				texX += texW
 			}
 
-			texCol := texture.At(texX, texY)
-			r, g, b, a := texCol.RGBA()
+			// Read from CPU pixel buffer instead of GPU
+			texIdx := (texY*texW + texX) * 4
+			r := uint32(texPixels[texIdx])
+			g := uint32(texPixels[texIdx+1])
+			b := uint32(texPixels[texIdx+2])
+			a := uint32(texPixels[texIdx+3])
 
 			// Calculate lighting (dot product of normal and light direction)
 			// Normal is (nx, ny, nz) on the sphere surface
@@ -375,12 +409,12 @@ func CreateBillboardFromTexture(texture *ebiten.Image, size int) *ebiten.Image {
 			diffuse := 0.7 * dot
 			brightness := ambient + diffuse
 
-			// Apply lighting to texture color
+			// Apply lighting to texture color (r,g,b,a are already 0-255)
 			img.Set(x, y, color.RGBA{
-				R: uint8(math.Min(float64(r>>8)*brightness, 255)),
-				G: uint8(math.Min(float64(g>>8)*brightness, 255)),
-				B: uint8(math.Min(float64(b>>8)*brightness, 255)),
-				A: uint8(a >> 8),
+				R: uint8(math.Min(float64(r)*brightness, 255)),
+				G: uint8(math.Min(float64(g)*brightness, 255)),
+				B: uint8(math.Min(float64(b)*brightness, 255)),
+				A: uint8(a),
 			})
 		}
 	}
@@ -389,8 +423,13 @@ func CreateBillboardFromTexture(texture *ebiten.Image, size int) *ebiten.Image {
 }
 
 // CreateDefaultStarSprite creates a simple star sprite with glow effect.
+// Uses the texture budget system to prevent memory exhaustion.
 func CreateDefaultStarSprite(size int, col color.RGBA) *ebiten.Image {
-	img := ebiten.NewImage(size, size)
+	img, err := textures.NewImageSafe(size, size)
+	if err != nil {
+		log.Printf("[lod] WARNING: Failed to create star sprite: %v", err)
+		return nil
+	}
 	center := float64(size) / 2
 	coreRadius := center * 0.3
 	glowRadius := center
@@ -425,10 +464,15 @@ func CreateDefaultStarSprite(size int, col color.RGBA) *ebiten.Image {
 
 // CreateSpriteAtlas creates an atlas with multiple pre-rendered sprites.
 // Returns the atlas image and a map of sprite names to sub-image bounds.
+// Uses the texture budget system to prevent memory exhaustion.
 func CreateSpriteAtlas(size int) (*ebiten.Image, map[string]*ebiten.Image) {
 	// Create atlas with 4 sprites: white planet, yellow star, red planet, blue planet
 	atlasSize := size * 2
-	atlas := ebiten.NewImage(atlasSize, atlasSize)
+	atlas, err := textures.NewImageSafe(atlasSize, atlasSize)
+	if err != nil {
+		log.Printf("[lod] WARNING: Failed to create sprite atlas: %v", err)
+		return nil, nil
+	}
 
 	sprites := make(map[string]*ebiten.Image)
 

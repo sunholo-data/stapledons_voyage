@@ -47,7 +47,7 @@ export type FlightInput = {
     shift: bool
 }
 
--- Frame input from engine (extended for isometric tiles)
+-- Frame input from engine
 export type FrameInput = {
     mouse: MouseState,
     keys: [KeyEvent],
@@ -55,8 +55,6 @@ export type FrameInput = {
     clickedThisFrame: bool,
     worldMouseX: float,
     worldMouseY: float,
-    tileMouseX: int,
-    tileMouseY: int,
     actionRequested: PlayerAction,
     testMode: bool
 }
@@ -84,15 +82,6 @@ export type DrawCmd =
     | Sprite(id: int, x: float, y: float, z: int)
     | Rect(x: float, y: float, w: float, h: float, color: int, z: int)
     | Text(text: string, x: float, y: float, fontSize: int, color: int, z: int)
-
-    -- Isometric draw commands
-    | IsoTile(tile: Coord, height: int, spriteId: int, layer: int, color: int)
-    | IsoEntity(id: string, tile: Coord, offsetX: float, offsetY: float, height: int, spriteId: int, layer: int)
-
-    -- Transparent isometric tile (for glass floors, dome edges, etc.)
-    -- alpha: 0.0 = invisible, 1.0 = opaque
-    -- tintRgba: Color tint in 0xRRGGBBAA format (0 = no tint)
-    | IsoTileAlpha(tile: Coord, height: int, spriteId: int, layer: int, alpha: float, tintRgba: int)
 
     -- UI draw commands (screen space, not affected by camera)
     | Ui(id: string, kind: UiKind, x: float, y: float, w: float, h: float, text: string, spriteId: int, z: int, color: int, value: float)
@@ -131,6 +120,49 @@ export type DrawCmd =
     -- parallaxLayer: 0-19, selects which parallax layer to render on
     -- Marker renders a colored shape at screen position with parallax applied
     | Marker(x: float, y: float, w: float, h: float, rgba: int, parallaxLayer: int, z: int)
+
+    -- ==========================================================================
+    -- 3D Interior Draw Commands
+    -- ==========================================================================
+
+    -- Camera3D: Set the 3D camera position and orientation for interior rendering
+    -- x, y, z: camera position in meters
+    -- yaw: horizontal rotation in radians (0 = forward)
+    -- pitch: vertical rotation in radians (negative = look down)
+    -- fov: field of view in degrees
+    | Camera3D(x: float, y: float, z: float, yaw: float, pitch: float, fov: float)
+
+    -- Room3D: Render a 3D room with walls, floor, ceiling
+    -- width, depth, height: room dimensions in meters
+    -- floorTex, wallTex, ceilingTex: texture asset names (empty = solid color)
+    -- floorColor, wallColor, ceilingColor: RGBA colors if no texture (0xRRGGBBAA)
+    | Room3D(
+        width: float, depth: float, height: float,
+        floorTex: string, wallTex: string, ceilingTex: string,
+        floorColor: int, wallColor: int, ceilingColor: int,
+        z: int
+    )
+
+    -- Prop3D: Place a 3D prop (cube/console/furniture) in the room
+    -- x, y, z: position in meters
+    -- scaleX, scaleY, scaleZ: dimensions
+    -- texture: texture asset name (empty = solid color)
+    -- color: RGBA color (0xRRGGBBAA)
+    | Prop3D(
+        id: string,
+        x: float, y: float, z: float,
+        scaleX: float, scaleY: float, scaleZ: float,
+        texture: string, color: int,
+        propZ: int
+    )
+
+    -- Billboard3D: Place a 2D sprite in 3D space (for characters)
+    -- x, y, z: world position in meters
+    -- spriteId: sprite atlas ID
+    -- scale: size multiplier
+    | Billboard3D(id: string, x: float, y: float, z: float, spriteId: int, scale: float, billboardZ: int)
+
+    -- ==========================================================================
 
     -- Viewport compositing command (for observation domes, windows, portholes)
     -- shapeType: 0=ellipse, 1=circle, 2=rect, 3=dome

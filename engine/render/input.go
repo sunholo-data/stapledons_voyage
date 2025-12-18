@@ -1,8 +1,6 @@
 package render
 
 import (
-	"math"
-
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"stapledons_voyage/engine/camera"
@@ -58,12 +56,6 @@ func CaptureInputWithCamera(cam sim_gen.Camera, screenW, screenH int) sim_gen.Fr
 	transform := camera.FromOutput(cam, screenW, screenH)
 	worldX, worldY := transform.ScreenToWorld(float64(x), float64(y))
 
-	// Convert screen coords to tile coords using isometric projection
-	tileXf, tileYf := ScreenToTile(float64(x), float64(y), cam, screenW, screenH)
-	// Use Round for isometric grids - tiles are diamond-shaped so Floor gives wrong results
-	// near tile boundaries. Round assigns boundary points to the nearest tile center.
-	tileX, tileY := int64(math.Round(tileXf)), int64(math.Round(tileYf))
-
 	// Detect just-pressed (edge detection, not held)
 	clicked := inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft)
 
@@ -78,6 +70,19 @@ func CaptureInputWithCamera(cam sim_gen.Camera, screenW, screenH int) sim_gen.Fr
 		action = sim_gen.NewPlayerActionActionClear()
 	}
 
+	// Build FlightInput for WASD/arrow controls
+	flight := &sim_gen.FlightInput{
+		W:     ebiten.IsKeyPressed(ebiten.KeyW),
+		A:     ebiten.IsKeyPressed(ebiten.KeyA),
+		S:     ebiten.IsKeyPressed(ebiten.KeyS),
+		D:     ebiten.IsKeyPressed(ebiten.KeyD),
+		Up:    ebiten.IsKeyPressed(ebiten.KeyUp),
+		Down:  ebiten.IsKeyPressed(ebiten.KeyDown),
+		Left:  ebiten.IsKeyPressed(ebiten.KeyLeft),
+		Right: ebiten.IsKeyPressed(ebiten.KeyRight),
+		Shift: ebiten.IsKeyPressed(ebiten.KeyShift),
+	}
+
 	return sim_gen.FrameInput{
 		Mouse: &sim_gen.MouseState{
 			X:       float64(x),
@@ -85,11 +90,11 @@ func CaptureInputWithCamera(cam sim_gen.Camera, screenW, screenH int) sim_gen.Fr
 			Buttons: buttons,
 		},
 		Keys:             keys,
+		Flight:           flight,
 		ClickedThisFrame: clicked,
 		WorldMouseX:      worldX,
 		WorldMouseY:      worldY,
-		TileMouseX:       tileX,
-		TileMouseY:       tileY,
 		ActionRequested:  action,
+		TestMode:         false,
 	}
 }

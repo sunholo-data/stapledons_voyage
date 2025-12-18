@@ -153,3 +153,8 @@ func (s *Scene) SetFar(far float64) {
 func (s *Scene) SetNear(near float64) {
 	s.camera.SetNear(float32(near))
 }
+
+// SetFieldOfView sets the camera's field of view in degrees.
+func (s *Scene) SetFieldOfView(fov float64) {
+	s.camera.SetFieldOfView(float32(fov))
+}

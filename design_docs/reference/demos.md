@@ -43,7 +43,7 @@
 |------|---------|-------------|
 | `gen-ring-texture` | Saturn ring textures | `go run ./cmd/gen-ring-texture` |
 | `gensounds` | Sine wave tones | `go run ./cmd/gensounds` |
-| `gensprites` | Isometric tiles/entities | `go run ./cmd/gensprites` |
+| `gensprites` | Sprite generation | `go run ./cmd/gensprites` |
 
 ### GR Effect Tools
 

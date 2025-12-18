@@ -587,10 +587,10 @@ func renderPlanetTextured_impl(planet interface{}, centerX interface{}, centerY 
 										c := _adt.Some.Value0
 										_ = c // suppress unused
 										return packColor_impl(c)
-									default:
-										none := _adt
-										_ = none // suppress unused
+									case OptionKindNone:
 										return int64(3535748351)
+									default:
+										panic("non-exhaustive match")
 									}
 								}()
 							}()
@@ -658,10 +658,10 @@ func renderPlanetRing_impl(planet interface{}, centerX interface{}, centerY inte
 										c := _adt.Some.Value0
 										_ = c // suppress unused
 										return packColor_impl(c)
-									default:
-										none := _adt
-										_ = none // suppress unused
+									case OptionKindNone:
 										return int64(3535748351)
+									default:
+										panic("non-exhaustive match")
 									}
 								}()
 							}()

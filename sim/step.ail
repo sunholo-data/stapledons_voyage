@@ -2,9 +2,9 @@ module sim/step
 
 -- Import types from protocol and world modules (imports fixed in v0.4.9)
 import sim/protocol (FrameInput, FrameOutput, DrawCmd, Rect, Coord, PlayerAction, ActionNone, Camera, CircleRGBA, Text, LODConfig)
-import sim/world (World, PlanetState, Tile, Selection, SelectionNone, SelectionTile, ViewMode, ViewBridge, ViewPlanet, ViewGalaxyMap)
+import sim/world (World, PlanetState, Tile, Selection, SelectionNone, SelectionTile, ViewMode, ViewInterior, ViewPlanet, ViewGalaxyMap)
 import sim/npc_ai (NPC, PatternStatic, PatternRandomWalk, PatternPatrol, Direction, North, South, East, West, updateAllNPCs)
-import sim/bridge (BridgeState, initBridge, renderBridge, stepBridge)
+import sim/interior (InteriorState, initInterior, renderInterior, stepInterior)
 import sim/starmap (initLocalCatalog, Star, Vec3, spectralColor, StarCatalog)
 import sim/celestial (initSolSystem, stepSystem, StarSystem, renderSolarSystem)
 import sim/ship_levels (init_ship_levels, ShipLevels)
@@ -158,8 +158,8 @@ export func init_world(seed: int) -> World {
         planet: { width: w, height: h, tiles: tiles },
         npcs: testNpcs,
         selection: SelectionNone,
-        bridge: initBridge(),
-        viewMode: ViewBridge,
+        interior: initInterior(),
+        viewMode: ViewInterior,
         starCatalog: catalog,
         currentSystem: solSystem,
         shipLevels: init_ship_levels()
@@ -167,13 +167,11 @@ export func init_world(seed: int) -> World {
 }
 
 -- Render based on view mode
-pure func renderForView(world: World) -> [DrawCmd] {
+pure func renderForView(world: World, input: FrameInput) -> [DrawCmd] {
     match world.viewMode {
-        ViewBridge => {
-            -- Render bridge first, then overlay solar system planets
-            let bridgeCmds = renderBridge(world.bridge);
-            let planetCmds = renderSolarSystem(world.currentSystem);
-            concatDrawCmds(bridgeCmds, planetCmds)
+        ViewInterior => {
+            -- Render 3D interior (first-person view)
+            renderInterior(world.interior)
         },
         ViewPlanet => {
             let tileCmds = tilesToDraw(world.planet.tiles, world.planet.width, 0);
@@ -185,12 +183,12 @@ pure func renderForView(world: World) -> [DrawCmd] {
     }
 }
 
--- Helper: update world for bridge view
-pure func updateBridgeView(world: World, newTick: int) -> World {
-    let updatedBridge = stepBridge(world.bridge, newTick);
+-- Helper: update world for interior view (3D first-person)
+pure func updateInteriorView(world: World, input: FrameInput, newTick: int) -> World {
+    let updatedInterior = stepInterior(world.interior, input);
     -- Step orbital mechanics (dt = 0.001 years per frame ~= 8.7 hours)
     let updatedSystem = stepSystem(world.currentSystem, 0.001);
-    { world | tick: newTick, bridge: updatedBridge, currentSystem: updatedSystem }
+    { world | tick: newTick, interior: updatedInterior, currentSystem: updatedSystem }
 }
 
 -- Helper: update world for planet view
@@ -212,13 +210,13 @@ export func step(world: World, input: FrameInput) -> (World, FrameOutput) ! {Ran
 
     -- Update based on view mode (using helper functions to avoid syntax issues)
     let newWorld = match world.viewMode {
-        ViewBridge => updateBridgeView(world, newTick),
+        ViewInterior => updateInteriorView(world, input, newTick),
         ViewPlanet => updatePlanetView(world, input, newTick),
         ViewGalaxyMap => updateGalaxyView(world, newTick)
     };
 
     -- Render for current view mode
-    let drawCmds = renderForView(newWorld);
+    let drawCmds = renderForView(newWorld, input);
 
     let cam = { x: 0.0, y: 0.0, zoom: 1.0 };
 

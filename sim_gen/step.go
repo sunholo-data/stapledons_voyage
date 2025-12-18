@@ -156,9 +156,7 @@ func selectionToDraw_impl(sel interface{}) interface{} {
 		_ = _scrutinee // suppress unused
 		_adt := _scrutinee.(*Selection)
 		switch _adt.Kind {
-		default:
-			selectionNone := _adt
-			_ = selectionNone // suppress unused
+		case SelectionKindNone:
 			return []interface{}{}
 		case SelectionKindTile:
 			x := _adt.SelectionTile.Value0
@@ -178,6 +176,8 @@ func selectionToDraw_impl(sel interface{}) interface{} {
 				_ = tmp27 // suppress unused
 				return []interface{}{tmp27}
 			}()
+		default:
+			panic("non-exhaustive match")
 		}
 	}()
 }
@@ -468,79 +468,114 @@ func initWorld_impl(seed interface{}) interface{} {
 	var catalog interface{} = initLocalCatalog_impl(struct{}{})
 	var solSystem interface{} = initSolSystem_impl(struct{}{})
 	var tmp66 interface{} = &PlanetState{Width: w.(int64), Height: h.(int64), Tiles: ConvertToTileSlice(tiles)}
-	var tmp67 interface{} = initBridge_impl(struct{}{})
+	var tmp67 interface{} = initInterior_impl(struct{}{})
 	var tmp68 interface{} = initShipLevels_impl(struct{}{})
-	return &World{Tick: int64(0), Planet: tmp66.(*PlanetState), Npcs: ConvertToNPCSlice(testNpcs), Selection: NewSelectionNone(), Bridge: tmp67.(*BridgeState), ViewMode: NewViewModeViewBridge(), StarCatalog: catalog.(*StarCatalog), CurrentSystem: solSystem.(*StarSystem), ShipLevels: tmp68.(*ShipLevels)}
+	return &World{Tick: int64(0), Planet: tmp66.(*PlanetState), Npcs: ConvertToNPCSlice(testNpcs), Selection: NewSelectionNone(), Interior: tmp67.(*InteriorState), ViewMode: NewViewModeViewInterior(), StarCatalog: catalog.(*StarCatalog), CurrentSystem: solSystem.(*StarSystem), ShipLevels: tmp68.(*ShipLevels)}
 }
 
 func InitWorld(seed int64) *World {
 	return initWorld_impl(seed).(*World)
 }
 
-func renderForView_impl(world interface{}) interface{} {
+func renderForView_impl(world interface{}, input interface{}) interface{} {
 	var tmp82 interface{} = FieldGet(world, "viewMode")
 	return func() interface{} {
 		_scrutinee := tmp82
 		_ = _scrutinee // suppress unused
-		switch _scrutinee {
-		default:
+		_adt := _scrutinee.(*ViewMode)
+		switch _adt.Kind {
+		case ViewModeKindViewInterior:
 			return func() interface{} {
-				var bridgeCmds interface{} = func() interface{} {
-					var tmp84 interface{} = FieldGet(world, "bridge")
-					_ = tmp84 // suppress unused
-					return renderBridge_impl(tmp84)
-				}()
-				_ = bridgeCmds // suppress unused
-				var planetCmds interface{} = func() interface{} {
-					var tmp83 interface{} = FieldGet(world, "currentSystem")
-					_ = tmp83 // suppress unused
-					return renderSolarSystem_impl(tmp83)
-				}()
-				_ = planetCmds // suppress unused
-				return concatDrawCmds_impl(bridgeCmds, planetCmds)
+				var tmp83 interface{} = FieldGet(world, "interior")
+				_ = tmp83 // suppress unused
+				return renderInterior_impl(tmp83)
 			}()
+		case ViewModeKindViewPlanet:
+			return func() interface{} {
+				var tileCmds interface{} = func() interface{} {
+					var tmp87 interface{} = FieldGet(world, "planet")
+					_ = tmp87 // suppress unused
+					return func() interface{} {
+						var tmp88 interface{} = FieldGet(tmp87, "tiles")
+						_ = tmp88 // suppress unused
+						return func() interface{} {
+							var tmp89 interface{} = FieldGet(world, "planet")
+							_ = tmp89 // suppress unused
+							return func() interface{} {
+								var tmp90 interface{} = FieldGet(tmp89, "width")
+								_ = tmp90 // suppress unused
+								return tilesToDraw_impl(tmp88, tmp90, int64(0))
+							}()
+						}()
+					}()
+				}()
+				_ = tileCmds // suppress unused
+				var npcCmds interface{} = func() interface{} {
+					var tmp86 interface{} = FieldGet(world, "npcs")
+					_ = tmp86 // suppress unused
+					return npcsToDraw_impl(tmp86)
+				}()
+				_ = npcCmds // suppress unused
+				var selCmds interface{} = func() interface{} {
+					var tmp85 interface{} = FieldGet(world, "selection")
+					_ = tmp85 // suppress unused
+					return selectionToDraw_impl(tmp85)
+				}()
+				_ = selCmds // suppress unused
+				var tmp84 interface{} = concatDrawCmds_impl(tileCmds, npcCmds)
+				_ = tmp84 // suppress unused
+				return concatDrawCmds_impl(tmp84, selCmds)
+			}()
+		case ViewModeKindViewGalaxyMap:
+			return func() interface{} {
+				var tmp91 interface{} = FieldGet(world, "starCatalog")
+				_ = tmp91 // suppress unused
+				return renderGalaxyMap_impl(tmp91)
+			}()
+		default:
+			panic("non-exhaustive match")
 		}
 	}()
 }
 
-func renderForView(world *World) []*DrawCmd {
-	return ConvertToDrawCmdSlice(renderForView_impl(world))
+func renderForView(world *World, input *FrameInput) []*DrawCmd {
+	return ConvertToDrawCmdSlice(renderForView_impl(world, input))
 }
 
-func updateBridgeView_impl(world interface{}, newTick interface{}) interface{} {
-	var updatedBridge interface{} = func() interface{} {
-		var tmp94 interface{} = FieldGet(world, "bridge")
-		_ = tmp94 // suppress unused
-		return stepBridge_impl(tmp94, newTick)
+func updateInteriorView_impl(world interface{}, input interface{}, newTick interface{}) interface{} {
+	var updatedInterior interface{} = func() interface{} {
+		var tmp93 interface{} = FieldGet(world, "interior")
+		_ = tmp93 // suppress unused
+		return stepInterior_impl(tmp93, input)
 	}()
 	var updatedSystem interface{} = func() interface{} {
-		var tmp93 interface{} = FieldGet(world, "currentSystem")
-		_ = tmp93 // suppress unused
-		return stepSystem_impl(tmp93, float64(0.001))
+		var tmp92 interface{} = FieldGet(world, "currentSystem")
+		_ = tmp92 // suppress unused
+		return stepSystem_impl(tmp92, float64(0.001))
 	}()
-	return RecordUpdate(world, map[string]interface{}{"currentSystem": updatedSystem, "tick": newTick, "bridge": updatedBridge})
+	return RecordUpdate(world, map[string]interface{}{"tick": newTick, "interior": updatedInterior, "currentSystem": updatedSystem})
 }
 
-func updateBridgeView(world *World, newTick int64) *World {
-	return updateBridgeView_impl(world, newTick).(*World)
+func updateInteriorView(world *World, input *FrameInput, newTick int64) *World {
+	return updateInteriorView_impl(world, input, newTick).(*World)
 }
 
 func updatePlanetView_impl(world interface{}, input interface{}, newTick interface{}) interface{} {
 	var newSelection interface{} = processSelection_impl(input, world)
 	var updatedNpcs interface{} = func() interface{} {
-		var tmp95 interface{} = FieldGet(world, "npcs")
+		var tmp94 interface{} = FieldGet(world, "npcs")
+		_ = tmp94 // suppress unused
+		var tmp95 interface{} = FieldGet(world, "planet")
 		_ = tmp95 // suppress unused
-		var tmp96 interface{} = FieldGet(world, "planet")
+		var tmp96 interface{} = FieldGet(tmp95, "width")
 		_ = tmp96 // suppress unused
-		var tmp97 interface{} = FieldGet(tmp96, "width")
+		var tmp97 interface{} = FieldGet(world, "planet")
 		_ = tmp97 // suppress unused
-		var tmp98 interface{} = FieldGet(world, "planet")
+		var tmp98 interface{} = FieldGet(tmp97, "height")
 		_ = tmp98 // suppress unused
-		var tmp99 interface{} = FieldGet(tmp98, "height")
-		_ = tmp99 // suppress unused
-		return updateAllNPCs_impl(tmp95, tmp97, tmp99)
+		return updateAllNPCs_impl(tmp94, tmp96, tmp98)
 	}()
-	return RecordUpdate(world, map[string]interface{}{"selection": newSelection, "tick": newTick, "npcs": updatedNpcs})
+	return RecordUpdate(world, map[string]interface{}{"tick": newTick, "npcs": updatedNpcs, "selection": newSelection})
 }
 
 func updatePlanetView(world *World, input *FrameInput, newTick int64) *World {
@@ -557,44 +592,51 @@ func updateGalaxyView(world *World, newTick int64) *World {
 
 func step_impl(world interface{}, input interface{}) interface{} {
 	var newTick interface{} = func() interface{} {
-		var tmp105 interface{} = FieldGet(world, "tick")
-		_ = tmp105 // suppress unused
-		return AddInt(tmp105, int64(1))
+		var tmp104 interface{} = FieldGet(world, "tick")
+		_ = tmp104 // suppress unused
+		return AddInt(tmp104, int64(1))
 	}()
 	var newWorld interface{} = func() interface{} {
-		var tmp104 interface{} = FieldGet(world, "viewMode")
-		_ = tmp104 // suppress unused
+		var tmp103 interface{} = FieldGet(world, "viewMode")
+		_ = tmp103 // suppress unused
 		return func() interface{} {
-			_scrutinee := tmp104
+			_scrutinee := tmp103
 			_ = _scrutinee // suppress unused
-			switch _scrutinee {
+			_adt := _scrutinee.(*ViewMode)
+			switch _adt.Kind {
+			case ViewModeKindViewInterior:
+				return updateInteriorView_impl(world, input, newTick)
+			case ViewModeKindViewPlanet:
+				return updatePlanetView_impl(world, input, newTick)
+			case ViewModeKindViewGalaxyMap:
+				return updateGalaxyView_impl(world, newTick)
 			default:
-				return updateBridgeView_impl(world, newTick)
+				panic("non-exhaustive match")
 			}
 		}()
 	}()
-	var drawCmds interface{} = renderForView_impl(newWorld)
+	var drawCmds interface{} = renderForView_impl(newWorld, input)
 	var cam interface{} = &Camera{X: float64(0), Y: float64(0), Zoom: float64(1)}
 	var srCtx interface{} = &SRContext{Enabled: false, Velocity: float64(0), Gamma: float64(1), ViewAngle: float64(0)}
 	var grCtx interface{} = &GRContext{Enabled: false, CenterX: float64(0.5), CenterY: float64(0.5), Phi: float64(0), Rs: float64(0), ObjectType: ""}
 	var relCtx interface{} = &RelativityContext{Sr: srCtx.(*SRContext), Gr: grCtx.(*GRContext)}
 	var ambientSettings interface{} = func() interface{} {
-		var tmp103 interface{} = &RGBColor{R: float64(1), G: float64(1), B: float64(1)}
-		_ = tmp103 // suppress unused
-		return &AmbientSettings{Energy: float64(1), Color: tmp103.(*RGBColor)}
+		var tmp102 interface{} = &RGBColor{R: float64(1), G: float64(1), B: float64(1)}
+		_ = tmp102 // suppress unused
+		return &AmbientSettings{Energy: float64(1), Color: tmp102.(*RGBColor)}
 	}()
 	var lightingCtx interface{} = func() interface{} {
-		var tmp102 interface{} = []interface{}{}
-		_ = tmp102 // suppress unused
-		return &LightingContext{Enabled: false, Ambient: ambientSettings.(*AmbientSettings), Lights: ConvertToLightSourceSlice(tmp102), LightMultiplier: float64(1)}
+		var tmp101 interface{} = []interface{}{}
+		_ = tmp101 // suppress unused
+		return &LightingContext{Enabled: false, Ambient: ambientSettings.(*AmbientSettings), Lights: ConvertToLightSourceSlice(tmp101), LightMultiplier: float64(1)}
 	}()
 	var lodConfig interface{} = &LODConfig{Enabled: true, TransitionTime: float64(0), Hysteresis: float64(0.4), Full3DPixels: float64(12), BillboardPixels: float64(6), CirclePixels: float64(3), PointPixels: float64(1), Max3DObjects: int64(30)}
 	var output interface{} = func() interface{} {
+		var tmp99 interface{} = []interface{}{}
+		_ = tmp99 // suppress unused
 		var tmp100 interface{} = []interface{}{}
 		_ = tmp100 // suppress unused
-		var tmp101 interface{} = []interface{}{}
-		_ = tmp101 // suppress unused
-		return &FrameOutput{Draw: ConvertToDrawCmdSlice(drawCmds), Sounds: ConvertToInt64Slice(tmp100), Debug: ConvertToStringSlice(tmp101), Camera: cam.(*Camera), Relativity: relCtx.(*RelativityContext), Lighting: lightingCtx.(*LightingContext), Lod: lodConfig.(*LODConfig)}
+		return &FrameOutput{Draw: ConvertToDrawCmdSlice(drawCmds), Sounds: ConvertToInt64Slice(tmp99), Debug: ConvertToStringSlice(tmp100), Camera: cam.(*Camera), Relativity: relCtx.(*RelativityContext), Lighting: lightingCtx.(*LightingContext), Lod: lodConfig.(*LODConfig)}
 	}()
 	return []interface{}{newWorld, output}
 }

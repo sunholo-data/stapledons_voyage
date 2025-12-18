@@ -66,6 +66,9 @@ type Renderer struct {
 
 	// Tetra3D cached scenes for 3D planet rendering (one per planet for reuse)
 	planet3DScenes map[string]*planet3DCache
+
+	// 3D interior scene for first-person ship views
+	interior *interiorScene
 }
 
 // NewRenderer creates a renderer with the given asset manager.
@@ -209,22 +212,17 @@ func (r *Renderer) RenderFrame(screen *ebiten.Image, out sim_gen.FrameOutput) {
 	// Calculate viewport for culling
 	viewport := camera.CalculateViewport(cam, screenW, screenH)
 
-	// Sort draw commands using isometric depth sorting
-	// This handles both legacy Z-sorting and iso (layer, screenY) sorting
-	sortables := make([]isoSortable, len(out.Draw))
-	for i, cmd := range out.Draw {
-		sortables[i] = isoSortable{
-			cmd:     cmd,
-			sortKey: getIsoSortKey(cmd, cam, screenW, screenH),
-		}
+	// Sort draw commands by Z value (simple back-to-front sorting)
+	sortedCmds := make([]*sim_gen.DrawCmd, len(out.Draw))
+	for i := range out.Draw {
+		sortedCmds[i] = out.Draw[i]
 	}
-	sort.Slice(sortables, func(i, j int) bool {
-		return sortables[i].sortKey < sortables[j].sortKey
+	sort.Slice(sortedCmds, func(i, j int) bool {
+		return getZ(sortedCmds[i]) < getZ(sortedCmds[j])
 	})
 
 	// Render each command using Kind-based dispatch (discriminator struct pattern)
-	for _, s := range sortables {
-		cmd := s.cmd
+	for _, cmd := range sortedCmds {
 		switch cmd.Kind {
 		case sim_gen.DrawCmdKindRect:
 			c := cmd.Rect
@@ -251,15 +249,6 @@ func (r *Renderer) RenderFrame(screen *ebiten.Image, out sim_gen.FrameOutput) {
 			c := cmd.Text
 			// Screen-space coordinates (no transform)
 			r.drawText(screen, c, int(c.X), int(c.Y))
-
-		case sim_gen.DrawCmdKindIsoTile:
-			r.drawIsoTile(screen, cmd.IsoTile, cam, screenW, screenH)
-
-		case sim_gen.DrawCmdKindIsoTileAlpha:
-			r.drawIsoTileAlpha(screen, cmd.IsoTileAlpha, cam, screenW, screenH)
-
-		case sim_gen.DrawCmdKindIsoEntity:
-			r.drawIsoEntity(screen, cmd.IsoEntity, cam, screenW, screenH)
 
 		case sim_gen.DrawCmdKindUi:
 			r.drawUiElement(screen, cmd.Ui, screenW, screenH)
@@ -310,8 +299,24 @@ func (r *Renderer) RenderFrame(screen *ebiten.Image, out sim_gen.FrameOutput) {
 			c := cmd.Marker
 			col := unpackRGBA(c.Rgba)
 			ebitenutil.DrawRect(screen, c.X, c.Y, c.W, c.H, col)
+
+		// 3D Interior commands
+		case sim_gen.DrawCmdKindCamera3D:
+			r.handleCamera3D(cmd.Camera3D, screenW, screenH)
+
+		case sim_gen.DrawCmdKindRoom3D:
+			r.handleRoom3D(cmd.Room3D, screenW, screenH)
+
+		case sim_gen.DrawCmdKindProp3D:
+			r.handleProp3D(cmd.Prop3D, screenW, screenH)
+
+		case sim_gen.DrawCmdKindBillboard3D:
+			r.handleBillboard3D(cmd.Billboard3D, screenW, screenH)
 		}
 	}
+
+	// Render 3D interior scene if active
+	r.renderInterior3D(screen, screenW, screenH)
 
 	// Render debug messages below UI panels (UI layer, not transformed)
 	// Start at y=50 to avoid overlapping with camera panel
@@ -357,20 +362,13 @@ func (r *Renderer) renderFrameLayered(screen *ebiten.Image, out sim_gen.FrameOut
 		transform := r.parallaxCam.TransformForLayer(layer)
 		viewport := camera.CalculateViewport(cam, screenW, screenH)
 
-		// Sort commands within this layer
-		sortables := make([]isoSortable, len(cmds))
-		for i, cmd := range cmds {
-			sortables[i] = isoSortable{
-				cmd:     cmd,
-				sortKey: getIsoSortKey(cmd, cam, screenW, screenH),
-			}
-		}
-		sort.Slice(sortables, func(i, j int) bool {
-			return sortables[i].sortKey < sortables[j].sortKey
+		// Sort commands within this layer by Z
+		sort.Slice(cmds, func(i, j int) bool {
+			return getZ(cmds[i]) < getZ(cmds[j])
 		})
 
 		// Render commands to this layer's buffer
-		r.renderCommandsToBuffer(buffer, sortables, transform, viewport, cam, screenW, screenH)
+		r.renderCommandsToBuffer(buffer, cmds, transform, viewport, cam, screenW, screenH)
 	}
 
 	// Composite all layers to screen (back to front)
@@ -385,14 +383,13 @@ func (r *Renderer) renderFrameLayered(screen *ebiten.Image, out sim_gen.FrameOut
 // renderCommandsToBuffer renders a list of sorted commands to a target buffer.
 func (r *Renderer) renderCommandsToBuffer(
 	buffer *ebiten.Image,
-	sortables []isoSortable,
+	cmds []*sim_gen.DrawCmd,
 	transform camera.Transform,
 	viewport camera.Viewport,
 	cam sim_gen.Camera,
 	screenW, screenH int,
 ) {
-	for _, s := range sortables {
-		cmd := s.cmd
+	for _, cmd := range cmds {
 		switch cmd.Kind {
 		case sim_gen.DrawCmdKindRect:
 			c := cmd.Rect
@@ -415,15 +412,6 @@ func (r *Renderer) renderCommandsToBuffer(
 		case sim_gen.DrawCmdKindText:
 			c := cmd.Text
 			r.drawText(buffer, c, int(c.X), int(c.Y))
-
-		case sim_gen.DrawCmdKindIsoTile:
-			r.drawIsoTile(buffer, cmd.IsoTile, cam, screenW, screenH)
-
-		case sim_gen.DrawCmdKindIsoTileAlpha:
-			r.drawIsoTileAlpha(buffer, cmd.IsoTileAlpha, cam, screenW, screenH)
-
-		case sim_gen.DrawCmdKindIsoEntity:
-			r.drawIsoEntity(buffer, cmd.IsoEntity, cam, screenW, screenH)
 
 		case sim_gen.DrawCmdKindUi:
 			r.drawUiElement(buffer, cmd.Ui, screenW, screenH)
@@ -876,10 +864,6 @@ func getZ(cmd *sim_gen.DrawCmd) int {
 		return int(cmd.GalaxyBg.Z)
 	case sim_gen.DrawCmdKindStar:
 		return int(cmd.Star.Z)
-	case sim_gen.DrawCmdKindIsoTile:
-		return int(cmd.IsoTile.Layer)
-	case sim_gen.DrawCmdKindIsoEntity:
-		return int(cmd.IsoEntity.Layer)
 	case sim_gen.DrawCmdKindUi:
 		return int(cmd.Ui.Z) + 10000 // UI always on top
 	case sim_gen.DrawCmdKindRectRGBA:

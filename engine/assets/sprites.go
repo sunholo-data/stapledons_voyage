@@ -14,9 +14,10 @@ import (
 
 // SpriteManager handles sprite loading and caching.
 type SpriteManager struct {
-	sprites     map[int]*ebiten.Image
-	animations  map[int]*SpriteAnimDef // Animation definitions per sprite ID
-	placeholder *ebiten.Image
+	sprites      map[int]*ebiten.Image
+	maskedTiles  map[int]*ebiten.Image  // Cached diamond-masked versions
+	animations   map[int]*SpriteAnimDef // Animation definitions per sprite ID
+	placeholder  *ebiten.Image
 }
 
 // SpriteAnimDef defines animation sequences for a sprite.
@@ -41,6 +42,7 @@ func NewSpriteManager() *SpriteManager {
 
 	return &SpriteManager{
 		sprites:     make(map[int]*ebiten.Image),
+		maskedTiles: make(map[int]*ebiten.Image),
 		animations:  make(map[int]*SpriteAnimDef),
 		placeholder: placeholder,
 	}
@@ -123,4 +125,73 @@ func loadImage(path string) (*ebiten.Image, error) {
 	}
 
 	return ebiten.NewImageFromImage(img), nil
+}
+
+// MaskToDiamond takes a rectangular tile and returns a new image with
+// pixels outside the isometric diamond shape made transparent.
+// Uses pixel-perfect row-by-row calculation for exact tessellation.
+// For a 64x32 tile, each row's visible pixels are calculated as:
+// - Row 0: center 2 pixels, Row 1: center 4 pixels, ... Row 15: center 32 pixels
+// - Row 16: center 32 pixels, Row 17: center 30 pixels, ... Row 31: center 2 pixels
+func MaskToDiamond(src *ebiten.Image) *ebiten.Image {
+	bounds := src.Bounds()
+	w := bounds.Dx()
+	h := bounds.Dy()
+
+	// Create a new RGBA image
+	dst := image.NewRGBA(image.Rect(0, 0, w, h))
+
+	halfH := h / 2 // 16 for 32-height tile
+
+	for y := 0; y < h; y++ {
+		// Calculate how wide the diamond is at this row
+		// Diamond width increases by (w/h) pixels per row from top until middle,
+		// then decreases symmetrically
+		var rowsFromEdge int
+		if y < halfH {
+			rowsFromEdge = y + 1 // rows 0-15: 1,2,3...16
+		} else {
+			rowsFromEdge = h - y // rows 16-31: 16,15,14...1
+		}
+
+		// Width at this row: 2 * rowsFromEdge * (w/h) = 2 * rowsFromEdge * 2 = 4 * rowsFromEdge for 64x32
+		// But we want to match the exact diamond shape
+		// For 64x32: at row 0, width=2; at row 15/16, width=64
+		pixelsWide := rowsFromEdge * w / halfH // rowsFromEdge * 4 for 64x32
+
+		// Center the visible pixels
+		margin := (w - pixelsWide) / 2
+		xStart := margin
+		xEnd := w - margin
+
+		for x := 0; x < w; x++ {
+			if x >= xStart && x < xEnd {
+				c := src.At(x, y)
+				dst.Set(x, y, c)
+			}
+		}
+	}
+
+	return ebiten.NewImageFromImage(dst)
+}
+
+// GetMaskedTile returns a diamond-masked version of the tile.
+// Results are cached for efficiency.
+func (sm *SpriteManager) GetMaskedTile(id int) *ebiten.Image {
+	// Return cached version if available
+	if masked, ok := sm.maskedTiles[id]; ok {
+		return masked
+	}
+
+	// Get original sprite
+	sprite, ok := sm.sprites[id]
+	if !ok {
+		return sm.placeholder
+	}
+
+	// Create masked version and cache it
+	masked := MaskToDiamond(sprite)
+	sm.maskedTiles[id] = masked
+
+	return masked
 }

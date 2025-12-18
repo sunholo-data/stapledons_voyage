@@ -143,6 +143,26 @@ func (h *GeminiAIHandler) generateImage(req AIRequest) (string, error) {
 		ResponseModalities: []string{"IMAGE", "TEXT"},
 	}
 
+	// Add image config if aspect ratio or size is specified
+	if req.Context != nil {
+		var imgConfig *genai.ImageConfig
+		if aspectRatio, ok := req.Context["aspect_ratio"].(string); ok && aspectRatio != "" {
+			if imgConfig == nil {
+				imgConfig = &genai.ImageConfig{}
+			}
+			imgConfig.AspectRatio = aspectRatio
+		}
+		if imageSize, ok := req.Context["image_size"].(string); ok && imageSize != "" {
+			if imgConfig == nil {
+				imgConfig = &genai.ImageConfig{}
+			}
+			imgConfig.ImageSize = imageSize
+		}
+		if imgConfig != nil {
+			config.ImageConfig = imgConfig
+		}
+	}
+
 	contents := []*genai.Content{
 		genai.NewContentFromText(prompt, genai.RoleUser),
 	}

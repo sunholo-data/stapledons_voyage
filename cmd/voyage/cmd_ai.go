@@ -21,6 +21,8 @@ type aiFlags struct {
 	generateImage bool
 	editImage     bool
 	referencePath string
+	aspectRatio   string
+	imageSize     string
 	tts           bool
 	voice         string
 	verbose       bool
@@ -40,6 +42,8 @@ func parseAIFlags(args []string) (aiFlags, *flag.FlagSet) {
 	fs.BoolVar(&flags.generateImage, "generate-image", false, "Generate an image from prompt (Gemini only)")
 	fs.BoolVar(&flags.editImage, "edit-image", false, "Edit a reference image with the prompt (Gemini only)")
 	fs.StringVar(&flags.referencePath, "reference", "", "Path to reference image for editing (or uses last generated)")
+	fs.StringVar(&flags.aspectRatio, "aspect", "", "Aspect ratio for image generation: 1:1, 2:1, 3:4, 4:3, 16:9, etc.")
+	fs.StringVar(&flags.imageSize, "size", "", "Image size: 1K (default), 2K, or 4K")
 	fs.BoolVar(&flags.tts, "tts", false, "Generate speech from prompt (Gemini only)")
 	fs.StringVar(&flags.voice, "voice", "", "TTS voice name (default: Kore). Options: Aoede, Charon, Fenrir, Kore, Puck, Zephyr, Enceladus")
 	fs.BoolVar(&flags.verbose, "v", false, "Verbose output")
@@ -62,10 +66,15 @@ Examples:
   voyage ai -provider claude -prompt "Hi"   # Use Claude
   voyage ai -provider gemini -prompt "Hi"   # Use Gemini
   voyage ai -prompt "Draw a cat" -generate-image  # Generate image
+  voyage ai -prompt "Draw landscape" -generate-image -aspect 16:9  # With aspect ratio
+  voyage ai -prompt "Detailed scene" -generate-image -size 2K  # Higher resolution
   voyage ai -prompt "Make sky purple" -edit-image -reference img.png  # Edit image
   voyage ai -prompt "Add more stars" -edit-image  # Edit last generated image
   voyage ai -prompt "Hello world" -tts      # Text to speech
   voyage ai -prompt "Hello" -tts -voice Puck  # TTS with specific voice
+
+Aspect Ratios: 1:1, 2:3, 3:2, 3:4, 4:3, 9:16, 16:9, 21:9
+Image Sizes: 1K (default), 2K, 4K
 
 Environment Variables:
   ANTHROPIC_API_KEY     - Claude API key
@@ -116,6 +125,12 @@ func buildAIRequest(flags aiFlags) (handlers.AIRequest, error) {
 	if flags.generateImage {
 		promptText = "imagen: " + promptText
 		req.Context["generate_image"] = true
+		if flags.aspectRatio != "" {
+			req.Context["aspect_ratio"] = flags.aspectRatio
+		}
+		if flags.imageSize != "" {
+			req.Context["image_size"] = flags.imageSize
+		}
 	}
 	if flags.tts {
 		promptText = "speak: " + promptText

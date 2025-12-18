@@ -266,9 +266,16 @@ func generateStar_impl(seed interface{}, cellX interface{}, cellY interface{}, c
 	var hasHZ interface{} = func() interface{} {
 		_scrutinee := spectral
 		_ = _scrutinee // suppress unused
-		switch _scrutinee {
-		default:
+		_adt := _scrutinee.(*SpectralType)
+		switch _adt.Kind {
+		case SpectralTypeKindG:
 			return LtFloat(hzRoll, float64(0.22))
+		case SpectralTypeKindK:
+			return LtFloat(hzRoll, float64(0.15))
+		case SpectralTypeKindM:
+			return LtFloat(hzRoll, float64(0.05))
+		default:
+			return false
 		}
 	}()
 	var starId interface{} = ModInt(hash, int64(1000000000))

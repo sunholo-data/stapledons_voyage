@@ -119,10 +119,10 @@ func pathGet_impl(path interface{}, idx interface{}) interface{} {
 			dir := _adt.Some.Value0
 			_ = dir // suppress unused
 			return dir
-		default:
-			none := _adt
-			_ = none // suppress unused
+		case OptionKindNone:
 			return NewDirectionNorth()
+		default:
+			panic("non-exhaustive match")
 		}
 	}()
 }

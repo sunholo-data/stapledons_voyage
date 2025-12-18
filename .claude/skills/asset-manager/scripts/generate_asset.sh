@@ -73,21 +73,55 @@ STYLE_SCIFI="sci-fi starship interior, dark metallic surfaces, glowing accent li
 # Generate prompt based on type
 case "$TYPE" in
     tile)
-        PROMPT="Create a 64x32 pixel art isometric tile showing ${DESCRIPTION}.
-Style: ${STYLE_BASE}, isometric view, 2:1 diamond ratio.
-Format: PNG with transparent background.
-Shape: Diamond/rhombus shaped tile. Light source from top-left.
-The tile should work as part of a tileable terrain grid."
+        PROMPT="Create a 64x32 pixel isometric floor tile for ${DESCRIPTION}.
+
+CRITICAL TESSELLATION REQUIREMENTS (ALL MUST BE MET):
+1. EXACT dimensions: 64 pixels wide, 32 pixels tall
+2. Diamond shape ONLY - NO rectangular background
+3. PNG format with full transparency (alpha channel)
+4. Content fills the EXACT isometric diamond shape
+5. Diamond vertices at: top(32,0), right(63,16), bottom(32,31), left(0,16)
+6. Corners at (0,0), (63,0), (0,31), (63,31) MUST be fully transparent (alpha=0)
+7. Approximately 1024 opaque pixels (the diamond area is half of 64x32)
+
+Style: ${STYLE_BASE}, isometric view, subtle top-left lighting.
+
+WRONG (will not tessellate):
+- Rectangle with diamond drawn inside it
+- Any opaque pixels at the four corners
+- Diamond that doesn't fill edge to edge
+
+RIGHT:
+- Pure diamond shape with transparent corners
+- Content extends to diamond vertices
+- Clean edges along the diamond boundary"
         TARGET_DIR="iso_tiles"
         ;;
 
     interior_tile)
-        PROMPT="Create a 64x32 pixel art isometric floor tile for a sci-fi starship interior showing ${DESCRIPTION}.
+        PROMPT="Create a 64x32 pixel isometric floor tile for a sci-fi starship interior: ${DESCRIPTION}.
+
+CRITICAL TESSELLATION REQUIREMENTS (ALL MUST BE MET):
+1. EXACT dimensions: 64 pixels wide, 32 pixels tall
+2. Diamond shape ONLY - NO rectangular background
+3. PNG format with full transparency (alpha channel)
+4. Content fills the EXACT isometric diamond shape
+5. Diamond vertices at: top(32,0), right(63,16), bottom(32,31), left(0,16)
+6. Corners at (0,0), (63,0), (0,31), (63,31) MUST be fully transparent (alpha=0)
+7. Approximately 1024 opaque pixels (the diamond area is half of 64x32)
+
 Style: ${STYLE_BASE}, ${STYLE_SCIFI}.
-Format: PNG with transparent background.
-Shape: Diamond/rhombus isometric tile (2:1 width-to-height).
 Features: Metallic plating with subtle glowing circuit lines or panel seams.
-Must tile seamlessly with other floor tiles."
+
+WRONG (will not tessellate):
+- Rectangle with diamond drawn inside it
+- Any opaque pixels at the four corners
+- Diamond that doesn't fill edge to edge
+
+RIGHT:
+- Pure diamond shape with transparent corners
+- Content extends to diamond vertices
+- Clean edges along the diamond boundary"
         TARGET_DIR="interior/tiles"
         ;;
 
@@ -219,9 +253,27 @@ echo "File: $GENERATED_FILE"
 echo ""
 echo "Next steps:"
 echo "  1. Review the image: open $GENERATED_FILE"
-echo "  2. If good, organize it:"
-echo "     .claude/skills/asset-manager/scripts/organize_asset.sh $GENERATED_FILE $TYPE $NAME"
-echo "  3. Optionally optimize/resize:"
-echo "     .claude/skills/asset-manager/scripts/optimize_asset.sh assets/sprites/$TARGET_DIR/$NAME.png"
+
+# Show tile-specific verification step
+if [[ "$TYPE" == "tile" || "$TYPE" == "interior_tile" ]]; then
+    echo "  2. Verify tessellation requirements:"
+    echo "     .claude/skills/asset-manager/scripts/verify_iso_tile.sh $GENERATED_FILE"
+    echo "     Or auto-fix with: verify_iso_tile.sh $GENERATED_FILE --fix"
+    echo "  3. Organize it (with resize+mask):"
+    echo "     .claude/skills/asset-manager/scripts/organize_asset.sh $GENERATED_FILE $TYPE $NAME --optimize"
+else
+    echo "  2. If good, organize it:"
+    echo "     .claude/skills/asset-manager/scripts/organize_asset.sh $GENERATED_FILE $TYPE $NAME"
+    echo "  3. Optionally optimize/resize:"
+    echo "     .claude/skills/asset-manager/scripts/optimize_asset.sh assets/sprites/$TARGET_DIR/$NAME.png"
+fi
+
 echo "  4. Update manifest:"
 echo "     .claude/skills/asset-manager/scripts/update_manifest.sh"
+
+# Tile-specific note
+if [[ "$TYPE" == "tile" || "$TYPE" == "interior_tile" ]]; then
+    echo ""
+    echo "Note: Isometric tiles require 64x32 diamond shape with transparent corners."
+    echo "The verify script checks compliance and --fix can apply diamond masking."
+fi

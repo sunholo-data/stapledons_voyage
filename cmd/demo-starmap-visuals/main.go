@@ -415,16 +415,110 @@ func NewGame(screenshotFrame int, screenshotPath string, maxStars int, maxLights
 	}
 }
 
-// initializeBillboards creates circular billboard sprites using the engine's LOD system
+// initializeBillboards creates circular billboard sprites from the sun texture.
+// Uses texture caching by spectral type - only 7 textures for all 3,800+ stars.
 func (g *Game) initializeBillboards() {
-	// Use the engine's built-in circular sprite generator
-	// Sun texture is for 3D spheres; billboards use procedural circles
-	for _, s := range g.stars {
-		info := getSpectralInfo(s.data.Spectral)
-		sprite := lod.CreateDefaultPlanetSprite(64, info.Color)
-		g.starSprites[s.lodObj.ID] = sprite
+	billboardSize := 64
+
+	// Cache sprites by spectral type - only 7 types (O,B,A,F,G,K,M)
+	// This prevents creating thousands of textures which exhausts GPU memory
+	spectralSprites := make(map[string]*ebiten.Image)
+
+	if g.sunTexture != nil {
+		// Create a circular base sprite from the sun texture
+		baseSprite := createCircularTextureSprite(g.sunTexture, billboardSize)
+
+		// Pre-create one tinted sprite per spectral type
+		for spectralType, info := range spectralTypes {
+			sprite := ebiten.NewImage(billboardSize, billboardSize)
+			tintOpts := &ebiten.DrawImageOptions{}
+			tintOpts.ColorScale.Scale(
+				float32(info.Color.R)/255.0,
+				float32(info.Color.G)/255.0,
+				float32(info.Color.B)/255.0,
+				1.0,
+			)
+			sprite.DrawImage(baseSprite, tintOpts)
+			spectralSprites[spectralType] = sprite
+		}
+		log.Printf("Created %d cached spectral type sprites (for %d stars)", len(spectralSprites), len(g.stars))
+	} else {
+		// Fallback to procedural sprites - one per spectral type
+		for spectralType, info := range spectralTypes {
+			sprite := lod.CreateDefaultPlanetSprite(billboardSize, info.Color)
+			spectralSprites[spectralType] = sprite
+		}
+		log.Printf("Created %d cached procedural sprites (for %d stars)", len(spectralSprites), len(g.stars))
 	}
-	log.Printf("Created %d billboard sprites", len(g.starSprites))
+
+	// Map each star to its spectral type's cached sprite
+	for _, s := range g.stars {
+		spectral := s.data.Spectral
+		if sprite, ok := spectralSprites[spectral]; ok {
+			g.starSprites[s.lodObj.ID] = sprite
+		} else {
+			// Unknown spectral type - use K as fallback
+			g.starSprites[s.lodObj.ID] = spectralSprites["K"]
+		}
+	}
+}
+
+// createCircularTextureSprite creates a circular sprite from an equirectangular texture
+func createCircularTextureSprite(texture *ebiten.Image, size int) *ebiten.Image {
+	texW := texture.Bounds().Dx()
+	texH := texture.Bounds().Dy()
+
+	// Create output image
+	result := ebiten.NewImage(size, size)
+
+	// Sample from center of the equirectangular texture
+	// and apply circular mask
+	centerX := float64(texW) / 2
+	centerY := float64(texH) / 2
+	sampleRadius := float64(texH) / 2 // Use half height as sample area
+
+	center := float64(size) / 2
+	radiusSq := center * center
+
+	for y := 0; y < size; y++ {
+		for x := 0; x < size; x++ {
+			// Check if pixel is inside circle
+			dx := float64(x) - center + 0.5
+			dy := float64(y) - center + 0.5
+			distSq := dx*dx + dy*dy
+
+			if distSq < radiusSq {
+				// Map to texture coordinates
+				// Normalize position within circle (-1 to 1)
+				nx := dx / center
+				ny := dy / center
+
+				// Sample from texture
+				texX := int(centerX + nx*sampleRadius)
+				texY := int(centerY + ny*sampleRadius)
+
+				// Clamp to texture bounds
+				if texX < 0 {
+					texX = 0
+				}
+				if texX >= texW {
+					texX = texW - 1
+				}
+				if texY < 0 {
+					texY = 0
+				}
+				if texY >= texH {
+					texY = texH - 1
+				}
+
+				// Get pixel from texture
+				c := texture.At(texX, texY)
+				result.Set(x, y, c)
+			}
+		}
+	}
+
+	return result
 }
 
 // findNearestStar finds the star closest to the camera
