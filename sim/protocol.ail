@@ -136,10 +136,12 @@ export type DrawCmd =
     -- width, depth, height: room dimensions in meters
     -- floorTex, wallTex, ceilingTex: texture asset names (empty = solid color)
     -- floorColor, wallColor, ceilingColor: RGBA colors if no texture (0xRRGGBBAA)
+    -- uvScale: texture tiles per meter (1.0 = 1 tile/meter, 2.0 = smaller tiles, 0.5 = larger tiles)
     | Room3D(
         width: float, depth: float, height: float,
         floorTex: string, wallTex: string, ceilingTex: string,
         floorColor: int, wallColor: int, ceilingColor: int,
+        uvScale: float,
         z: int
     )
 

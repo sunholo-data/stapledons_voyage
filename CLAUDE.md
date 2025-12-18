@@ -31,9 +31,9 @@ This project tests AILANG as a game scripting language. The Go engine is a "dumb
 - Loads assets and applies shaders
 
 **ALL game logic MUST be in AILANG** (`sim/*.ail`):
-- Tile layouts and positioning
+- Room layouts and 3D positioning
 - NPC/crew positions, movement, AI
-- Player movement and interactions
+- Player movement and interactions (first-person)
 - State management and game rules
 - Draw command generation (what to render where)
 
@@ -41,7 +41,7 @@ This project tests AILANG as a game scripting language. The Go engine is a "dumb
 - Game state definitions (use AILANG types)
 - Movement or positioning logic
 - AI or behavior logic
-- Level layout or tile data
+- Room/level layout data
 - Any "game design" decisions
 
 **The Go engine CAN contain (purely visual, no gameplay impact):**
@@ -420,7 +420,7 @@ The Go/Ebiten engine layer is largely complete. Reference this when planning fea
 | Component | Location | Capabilities |
 |-----------|----------|--------------|
 | Game loop | `cmd/game/main.go` | Ebiten Update/Draw cycle |
-| Render bridge | `engine/render/draw.go` | All DrawCmd types: Rect, Sprite, Text, IsoTile, IsoEntity, Ui, Line, Circle, TextWrapped, GalaxyBg, Star |
+| Render bridge | `engine/render/draw.go` | All DrawCmd types: Rect, Sprite, Text, Ui, Line, Circle, TextWrapped, GalaxyBg, Star, Room3D, Prop3D, Billboard3D |
 | Camera | `engine/camera/` | WorldToScreen/ScreenToWorld transforms, viewport culling |
 | Input | `engine/input/` | Mouse position, clicks, keyboard events |
 | Sprites | `engine/assets/sprites.go` | Atlas loading, animation frames, manifest support |

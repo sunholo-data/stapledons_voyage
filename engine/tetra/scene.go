@@ -32,6 +32,9 @@ func NewScene(width, height int) *Scene {
 	s.camera.SetFieldOfView(60) // degrees
 	s.camera.SetNear(0.1)
 	s.camera.SetFar(1000)
+	// Enable perspective-correct texture mapping (vs affine/PS1-style)
+	// This prevents textures from "swimming" when viewed at angles
+	s.camera.PerspectiveCorrectedTextureMapping = true
 	s.scene.Root.AddChildren(s.camera)
 
 	// Position camera back from origin
@@ -122,6 +125,8 @@ func (s *Scene) Resize(width, height int) {
 	s.camera.SetFieldOfView(60)
 	s.camera.SetNear(0.1)
 	s.camera.SetFar(1000)
+	// Enable perspective-correct texture mapping (vs affine/PS1-style)
+	s.camera.PerspectiveCorrectedTextureMapping = true
 	s.camera.SetLocalPosition(oldPos.X, oldPos.Y, oldPos.Z)
 	s.scene.Root.AddChildren(s.camera)
 }

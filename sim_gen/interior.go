@@ -148,7 +148,7 @@ func defaultRoom_impl(_unused0 interface{}) interface{} {
 	var tmp4 interface{} = colorFloorDefault_impl(struct{}{})
 	var tmp5 interface{} = colorWallDefault_impl(struct{}{})
 	var tmp6 interface{} = colorCeilingDefault_impl(struct{}{})
-	return &RoomDef{Width: tmp1.(float64), Depth: tmp2.(float64), Height: tmp3.(float64), FloorTex: "", WallTex: "", CeilingTex: "", FloorColor: tmp4.(int64), WallColor: tmp5.(int64), CeilingColor: tmp6.(int64)}
+	return &RoomDef{Width: tmp1.(float64), Depth: tmp2.(float64), Height: tmp3.(float64), FloorTex: "", WallTex: "", CeilingTex: "", FloorColor: tmp4.(int64), WallColor: tmp5.(int64), CeilingColor: tmp6.(int64), UvScale: float64(1)}
 }
 
 func DefaultRoom() *RoomDef {
@@ -159,7 +159,7 @@ func makeRoom_impl(w interface{}, d interface{}, h interface{}) interface{} {
 	var tmp7 interface{} = colorFloorDefault_impl(struct{}{})
 	var tmp8 interface{} = colorWallDefault_impl(struct{}{})
 	var tmp9 interface{} = colorCeilingDefault_impl(struct{}{})
-	return &RoomDef{Width: w.(float64), Depth: d.(float64), Height: h.(float64), FloorTex: "", WallTex: "", CeilingTex: "", FloorColor: tmp7.(int64), WallColor: tmp8.(int64), CeilingColor: tmp9.(int64)}
+	return &RoomDef{Width: w.(float64), Depth: d.(float64), Height: h.(float64), FloorTex: "", WallTex: "", CeilingTex: "", FloorColor: tmp7.(int64), WallColor: tmp8.(int64), CeilingColor: tmp9.(int64), UvScale: float64(1)}
 }
 
 func MakeRoom(w float64, d float64, h float64) *RoomDef {
@@ -170,17 +170,28 @@ func makeRoomTextured_impl(w interface{}, d interface{}, h interface{}, floor in
 	var tmp10 interface{} = colorFloorDefault_impl(struct{}{})
 	var tmp11 interface{} = colorWallDefault_impl(struct{}{})
 	var tmp12 interface{} = colorCeilingDefault_impl(struct{}{})
-	return &RoomDef{Width: w.(float64), Depth: d.(float64), Height: h.(float64), FloorTex: floor.(string), WallTex: wall.(string), CeilingTex: ceiling.(string), FloorColor: tmp10.(int64), WallColor: tmp11.(int64), CeilingColor: tmp12.(int64)}
+	return &RoomDef{Width: w.(float64), Depth: d.(float64), Height: h.(float64), FloorTex: floor.(string), WallTex: wall.(string), CeilingTex: ceiling.(string), FloorColor: tmp10.(int64), WallColor: tmp11.(int64), CeilingColor: tmp12.(int64), UvScale: float64(1)}
 }
 
 func MakeRoomTextured(w float64, d float64, h float64, floor string, wall string, ceiling string) *RoomDef {
 	return makeRoomTextured_impl(w, d, h, floor, wall, ceiling).(*RoomDef)
 }
 
+func makeRoomTexturedScale_impl(w interface{}, d interface{}, h interface{}, floor interface{}, wall interface{}, ceiling interface{}, scale interface{}) interface{} {
+	var tmp13 interface{} = colorFloorDefault_impl(struct{}{})
+	var tmp14 interface{} = colorWallDefault_impl(struct{}{})
+	var tmp15 interface{} = colorCeilingDefault_impl(struct{}{})
+	return &RoomDef{Width: w.(float64), Depth: d.(float64), Height: h.(float64), FloorTex: floor.(string), WallTex: wall.(string), CeilingTex: ceiling.(string), FloorColor: tmp13.(int64), WallColor: tmp14.(int64), CeilingColor: tmp15.(int64), UvScale: scale.(float64)}
+}
+
+func MakeRoomTexturedScale(w float64, d float64, h float64, floor string, wall string, ceiling string, scale float64) *RoomDef {
+	return makeRoomTexturedScale_impl(w, d, h, floor, wall, ceiling, scale).(*RoomDef)
+}
+
 func makeConsole_impl(id interface{}, x interface{}, z interface{}) interface{} {
-	var tmp13 interface{} = vec3_impl(x, float64(0.5), z)
-	var tmp14 interface{} = colorConsoleDefault_impl(struct{}{})
-	return &PropDef{Id: id.(string), Pos: tmp13.(*Vec3), ScaleX: float64(1.5), ScaleY: float64(0.6), ScaleZ: float64(0.5), Texture: "", Color: tmp14.(int64)}
+	var tmp16 interface{} = vec3_impl(x, float64(0.5), z)
+	var tmp17 interface{} = colorConsoleDefault_impl(struct{}{})
+	return &PropDef{Id: id.(string), Pos: tmp16.(*Vec3), ScaleX: float64(1.5), ScaleY: float64(0.6), ScaleZ: float64(0.5), Texture: "", Color: tmp17.(int64)}
 }
 
 func MakeConsole(id string, x float64, z float64) *PropDef {
@@ -188,9 +199,9 @@ func MakeConsole(id string, x float64, z float64) *PropDef {
 }
 
 func makeChair_impl(id interface{}, x interface{}, z interface{}) interface{} {
-	var tmp15 interface{} = vec3_impl(x, float64(0.4), z)
-	var tmp16 interface{} = colorChairDefault_impl(struct{}{})
-	return &PropDef{Id: id.(string), Pos: tmp15.(*Vec3), ScaleX: float64(0.8), ScaleY: float64(0.8), ScaleZ: float64(0.8), Texture: "", Color: tmp16.(int64)}
+	var tmp18 interface{} = vec3_impl(x, float64(0.4), z)
+	var tmp19 interface{} = colorChairDefault_impl(struct{}{})
+	return &PropDef{Id: id.(string), Pos: tmp18.(*Vec3), ScaleX: float64(0.8), ScaleY: float64(0.8), ScaleZ: float64(0.8), Texture: "", Color: tmp19.(int64)}
 }
 
 func MakeChair(id string, x float64, z float64) *PropDef {
@@ -198,8 +209,8 @@ func MakeChair(id string, x float64, z float64) *PropDef {
 }
 
 func makeProp_impl(id interface{}, x interface{}, y interface{}, z interface{}, sx interface{}, sy interface{}, sz interface{}, color interface{}) interface{} {
-	var tmp17 interface{} = vec3_impl(x, y, z)
-	return &PropDef{Id: id.(string), Pos: tmp17.(*Vec3), ScaleX: sx.(float64), ScaleY: sy.(float64), ScaleZ: sz.(float64), Texture: "", Color: color.(int64)}
+	var tmp20 interface{} = vec3_impl(x, y, z)
+	return &PropDef{Id: id.(string), Pos: tmp20.(*Vec3), ScaleX: sx.(float64), ScaleY: sy.(float64), ScaleZ: sz.(float64), Texture: "", Color: color.(int64)}
 }
 
 func MakeProp(id string, x float64, y float64, z float64, sx float64, sy float64, sz float64, color int64) *PropDef {
@@ -207,8 +218,8 @@ func MakeProp(id string, x float64, y float64, z float64, sx float64, sy float64
 }
 
 func makeCharacter_impl(id interface{}, x interface{}, z interface{}, sprite interface{}) interface{} {
-	var tmp18 interface{} = vec3_impl(x, float64(0), z)
-	return &CharacterDef{Id: id.(string), Pos: tmp18.(*Vec3), SpriteId: sprite.(int64), Scale: float64(1)}
+	var tmp21 interface{} = vec3_impl(x, float64(0), z)
+	return &CharacterDef{Id: id.(string), Pos: tmp21.(*Vec3), SpriteId: sprite.(int64), Scale: float64(1)}
 }
 
 func MakeCharacter(id string, x float64, z float64, sprite int64) *CharacterDef {
@@ -216,32 +227,32 @@ func MakeCharacter(id string, x float64, z float64, sprite int64) *CharacterDef 
 }
 
 func createBridgeInterior_impl(_unused0 interface{}) interface{} {
-	var room interface{} = makeRoom_impl(float64(8), float64(6), float64(3))
+	var room interface{} = makeRoomTextured_impl(float64(8), float64(6), float64(3), "assets/textures/interior/bridge_floor.png", "assets/textures/interior/bridge_wall.png", "assets/textures/interior/bridge_ceiling.png")
 	var props interface{} = func() interface{} {
-		var tmp23 interface{} = SubFloat(float64(0), float64(2))
-		_ = tmp23 // suppress unused
-		var tmp24 interface{} = makeConsole_impl("helm", float64(0), tmp23)
-		_ = tmp24 // suppress unused
-		var tmp25 interface{} = SubFloat(float64(0), float64(3))
-		_ = tmp25 // suppress unused
-		var tmp26 interface{} = makeConsole_impl("left_console", tmp25, float64(0))
+		var tmp26 interface{} = SubFloat(float64(0), float64(2))
 		_ = tmp26 // suppress unused
-		var tmp27 interface{} = makeConsole_impl("right_console", float64(3), float64(0))
+		var tmp27 interface{} = makeConsole_impl("helm", float64(0), tmp26)
 		_ = tmp27 // suppress unused
-		var tmp28 interface{} = makeChair_impl("captain_chair", float64(0), float64(1))
+		var tmp28 interface{} = SubFloat(float64(0), float64(3))
 		_ = tmp28 // suppress unused
-		return []interface{}{tmp24, tmp26, tmp27, tmp28}
+		var tmp29 interface{} = makeConsole_impl("left_console", tmp28, float64(0))
+		_ = tmp29 // suppress unused
+		var tmp30 interface{} = makeConsole_impl("right_console", float64(3), float64(0))
+		_ = tmp30 // suppress unused
+		var tmp31 interface{} = makeChair_impl("captain_chair", float64(0), float64(1))
+		_ = tmp31 // suppress unused
+		return []interface{}{tmp27, tmp29, tmp30, tmp31}
 	}()
 	var characters interface{} = func() interface{} {
-		var tmp19 interface{} = SubFloat(float64(0), float64(1.5))
-		_ = tmp19 // suppress unused
-		var tmp20 interface{} = makeCharacter_impl("pilot", float64(0), tmp19, int64(1200))
-		_ = tmp20 // suppress unused
-		var tmp21 interface{} = SubFloat(float64(0), float64(2.5))
-		_ = tmp21 // suppress unused
-		var tmp22 interface{} = makeCharacter_impl("engineer", tmp21, float64(0), int64(1202))
+		var tmp22 interface{} = SubFloat(float64(0), float64(1.5))
 		_ = tmp22 // suppress unused
-		return []interface{}{tmp20, tmp22}
+		var tmp23 interface{} = makeCharacter_impl("pilot", float64(0), tmp22, int64(1200))
+		_ = tmp23 // suppress unused
+		var tmp24 interface{} = SubFloat(float64(0), float64(2.5))
+		_ = tmp24 // suppress unused
+		var tmp25 interface{} = makeCharacter_impl("engineer", tmp24, float64(0), int64(1202))
+		_ = tmp25 // suppress unused
+		return []interface{}{tmp23, tmp25}
 	}()
 	return &InteriorRoom{Room: room.(*RoomDef), Props: ConvertToPropDefSlice(props), Characters: ConvertToCharacterDefSlice(characters)}
 }
@@ -251,12 +262,12 @@ func CreateBridgeInterior() *InteriorRoom {
 }
 
 func initInterior_impl(_unused0 interface{}) interface{} {
-	var tmp29 interface{} = eyeHeight_impl(struct{}{})
-	var tmp30 interface{} = vec3_impl(float64(0), tmp29, float64(2))
-	var tmp31 interface{} = SubFloat(float64(0), float64(0.2))
-	var tmp32 interface{} = &InteriorPlayer{Pos: tmp30.(*Vec3), Yaw: float64(0), Pitch: tmp31.(float64), IsRunning: false}
-	var tmp33 interface{} = createBridgeInterior_impl(struct{}{})
-	return &InteriorState{Player: tmp32.(*InteriorPlayer), CurrentRoom: tmp33.(*InteriorRoom), Fov: float64(70), Tick: int64(0)}
+	var tmp32 interface{} = eyeHeight_impl(struct{}{})
+	var tmp33 interface{} = vec3_impl(float64(0), tmp32, float64(2))
+	var tmp34 interface{} = SubFloat(float64(0), float64(0.2))
+	var tmp35 interface{} = &InteriorPlayer{Pos: tmp33.(*Vec3), Yaw: float64(0), Pitch: tmp34.(float64), IsRunning: false}
+	var tmp36 interface{} = createBridgeInterior_impl(struct{}{})
+	return &InteriorState{Player: tmp35.(*InteriorPlayer), CurrentRoom: tmp36.(*InteriorRoom), Fov: float64(70), Tick: int64(0)}
 }
 
 func InitInterior() *InteriorState {
@@ -331,23 +342,23 @@ func hasKeyRec_impl(keyCode interface{}, keys interface{}) interface{} {
 			rest := ListTail(_scrutinee)
 			_ = rest // suppress unused
 			return func() interface{} {
-				var tmp34 interface{} = FieldGet(k, "key")
-				_ = tmp34 // suppress unused
-				var tmp35 interface{} = EqInt(tmp34, keyCode)
-				_ = tmp35 // suppress unused
-				var tmp36 interface{} = FieldGet(k, "kind")
-				_ = tmp36 // suppress unused
-				var tmp37 interface{} = EqString(tmp36, "pressed")
+				var tmp37 interface{} = FieldGet(k, "key")
 				_ = tmp37 // suppress unused
-				var tmp38 interface{} = func() interface{} {
-					if tmp35.(bool) {
-						return tmp37
+				var tmp38 interface{} = EqInt(tmp37, keyCode)
+				_ = tmp38 // suppress unused
+				var tmp39 interface{} = FieldGet(k, "kind")
+				_ = tmp39 // suppress unused
+				var tmp40 interface{} = EqString(tmp39, "pressed")
+				_ = tmp40 // suppress unused
+				var tmp41 interface{} = func() interface{} {
+					if tmp38.(bool) {
+						return tmp40
 					}
 					return false
 				}()
-				_ = tmp38 // suppress unused
+				_ = tmp41 // suppress unused
 				return func() interface{} {
-					if tmp38.(bool) {
+					if tmp41.(bool) {
 						return true
 					}
 					return hasKeyRec_impl(keyCode, rest)
@@ -364,8 +375,8 @@ func hasKeyRec(keyCode int64, keys []*KeyEvent) bool {
 }
 
 func hasKey_impl(keyCode interface{}, input interface{}) interface{} {
-	var tmp39 interface{} = FieldGet(input, "keys")
-	return hasKeyRec_impl(keyCode, tmp39)
+	var tmp42 interface{} = FieldGet(input, "keys")
+	return hasKeyRec_impl(keyCode, tmp42)
 }
 
 func hasKey(keyCode int64, input *FrameInput) bool {
@@ -373,8 +384,8 @@ func hasKey(keyCode int64, input *FrameInput) bool {
 }
 
 func isShiftHeld_impl(input interface{}) interface{} {
-	var tmp40 interface{} = FieldGet(input, "flight")
-	return FieldGet(tmp40, "shift")
+	var tmp43 interface{} = FieldGet(input, "flight")
+	return FieldGet(tmp43, "shift")
 }
 
 func isShiftHeld(input *FrameInput) bool {
@@ -383,40 +394,56 @@ func isShiftHeld(input *FrameInput) bool {
 
 func calculateMovement_impl(player interface{}, input interface{}) interface{} {
 	var speed interface{} = func() interface{} {
-		var tmp70 interface{} = isShiftHeld_impl(input)
-		_ = tmp70 // suppress unused
+		var tmp73 interface{} = isShiftHeld_impl(input)
+		_ = tmp73 // suppress unused
 		return func() interface{} {
-			if tmp70.(bool) {
+			if tmp73.(bool) {
 				return runSpeed_impl(struct{}{})
 			}
 			return moveSpeed_impl(struct{}{})
 		}()
 	}()
 	var forwardX interface{} = func() interface{} {
-		var tmp69 interface{} = FieldGet(player, "yaw")
-		_ = tmp69 // suppress unused
-		return math.Sin(tmp69.(float64))
+		var tmp72 interface{} = FieldGet(player, "yaw")
+		_ = tmp72 // suppress unused
+		return math.Sin(tmp72.(float64))
 	}()
 	var forwardZ interface{} = func() interface{} {
-		var tmp67 interface{} = FieldGet(player, "yaw")
-		_ = tmp67 // suppress unused
-		var tmp68 interface{} = math.Cos(tmp67.(float64))
-		_ = tmp68 // suppress unused
-		return SubFloat(float64(0), tmp68)
+		var tmp70 interface{} = FieldGet(player, "yaw")
+		_ = tmp70 // suppress unused
+		var tmp71 interface{} = math.Cos(tmp70.(float64))
+		_ = tmp71 // suppress unused
+		return SubFloat(float64(0), tmp71)
 	}()
 	var rightX interface{} = func() interface{} {
-		var tmp66 interface{} = FieldGet(player, "yaw")
-		_ = tmp66 // suppress unused
-		return math.Cos(tmp66.(float64))
+		var tmp69 interface{} = FieldGet(player, "yaw")
+		_ = tmp69 // suppress unused
+		return math.Cos(tmp69.(float64))
 	}()
 	var rightZ interface{} = func() interface{} {
-		var tmp65 interface{} = FieldGet(player, "yaw")
-		_ = tmp65 // suppress unused
-		return math.Sin(tmp65.(float64))
+		var tmp68 interface{} = FieldGet(player, "yaw")
+		_ = tmp68 // suppress unused
+		return math.Sin(tmp68.(float64))
 	}()
 	var dx0 interface{} = float64(0)
 	var dz0 interface{} = float64(0)
 	var dx1 interface{} = func() interface{} {
+		var tmp65 interface{} = FieldGet(input, "flight")
+		_ = tmp65 // suppress unused
+		var tmp66 interface{} = FieldGet(tmp65, "w")
+		_ = tmp66 // suppress unused
+		return func() interface{} {
+			if tmp66.(bool) {
+				return func() interface{} {
+					var tmp67 interface{} = MulFloat(forwardX, speed)
+					_ = tmp67 // suppress unused
+					return AddFloat(dx0, tmp67)
+				}()
+			}
+			return dx0
+		}()
+	}()
+	var dz1 interface{} = func() interface{} {
 		var tmp62 interface{} = FieldGet(input, "flight")
 		_ = tmp62 // suppress unused
 		var tmp63 interface{} = FieldGet(tmp62, "w")
@@ -424,31 +451,31 @@ func calculateMovement_impl(player interface{}, input interface{}) interface{} {
 		return func() interface{} {
 			if tmp63.(bool) {
 				return func() interface{} {
-					var tmp64 interface{} = MulFloat(forwardX, speed)
+					var tmp64 interface{} = MulFloat(forwardZ, speed)
 					_ = tmp64 // suppress unused
-					return AddFloat(dx0, tmp64)
-				}()
-			}
-			return dx0
-		}()
-	}()
-	var dz1 interface{} = func() interface{} {
-		var tmp59 interface{} = FieldGet(input, "flight")
-		_ = tmp59 // suppress unused
-		var tmp60 interface{} = FieldGet(tmp59, "w")
-		_ = tmp60 // suppress unused
-		return func() interface{} {
-			if tmp60.(bool) {
-				return func() interface{} {
-					var tmp61 interface{} = MulFloat(forwardZ, speed)
-					_ = tmp61 // suppress unused
-					return AddFloat(dz0, tmp61)
+					return AddFloat(dz0, tmp64)
 				}()
 			}
 			return dz0
 		}()
 	}()
 	var dx2 interface{} = func() interface{} {
+		var tmp59 interface{} = FieldGet(input, "flight")
+		_ = tmp59 // suppress unused
+		var tmp60 interface{} = FieldGet(tmp59, "s")
+		_ = tmp60 // suppress unused
+		return func() interface{} {
+			if tmp60.(bool) {
+				return func() interface{} {
+					var tmp61 interface{} = MulFloat(forwardX, speed)
+					_ = tmp61 // suppress unused
+					return SubFloat(dx1, tmp61)
+				}()
+			}
+			return dx1
+		}()
+	}()
+	var dz2 interface{} = func() interface{} {
 		var tmp56 interface{} = FieldGet(input, "flight")
 		_ = tmp56 // suppress unused
 		var tmp57 interface{} = FieldGet(tmp56, "s")
@@ -456,31 +483,31 @@ func calculateMovement_impl(player interface{}, input interface{}) interface{} {
 		return func() interface{} {
 			if tmp57.(bool) {
 				return func() interface{} {
-					var tmp58 interface{} = MulFloat(forwardX, speed)
+					var tmp58 interface{} = MulFloat(forwardZ, speed)
 					_ = tmp58 // suppress unused
-					return SubFloat(dx1, tmp58)
-				}()
-			}
-			return dx1
-		}()
-	}()
-	var dz2 interface{} = func() interface{} {
-		var tmp53 interface{} = FieldGet(input, "flight")
-		_ = tmp53 // suppress unused
-		var tmp54 interface{} = FieldGet(tmp53, "s")
-		_ = tmp54 // suppress unused
-		return func() interface{} {
-			if tmp54.(bool) {
-				return func() interface{} {
-					var tmp55 interface{} = MulFloat(forwardZ, speed)
-					_ = tmp55 // suppress unused
-					return SubFloat(dz1, tmp55)
+					return SubFloat(dz1, tmp58)
 				}()
 			}
 			return dz1
 		}()
 	}()
 	var dx3 interface{} = func() interface{} {
+		var tmp53 interface{} = FieldGet(input, "flight")
+		_ = tmp53 // suppress unused
+		var tmp54 interface{} = FieldGet(tmp53, "a")
+		_ = tmp54 // suppress unused
+		return func() interface{} {
+			if tmp54.(bool) {
+				return func() interface{} {
+					var tmp55 interface{} = MulFloat(rightX, speed)
+					_ = tmp55 // suppress unused
+					return SubFloat(dx2, tmp55)
+				}()
+			}
+			return dx2
+		}()
+	}()
+	var dz3 interface{} = func() interface{} {
 		var tmp50 interface{} = FieldGet(input, "flight")
 		_ = tmp50 // suppress unused
 		var tmp51 interface{} = FieldGet(tmp50, "a")
@@ -488,31 +515,31 @@ func calculateMovement_impl(player interface{}, input interface{}) interface{} {
 		return func() interface{} {
 			if tmp51.(bool) {
 				return func() interface{} {
-					var tmp52 interface{} = MulFloat(rightX, speed)
+					var tmp52 interface{} = MulFloat(rightZ, speed)
 					_ = tmp52 // suppress unused
-					return SubFloat(dx2, tmp52)
-				}()
-			}
-			return dx2
-		}()
-	}()
-	var dz3 interface{} = func() interface{} {
-		var tmp47 interface{} = FieldGet(input, "flight")
-		_ = tmp47 // suppress unused
-		var tmp48 interface{} = FieldGet(tmp47, "a")
-		_ = tmp48 // suppress unused
-		return func() interface{} {
-			if tmp48.(bool) {
-				return func() interface{} {
-					var tmp49 interface{} = MulFloat(rightZ, speed)
-					_ = tmp49 // suppress unused
-					return SubFloat(dz2, tmp49)
+					return SubFloat(dz2, tmp52)
 				}()
 			}
 			return dz2
 		}()
 	}()
 	var dx4 interface{} = func() interface{} {
+		var tmp47 interface{} = FieldGet(input, "flight")
+		_ = tmp47 // suppress unused
+		var tmp48 interface{} = FieldGet(tmp47, "d")
+		_ = tmp48 // suppress unused
+		return func() interface{} {
+			if tmp48.(bool) {
+				return func() interface{} {
+					var tmp49 interface{} = MulFloat(rightX, speed)
+					_ = tmp49 // suppress unused
+					return AddFloat(dx3, tmp49)
+				}()
+			}
+			return dx3
+		}()
+	}()
+	var dz4 interface{} = func() interface{} {
 		var tmp44 interface{} = FieldGet(input, "flight")
 		_ = tmp44 // suppress unused
 		var tmp45 interface{} = FieldGet(tmp44, "d")
@@ -520,25 +547,9 @@ func calculateMovement_impl(player interface{}, input interface{}) interface{} {
 		return func() interface{} {
 			if tmp45.(bool) {
 				return func() interface{} {
-					var tmp46 interface{} = MulFloat(rightX, speed)
+					var tmp46 interface{} = MulFloat(rightZ, speed)
 					_ = tmp46 // suppress unused
-					return AddFloat(dx3, tmp46)
-				}()
-			}
-			return dx3
-		}()
-	}()
-	var dz4 interface{} = func() interface{} {
-		var tmp41 interface{} = FieldGet(input, "flight")
-		_ = tmp41 // suppress unused
-		var tmp42 interface{} = FieldGet(tmp41, "d")
-		_ = tmp42 // suppress unused
-		return func() interface{} {
-			if tmp42.(bool) {
-				return func() interface{} {
-					var tmp43 interface{} = MulFloat(rightZ, speed)
-					_ = tmp43 // suppress unused
-					return AddFloat(dz3, tmp43)
+					return AddFloat(dz3, tmp46)
 				}()
 			}
 			return dz3
@@ -555,22 +566,22 @@ func calculateLook_impl(input interface{}, screenWidth interface{}, screenHeight
 	var centerX interface{} = DivFloat(screenWidth, float64(2))
 	var centerY interface{} = DivFloat(screenHeight, float64(2))
 	var deltaX interface{} = func() interface{} {
-		var tmp75 interface{} = FieldGet(input, "mouse")
-		_ = tmp75 // suppress unused
-		var tmp76 interface{} = FieldGet(tmp75, "x")
-		_ = tmp76 // suppress unused
-		return SubFloat(tmp76, centerX)
+		var tmp78 interface{} = FieldGet(input, "mouse")
+		_ = tmp78 // suppress unused
+		var tmp79 interface{} = FieldGet(tmp78, "x")
+		_ = tmp79 // suppress unused
+		return SubFloat(tmp79, centerX)
 	}()
 	var deltaY interface{} = func() interface{} {
-		var tmp73 interface{} = FieldGet(input, "mouse")
-		_ = tmp73 // suppress unused
-		var tmp74 interface{} = FieldGet(tmp73, "y")
-		_ = tmp74 // suppress unused
-		return SubFloat(centerY, tmp74)
+		var tmp76 interface{} = FieldGet(input, "mouse")
+		_ = tmp76 // suppress unused
+		var tmp77 interface{} = FieldGet(tmp76, "y")
+		_ = tmp77 // suppress unused
+		return SubFloat(centerY, tmp77)
 	}()
-	var tmp71 interface{} = MulFloat(deltaX, float64(0.003))
-	var tmp72 interface{} = MulFloat(deltaY, float64(0.002))
-	return &LookDelta{YawDelta: tmp71.(float64), PitchDelta: tmp72.(float64)}
+	var tmp74 interface{} = MulFloat(deltaX, float64(0.003))
+	var tmp75 interface{} = MulFloat(deltaY, float64(0.002))
+	return &LookDelta{YawDelta: tmp74.(float64), PitchDelta: tmp75.(float64)}
 }
 
 func calculateLook(input *FrameInput, screenWidth float64, screenHeight float64) *LookDelta {
@@ -578,14 +589,14 @@ func calculateLook(input *FrameInput, screenWidth float64, screenHeight float64)
 }
 
 func clamp_impl(value interface{}, minVal interface{}, maxVal interface{}) interface{} {
-	var tmp77 interface{} = LtFloat(value, minVal)
+	var tmp80 interface{} = LtFloat(value, minVal)
 	return func() interface{} {
-		var tmp78 interface{} = GtFloat(value, maxVal)
-		_ = tmp78 // suppress unused
-		if tmp77.(bool) {
+		var tmp81 interface{} = GtFloat(value, maxVal)
+		_ = tmp81 // suppress unused
+		if tmp80.(bool) {
 			return minVal
 		}
-		if tmp78.(bool) {
+		if tmp81.(bool) {
 			return maxVal
 		}
 		return value
@@ -598,45 +609,45 @@ func clamp(value float64, minVal float64, maxVal float64) float64 {
 
 func isInRoomBounds_impl(pos interface{}, room interface{}) interface{} {
 	var halfW interface{} = func() interface{} {
-		var tmp96 interface{} = FieldGet(room, "width")
-		_ = tmp96 // suppress unused
-		return DivFloat(tmp96, float64(2))
+		var tmp99 interface{} = FieldGet(room, "width")
+		_ = tmp99 // suppress unused
+		return DivFloat(tmp99, float64(2))
 	}()
 	var halfD interface{} = func() interface{} {
-		var tmp95 interface{} = FieldGet(room, "depth")
-		_ = tmp95 // suppress unused
-		return DivFloat(tmp95, float64(2))
+		var tmp98 interface{} = FieldGet(room, "depth")
+		_ = tmp98 // suppress unused
+		return DivFloat(tmp98, float64(2))
 	}()
 	var margin interface{} = float64(0.5)
-	var tmp79 interface{} = FieldGet(pos, "x")
-	var tmp80 interface{} = SubFloat(float64(0), halfW)
-	var tmp81 interface{} = AddFloat(tmp80, margin)
-	var tmp82 interface{} = GtFloat(tmp79, tmp81)
-	var tmp83 interface{} = FieldGet(pos, "x")
-	var tmp84 interface{} = SubFloat(halfW, margin)
-	var tmp85 interface{} = LtFloat(tmp83, tmp84)
-	var tmp86 interface{} = func() interface{} {
-		if tmp82.(bool) {
-			return tmp85
+	var tmp82 interface{} = FieldGet(pos, "x")
+	var tmp83 interface{} = SubFloat(float64(0), halfW)
+	var tmp84 interface{} = AddFloat(tmp83, margin)
+	var tmp85 interface{} = GtFloat(tmp82, tmp84)
+	var tmp86 interface{} = FieldGet(pos, "x")
+	var tmp87 interface{} = SubFloat(halfW, margin)
+	var tmp88 interface{} = LtFloat(tmp86, tmp87)
+	var tmp89 interface{} = func() interface{} {
+		if tmp85.(bool) {
+			return tmp88
 		}
 		return false
 	}()
-	var tmp87 interface{} = FieldGet(pos, "z")
-	var tmp88 interface{} = SubFloat(float64(0), halfD)
-	var tmp89 interface{} = AddFloat(tmp88, margin)
-	var tmp90 interface{} = GtFloat(tmp87, tmp89)
-	var tmp91 interface{} = func() interface{} {
-		if tmp86.(bool) {
-			return tmp90
+	var tmp90 interface{} = FieldGet(pos, "z")
+	var tmp91 interface{} = SubFloat(float64(0), halfD)
+	var tmp92 interface{} = AddFloat(tmp91, margin)
+	var tmp93 interface{} = GtFloat(tmp90, tmp92)
+	var tmp94 interface{} = func() interface{} {
+		if tmp89.(bool) {
+			return tmp93
 		}
 		return false
 	}()
-	var tmp92 interface{} = FieldGet(pos, "z")
-	var tmp93 interface{} = SubFloat(halfD, margin)
-	var tmp94 interface{} = LtFloat(tmp92, tmp93)
+	var tmp95 interface{} = FieldGet(pos, "z")
+	var tmp96 interface{} = SubFloat(halfD, margin)
+	var tmp97 interface{} = LtFloat(tmp95, tmp96)
 	return func() interface{} {
-		if tmp91.(bool) {
-			return tmp94
+		if tmp94.(bool) {
+			return tmp97
 		}
 		return false
 	}()
@@ -648,31 +659,31 @@ func isInRoomBounds(pos *Vec3, room *RoomDef) bool {
 
 func applyMovement_impl(player interface{}, delta interface{}, room interface{}) interface{} {
 	var newPos interface{} = func() interface{} {
-		var tmp98 interface{} = FieldGet(player, "pos")
-		_ = tmp98 // suppress unused
-		var tmp99 interface{} = FieldGet(tmp98, "x")
-		_ = tmp99 // suppress unused
-		var tmp100 interface{} = FieldGet(delta, "x")
-		_ = tmp100 // suppress unused
-		var tmp101 interface{} = AddFloat(tmp99, tmp100)
+		var tmp101 interface{} = FieldGet(player, "pos")
 		_ = tmp101 // suppress unused
-		var tmp102 interface{} = FieldGet(player, "pos")
+		var tmp102 interface{} = FieldGet(tmp101, "x")
 		_ = tmp102 // suppress unused
-		var tmp103 interface{} = FieldGet(tmp102, "y")
+		var tmp103 interface{} = FieldGet(delta, "x")
 		_ = tmp103 // suppress unused
-		var tmp104 interface{} = FieldGet(player, "pos")
+		var tmp104 interface{} = AddFloat(tmp102, tmp103)
 		_ = tmp104 // suppress unused
-		var tmp105 interface{} = FieldGet(tmp104, "z")
+		var tmp105 interface{} = FieldGet(player, "pos")
 		_ = tmp105 // suppress unused
-		var tmp106 interface{} = FieldGet(delta, "z")
+		var tmp106 interface{} = FieldGet(tmp105, "y")
 		_ = tmp106 // suppress unused
-		var tmp107 interface{} = AddFloat(tmp105, tmp106)
+		var tmp107 interface{} = FieldGet(player, "pos")
 		_ = tmp107 // suppress unused
-		return vec3_impl(tmp101, tmp103, tmp107)
+		var tmp108 interface{} = FieldGet(tmp107, "z")
+		_ = tmp108 // suppress unused
+		var tmp109 interface{} = FieldGet(delta, "z")
+		_ = tmp109 // suppress unused
+		var tmp110 interface{} = AddFloat(tmp108, tmp109)
+		_ = tmp110 // suppress unused
+		return vec3_impl(tmp104, tmp106, tmp110)
 	}()
-	var tmp97 interface{} = isInRoomBounds_impl(newPos, room)
+	var tmp100 interface{} = isInRoomBounds_impl(newPos, room)
 	return func() interface{} {
-		if tmp97.(bool) {
+		if tmp100.(bool) {
 			return RecordUpdate(player, map[string]interface{}{"pos": newPos})
 		}
 		return player
@@ -685,38 +696,38 @@ func applyMovement(player *InteriorPlayer, delta *Vec3, room *RoomDef) *Interior
 
 func stepInterior_impl(state interface{}, input interface{}) interface{} {
 	var moveDelta interface{} = func() interface{} {
-		var tmp117 interface{} = FieldGet(state, "player")
-		_ = tmp117 // suppress unused
-		return calculateMovement_impl(tmp117, input)
+		var tmp120 interface{} = FieldGet(state, "player")
+		_ = tmp120 // suppress unused
+		return calculateMovement_impl(tmp120, input)
 	}()
 	var movedPlayer interface{} = func() interface{} {
-		var tmp114 interface{} = FieldGet(state, "player")
-		_ = tmp114 // suppress unused
-		var tmp115 interface{} = FieldGet(state, "currentRoom")
-		_ = tmp115 // suppress unused
-		var tmp116 interface{} = FieldGet(tmp115, "room")
-		_ = tmp116 // suppress unused
-		return applyMovement_impl(tmp114, moveDelta, tmp116)
+		var tmp117 interface{} = FieldGet(state, "player")
+		_ = tmp117 // suppress unused
+		var tmp118 interface{} = FieldGet(state, "currentRoom")
+		_ = tmp118 // suppress unused
+		var tmp119 interface{} = FieldGet(tmp118, "room")
+		_ = tmp119 // suppress unused
+		return applyMovement_impl(tmp117, moveDelta, tmp119)
 	}()
 	var lookAngles interface{} = calculateLook_impl(input, float64(1280), float64(720))
 	var newYaw interface{} = FieldGet(lookAngles, "yawDelta")
 	var newPitch interface{} = func() interface{} {
-		var tmp111 interface{} = FieldGet(lookAngles, "pitchDelta")
-		_ = tmp111 // suppress unused
-		var tmp112 interface{} = minPitch_impl(struct{}{})
-		_ = tmp112 // suppress unused
-		var tmp113 interface{} = maxPitch_impl(struct{}{})
-		_ = tmp113 // suppress unused
-		return clamp_impl(tmp111, tmp112, tmp113)
+		var tmp114 interface{} = FieldGet(lookAngles, "pitchDelta")
+		_ = tmp114 // suppress unused
+		var tmp115 interface{} = minPitch_impl(struct{}{})
+		_ = tmp115 // suppress unused
+		var tmp116 interface{} = maxPitch_impl(struct{}{})
+		_ = tmp116 // suppress unused
+		return clamp_impl(tmp114, tmp115, tmp116)
 	}()
 	var updatedPlayer interface{} = func() interface{} {
-		var tmp110 interface{} = isShiftHeld_impl(input)
-		_ = tmp110 // suppress unused
-		return RecordUpdate(movedPlayer, map[string]interface{}{"yaw": newYaw, "pitch": newPitch, "isRunning": tmp110})
+		var tmp113 interface{} = isShiftHeld_impl(input)
+		_ = tmp113 // suppress unused
+		return RecordUpdate(movedPlayer, map[string]interface{}{"yaw": newYaw, "pitch": newPitch, "isRunning": tmp113})
 	}()
-	var tmp108 interface{} = FieldGet(state, "tick")
-	var tmp109 interface{} = AddInt(tmp108, int64(1))
-	return RecordUpdate(state, map[string]interface{}{"player": updatedPlayer, "tick": tmp109})
+	var tmp111 interface{} = FieldGet(state, "tick")
+	var tmp112 interface{} = AddInt(tmp111, int64(1))
+	return RecordUpdate(state, map[string]interface{}{"player": updatedPlayer, "tick": tmp112})
 }
 
 func StepInterior(state *InteriorState, input *FrameInput) *InteriorState {
@@ -724,15 +735,15 @@ func StepInterior(state *InteriorState, input *FrameInput) *InteriorState {
 }
 
 func renderCamera_impl(player interface{}, fov interface{}) interface{} {
-	var tmp118 interface{} = FieldGet(player, "pos")
-	var tmp119 interface{} = FieldGet(tmp118, "x")
-	var tmp120 interface{} = FieldGet(player, "pos")
-	var tmp121 interface{} = FieldGet(tmp120, "y")
-	var tmp122 interface{} = FieldGet(player, "pos")
-	var tmp123 interface{} = FieldGet(tmp122, "z")
-	var tmp124 interface{} = FieldGet(player, "yaw")
-	var tmp125 interface{} = FieldGet(player, "pitch")
-	return NewDrawCmdCamera3D(tmp119.(float64), tmp121.(float64), tmp123.(float64), tmp124.(float64), tmp125.(float64), fov.(float64))
+	var tmp121 interface{} = FieldGet(player, "pos")
+	var tmp122 interface{} = FieldGet(tmp121, "x")
+	var tmp123 interface{} = FieldGet(player, "pos")
+	var tmp124 interface{} = FieldGet(tmp123, "y")
+	var tmp125 interface{} = FieldGet(player, "pos")
+	var tmp126 interface{} = FieldGet(tmp125, "z")
+	var tmp127 interface{} = FieldGet(player, "yaw")
+	var tmp128 interface{} = FieldGet(player, "pitch")
+	return NewDrawCmdCamera3D(tmp122.(float64), tmp124.(float64), tmp126.(float64), tmp127.(float64), tmp128.(float64), fov.(float64))
 }
 
 func renderCamera(player *InteriorPlayer, fov float64) *DrawCmd {
@@ -740,16 +751,17 @@ func renderCamera(player *InteriorPlayer, fov float64) *DrawCmd {
 }
 
 func renderRoom_impl(room interface{}) interface{} {
-	var tmp126 interface{} = FieldGet(room, "width")
-	var tmp127 interface{} = FieldGet(room, "depth")
-	var tmp128 interface{} = FieldGet(room, "height")
-	var tmp129 interface{} = FieldGet(room, "floorTex")
-	var tmp130 interface{} = FieldGet(room, "wallTex")
-	var tmp131 interface{} = FieldGet(room, "ceilingTex")
-	var tmp132 interface{} = FieldGet(room, "floorColor")
-	var tmp133 interface{} = FieldGet(room, "wallColor")
-	var tmp134 interface{} = FieldGet(room, "ceilingColor")
-	return NewDrawCmdRoom3D(tmp126.(float64), tmp127.(float64), tmp128.(float64), tmp129.(string), tmp130.(string), tmp131.(string), tmp132.(int64), tmp133.(int64), tmp134.(int64), int64(0))
+	var tmp129 interface{} = FieldGet(room, "width")
+	var tmp130 interface{} = FieldGet(room, "depth")
+	var tmp131 interface{} = FieldGet(room, "height")
+	var tmp132 interface{} = FieldGet(room, "floorTex")
+	var tmp133 interface{} = FieldGet(room, "wallTex")
+	var tmp134 interface{} = FieldGet(room, "ceilingTex")
+	var tmp135 interface{} = FieldGet(room, "floorColor")
+	var tmp136 interface{} = FieldGet(room, "wallColor")
+	var tmp137 interface{} = FieldGet(room, "ceilingColor")
+	var tmp138 interface{} = FieldGet(room, "uvScale")
+	return NewDrawCmdRoom3D(tmp129.(float64), tmp130.(float64), tmp131.(float64), tmp132.(string), tmp133.(string), tmp134.(string), tmp135.(int64), tmp136.(int64), tmp137.(int64), tmp138.(float64), int64(0))
 }
 
 func renderRoom(room *RoomDef) *DrawCmd {
@@ -757,19 +769,19 @@ func renderRoom(room *RoomDef) *DrawCmd {
 }
 
 func renderProp_impl(prop interface{}) interface{} {
-	var tmp135 interface{} = FieldGet(prop, "id")
-	var tmp136 interface{} = FieldGet(prop, "pos")
-	var tmp137 interface{} = FieldGet(tmp136, "x")
-	var tmp138 interface{} = FieldGet(prop, "pos")
-	var tmp139 interface{} = FieldGet(tmp138, "y")
+	var tmp139 interface{} = FieldGet(prop, "id")
 	var tmp140 interface{} = FieldGet(prop, "pos")
-	var tmp141 interface{} = FieldGet(tmp140, "z")
-	var tmp142 interface{} = FieldGet(prop, "scaleX")
-	var tmp143 interface{} = FieldGet(prop, "scaleY")
-	var tmp144 interface{} = FieldGet(prop, "scaleZ")
-	var tmp145 interface{} = FieldGet(prop, "texture")
-	var tmp146 interface{} = FieldGet(prop, "color")
-	return NewDrawCmdProp3D(tmp135.(string), tmp137.(float64), tmp139.(float64), tmp141.(float64), tmp142.(float64), tmp143.(float64), tmp144.(float64), tmp145.(string), tmp146.(int64), int64(1))
+	var tmp141 interface{} = FieldGet(tmp140, "x")
+	var tmp142 interface{} = FieldGet(prop, "pos")
+	var tmp143 interface{} = FieldGet(tmp142, "y")
+	var tmp144 interface{} = FieldGet(prop, "pos")
+	var tmp145 interface{} = FieldGet(tmp144, "z")
+	var tmp146 interface{} = FieldGet(prop, "scaleX")
+	var tmp147 interface{} = FieldGet(prop, "scaleY")
+	var tmp148 interface{} = FieldGet(prop, "scaleZ")
+	var tmp149 interface{} = FieldGet(prop, "texture")
+	var tmp150 interface{} = FieldGet(prop, "color")
+	return NewDrawCmdProp3D(tmp139.(string), tmp141.(float64), tmp143.(float64), tmp145.(float64), tmp146.(float64), tmp147.(float64), tmp148.(float64), tmp149.(string), tmp150.(int64), int64(1))
 }
 
 func renderProp(prop *PropDef) *DrawCmd {
@@ -788,11 +800,11 @@ func renderPropsRec_impl(props interface{}) interface{} {
 			rest := ListTail(_scrutinee)
 			_ = rest // suppress unused
 			return func() interface{} {
-				var tmp147 interface{} = renderProp_impl(p)
-				_ = tmp147 // suppress unused
-				var tmp148 interface{} = renderPropsRec_impl(rest)
-				_ = tmp148 // suppress unused
-				return Cons(tmp147, tmp148)
+				var tmp151 interface{} = renderProp_impl(p)
+				_ = tmp151 // suppress unused
+				var tmp152 interface{} = renderPropsRec_impl(rest)
+				_ = tmp152 // suppress unused
+				return Cons(tmp151, tmp152)
 			}()
 		} else {
 			panic("non-exhaustive match")
@@ -805,16 +817,16 @@ func renderPropsRec(props []*PropDef) []*DrawCmd {
 }
 
 func renderCharacter_impl(char interface{}) interface{} {
-	var tmp149 interface{} = FieldGet(char, "id")
-	var tmp150 interface{} = FieldGet(char, "pos")
-	var tmp151 interface{} = FieldGet(tmp150, "x")
-	var tmp152 interface{} = FieldGet(char, "pos")
-	var tmp153 interface{} = FieldGet(tmp152, "y")
+	var tmp153 interface{} = FieldGet(char, "id")
 	var tmp154 interface{} = FieldGet(char, "pos")
-	var tmp155 interface{} = FieldGet(tmp154, "z")
-	var tmp156 interface{} = FieldGet(char, "spriteId")
-	var tmp157 interface{} = FieldGet(char, "scale")
-	return NewDrawCmdBillboard3D(tmp149.(string), tmp151.(float64), tmp153.(float64), tmp155.(float64), tmp156.(int64), tmp157.(float64), int64(2))
+	var tmp155 interface{} = FieldGet(tmp154, "x")
+	var tmp156 interface{} = FieldGet(char, "pos")
+	var tmp157 interface{} = FieldGet(tmp156, "y")
+	var tmp158 interface{} = FieldGet(char, "pos")
+	var tmp159 interface{} = FieldGet(tmp158, "z")
+	var tmp160 interface{} = FieldGet(char, "spriteId")
+	var tmp161 interface{} = FieldGet(char, "scale")
+	return NewDrawCmdBillboard3D(tmp153.(string), tmp155.(float64), tmp157.(float64), tmp159.(float64), tmp160.(int64), tmp161.(float64), int64(2))
 }
 
 func renderCharacter(char *CharacterDef) *DrawCmd {
@@ -833,11 +845,11 @@ func renderCharactersRec_impl(chars interface{}) interface{} {
 			rest := ListTail(_scrutinee)
 			_ = rest // suppress unused
 			return func() interface{} {
-				var tmp158 interface{} = renderCharacter_impl(c)
-				_ = tmp158 // suppress unused
-				var tmp159 interface{} = renderCharactersRec_impl(rest)
-				_ = tmp159 // suppress unused
-				return Cons(tmp158, tmp159)
+				var tmp162 interface{} = renderCharacter_impl(c)
+				_ = tmp162 // suppress unused
+				var tmp163 interface{} = renderCharactersRec_impl(rest)
+				_ = tmp163 // suppress unused
+				return Cons(tmp162, tmp163)
 			}()
 		} else {
 			panic("non-exhaustive match")
@@ -850,9 +862,9 @@ func renderCharactersRec(chars []*CharacterDef) []*DrawCmd {
 }
 
 func renderHUD_impl(state interface{}) interface{} {
-	var tmp160 interface{} = layerUI_impl(struct{}{})
-	var tmp161 interface{} = NewDrawCmdText("3D Interior - WASD: Move | Mouse: Look | Shift: Run", float64(10), float64(20), int64(12), int64(4294967295), tmp160.(int64))
-	return []interface{}{tmp161}
+	var tmp164 interface{} = layerUI_impl(struct{}{})
+	var tmp165 interface{} = NewDrawCmdText("3D Interior - WASD: Move | Mouse: Look | Shift: Run", float64(10), float64(20), int64(12), int64(4294967295), tmp164.(int64))
+	return []interface{}{tmp165}
 }
 
 func renderHUD(state *InteriorState) []*DrawCmd {
@@ -861,38 +873,38 @@ func renderHUD(state *InteriorState) []*DrawCmd {
 
 func renderInterior_impl(state interface{}) interface{} {
 	var camera interface{} = func() interface{} {
-		var tmp171 interface{} = FieldGet(state, "player")
-		_ = tmp171 // suppress unused
-		var tmp172 interface{} = FieldGet(state, "fov")
-		_ = tmp172 // suppress unused
-		return renderCamera_impl(tmp171, tmp172)
+		var tmp175 interface{} = FieldGet(state, "player")
+		_ = tmp175 // suppress unused
+		var tmp176 interface{} = FieldGet(state, "fov")
+		_ = tmp176 // suppress unused
+		return renderCamera_impl(tmp175, tmp176)
 	}()
 	var room interface{} = func() interface{} {
-		var tmp169 interface{} = FieldGet(state, "currentRoom")
-		_ = tmp169 // suppress unused
-		var tmp170 interface{} = FieldGet(tmp169, "room")
-		_ = tmp170 // suppress unused
-		return renderRoom_impl(tmp170)
+		var tmp173 interface{} = FieldGet(state, "currentRoom")
+		_ = tmp173 // suppress unused
+		var tmp174 interface{} = FieldGet(tmp173, "room")
+		_ = tmp174 // suppress unused
+		return renderRoom_impl(tmp174)
 	}()
 	var props interface{} = func() interface{} {
-		var tmp167 interface{} = FieldGet(state, "currentRoom")
-		_ = tmp167 // suppress unused
-		var tmp168 interface{} = FieldGet(tmp167, "props")
-		_ = tmp168 // suppress unused
-		return renderPropsRec_impl(tmp168)
+		var tmp171 interface{} = FieldGet(state, "currentRoom")
+		_ = tmp171 // suppress unused
+		var tmp172 interface{} = FieldGet(tmp171, "props")
+		_ = tmp172 // suppress unused
+		return renderPropsRec_impl(tmp172)
 	}()
 	var chars interface{} = func() interface{} {
-		var tmp165 interface{} = FieldGet(state, "currentRoom")
-		_ = tmp165 // suppress unused
-		var tmp166 interface{} = FieldGet(tmp165, "characters")
-		_ = tmp166 // suppress unused
-		return renderCharactersRec_impl(tmp166)
+		var tmp169 interface{} = FieldGet(state, "currentRoom")
+		_ = tmp169 // suppress unused
+		var tmp170 interface{} = FieldGet(tmp169, "characters")
+		_ = tmp170 // suppress unused
+		return renderCharactersRec_impl(tmp170)
 	}()
 	var hud interface{} = renderHUD_impl(state)
-	var tmp162 interface{} = []interface{}{camera, room}
-	var tmp163 interface{} = Concat(chars, hud)
-	var tmp164 interface{} = Concat(props, tmp163)
-	return Concat(tmp162, tmp164)
+	var tmp166 interface{} = []interface{}{camera, room}
+	var tmp167 interface{} = Concat(chars, hud)
+	var tmp168 interface{} = Concat(props, tmp167)
+	return Concat(tmp166, tmp168)
 }
 
 func RenderInterior(state *InteriorState) []*DrawCmd {

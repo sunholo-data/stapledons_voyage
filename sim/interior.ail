@@ -69,7 +69,8 @@ export type RoomDef = {
     ceilingTex: string,
     floorColor: int,
     wallColor: int,
-    ceilingColor: int
+    ceilingColor: int,
+    uvScale: float        -- Texture tiles per meter (1.0 = 1 tile/meter)
 }
 
 -- Prop definition (furniture/console in room)
@@ -133,7 +134,8 @@ export pure func defaultRoom() -> RoomDef {
         ceilingTex: "",
         floorColor: colorFloorDefault(),
         wallColor: colorWallDefault(),
-        ceilingColor: colorCeilingDefault()
+        ceilingColor: colorCeilingDefault(),
+        uvScale: 1.0  -- 1 texture tile per meter
     }
 }
 
@@ -148,11 +150,13 @@ export pure func makeRoom(w: float, d: float, h: float) -> RoomDef {
         ceilingTex: "",
         floorColor: colorFloorDefault(),
         wallColor: colorWallDefault(),
-        ceilingColor: colorCeilingDefault()
+        ceilingColor: colorCeilingDefault(),
+        uvScale: 1.0
     }
 }
 
 -- Create room with textures
+-- uvScale defaults to 1.0 (1 tile per meter) for proper scale perception
 export pure func makeRoomTextured(
     w: float, d: float, h: float,
     floor: string, wall: string, ceiling: string
@@ -162,7 +166,24 @@ export pure func makeRoomTextured(
         floorTex: floor, wallTex: wall, ceilingTex: ceiling,
         floorColor: colorFloorDefault(),
         wallColor: colorWallDefault(),
-        ceilingColor: colorCeilingDefault()
+        ceilingColor: colorCeilingDefault(),
+        uvScale: 1.0  -- 1 tile per meter for realistic scale
+    }
+}
+
+-- Create room with textures and custom UV scale
+export pure func makeRoomTexturedScale(
+    w: float, d: float, h: float,
+    floor: string, wall: string, ceiling: string,
+    scale: float
+) -> RoomDef {
+    {
+        width: w, depth: d, height: h,
+        floorTex: floor, wallTex: wall, ceilingTex: ceiling,
+        floorColor: colorFloorDefault(),
+        wallColor: colorWallDefault(),
+        ceilingColor: colorCeilingDefault(),
+        uvScale: scale
     }
 }
 
@@ -232,7 +253,13 @@ export pure func makeCharacter(id: string, x: float, z: float, sprite: int) -> C
 
 -- Create the ship's bridge interior
 export pure func createBridgeInterior() -> InteriorRoom {
-    let room = makeRoom(8.0, 6.0, 3.0);
+    -- Use AI-generated textures for the bridge
+    let room = makeRoomTextured(
+        8.0, 6.0, 3.0,
+        "assets/textures/interior/bridge_floor.png",
+        "assets/textures/interior/bridge_wall.png",
+        "assets/textures/interior/bridge_ceiling.png"
+    );
     let props = [
         -- Front helm console
         makeConsole("helm", 0.0, 0.0 - 2.0),
@@ -422,6 +449,7 @@ pure func renderRoom(room: RoomDef) -> DrawCmd {
         room.width, room.depth, room.height,
         room.floorTex, room.wallTex, room.ceilingTex,
         room.floorColor, room.wallColor, room.ceilingColor,
+        room.uvScale,
         0  -- z-layer for room
     )
 }

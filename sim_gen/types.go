@@ -1388,6 +1388,7 @@ type DrawCmdRoom3D struct {
 	FloorColor   int64
 	WallColor    int64
 	CeilingColor int64
+	UvScale      float64
 	Z            int64
 }
 
@@ -1614,10 +1615,10 @@ func NewDrawCmdCamera3D(x float64, y float64, z float64, yaw float64, pitch floa
 }
 
 // NewDrawCmdRoom3D creates a new Room3D variant
-func NewDrawCmdRoom3D(width float64, depth float64, height float64, floorTex string, wallTex string, ceilingTex string, floorColor int64, wallColor int64, ceilingColor int64, z int64) *DrawCmd {
+func NewDrawCmdRoom3D(width float64, depth float64, height float64, floorTex string, wallTex string, ceilingTex string, floorColor int64, wallColor int64, ceilingColor int64, uvScale float64, z int64) *DrawCmd {
 	return &DrawCmd{
 		Kind:   DrawCmdKindRoom3D,
-		Room3D: &DrawCmdRoom3D{Width: width, Depth: depth, Height: height, FloorTex: floorTex, WallTex: wallTex, CeilingTex: ceilingTex, FloorColor: floorColor, WallColor: wallColor, CeilingColor: ceilingColor, Z: z},
+		Room3D: &DrawCmdRoom3D{Width: width, Depth: depth, Height: height, FloorTex: floorTex, WallTex: wallTex, CeilingTex: ceilingTex, FloorColor: floorColor, WallColor: wallColor, CeilingColor: ceilingColor, UvScale: uvScale, Z: z},
 	}
 }
 
@@ -2114,6 +2115,7 @@ type RoomDef struct {
 	FloorColor   int64
 	WallColor    int64
 	CeilingColor int64
+	UvScale      float64
 }
 
 // PropDef is a record type

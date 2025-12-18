@@ -8,24 +8,24 @@ Detailed technical specifications for all game asset types.
 assets/
 ├── sprites/
 │   ├── manifest.json           # Sprite registry
-│   ├── iso_tiles/              # Isometric terrain tiles
-│   │   ├── water.png
-│   │   ├── forest.png
-│   │   └── ...
-│   ├── iso_entities/           # Characters and objects
-│   │   ├── player.png
-│   │   ├── npc_red.png
-│   │   └── ...
 │   ├── stars/                  # Star sprites by spectral class
 │   │   ├── star_blue.png
 │   │   ├── star_yellow.png
 │   │   └── ...
-│   ├── planets/                # Planet renders
-│   │   └── ...
 │   ├── ui/                     # UI elements
 │   │   └── ...
-│   └── portraits/              # Character portraits
+│   ├── portraits/              # Character portraits
+│   │   └── ...
+│   └── billboards/             # 3D billboard sprites
 │       └── ...
+├── planets/                    # 3D planet textures (equirectangular)
+│   ├── earth_daymap.jpg
+│   ├── jupiter.jpg
+│   └── ...
+├── textures/                   # 3D interior textures
+│   ├── floor_metal.png
+│   ├── wall_panel.png
+│   └── ...
 ├── sounds/
 │   └── manifest.json
 ├── fonts/
@@ -50,8 +50,8 @@ The `manifest.json` file registers all sprites for the engine:
     "<id>": {
       "file": "relative/path.png",
       "width": 64,
-      "height": 32,
-      "type": "tile|entity|star|ui|planet|portrait",
+      "height": 64,
+      "type": "star|ui|portrait|billboard",
       "frameWidth": 32,       // Optional: for animated sprites
       "frameHeight": 48,      // Optional: for animated sprites
       "animations": {         // Optional: animation definitions
@@ -64,31 +64,6 @@ The `manifest.json` file registers all sprites for the engine:
 ```
 
 ## Sprite ID Allocation
-
-### Tiles (1-99)
-| ID | Name | File | Status |
-|----|------|------|--------|
-| 1 | Water | `iso_tiles/water.png` | Exists |
-| 2 | Forest | `iso_tiles/forest.png` | Exists |
-| 3 | Desert | `iso_tiles/desert.png` | Exists |
-| 4 | Mountain | `iso_tiles/mountain.png` | Exists |
-| 5-9 | Reserved | - | Planned |
-| 10-19 | Alien biomes | - | Future |
-| 20-29 | Space station | - | Future |
-| 30-39 | Ship interior | - | Future |
-
-### Entities (100-199)
-| ID | Name | File | Status |
-|----|------|------|--------|
-| 100 | NPC Red | `iso_entities/npc_red.png` | Exists |
-| 101 | NPC Green | `iso_entities/npc_green.png` | Exists |
-| 102 | NPC Blue | `iso_entities/npc_blue.png` | Exists |
-| 103 | NPC Yellow | `iso_entities/npc_yellow.png` | Exists |
-| 104 | NPC Purple | `iso_entities/npc_purple.png` | Exists |
-| 105 | Player | `iso_entities/player.png` | Exists |
-| 106-119 | Crew members | - | Planned |
-| 120-139 | Aliens | - | Future |
-| 140-159 | Robots/Drones | - | Future |
 
 ### Stars (200-299)
 | ID | Name | File | Status |
@@ -110,20 +85,11 @@ The `manifest.json` file registers all sprites for the engine:
 | 320-329 | Icons | - | Planned |
 | 330-339 | Cursors | - | Planned |
 
-### Planets (400-499)
+### Billboards (400-499)
 | ID | Name | File | Status |
 |----|------|------|--------|
-| 400-409 | Rocky planets | - | Planned |
-| 410-419 | Gas giants | - | Planned |
-| 420-429 | Ice worlds | - | Planned |
-| 430-439 | Habitable | - | Planned |
-
-### Ships (500-599)
-| ID | Name | File | Status |
-|----|------|------|--------|
-| 500 | Player ship | - | Planned |
-| 501-509 | Ship variants | - | Future |
-| 510-519 | Alien vessels | - | Future |
+| 400-449 | Character billboards | - | Planned |
+| 450-499 | Object billboards | - | Future |
 
 ### Portraits (600-699)
 | ID | Name | File | Status |
@@ -134,82 +100,16 @@ The `manifest.json` file registers all sprites for the engine:
 
 ## Dimension Specifications
 
-### Isometric Tiles (CRITICAL REQUIREMENTS)
-
-**These requirements MUST be met for proper tessellation:**
-
-| Property | Required Value |
-|----------|----------------|
-| Dimensions | 64x32 pixels (2:1 ratio, EXACT) |
-| Format | PNG with RGBA (alpha channel REQUIRED) |
-| Corners | Must be transparent (alpha=0) at (0,0), (63,0), (0,31), (63,31) |
-| Opaque pixels | ~1024 (±10%) inside diamond shape |
-| Diamond vertices | (32,0), (63,16), (32,31), (0,16) must be opaque |
-
-**Why these matter:**
-1. **Corners transparent**: Adjacent tiles overlap at corners; opaque corners create seams
-2. **Exact diamond**: Content must fill the precise diamond shape, not a rectangle with diamond inside
-3. **~1024 opaque pixels**: Ensures content fills exactly half the bounding box (the diamond)
-
-**Pixel layout (X = opaque, . = transparent):**
-```
-        0         32        64
-   0    ..............XX..............  (4 pixels wide)
-        ............XXXX..............  (8 pixels wide)
-        ..........XXXXXXXX............
-        ........XXXXXXXXXXXX..........
-        ......XXXXXXXXXXXXXX..........
-        ....XXXXXXXXXXXXXXXXXX........
-        ..XXXXXXXXXXXXXXXXXXXXXX......
-        XXXXXXXXXXXXXXXXXXXXXXXXXX....
-  16    XXXXXXXXXXXXXXXXXXXXXXXXXXXX..  (64 pixels wide - full)
-        XXXXXXXXXXXXXXXXXXXXXXXXXXXX..  (64 pixels wide - full)
-        ..XXXXXXXXXXXXXXXXXXXXXX......
-        ....XXXXXXXXXXXXXXXXXX........
-        ......XXXXXXXXXXXXXX..........
-        ........XXXXXXXXXXXX..........
-        ..........XXXXXXXX............
-        ............XXXX..............
-  32    ..............XX..............  (4 pixels wide)
-```
-
-**Row-by-row width formula:**
-```
-pixels_wide = rows_from_edge * 4
-where rows_from_edge = min(row + 1, 32 - row)
-```
-
-**Verification:**
-```bash
-go run ./cmd/tile-check  # Check all tiles
-```
-
-**Reference tile:** `assets/sprites/iso_tiles/water.png` (passes all checks)
-
-### Entity Sprites
-- **Single frame**: 32x48 pixels
-- **Sprite sheet**: 128x48 pixels (4 frames)
-- **Format**: PNG with alpha channel
-- **Anchor**: Center-bottom (feet position)
-
-```
-Frame layout (128x48 sprite sheet):
-+--------+--------+--------+--------+
-| Frame0 | Frame1 | Frame2 | Frame3 |
-| 32x48  | 32x48  | 32x48  | 32x48  |
-+--------+--------+--------+--------+
-  idle     walk1    walk2    walk3
-```
-
 ### Star Sprites
 - **Dimensions**: 16x16 pixels
 - **Format**: PNG with alpha channel
 - **Style**: Soft glow, brightest at center
 
-### Planet Sprites
-- **Dimensions**: 256x256 pixels
+### Billboard Sprites
+- **Dimensions**: 256x256 pixels (or 128x128 for smaller objects)
 - **Format**: PNG with alpha channel
-- **Style**: Spherical, with atmosphere rim
+- **Style**: Character/object visible from any angle
+- **Anchor**: Center-bottom for characters
 
 ### Portraits
 - **Dimensions**: 128x128 pixels
@@ -228,14 +128,9 @@ Frame layout (128x48 sprite sheet):
 
 ### Examples
 ```
-iso_tiles/water.png
-iso_tiles/grass_1.png
-iso_tiles/grass_2.png
-iso_entities/npc_red.png
-iso_entities/alien_trader.png
 stars/star_blue.png
 stars/star_yellow_giant.png
-planets/rocky_desert.png
+billboards/crew_pilot.png
 portraits/captain_chen.png
 ```
 
@@ -244,26 +139,12 @@ portraits/captain_chen.png
 2. Underscores for spaces
 3. No special characters
 4. Descriptive but concise
-5. Variants numbered (grass_1, grass_2)
-
-## Animation Specifications
-
-### Standard Animations
-| Name | Frames | FPS | Loop |
-|------|--------|-----|------|
-| idle | 1-2 | 2 | Yes |
-| walk | 4 | 6 | Yes |
-| action | 3-4 | 8 | No |
-
-### Frame Order
-- Walk: right-foot-forward, passing, left-foot-forward, passing
-- All frames face same direction (flip for opposite)
+5. Variants numbered (variant_1, variant_2)
 
 ## Color Depth
 
 - **Sprites**: 32-bit RGBA (8 bits per channel)
 - **Backgrounds**: 24-bit RGB (JPG compatible)
-- **Working palette**: Limit to 16-32 colors per sprite for pixel art look
 
 ## 3D Planet Textures
 
@@ -280,63 +161,40 @@ assets/planets/           # 3D planet textures (JPG/PNG)
 └── ...
 ```
 
+### Texture Requirements
+- **Format**: Equirectangular projection (2:1 aspect ratio)
+- **Resolution**: 2048x1024 minimum (2K), 4096x2048 preferred (4K)
+- **File type**: JPG for solid planets, PNG for rings (need alpha)
+
 ### Texture Sources (Creative Commons / Public Domain)
 
 **Recommended Sources:**
 1. **Solar System Scope** (CC BY 4.0)
    - URL: https://www.solarsystemscope.com/textures/
    - Quality: 2K-8K, good for planets
-   - Note: Ring textures are basic, may need alternatives
 
 2. **NASA Visible Earth** (Public Domain)
    - URL: https://visibleearth.nasa.gov/
    - Quality: Very high resolution, authentic
-   - Note: Best for Earth textures
 
 3. **NASA JPL Photojournal** (Public Domain)
    - URL: https://photojournal.jpl.nasa.gov/
    - Quality: Mission imagery, authentic
-   - Note: Good for ring details (Cassini data)
 
-4. **Planet Pixel Emporium**
-   - URL: http://planetpixelemporium.com/
-   - Quality: 2K, stylized/artistic
-   - Note: Good for artistic ring textures
+## 3D Interior Textures
 
-5. **JHT's Planetary Pixel Emporium**
-   - URL: https://www.jhtplanets.co.uk/
-   - Quality: 2K-8K, high quality
-   - Note: Excellent Saturn ring maps
-
-### Ring Texture Specifications
-
-**Format:** PNG with alpha channel (for ring gaps)
-**UV Layout:**
-- U axis wraps around ring (0-1 = full circle)
-- V axis maps inner to outer radius (0=inner, 1=outer)
-
-**Download Commands:**
-```bash
-# Solar System Scope (basic)
-curl -sL "https://www.solarsystemscope.com/textures/download/2k_saturn_ring_alpha.png" -o assets/planets/saturn_ring.png
-
-# Alternative: Use asset-manager download script
-.claude/skills/asset-manager/scripts/download_planet_textures.sh
+### Directory Structure
+```
+assets/textures/          # 3D interior textures
+├── floor_metal.png      # Metallic floor panels
+├── wall_panel.png       # Wall panels
+├── ceiling_lights.png   # Ceiling with lights
+├── console_screen.png   # Console displays
+└── ...
 ```
 
-### Ring Texture Quality Notes
-
-The Solar System Scope ring texture is basic and may appear odd. For better results:
-1. Use Cassini mission data from NASA JPL for authentic appearance
-2. Or generate procedural ring textures with multiple bands and varying opacity
-3. The ring texture should have clear gaps (Cassini Division, etc.) as transparent regions
-
-### Ring Implementation Notes
-
-Our 3D ring mesh (`engine/tetra/ring.go`) expects:
-- Flat ring in XZ plane
-- UV mapping: U wraps circumference, V maps radial distance
-- Alpha transparency for ring gaps
-- `TransparencyModeAlphaClip` when textured
-
-TODO: Download higher quality ring textures from NASA or generate procedurally.
+### Texture Requirements
+- **Format**: Square, power-of-2 dimensions
+- **Resolution**: 256x256, 512x512, or 1024x1024
+- **Style**: Tileable/seamless for walls/floors
+- **File type**: PNG (for alpha) or JPG (for solid)

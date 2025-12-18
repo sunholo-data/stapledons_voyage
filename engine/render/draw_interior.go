@@ -1,7 +1,12 @@
 package render
 
 import (
+	"image"
+	_ "image/jpeg"
+	_ "image/png"
+	"log"
 	"math"
+	"os"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/solarlune/tetra3d"
@@ -12,11 +17,47 @@ import (
 // interiorScene holds the 3D scene for interior rendering.
 // Lazily initialized when first 3D command is received.
 type interiorScene struct {
-	scene     *tetra.Scene
-	room      *tetra.Room
-	props     map[string]*tetra3d.Model
-	billboard map[string]*tetra3d.Model
-	needsInit bool
+	scene        *tetra.Scene
+	room         *tetra.Room
+	props        map[string]*tetra3d.Model
+	billboard    map[string]*tetra3d.Model
+	textures     map[string]*ebiten.Image // Cached loaded textures
+	needsInit    bool
+	lastFloorTex string  // Track texture changes to avoid reloading
+	lastWallTex  string
+	lastCeilTex  string
+	lastUvScale  float32 // Track UV scale changes
+}
+
+// loadTexture loads a texture from a file path, caching the result.
+func (s *interiorScene) loadTexture(path string) *ebiten.Image {
+	if path == "" {
+		return nil
+	}
+
+	// Check cache first
+	if tex, ok := s.textures[path]; ok {
+		return tex
+	}
+
+	// Load from file
+	f, err := os.Open(path)
+	if err != nil {
+		log.Printf("Warning: could not load texture %s: %v", path, err)
+		return nil
+	}
+	defer f.Close()
+
+	img, _, err := image.Decode(f)
+	if err != nil {
+		log.Printf("Warning: could not decode texture %s: %v", path, err)
+		return nil
+	}
+
+	tex := ebiten.NewImageFromImage(img)
+	s.textures[path] = tex
+	log.Printf("Loaded interior texture: %s", path)
+	return tex
 }
 
 // getInteriorScene returns the cached interior scene, creating it if needed.
@@ -25,6 +66,7 @@ func (r *Renderer) getInteriorScene(screenW, screenH int) *interiorScene {
 		r.interior = &interiorScene{
 			props:     make(map[string]*tetra3d.Model),
 			billboard: make(map[string]*tetra3d.Model),
+			textures:  make(map[string]*ebiten.Image),
 			needsInit: true,
 		}
 	}
@@ -59,32 +101,63 @@ func (r *Renderer) handleCamera3D(c *sim_gen.DrawCmdCamera3D, screenW, screenH i
 func (r *Renderer) handleRoom3D(c *sim_gen.DrawCmdRoom3D, screenW, screenH int) {
 	scene := r.getInteriorScene(screenW, screenH)
 
-	// Create or update room if dimensions changed
-	if scene.room == nil ||
+	// Check if room needs to be created or parameters changed
+	needsRebuild := scene.room == nil ||
 		float32(c.Width) != scene.room.Width ||
 		float32(c.Depth) != scene.room.Depth ||
-		float32(c.Height) != scene.room.Height {
+		float32(c.Height) != scene.room.Height ||
+		scene.lastFloorTex != c.FloorTex ||
+		scene.lastWallTex != c.WallTex ||
+		scene.lastCeilTex != c.CeilingTex ||
+		scene.lastUvScale != float32(c.UvScale)
 
-		// Remove old room if exists
-		if scene.room != nil {
-			// Note: Tetra3D doesn't have RemoveChildren, we'd need to recreate the scene
-			// For now, just update materials
-		}
+	if needsRebuild {
+		// Create new room with UV scale for texture tiling
+		scene.room = tetra.NewRoomUV(float32(c.Width), float32(c.Depth), float32(c.Height), float32(c.UvScale))
 
-		// Create new room
-		scene.room = tetra.NewRoom(float32(c.Width), float32(c.Depth), float32(c.Height))
-
-		// Set materials
+		// Floor material
 		floorMat := tetra3d.NewMaterial("floor")
-		floorMat.Color = unpackRGBAToTetra(int(c.FloorColor))
+		if c.FloorTex != "" {
+			if tex := scene.loadTexture(c.FloorTex); tex != nil {
+				floorMat.Texture = tex
+				floorMat.UseTexture = true // Enable texture rendering
+				floorMat.Color = tetra3d.NewColor(1, 1, 1, 1) // Full brightness for texture
+			} else {
+				floorMat.Color = unpackRGBAToTetra(int(c.FloorColor))
+			}
+		} else {
+			floorMat.Color = unpackRGBAToTetra(int(c.FloorColor))
+		}
 		floorMat.Shadeless = true
 
+		// Wall material
 		wallMat := tetra3d.NewMaterial("wall")
-		wallMat.Color = unpackRGBAToTetra(int(c.WallColor))
+		if c.WallTex != "" {
+			if tex := scene.loadTexture(c.WallTex); tex != nil {
+				wallMat.Texture = tex
+				wallMat.UseTexture = true
+				wallMat.Color = tetra3d.NewColor(1, 1, 1, 1)
+			} else {
+				wallMat.Color = unpackRGBAToTetra(int(c.WallColor))
+			}
+		} else {
+			wallMat.Color = unpackRGBAToTetra(int(c.WallColor))
+		}
 		wallMat.Shadeless = true
 
+		// Ceiling material
 		ceilingMat := tetra3d.NewMaterial("ceiling")
-		ceilingMat.Color = unpackRGBAToTetra(int(c.CeilingColor))
+		if c.CeilingTex != "" {
+			if tex := scene.loadTexture(c.CeilingTex); tex != nil {
+				ceilingMat.Texture = tex
+				ceilingMat.UseTexture = true
+				ceilingMat.Color = tetra3d.NewColor(1, 1, 1, 1)
+			} else {
+				ceilingMat.Color = unpackRGBAToTetra(int(c.CeilingColor))
+			}
+		} else {
+			ceilingMat.Color = unpackRGBAToTetra(int(c.CeilingColor))
+		}
 		ceilingMat.Shadeless = true
 
 		scene.room.SetFloorMaterial(floorMat)
@@ -94,6 +167,12 @@ func (r *Renderer) handleRoom3D(c *sim_gen.DrawCmdRoom3D, screenW, screenH int) 
 		// Add room to scene
 		scene.room.AddToScene(scene.scene)
 		scene.needsInit = false
+
+		// Track current textures and UV scale
+		scene.lastFloorTex = c.FloorTex
+		scene.lastWallTex = c.WallTex
+		scene.lastCeilTex = c.CeilingTex
+		scene.lastUvScale = float32(c.UvScale)
 	}
 }
 
