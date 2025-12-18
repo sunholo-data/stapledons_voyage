@@ -301,3 +301,65 @@ Recreate this concept as a [NEW SIZE] pixel art image.
 Simplify details to work at smaller scale.
 Maintain readability and key identifying features.
 ```
+
+## 3D Interior Texture Templates
+
+### ⚠️ CRITICAL: Seamless Requirement
+
+All floor and ceiling textures **MUST BE SEAMLESS/TILEABLE** because the engine uses a 4x4 grid of tiles (16 tiles visible). Non-seamless textures will show visible seams.
+
+### Ship Interior Floor Texture
+```
+Create a 512x512 seamless tileable texture for a spaceship floor.
+
+CRITICAL SEAMLESS REQUIREMENTS:
+1. Left edge MUST match right edge perfectly
+2. Top edge MUST match bottom edge perfectly
+3. No obvious focal point that will repeat visibly
+4. Pattern density should be uniform across texture
+
+Style: [ROOM TYPE - bridge, engineering, habitat, etc.]
+Surface: Metallic deck plating with subtle panel lines
+Details: [ADDITIONAL FEATURES - grating, lights, wear marks]
+Colors: Dark metallic grays, subtle cyan/blue accent lighting
+Format: PNG with no alpha (opaque texture)
+
+Test: When tiled 4x4, no seams should be visible.
+```
+
+### Ship Interior Wall Texture
+```
+Create a 512x512 texture for spaceship interior walls.
+
+Style: [ROOM TYPE] - sci-fi wall panels
+Features: Panel lines, subtle tech details, possible screen/light accents
+Colors: Dark grays with [ACCENT COLOR] lighting/indicators
+Format: PNG, opaque
+
+Note: Walls use single planes so seamless is less critical,
+but seamless is still recommended for consistency.
+```
+
+### Ship Interior Ceiling Texture
+```
+Create a 512x512 seamless tileable texture for a spaceship ceiling.
+
+CRITICAL SEAMLESS REQUIREMENTS (SAME AS FLOOR):
+1. All edges must tile perfectly
+2. No obvious repeating focal points
+3. Uniform pattern density
+
+Style: [ROOM TYPE] ceiling
+Features: Recessed lighting panels, ventilation grates, conduit covers
+Colors: Dark gray base with [COLOR] light panels (emissive look)
+Format: PNG, opaque
+
+Should convey: Functional ship infrastructure above crew heads.
+```
+
+**Room Type Examples:**
+- **Bridge**: Command/control, blue accent lights, clean surfaces
+- **Engineering**: Industrial, orange/yellow warning lights, pipes/conduits
+- **Habitat**: Softer, warmer lighting, residential feel
+- **Culture**: Communal spaces, varied lighting, decorative elements
+- **Core**: High-tech, red safety lighting, minimal aesthetic

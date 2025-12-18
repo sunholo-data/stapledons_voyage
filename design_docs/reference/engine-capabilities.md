@@ -524,6 +524,76 @@ bin/demo-game-saturn --screenshot 120     # Saturn with rings
 bin/demo-engine-lookat --mode camera-track # LookAt test
 ```
 
+### 3D Interior Rooms
+
+**Files:** `engine/tetra/primitives.go`, `engine/render/draw_interior.go`
+**AILANG:** `sim/interior.ail`
+
+First-person 3D interior rendering for ship rooms.
+
+**Room Geometry:**
+```go
+room := tetra.NewRoomUV(width, depth, height, uvScale)
+room.SetFloorMaterial(floorMat)
+room.SetWallMaterial(wallMat)
+room.SetCeilingMaterial(ceilingMat)
+room.AddToScene(scene)
+```
+
+**⚠️ Tiled Floor/Ceiling (Critical for Rendering):**
+
+Due to Tetra3D's lack of triangle clipping, large triangles stretch unusually at viewport edges. The room uses a **4x4 grid of tiles** (16 tiles each) for floor and ceiling instead of single planes:
+
+```go
+// Internal structure - floor/ceiling are tile arrays
+type Room struct {
+    Floor      []*tetra3d.Model // 4x4 grid = 16 tiles
+    Ceiling    []*tetra3d.Model // 4x4 grid = 16 tiles
+    Walls      []*tetra3d.Model // 4 walls (single planes OK)
+    FloorTiles int              // Number of tiles per dimension (4)
+    ...
+}
+```
+
+This prevents texture "swimming" when looking up/down or moving near surfaces.
+
+**DrawCmd Types (AILANG → Go):**
+
+| Command | Purpose |
+|---------|---------|
+| `Camera3D(x, y, z, yaw, pitch, fov)` | Set first-person camera |
+| `Room3D(w, d, h, floorTex, wallTex, ceilTex, ...)` | Render room geometry |
+| `Prop3D(id, x, y, z, scaleX, scaleY, scaleZ, tex, color)` | Render furniture/console |
+| `Billboard3D(id, x, y, z, spriteId, scale)` | Render character sprite in 3D |
+
+**AILANG Usage:**
+```ailang
+import sim/interior (
+    InteriorState, initInterior, stepInterior, renderInterior,
+    makeRoomTextured, makeRoomTexturedScale
+)
+
+-- Create room with textures (UV scale 1.0 = 1 tile per meter)
+let room = makeRoomTextured(8.0, 6.0, 3.0,
+    "assets/textures/interior/bridge_floor.png",
+    "assets/textures/interior/bridge_wall.png",
+    "assets/textures/interior/bridge_ceiling.png"
+)
+
+-- Step and render each frame
+let newState = stepInterior(state, input)
+let cmds = renderInterior(newState)
+```
+
+**Texture Requirements:**
+- Floor/ceiling textures **MUST be seamless** (16 tiles visible)
+- See `asset_specs.md` for tiling requirements
+
+**Demo:**
+```bash
+go run ./cmd/demo-game-interior
+```
+
 ---
 
 ## 4c. Level of Detail (LOD) System

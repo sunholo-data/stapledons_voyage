@@ -575,7 +575,7 @@ func updatePlanetView_impl(world interface{}, input interface{}, newTick interfa
 		_ = tmp98 // suppress unused
 		return updateAllNPCs_impl(tmp94, tmp96, tmp98)
 	}()
-	return RecordUpdate(world, map[string]interface{}{"npcs": updatedNpcs, "selection": newSelection, "tick": newTick})
+	return RecordUpdate(world, map[string]interface{}{"tick": newTick, "npcs": updatedNpcs, "selection": newSelection})
 }
 
 func updatePlanetView(world *World, input *FrameInput, newTick int64) *World {

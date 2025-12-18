@@ -186,6 +186,10 @@ assets/planets/           # 3D planet textures (JPG/PNG)
 ### Directory Structure
 ```
 assets/textures/          # 3D interior textures
+├── interior/            # Ship interior textures
+│   ├── bridge_floor.png
+│   ├── bridge_wall.png
+│   └── bridge_ceiling.png
 ├── floor_metal.png      # Metallic floor panels
 ├── wall_panel.png       # Wall panels
 ├── ceiling_lights.png   # Ceiling with lights
@@ -196,5 +200,25 @@ assets/textures/          # 3D interior textures
 ### Texture Requirements
 - **Format**: Square, power-of-2 dimensions
 - **Resolution**: 256x256, 512x512, or 1024x1024
-- **Style**: Tileable/seamless for walls/floors
 - **File type**: PNG (for alpha) or JPG (for solid)
+
+### ⚠️ CRITICAL: Tiling Requirements
+
+Interior floor and ceiling textures **MUST be seamless/tileable** because:
+- The engine uses a 4x4 grid of tiles for floors and ceilings (16 tiles each)
+- This is required to work around Tetra3D's lack of triangle clipping
+- Non-seamless textures will show visible seams at tile boundaries
+
+**Seamless Texture Checklist:**
+1. ✅ Edges must wrap seamlessly (left→right, top→bottom)
+2. ✅ No obvious focal points that repeat visibly
+3. ✅ Pattern density should be consistent across texture
+4. ✅ Test at 1:1 UV scale (1 texture = 1 meter in-game)
+
+**UV Scale:** Default is 1.0 (one texture tile per meter). Adjust via `uvScale` in AILANG:
+```ailang
+-- More tiles per meter (smaller pattern, more repeats)
+let room = makeRoomTexturedScale(8.0, 6.0, 3.0, floor, wall, ceil, 2.0)
+```
+
+**Wall textures** are less critical since walls use single planes, but seamless is still recommended for consistency.

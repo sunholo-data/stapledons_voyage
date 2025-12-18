@@ -727,7 +727,7 @@ func stepInterior_impl(state interface{}, input interface{}) interface{} {
 	}()
 	var tmp111 interface{} = FieldGet(state, "tick")
 	var tmp112 interface{} = AddInt(tmp111, int64(1))
-	return RecordUpdate(state, map[string]interface{}{"player": updatedPlayer, "tick": tmp112})
+	return RecordUpdate(state, map[string]interface{}{"tick": tmp112, "player": updatedPlayer})
 }
 
 func StepInterior(state *InteriorState, input *FrameInput) *InteriorState {
