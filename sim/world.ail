@@ -18,6 +18,9 @@ import sim/celestial (StarSystem)
 -- Import ShipLevels for multi-deck navigation
 import sim/ship_levels (ShipLevels)
 
+-- Import ShipNavigation for galactic position/orientation
+import sim/navigation (ShipNavigation)
+
 -- Re-export NPC type for consumers
 export type Tile = { biome: int }
 
@@ -49,5 +52,6 @@ export type World = {
     viewMode: ViewMode,
     starCatalog: StarCatalog,
     currentSystem: StarSystem,
-    shipLevels: ShipLevels  -- Multi-deck ship navigation state
+    shipLevels: ShipLevels,       -- Multi-deck ship navigation state
+    shipNavigation: ShipNavigation -- Galactic position and orientation
 }

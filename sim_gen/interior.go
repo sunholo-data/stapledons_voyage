@@ -254,7 +254,8 @@ func createBridgeInterior_impl(_unused0 interface{}) interface{} {
 		_ = tmp25 // suppress unused
 		return []interface{}{tmp23, tmp25}
 	}()
-	return &InteriorRoom{Room: room.(*RoomDef), Props: ConvertToPropDefSlice(props), Characters: ConvertToCharacterDefSlice(characters)}
+	var wins interface{} = bridgeWindows_impl(struct{}{})
+	return &InteriorRoom{Room: room.(*RoomDef), Props: ConvertToPropDefSlice(props), Characters: ConvertToCharacterDefSlice(characters), Windows: ConvertToWindowDefSlice(wins)}
 }
 
 func CreateBridgeInterior() *InteriorRoom {
@@ -723,11 +724,11 @@ func stepInterior_impl(state interface{}, input interface{}) interface{} {
 	var updatedPlayer interface{} = func() interface{} {
 		var tmp113 interface{} = isShiftHeld_impl(input)
 		_ = tmp113 // suppress unused
-		return RecordUpdate(movedPlayer, map[string]interface{}{"yaw": newYaw, "pitch": newPitch, "isRunning": tmp113})
+		return RecordUpdate(movedPlayer, map[string]interface{}{"isRunning": tmp113, "yaw": newYaw, "pitch": newPitch})
 	}()
 	var tmp111 interface{} = FieldGet(state, "tick")
 	var tmp112 interface{} = AddInt(tmp111, int64(1))
-	return RecordUpdate(state, map[string]interface{}{"tick": tmp112, "player": updatedPlayer})
+	return RecordUpdate(state, map[string]interface{}{"player": updatedPlayer, "tick": tmp112})
 }
 
 func StepInterior(state *InteriorState, input *FrameInput) *InteriorState {
@@ -861,52 +862,233 @@ func renderCharactersRec(chars []*CharacterDef) []*DrawCmd {
 	return ConvertToDrawCmdSlice(renderCharactersRec_impl(chars))
 }
 
+func windowTypeToInt_impl(wt interface{}) interface{} {
+	return func() interface{} {
+		_scrutinee := wt
+		_ = _scrutinee // suppress unused
+		_adt := _scrutinee.(*WindowType)
+		switch _adt.Kind {
+		case WindowTypeKindViewport:
+			return int64(0)
+		case WindowTypeKindPorthole:
+			return int64(1)
+		case WindowTypeKindDome:
+			return int64(2)
+		case WindowTypeKindStrip:
+			return int64(3)
+		default:
+			panic("non-exhaustive match")
+		}
+	}()
+}
+
+func windowTypeToInt(wt *WindowType) int64 {
+	return windowTypeToInt_impl(wt).(int64)
+}
+
+func renderWindow_impl(win interface{}, room interface{}, shipVelocity interface{}, grPhi interface{}) interface{} {
+	var pos interface{} = func() interface{} {
+		var tmp175 interface{} = FieldGet(room, "width")
+		_ = tmp175 // suppress unused
+		var tmp176 interface{} = FieldGet(room, "depth")
+		_ = tmp176 // suppress unused
+		var tmp177 interface{} = FieldGet(room, "height")
+		_ = tmp177 // suppress unused
+		return windowWorldPos_impl(win, tmp175, tmp176, tmp177)
+	}()
+	var normal interface{} = windowNormal_impl(win)
+	return func() interface{} {
+		_scrutinee := pos
+		_ = _scrutinee // suppress unused
+		if len(_scrutinee.([]interface{})) == 3 {
+			px := _scrutinee.([]interface{})[0]
+			_ = px // suppress unused
+			py := _scrutinee.([]interface{})[1]
+			_ = py // suppress unused
+			pz := _scrutinee.([]interface{})[2]
+			_ = pz // suppress unused
+			return func() interface{} {
+				_scrutinee := normal
+				_ = _scrutinee // suppress unused
+				if len(_scrutinee.([]interface{})) == 3 {
+					nx := _scrutinee.([]interface{})[0]
+					_ = nx // suppress unused
+					ny := _scrutinee.([]interface{})[1]
+					_ = ny // suppress unused
+					nz := _scrutinee.([]interface{})[2]
+					_ = nz // suppress unused
+					return func() interface{} {
+						var tmp164 interface{} = FieldGet(win, "id")
+						_ = tmp164 // suppress unused
+						var tmp165 interface{} = FieldGet(win, "width")
+						_ = tmp165 // suppress unused
+						var tmp166 interface{} = FieldGet(win, "height")
+						_ = tmp166 // suppress unused
+						var tmp167 interface{} = FieldGet(win, "windowType")
+						_ = tmp167 // suppress unused
+						var tmp168 interface{} = windowTypeToInt_impl(tmp167)
+						_ = tmp168 // suppress unused
+						var tmp169 interface{} = FieldGet(win, "showStars")
+						_ = tmp169 // suppress unused
+						var tmp170 interface{} = FieldGet(win, "showPlanets")
+						_ = tmp170 // suppress unused
+						var tmp171 interface{} = FieldGet(win, "applyRelativity")
+						_ = tmp171 // suppress unused
+						var tmp172 interface{} = func() interface{} {
+							if tmp171.(bool) {
+								return shipVelocity
+							}
+							return float64(0)
+						}()
+						_ = tmp172 // suppress unused
+						var tmp173 interface{} = FieldGet(win, "applyRelativity")
+						_ = tmp173 // suppress unused
+						var tmp174 interface{} = func() interface{} {
+							if tmp173.(bool) {
+								return grPhi
+							}
+							return float64(0)
+						}()
+						_ = tmp174 // suppress unused
+						return NewDrawCmdWindow3D(tmp164.(string), px.(float64), py.(float64), pz.(float64), nx.(float64), ny.(float64), nz.(float64), tmp165.(float64), tmp166.(float64), tmp168.(int64), tmp169.(bool), tmp170.(bool), tmp172.(float64), tmp174.(float64), int64(3))
+					}()
+				} else {
+					panic("non-exhaustive match")
+				}
+			}()
+		} else {
+			panic("non-exhaustive match")
+		}
+	}()
+}
+
+func renderWindow(win *WindowDef, room *RoomDef, shipVelocity float64, grPhi float64) *DrawCmd {
+	return renderWindow_impl(win, room, shipVelocity, grPhi).(*DrawCmd)
+}
+
+func renderWindowsRec_impl(wins interface{}, room interface{}, velocity interface{}, grPhi interface{}) interface{} {
+	return func() interface{} {
+		_scrutinee := wins
+		_ = _scrutinee // suppress unused
+		if ListLen(_scrutinee) == 0 {
+			return []interface{}{}
+		} else if ListLen(_scrutinee) >= 1 {
+			w := ListHead(_scrutinee)
+			_ = w // suppress unused
+			rest := ListTail(_scrutinee)
+			_ = rest // suppress unused
+			return func() interface{} {
+				var tmp178 interface{} = renderWindow_impl(w, room, velocity, grPhi)
+				_ = tmp178 // suppress unused
+				var tmp179 interface{} = renderWindowsRec_impl(rest, room, velocity, grPhi)
+				_ = tmp179 // suppress unused
+				return Cons(tmp178, tmp179)
+			}()
+		} else {
+			panic("non-exhaustive match")
+		}
+	}()
+}
+
+func renderWindowsRec(wins []*WindowDef, room *RoomDef, velocity float64, grPhi float64) []*DrawCmd {
+	return ConvertToDrawCmdSlice(renderWindowsRec_impl(wins, room, velocity, grPhi))
+}
+
+func renderWindows_impl(wins interface{}, room interface{}) interface{} {
+	return renderWindowsRec_impl(wins, room, float64(0), float64(0))
+}
+
+func renderWindows(wins []*WindowDef, room *RoomDef) []*DrawCmd {
+	return ConvertToDrawCmdSlice(renderWindows_impl(wins, room))
+}
+
 func renderHUD_impl(state interface{}) interface{} {
-	var tmp164 interface{} = layerUI_impl(struct{}{})
-	var tmp165 interface{} = NewDrawCmdText("3D Interior - WASD: Move | Mouse: Look | Shift: Run", float64(10), float64(20), int64(12), int64(4294967295), tmp164.(int64))
-	return []interface{}{tmp165}
+	var tmp180 interface{} = layerUI_impl(struct{}{})
+	var tmp181 interface{} = NewDrawCmdText("3D Interior - WASD: Move | Mouse: Look | Shift: Run", float64(10), float64(20), int64(12), int64(4294967295), tmp180.(int64))
+	return []interface{}{tmp181}
 }
 
 func renderHUD(state *InteriorState) []*DrawCmd {
 	return ConvertToDrawCmdSlice(renderHUD_impl(state))
 }
 
-func renderInterior_impl(state interface{}) interface{} {
-	var camera interface{} = func() interface{} {
-		var tmp175 interface{} = FieldGet(state, "player")
-		_ = tmp175 // suppress unused
-		var tmp176 interface{} = FieldGet(state, "fov")
-		_ = tmp176 // suppress unused
-		return renderCamera_impl(tmp175, tmp176)
-	}()
-	var room interface{} = func() interface{} {
-		var tmp173 interface{} = FieldGet(state, "currentRoom")
-		_ = tmp173 // suppress unused
-		var tmp174 interface{} = FieldGet(tmp173, "room")
-		_ = tmp174 // suppress unused
-		return renderRoom_impl(tmp174)
-	}()
-	var props interface{} = func() interface{} {
-		var tmp171 interface{} = FieldGet(state, "currentRoom")
-		_ = tmp171 // suppress unused
-		var tmp172 interface{} = FieldGet(tmp171, "props")
-		_ = tmp172 // suppress unused
-		return renderPropsRec_impl(tmp172)
-	}()
-	var chars interface{} = func() interface{} {
-		var tmp169 interface{} = FieldGet(state, "currentRoom")
-		_ = tmp169 // suppress unused
-		var tmp170 interface{} = FieldGet(tmp169, "characters")
-		_ = tmp170 // suppress unused
-		return renderCharactersRec_impl(tmp170)
-	}()
-	var hud interface{} = renderHUD_impl(state)
-	var tmp166 interface{} = []interface{}{camera, room}
-	var tmp167 interface{} = Concat(chars, hud)
-	var tmp168 interface{} = Concat(props, tmp167)
-	return Concat(tmp166, tmp168)
+func renderShipState_impl(nav interface{}) interface{} {
+	var forward interface{} = getForward_impl(nav)
+	var up interface{} = getUp_impl(nav)
+	var tmp182 interface{} = FieldGet(nav, "position")
+	var tmp183 interface{} = FieldGet(tmp182, "x")
+	var tmp184 interface{} = FieldGet(nav, "position")
+	var tmp185 interface{} = FieldGet(tmp184, "y")
+	var tmp186 interface{} = FieldGet(nav, "position")
+	var tmp187 interface{} = FieldGet(tmp186, "z")
+	var tmp188 interface{} = FieldGet(forward, "x")
+	var tmp189 interface{} = FieldGet(forward, "y")
+	var tmp190 interface{} = FieldGet(forward, "z")
+	var tmp191 interface{} = FieldGet(up, "x")
+	var tmp192 interface{} = FieldGet(up, "y")
+	var tmp193 interface{} = FieldGet(up, "z")
+	var tmp194 interface{} = FieldGet(nav, "velocity")
+	var tmp195 interface{} = FieldGet(nav, "grPhi")
+	return NewDrawCmdShipState3D(tmp183.(float64), tmp185.(float64), tmp187.(float64), tmp188.(float64), tmp189.(float64), tmp190.(float64), tmp191.(float64), tmp192.(float64), tmp193.(float64), tmp194.(float64), tmp195.(float64))
 }
 
-func RenderInterior(state *InteriorState) []*DrawCmd {
-	return ConvertToDrawCmdSlice(renderInterior_impl(state))
+func renderShipState(nav *ShipNavigation) *DrawCmd {
+	return renderShipState_impl(nav).(*DrawCmd)
+}
+
+func renderInterior_impl(state interface{}, nav interface{}) interface{} {
+	var shipState interface{} = renderShipState_impl(nav)
+	var camera interface{} = func() interface{} {
+		var tmp212 interface{} = FieldGet(state, "player")
+		_ = tmp212 // suppress unused
+		var tmp213 interface{} = FieldGet(state, "fov")
+		_ = tmp213 // suppress unused
+		return renderCamera_impl(tmp212, tmp213)
+	}()
+	var room interface{} = func() interface{} {
+		var tmp210 interface{} = FieldGet(state, "currentRoom")
+		_ = tmp210 // suppress unused
+		var tmp211 interface{} = FieldGet(tmp210, "room")
+		_ = tmp211 // suppress unused
+		return renderRoom_impl(tmp211)
+	}()
+	var props interface{} = func() interface{} {
+		var tmp208 interface{} = FieldGet(state, "currentRoom")
+		_ = tmp208 // suppress unused
+		var tmp209 interface{} = FieldGet(tmp208, "props")
+		_ = tmp209 // suppress unused
+		return renderPropsRec_impl(tmp209)
+	}()
+	var chars interface{} = func() interface{} {
+		var tmp206 interface{} = FieldGet(state, "currentRoom")
+		_ = tmp206 // suppress unused
+		var tmp207 interface{} = FieldGet(tmp206, "characters")
+		_ = tmp207 // suppress unused
+		return renderCharactersRec_impl(tmp207)
+	}()
+	var wins interface{} = func() interface{} {
+		var tmp200 interface{} = FieldGet(state, "currentRoom")
+		_ = tmp200 // suppress unused
+		var tmp201 interface{} = FieldGet(tmp200, "windows")
+		_ = tmp201 // suppress unused
+		var tmp202 interface{} = FieldGet(state, "currentRoom")
+		_ = tmp202 // suppress unused
+		var tmp203 interface{} = FieldGet(tmp202, "room")
+		_ = tmp203 // suppress unused
+		var tmp204 interface{} = FieldGet(nav, "velocity")
+		_ = tmp204 // suppress unused
+		var tmp205 interface{} = FieldGet(nav, "grPhi")
+		_ = tmp205 // suppress unused
+		return renderWindowsRec_impl(tmp201, tmp203, tmp204, tmp205)
+	}()
+	var hud interface{} = renderHUD_impl(state)
+	var tmp196 interface{} = []interface{}{shipState, camera, room}
+	var tmp197 interface{} = Concat(wins, hud)
+	var tmp198 interface{} = Concat(chars, tmp197)
+	var tmp199 interface{} = Concat(props, tmp198)
+	return Concat(tmp196, tmp199)
+}
+
+func RenderInterior(state *InteriorState, nav *ShipNavigation) []*DrawCmd {
+	return ConvertToDrawCmdSlice(renderInterior_impl(state, nav))
 }

@@ -19,6 +19,10 @@ run: sim
 demo-bridge: sim
 	go run ./cmd/demo-bridge --debug
 
+# Engine demos (pure Go, no AILANG)
+demo-engine-dome:
+	go run ./cmd/demo-engine-dome
+
 # CLI tool
 cli:
 	go build -o bin/voyage ./cmd/voyage

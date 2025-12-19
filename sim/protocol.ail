@@ -164,6 +164,39 @@ export type DrawCmd =
     -- scale: size multiplier
     | Billboard3D(id: string, x: float, y: float, z: float, spriteId: int, scale: float, billboardZ: int)
 
+    -- ShipState3D: Set ship navigation state for window rendering
+    -- Emitted once per frame before Window3D commands
+    -- shipX/Y/Z: ship position in light-years (Sol-centered galactocentric)
+    -- forwardX/Y/Z: ship forward direction (normalized)
+    -- upX/Y/Z: ship up direction (normalized)
+    -- velocity: ship velocity as fraction of c (0-0.999)
+    -- grPhi: gravitational potential for GR effects
+    | ShipState3D(
+        shipX: float, shipY: float, shipZ: float,
+        forwardX: float, forwardY: float, forwardZ: float,
+        upX: float, upY: float, upZ: float,
+        velocity: float, grPhi: float
+    )
+
+    -- Window3D: Render a 3D window showing space view
+    -- x, y, z: window center position in room coordinates
+    -- nx, ny, nz: window normal (facing direction into room)
+    -- width, height: window dimensions in meters
+    -- windowType: 0=viewport, 1=porthole, 2=dome, 3=strip
+    -- showStars, showPlanets: what to render through window
+    -- velocity: ship velocity for SR doppler shift (0-1, fraction of c)
+    -- grPhi: gravitational potential for GR effects
+    | Window3D(
+        id: string,
+        x: float, y: float, z: float,
+        nx: float, ny: float, nz: float,
+        width: float, height: float,
+        windowType: int,
+        showStars: bool, showPlanets: bool,
+        velocity: float, grPhi: float,
+        windowZ: int
+    )
+
     -- ==========================================================================
 
     -- Viewport compositing command (for observation domes, windows, portholes)

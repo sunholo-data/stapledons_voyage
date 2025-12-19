@@ -312,6 +312,12 @@ func (r *Renderer) RenderFrame(screen *ebiten.Image, out sim_gen.FrameOutput) {
 
 		case sim_gen.DrawCmdKindBillboard3D:
 			r.handleBillboard3D(cmd.Billboard3D, screenW, screenH)
+
+		case sim_gen.DrawCmdKindWindow3D:
+			r.handleWindow3D(cmd.Window3D, screenW, screenH)
+
+		case sim_gen.DrawCmdKindShipState3D:
+			r.handleShipState3D(cmd.ShipState3D, screenW, screenH)
 		}
 	}
 

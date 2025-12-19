@@ -1,0 +1,230 @@
+module sim/navigation
+
+-- =============================================================================
+-- Ship Navigation State
+-- Tracks ship position, orientation, and velocity in the galaxy
+-- This is the "single source of truth" for where the ship is and what's visible
+-- =============================================================================
+
+import std/math (sqrt, sin, cos)
+import sim/starmap (Vec3, makeVec3, vec3Zero, distance)
+
+-- =============================================================================
+-- Orientation (Quaternion)
+-- =============================================================================
+
+-- Quaternion for 3D orientation (w, x, y, z)
+export type Quaternion = { w: float, x: float, y: float, z: float }
+
+-- Identity quaternion (no rotation)
+export pure func quatIdentity() -> Quaternion {
+    { w: 1.0, x: 0.0, y: 0.0, z: 0.0 }
+}
+
+-- Create quaternion from axis-angle (axis must be normalized)
+export pure func quatFromAxisAngle(ax: float, ay: float, az: float, angle: float) -> Quaternion {
+    let halfAngle = angle / 2.0;
+    let s = sin(halfAngle);
+    {
+        w: cos(halfAngle),
+        x: ax * s,
+        y: ay * s,
+        z: az * s
+    }
+}
+
+-- Rotate a vector by a quaternion
+export pure func quatRotateVec(q: Quaternion, v: Vec3) -> Vec3 {
+    -- Using the formula: v' = q * v * q^(-1)
+    -- Simplified for unit quaternions
+    let qw = q.w;
+    let qx = q.x;
+    let qy = q.y;
+    let qz = q.z;
+
+    let vx = v.x;
+    let vy = v.y;
+    let vz = v.z;
+
+    -- Cross product q.xyz x v
+    let cx = qy * vz - qz * vy;
+    let cy = qz * vx - qx * vz;
+    let cz = qx * vy - qy * vx;
+
+    -- v + 2 * (q.w * cross + q.xyz x cross)
+    let cx2 = qy * cz - qz * cy;
+    let cy2 = qz * cx - qx * cz;
+    let cz2 = qx * cy - qy * cx;
+
+    makeVec3(
+        vx + 2.0 * (qw * cx + cx2),
+        vy + 2.0 * (qw * cy + cy2),
+        vz + 2.0 * (qw * cz + cz2)
+    )
+}
+
+-- =============================================================================
+-- Ship Navigation State
+-- =============================================================================
+
+-- Complete navigation state for the ship
+export type ShipNavigation = {
+    -- Position in light-years (Sol-centered galactocentric coordinates)
+    position: Vec3,
+
+    -- Orientation quaternion
+    orientation: Quaternion,
+
+    -- Velocity as fraction of c (0.0 to 1.0)
+    -- At 0.9c, time dilation is ~2.3x
+    velocity: float,
+
+    -- Heading vector (normalized direction of travel)
+    heading: Vec3,
+
+    -- Gravitational potential phi (for GR effects near massive objects)
+    -- 0.0 = flat space, increases near stars/black holes
+    grPhi: float
+}
+
+-- Initialize ship at Sol (origin) facing "forward" (+Z galactic north)
+export pure func initNavigation() -> ShipNavigation {
+    {
+        position: vec3Zero(),
+        orientation: quatIdentity(),
+        velocity: 0.0,
+        heading: makeVec3(0.0, 0.0, 1.0),
+        grPhi: 0.0
+    }
+}
+
+-- Set ship position
+export pure func setPosition(nav: ShipNavigation, x: float, y: float, z: float) -> ShipNavigation {
+    {
+        position: makeVec3(x, y, z),
+        orientation: nav.orientation,
+        velocity: nav.velocity,
+        heading: nav.heading,
+        grPhi: nav.grPhi
+    }
+}
+
+-- Set ship velocity (fraction of c)
+export pure func setVelocity(nav: ShipNavigation, v: float) -> ShipNavigation {
+    let clampedV = if v < 0.0 then 0.0 else if v > 0.999 then 0.999 else v;
+    {
+        position: nav.position,
+        orientation: nav.orientation,
+        velocity: clampedV,
+        heading: nav.heading,
+        grPhi: nav.grPhi
+    }
+}
+
+-- Set ship heading (normalized direction)
+export pure func setHeading(nav: ShipNavigation, hx: float, hy: float, hz: float) -> ShipNavigation {
+    let len = sqrt(hx * hx + hy * hy + hz * hz);
+    let normalizedH = if len > 0.001 then makeVec3(hx / len, hy / len, hz / len) else nav.heading;
+    {
+        position: nav.position,
+        orientation: nav.orientation,
+        velocity: nav.velocity,
+        heading: normalizedH,
+        grPhi: nav.grPhi
+    }
+}
+
+-- =============================================================================
+-- View Direction Helpers
+-- =============================================================================
+
+-- Get the forward direction vector from orientation
+export pure func getForward(nav: ShipNavigation) -> Vec3 {
+    quatRotateVec(nav.orientation, makeVec3(0.0, 0.0, 1.0))
+}
+
+-- Get the up direction vector from orientation
+export pure func getUp(nav: ShipNavigation) -> Vec3 {
+    quatRotateVec(nav.orientation, makeVec3(0.0, 1.0, 0.0))
+}
+
+-- Get the right direction vector from orientation
+export pure func getRight(nav: ShipNavigation) -> Vec3 {
+    quatRotateVec(nav.orientation, makeVec3(1.0, 0.0, 0.0))
+}
+
+-- =============================================================================
+-- Window View Calculation
+-- =============================================================================
+
+-- Calculate the view direction for a window based on:
+-- - Ship orientation
+-- - Window normal in local room coordinates
+-- Returns (viewX, viewY, viewZ) in world coordinates
+export pure func windowViewDirection(nav: ShipNavigation, windowNormalX: float, windowNormalY: float, windowNormalZ: float) -> Vec3 {
+    -- The window normal points into the room
+    -- The view direction is the opposite (outward into space)
+    let localView = makeVec3(0.0 - windowNormalX, 0.0 - windowNormalY, 0.0 - windowNormalZ);
+    -- Rotate by ship orientation to get world direction
+    quatRotateVec(nav.orientation, localView)
+}
+
+-- Get the up vector for a window view (typically ship's up rotated)
+export pure func windowViewUp(nav: ShipNavigation) -> Vec3 {
+    getUp(nav)
+}
+
+-- =============================================================================
+-- Time Dilation (Special Relativity)
+-- =============================================================================
+
+-- Calculate time dilation factor (gamma)
+-- At v=0.9c, gamma ≈ 2.29 (ship time passes 2.29x slower than external)
+export pure func timeDilationFactor(nav: ShipNavigation) -> float {
+    let v = nav.velocity;
+    let vsq = v * v;
+    -- gamma = 1 / sqrt(1 - v²/c²)
+    -- Since v is already fraction of c, this simplifies to:
+    1.0 / sqrt(1.0 - vsq)
+}
+
+-- Calculate proper time (ship time) from coordinate time (external time)
+export pure func properTime(nav: ShipNavigation, coordinateTime: float) -> float {
+    coordinateTime / timeDilationFactor(nav)
+}
+
+-- =============================================================================
+-- Travel Functions
+-- =============================================================================
+
+-- Move ship along heading for a given proper time (ship time)
+-- Returns updated position after accounting for time dilation
+export pure func travel(nav: ShipNavigation, properDuration: float) -> ShipNavigation {
+    -- Distance = velocity * time (in light-years)
+    -- At v=0.9c for 1 year ship time, you travel 0.9 * 2.29 ≈ 2.06 ly
+    let gamma = timeDilationFactor(nav);
+    let coordinateDuration = properDuration * gamma;
+    let travelDist = nav.velocity * coordinateDuration;
+
+    -- Extract current position and heading (avoid nested field access issues)
+    let pos = nav.position;
+    let heading = nav.heading;
+    let px = pos.x;
+    let py = pos.y;
+    let pz = pos.z;
+    let hx = heading.x;
+    let hy = heading.y;
+    let hz = heading.z;
+
+    let newX = px + hx * travelDist;
+    let newY = py + hy * travelDist;
+    let newZ = pz + hz * travelDist;
+
+    {
+        position: makeVec3(newX, newY, newZ),
+        orientation: nav.orientation,
+        velocity: nav.velocity,
+        heading: nav.heading,
+        grPhi: nav.grPhi
+    }
+}

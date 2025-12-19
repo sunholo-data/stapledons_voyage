@@ -251,6 +251,11 @@ func EqInt(a, b interface{}) interface{} {
 	return toInt64(a) == toInt64(b)
 }
 
+// NeInt compares two integers for inequality.
+func NeInt(a, b interface{}) interface{} {
+	return toInt64(a) != toInt64(b)
+}
+
 // EqString compares two strings for equality.
 func EqString(a, b interface{}) interface{} {
 	return a.(string) == b.(string)
@@ -1287,72 +1292,48 @@ func ConvertToViewModeSlice(v interface{}) []*ViewMode {
 	return out
 }
 
-// ConvertToViewportContentSlice converts []interface{} to []*ViewportContent.
+// ConvertToWindowDefSlice converts []interface{} to []*WindowDef.
 // M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
-func ConvertToViewportContentSlice(v interface{}) []*ViewportContent {
+func ConvertToWindowDefSlice(v interface{}) []*WindowDef {
 	if v == nil {
 		return nil
 	}
 	src, ok := v.([]interface{})
 	if !ok {
-		panic(fmt.Sprintf("ConvertToViewportContentSlice: expected []interface{}, got %T", v))
+		panic(fmt.Sprintf("ConvertToWindowDefSlice: expected []interface{}, got %T", v))
 	}
 	if len(src) == 0 {
-		return []*ViewportContent{}
+		return []*WindowDef{}
 	}
-	out := make([]*ViewportContent, len(src))
+	out := make([]*WindowDef, len(src))
 	for i, e := range src {
-		elem, ok := e.(*ViewportContent)
+		elem, ok := e.(*WindowDef)
 		if !ok {
-			panic(fmt.Sprintf("ConvertToViewportContentSlice: element %d: expected *ViewportContent, got %T", i, e))
+			panic(fmt.Sprintf("ConvertToWindowDefSlice: element %d: expected *WindowDef, got %T", i, e))
 		}
 		out[i] = elem
 	}
 	return out
 }
 
-// ConvertToViewportEffectSlice converts []interface{} to []*ViewportEffect.
+// ConvertToWindowTypeSlice converts []interface{} to []*WindowType.
 // M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
-func ConvertToViewportEffectSlice(v interface{}) []*ViewportEffect {
+func ConvertToWindowTypeSlice(v interface{}) []*WindowType {
 	if v == nil {
 		return nil
 	}
 	src, ok := v.([]interface{})
 	if !ok {
-		panic(fmt.Sprintf("ConvertToViewportEffectSlice: expected []interface{}, got %T", v))
+		panic(fmt.Sprintf("ConvertToWindowTypeSlice: expected []interface{}, got %T", v))
 	}
 	if len(src) == 0 {
-		return []*ViewportEffect{}
+		return []*WindowType{}
 	}
-	out := make([]*ViewportEffect, len(src))
+	out := make([]*WindowType, len(src))
 	for i, e := range src {
-		elem, ok := e.(*ViewportEffect)
+		elem, ok := e.(*WindowType)
 		if !ok {
-			panic(fmt.Sprintf("ConvertToViewportEffectSlice: element %d: expected *ViewportEffect, got %T", i, e))
-		}
-		out[i] = elem
-	}
-	return out
-}
-
-// ConvertToViewportShapeSlice converts []interface{} to []*ViewportShape.
-// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
-func ConvertToViewportShapeSlice(v interface{}) []*ViewportShape {
-	if v == nil {
-		return nil
-	}
-	src, ok := v.([]interface{})
-	if !ok {
-		panic(fmt.Sprintf("ConvertToViewportShapeSlice: expected []interface{}, got %T", v))
-	}
-	if len(src) == 0 {
-		return []*ViewportShape{}
-	}
-	out := make([]*ViewportShape, len(src))
-	for i, e := range src {
-		elem, ok := e.(*ViewportShape)
-		if !ok {
-			panic(fmt.Sprintf("ConvertToViewportShapeSlice: element %d: expected *ViewportShape, got %T", i, e))
+			panic(fmt.Sprintf("ConvertToWindowTypeSlice: element %d: expected *WindowType, got %T", i, e))
 		}
 		out[i] = elem
 	}
@@ -1839,6 +1820,30 @@ func ConvertToPlanetStateSlice(v interface{}) []*PlanetState {
 	return out
 }
 
+// ConvertToQuaternionSlice converts []interface{} to []*Quaternion.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToQuaternionSlice(v interface{}) []*Quaternion {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToQuaternionSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*Quaternion{}
+	}
+	out := make([]*Quaternion, len(src))
+	for i, e := range src {
+		elem, ok := e.(*Quaternion)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToQuaternionSlice: element %d: expected *Quaternion, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
 // ConvertToRGBColorSlice converts []interface{} to []*RGBColor.
 // M-CODEGEN-UNIFIED-SLICE: Record slice converter.
 func ConvertToRGBColorSlice(v interface{}) []*RGBColor {
@@ -1935,6 +1940,30 @@ func ConvertToRoomDefSlice(v interface{}) []*RoomDef {
 	return out
 }
 
+// ConvertToRoomThemeSlice converts []interface{} to []*RoomTheme.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToRoomThemeSlice(v interface{}) []*RoomTheme {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToRoomThemeSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*RoomTheme{}
+	}
+	out := make([]*RoomTheme, len(src))
+	for i, e := range src {
+		elem, ok := e.(*RoomTheme)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToRoomThemeSlice: element %d: expected *RoomTheme, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
 // ConvertToSRContextSlice converts []interface{} to []*SRContext.
 // M-CODEGEN-UNIFIED-SLICE: Record slice converter.
 func ConvertToSRContextSlice(v interface{}) []*SRContext {
@@ -1977,6 +2006,30 @@ func ConvertToShipLevelsSlice(v interface{}) []*ShipLevels {
 		elem, ok := e.(*ShipLevels)
 		if !ok {
 			panic(fmt.Sprintf("ConvertToShipLevelsSlice: element %d: expected *ShipLevels, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToShipNavigationSlice converts []interface{} to []*ShipNavigation.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToShipNavigationSlice(v interface{}) []*ShipNavigation {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToShipNavigationSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*ShipNavigation{}
+	}
+	out := make([]*ShipNavigation, len(src))
+	for i, e := range src {
+		elem, ok := e.(*ShipNavigation)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToShipNavigationSlice: element %d: expected *ShipNavigation, got %T", i, e))
 		}
 		out[i] = elem
 	}
@@ -2127,6 +2180,30 @@ func ConvertToSystemPosSlice(v interface{}) []*SystemPos {
 	return out
 }
 
+// ConvertToTextureSpecSlice converts []interface{} to []*TextureSpec.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
+func ConvertToTextureSpecSlice(v interface{}) []*TextureSpec {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToTextureSpecSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*TextureSpec{}
+	}
+	out := make([]*TextureSpec, len(src))
+	for i, e := range src {
+		elem, ok := e.(*TextureSpec)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToTextureSpecSlice: element %d: expected *TextureSpec, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
 // ConvertToTransparentTileSlice converts []interface{} to []*TransparentTile.
 // M-CODEGEN-UNIFIED-SLICE: Record slice converter.
 func ConvertToTransparentTileSlice(v interface{}) []*TransparentTile {
@@ -2193,30 +2270,6 @@ func ConvertToVector3Slice(v interface{}) []*Vector3 {
 		elem, ok := e.(*Vector3)
 		if !ok {
 			panic(fmt.Sprintf("ConvertToVector3Slice: element %d: expected *Vector3, got %T", i, e))
-		}
-		out[i] = elem
-	}
-	return out
-}
-
-// ConvertToViewportDefSlice converts []interface{} to []*ViewportDef.
-// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
-func ConvertToViewportDefSlice(v interface{}) []*ViewportDef {
-	if v == nil {
-		return nil
-	}
-	src, ok := v.([]interface{})
-	if !ok {
-		panic(fmt.Sprintf("ConvertToViewportDefSlice: expected []interface{}, got %T", v))
-	}
-	if len(src) == 0 {
-		return []*ViewportDef{}
-	}
-	out := make([]*ViewportDef, len(src))
-	for i, e := range src {
-		elem, ok := e.(*ViewportDef)
-		if !ok {
-			panic(fmt.Sprintf("ConvertToViewportDefSlice: element %d: expected *ViewportDef, got %T", i, e))
 		}
 		out[i] = elem
 	}

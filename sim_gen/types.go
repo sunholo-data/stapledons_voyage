@@ -1196,6 +1196,8 @@ const (
 	DrawCmdKindRoom3D
 	DrawCmdKindProp3D
 	DrawCmdKindBillboard3D
+	DrawCmdKindShipState3D
+	DrawCmdKindWindow3D
 	DrawCmdKindViewport
 )
 
@@ -1417,6 +1419,40 @@ type DrawCmdBillboard3D struct {
 	BillboardZ int64
 }
 
+// DrawCmdShipState3D holds data for the ShipState3D variant
+type DrawCmdShipState3D struct {
+	ShipX    float64
+	ShipY    float64
+	ShipZ    float64
+	ForwardX float64
+	ForwardY float64
+	ForwardZ float64
+	UpX      float64
+	UpY      float64
+	UpZ      float64
+	Velocity float64
+	GrPhi    float64
+}
+
+// DrawCmdWindow3D holds data for the Window3D variant
+type DrawCmdWindow3D struct {
+	Id          string
+	X           float64
+	Y           float64
+	Z           float64
+	Nx          float64
+	Ny          float64
+	Nz          float64
+	Width       float64
+	Height      float64
+	WindowType  int64
+	ShowStars   bool
+	ShowPlanets bool
+	Velocity    float64
+	GrPhi       float64
+	WindowZ     int64
+}
+
 // DrawCmdViewport holds data for the Viewport variant
 type DrawCmdViewport struct {
 	Id            string
@@ -1459,6 +1495,8 @@ type DrawCmd struct {
 	Room3D         *DrawCmdRoom3D
 	Prop3D         *DrawCmdProp3D
 	Billboard3D    *DrawCmdBillboard3D
+	ShipState3D    *DrawCmdShipState3D
+	Window3D       *DrawCmdWindow3D
 	Viewport       *DrawCmdViewport
 }
 
@@ -1638,6 +1676,22 @@ func NewDrawCmdBillboard3D(id string, x float64, y float64, z float64, spriteId 
 	}
 }
 
+// NewDrawCmdShipState3D creates a new ShipState3D variant
+func NewDrawCmdShipState3D(shipX float64, shipY float64, shipZ float64, forwardX float64, forwardY float64, forwardZ float64, upX float64, upY float64, upZ float64, velocity float64, grPhi float64) *DrawCmd {
+	return &DrawCmd{
+		Kind:        DrawCmdKindShipState3D,
+		ShipState3D: &DrawCmdShipState3D{ShipX: shipX, ShipY: shipY, ShipZ: shipZ, ForwardX: forwardX, ForwardY: forwardY, ForwardZ: forwardZ, UpX: upX, UpY: upY, UpZ: upZ, Velocity: velocity, GrPhi: grPhi},
+	}
+}
+
+// NewDrawCmdWindow3D creates a new Window3D variant
+func NewDrawCmdWindow3D(id string, x float64, y float64, z float64, nx float64, ny float64, nz float64, width float64, height float64, windowType int64, showStars bool, showPlanets bool, velocity float64, grPhi float64, windowZ int64) *DrawCmd {
+	return &DrawCmd{
+		Kind:     DrawCmdKindWindow3D,
+		Window3D: &DrawCmdWindow3D{Id: id, X: x, Y: y, Z: z, Nx: nx, Ny: ny, Nz: nz, Width: width, Height: height, WindowType: windowType, ShowStars: showStars, ShowPlanets: showPlanets, Velocity: velocity, GrPhi: grPhi, WindowZ: windowZ},
+	}
+}
+
 // NewDrawCmdViewport creates a new Viewport variant
 func NewDrawCmdViewport(id string, shapeType int64, shapeParams []float64, contentType int64, contentParams []float64, effectType int64, effectParams []float64, layer int64, edgeBlend float64, opacity float64, screenX float64, screenY float64, z int64) *DrawCmd {
 	return &DrawCmd{
@@ -1754,6 +1808,16 @@ func (v *DrawCmd) IsProp3D() bool {
 // IsBillboard3D returns true if this is a Billboard3D variant
 func (v *DrawCmd) IsBillboard3D() bool {
 	return v.Kind == DrawCmdKindBillboard3D
+}
+
+// IsShipState3D returns true if this is a ShipState3D variant
+func (v *DrawCmd) IsShipState3D() bool {
+	return v.Kind == DrawCmdKindShipState3D
+}
+
+// IsWindow3D returns true if this is a Window3D variant
+func (v *DrawCmd) IsWindow3D() bool {
+	return v.Kind == DrawCmdKindWindow3D
 }
 
 // IsViewport returns true if this is a Viewport variant
@@ -2142,6 +2206,7 @@ type InteriorRoom struct {
 	Room       *RoomDef
 	Props      []*PropDef
 	Characters []*CharacterDef
+	Windows    []*WindowDef
 }
 
 // InteriorPlayer is a record type
@@ -2164,6 +2229,136 @@ type InteriorState struct {
 type LookDelta struct {
 	YawDelta   float64
 	PitchDelta float64
+}
+
+// Quaternion is a record type
+type Quaternion struct {
+	W float64
+	X float64
+	Y float64
+	Z float64
+}
+
+// ShipNavigation is a record type
+type ShipNavigation struct {
+	Position    *Vec3
+	Orientation *Quaternion
+	Velocity    float64
+	Heading     *Vec3
+	GrPhi       float64
+}
+
+// WindowTypeKind discriminates between variants of WindowType
+type WindowTypeKind int
+
+const (
+	WindowTypeKindViewport WindowTypeKind = iota
+	WindowTypeKindPorthole
+	WindowTypeKindDome
+	WindowTypeKindStrip
+)
+
+// WindowTypeViewport holds data for the Viewport variant
+type WindowTypeViewport struct {
+}
+
+// WindowTypePorthole holds data for the Porthole variant
+type WindowTypePorthole struct {
+}
+
+// WindowTypeDome holds data for the Dome variant
+type WindowTypeDome struct {
+}
+
+// WindowTypeStrip holds data for the Strip variant
+type WindowTypeStrip struct {
+}
+
+// WindowType is a sum type (discriminated union)
+type WindowType struct {
+	Kind     WindowTypeKind
+	Viewport *WindowTypeViewport
+	Porthole *WindowTypePorthole
+	Dome     *WindowTypeDome
+	Strip    *WindowTypeStrip
+}
+
+// NewWindowTypeViewport creates a new Viewport variant
+func NewWindowTypeViewport() *WindowType {
+	return &WindowType{
+		Kind:     WindowTypeKindViewport,
+		Viewport: &WindowTypeViewport{},
+	}
+}
+
+// NewWindowTypePorthole creates a new Porthole variant
+func NewWindowTypePorthole() *WindowType {
+	return &WindowType{
+		Kind:     WindowTypeKindPorthole,
+		Porthole: &WindowTypePorthole{},
+	}
+}
+
+// NewWindowTypeDome creates a new Dome variant
+func NewWindowTypeDome() *WindowType {
+	return &WindowType{
+		Kind: WindowTypeKindDome,
+		Dome: &WindowTypeDome{},
+	}
+}
+
+// NewWindowTypeStrip creates a new Strip variant
+func NewWindowTypeStrip() *WindowType {
+	return &WindowType{
+		Kind:  WindowTypeKindStrip,
+		Strip: &WindowTypeStrip{},
+	}
+}
+
+// IsViewport returns true if this is a Viewport variant
+func (v *WindowType) IsViewport() bool {
+	return v.Kind == WindowTypeKindViewport
+}
+
+// IsPorthole returns true if this is a Porthole variant
+func (v *WindowType) IsPorthole() bool {
+	return v.Kind == WindowTypeKindPorthole
+}
+
+// IsDome returns true if this is a Dome variant
+func (v *WindowType) IsDome() bool {
+	return v.Kind == WindowTypeKindDome
+}
+
+// IsStrip returns true if this is a Strip variant
+func (v *WindowType) IsStrip() bool {
+	return v.Kind == WindowTypeKindStrip
+}
+
+// WindowDef is a record type
+type WindowDef struct {
+	Id              string
+	WindowType      *WindowType
+	WallSide        string
+	PosX            float64
+	PosY            float64
+	Width           float64
+	Height          float64
+	ShowStars       bool
+	ShowPlanets     bool
+	ApplyRelativity bool
+}
+
+// RoomTheme is a record type
+type RoomTheme struct {
+	Name          string
+	PrimaryColor  int64
+	AccentColor   int64
+	StyleKeywords string
+	FloorStyle    string
+	WallStyle     string
+	CeilingStyle  string
+	WindowStyle   string
 }
 
 // DirectionKind discriminates between variants of Direction
@@ -2714,333 +2909,25 @@ func (v *ViewMode) IsViewGalaxyMap() bool {
 
 // World is a record type
 type World struct {
-	Tick          int64
-	Planet        *PlanetState
-	Npcs          []*NPC
-	Selection     *Selection
-	Interior      *InteriorState
-	ViewMode      *ViewMode
-	StarCatalog   *StarCatalog
-	CurrentSystem *StarSystem
-	ShipLevels    *ShipLevels
+	Tick           int64
+	Planet         *PlanetState
+	Npcs           []*NPC
+	Selection      *Selection
+	Interior       *InteriorState
+	ViewMode       *ViewMode
+	StarCatalog    *StarCatalog
+	CurrentSystem  *StarSystem
+	ShipLevels     *ShipLevels
+	ShipNavigation *ShipNavigation
 }
 
-// ViewportShapeKind discriminates between variants of ViewportShape
-type ViewportShapeKind int
-
-const (
-	ViewportShapeKindShapeEllipse ViewportShapeKind = iota
-	ViewportShapeKindShapeCircle
-	ViewportShapeKindShapeRect
-	ViewportShapeKindShapeDome
-)
-
-// ViewportShapeShapeEllipse holds data for the ShapeEllipse variant
-type ViewportShapeShapeEllipse struct {
-	CenterX float64
-	CenterY float64
-	RadiusX float64
-	RadiusY float64
-}
-
-// ViewportShapeShapeCircle holds data for the ShapeCircle variant
-type ViewportShapeShapeCircle struct {
-	CenterX float64
-	CenterY float64
-	Radius  float64
-}
-
-// ViewportShapeShapeRect holds data for the ShapeRect variant
-type ViewportShapeShapeRect struct {
-	X      float64
-	Y      float64
-	Width  float64
-	Height float64
-}
-
-// ViewportShapeShapeDome holds data for the ShapeDome variant
-type ViewportShapeShapeDome struct {
-	CenterX    float64
-	CenterY    float64
-	Width      float64
-	Height     float64
-	ArchHeight float64
-}
-
-// ViewportShape is a sum type (discriminated union)
-type ViewportShape struct {
-	Kind         ViewportShapeKind
-	ShapeEllipse *ViewportShapeShapeEllipse
-	ShapeCircle  *ViewportShapeShapeCircle
-	ShapeRect    *ViewportShapeShapeRect
-	ShapeDome    *ViewportShapeShapeDome
-}
-
-// NewViewportShapeShapeEllipse creates a new ShapeEllipse variant
-func NewViewportShapeShapeEllipse(centerX float64, centerY float64, radiusX float64, radiusY float64) *ViewportShape {
-	return &ViewportShape{
-		Kind:         ViewportShapeKindShapeEllipse,
-		ShapeEllipse: &ViewportShapeShapeEllipse{CenterX: centerX, CenterY: centerY, RadiusX: radiusX, RadiusY: radiusY},
-	}
-}
-
-// NewViewportShapeShapeCircle creates a new ShapeCircle variant
-func NewViewportShapeShapeCircle(centerX float64, centerY float64, radius float64) *ViewportShape {
-	return &ViewportShape{
-		Kind:        ViewportShapeKindShapeCircle,
-		ShapeCircle: &ViewportShapeShapeCircle{CenterX: centerX, CenterY: centerY, Radius: radius},
-	}
-}
-
-// NewViewportShapeShapeRect creates a new ShapeRect variant
-func NewViewportShapeShapeRect(x float64, y float64, width float64, height float64) *ViewportShape {
-	return &ViewportShape{
-		Kind:      ViewportShapeKindShapeRect,
-		ShapeRect: &ViewportShapeShapeRect{X: x, Y: y, Width: width, Height: height},
-	}
-}
-
-// NewViewportShapeShapeDome creates a new ShapeDome variant
-func NewViewportShapeShapeDome(centerX float64, centerY float64, width float64, height float64, archHeight float64) *ViewportShape {
-	return &ViewportShape{
-		Kind:      ViewportShapeKindShapeDome,
-		ShapeDome: &ViewportShapeShapeDome{CenterX: centerX, CenterY: centerY, Width: width, Height: height, ArchHeight: archHeight},
-	}
-}
-
-// IsShapeEllipse returns true if this is a ShapeEllipse variant
-func (v *ViewportShape) IsShapeEllipse() bool {
-	return v.Kind == ViewportShapeKindShapeEllipse
-}
-
-// IsShapeCircle returns true if this is a ShapeCircle variant
-func (v *ViewportShape) IsShapeCircle() bool {
-	return v.Kind == ViewportShapeKindShapeCircle
-}
-
-// IsShapeRect returns true if this is a ShapeRect variant
-func (v *ViewportShape) IsShapeRect() bool {
-	return v.Kind == ViewportShapeKindShapeRect
-}
-
-// IsShapeDome returns true if this is a ShapeDome variant
-func (v *ViewportShape) IsShapeDome() bool {
-	return v.Kind == ViewportShapeKindShapeDome
-}
-
-// ViewportContentKind discriminates between variants of ViewportContent
-type ViewportContentKind int
-
-const (
-	ViewportContentKindContentSpaceView ViewportContentKind = iota
-	ViewportContentKindContentStarfield
-	ViewportContentKindContentSolid
-	ViewportContentKindContentNone
-)
-
-// ViewportContentContentSpaceView holds data for the ContentSpaceView variant
-type ViewportContentContentSpaceView struct {
-	Velocity  float64
-	ViewAngle float64
-}
-
-// ViewportContentContentStarfield holds data for the ContentStarfield variant
-type ViewportContentContentStarfield struct {
-	Density float64
-	Scroll  bool
-}
-
-// ViewportContentContentSolid holds data for the ContentSolid variant
-type ViewportContentContentSolid struct {
-	Rgba int64
-}
-
-// ViewportContentContentNone holds data for the ContentNone variant
-type ViewportContentContentNone struct {
-}
-
-// ViewportContent is a sum type (discriminated union)
-type ViewportContent struct {
-	Kind             ViewportContentKind
-	ContentSpaceView *ViewportContentContentSpaceView
-	ContentStarfield *ViewportContentContentStarfield
-	ContentSolid     *ViewportContentContentSolid
-	ContentNone      *ViewportContentContentNone
-}
-
-// NewViewportContentContentSpaceView creates a new ContentSpaceView variant
-func NewViewportContentContentSpaceView(velocity float64, viewAngle float64) *ViewportContent {
-	return &ViewportContent{
-		Kind:             ViewportContentKindContentSpaceView,
-		ContentSpaceView: &ViewportContentContentSpaceView{Velocity: velocity, ViewAngle: viewAngle},
-	}
-}
-
-// NewViewportContentContentStarfield creates a new ContentStarfield variant
-func NewViewportContentContentStarfield(density float64, scroll bool) *ViewportContent {
-	return &ViewportContent{
-		Kind:             ViewportContentKindContentStarfield,
-		ContentStarfield: &ViewportContentContentStarfield{Density: density, Scroll: scroll},
-	}
-}
-
-// NewViewportContentContentSolid creates a new ContentSolid variant
-func NewViewportContentContentSolid(rgba int64) *ViewportContent {
-	return &ViewportContent{
-		Kind:         ViewportContentKindContentSolid,
-		ContentSolid: &ViewportContentContentSolid{Rgba: rgba},
-	}
-}
-
-// NewViewportContentContentNone creates a new ContentNone variant
-func NewViewportContentContentNone() *ViewportContent {
-	return &ViewportContent{
-		Kind:        ViewportContentKindContentNone,
-		ContentNone: &ViewportContentContentNone{},
-	}
-}
-
-// IsContentSpaceView returns true if this is a ContentSpaceView variant
-func (v *ViewportContent) IsContentSpaceView() bool {
-	return v.Kind == ViewportContentKindContentSpaceView
-}
-
-// IsContentStarfield returns true if this is a ContentStarfield variant
-func (v *ViewportContent) IsContentStarfield() bool {
-	return v.Kind == ViewportContentKindContentStarfield
-}
-
-// IsContentSolid returns true if this is a ContentSolid variant
-func (v *ViewportContent) IsContentSolid() bool {
-	return v.Kind == ViewportContentKindContentSolid
-}
-
-// IsContentNone returns true if this is a ContentNone variant
-func (v *ViewportContent) IsContentNone() bool {
-	return v.Kind == ViewportContentKindContentNone
-}
-
-// ViewportEffectKind discriminates between variants of ViewportEffect
-type ViewportEffectKind int
-
-const (
-	ViewportEffectKindEffectNone ViewportEffectKind = iota
-	ViewportEffectKindEffectSRWarp
-	ViewportEffectKindEffectGRLensing
-	ViewportEffectKindEffectTint
-	ViewportEffectKindEffectBlur
-)
-
-// ViewportEffectEffectNone holds data for the EffectNone variant
-type ViewportEffectEffectNone struct {
-}
-
-// ViewportEffectEffectSRWarp holds data for the EffectSRWarp variant
-type ViewportEffectEffectSRWarp struct {
-	Velocity float64
-}
-
-// ViewportEffectEffectGRLensing holds data for the EffectGRLensing variant
-type ViewportEffectEffectGRLensing struct {
-	Mass     float64
-	Distance float64
-}
-
-// ViewportEffectEffectTint holds data for the EffectTint variant
-type ViewportEffectEffectTint struct {
-	Rgba      int64
-	Intensity float64
-}
-
-// ViewportEffectEffectBlur holds data for the EffectBlur variant
-type ViewportEffectEffectBlur struct {
-	Radius float64
-}
-
-// ViewportEffect is a sum type (discriminated union)
-type ViewportEffect struct {
-	Kind            ViewportEffectKind
-	EffectNone      *ViewportEffectEffectNone
-	EffectSRWarp    *ViewportEffectEffectSRWarp
-	EffectGRLensing *ViewportEffectEffectGRLensing
-	EffectTint      *ViewportEffectEffectTint
-	EffectBlur      *ViewportEffectEffectBlur
-}
-
-// NewViewportEffectEffectNone creates a new EffectNone variant
-func NewViewportEffectEffectNone() *ViewportEffect {
-	return &ViewportEffect{
-		Kind:       ViewportEffectKindEffectNone,
-		EffectNone: &ViewportEffectEffectNone{},
-	}
-}
-
-// NewViewportEffectEffectSRWarp creates a new EffectSRWarp variant
-func NewViewportEffectEffectSRWarp(velocity float64) *ViewportEffect {
-	return &ViewportEffect{
-		Kind:         ViewportEffectKindEffectSRWarp,
-		EffectSRWarp: &ViewportEffectEffectSRWarp{Velocity: velocity},
-	}
-}
-
-// NewViewportEffectEffectGRLensing creates a new EffectGRLensing variant
-func NewViewportEffectEffectGRLensing(mass float64, distance float64) *ViewportEffect {
-	return &ViewportEffect{
-		Kind:            ViewportEffectKindEffectGRLensing,
-		EffectGRLensing: &ViewportEffectEffectGRLensing{Mass: mass, Distance: distance},
-	}
-}
-
-// NewViewportEffectEffectTint creates a new EffectTint variant
-func NewViewportEffectEffectTint(rgba int64, intensity float64) *ViewportEffect {
-	return &ViewportEffect{
-		Kind:       ViewportEffectKindEffectTint,
-		EffectTint: &ViewportEffectEffectTint{Rgba: rgba, Intensity: intensity},
-	}
-}
-
-// NewViewportEffectEffectBlur creates a new EffectBlur variant
-func NewViewportEffectEffectBlur(radius float64) *ViewportEffect {
-	return &ViewportEffect{
-		Kind:       ViewportEffectKindEffectBlur,
-		EffectBlur: &ViewportEffectEffectBlur{Radius: radius},
-	}
-}
-
-// IsEffectNone returns true if this is a EffectNone variant
-func (v *ViewportEffect) IsEffectNone() bool {
-	return v.Kind == ViewportEffectKindEffectNone
-}
-
-// IsEffectSRWarp returns true if this is a EffectSRWarp variant
-func (v *ViewportEffect) IsEffectSRWarp() bool {
-	return v.Kind == ViewportEffectKindEffectSRWarp
-}
-
-// IsEffectGRLensing returns true if this is a EffectGRLensing variant
-func (v *ViewportEffect) IsEffectGRLensing() bool {
-	return v.Kind == ViewportEffectKindEffectGRLensing
-}
-
-// IsEffectTint returns true if this is a EffectTint variant
-func (v *ViewportEffect) IsEffectTint() bool {
-	return v.Kind == ViewportEffectKindEffectTint
-}
-
-// IsEffectBlur returns true if this is a EffectBlur variant
-func (v *ViewportEffect) IsEffectBlur() bool {
-	return v.Kind == ViewportEffectKindEffectBlur
-}
-
-// ViewportDef is a record type
-type ViewportDef struct {
-	Id        string
-	Shape     *ViewportShape
-	Content   *ViewportContent
-	Effects   []*ViewportEffect
-	Layer     int64
-	EdgeBlend float64
-	Opacity   float64
-	ScreenX   float64
-	ScreenY   float64
+// TextureSpec is a record type
+type TextureSpec struct {
+	SurfaceType    string
+	WidthMeters    float64
+	HeightMeters   float64
+	PixelsPerMeter int64
+	Theme          *RoomTheme
+	RoomId         string
+	Seed           int64
 }

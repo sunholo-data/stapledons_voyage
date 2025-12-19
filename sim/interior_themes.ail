@@ -1,0 +1,169 @@
+module sim/interior_themes
+
+-- =============================================================================
+-- Room Theme System
+-- Defines visual identity per room type for consistent AI texture generation
+-- =============================================================================
+
+-- =============================================================================
+-- Theme Type Definition
+-- =============================================================================
+
+-- Room theme defines visual identity for a room type
+-- Used for AI texture generation and consistent styling
+export type RoomTheme = {
+    name: string,            -- Theme identifier: "bridge", "engineering", etc.
+    primaryColor: int,       -- Dominant color (RGBA packed as decimal)
+    accentColor: int,        -- Accent/lighting color
+    styleKeywords: string,   -- AI prompt keywords for overall style
+    floorStyle: string,      -- Floor surface description for AI
+    wallStyle: string,       -- Wall surface description for AI
+    ceilingStyle: string,    -- Ceiling surface description for AI
+    windowStyle: string      -- Window type: "viewport", "porthole", "dome", "none"
+}
+
+-- =============================================================================
+-- Color Constants (RGBA as decimal: R*16777216 + G*65536 + B*256 + A)
+-- =============================================================================
+
+-- Bridge colors: #1a3050FF, #00ccffFF
+pure func colorBridgePrimary() -> int { 439812351 }
+pure func colorBridgeAccent() -> int { 13434879 }
+
+-- Engineering colors: #3d2817FF, #ff6600FF
+pure func colorEngineeringPrimary() -> int { 1026364671 }
+pure func colorEngineeringAccent() -> int { 4284874751 }
+
+-- Habitat colors: #4a4a4aFF, #fff0d0FF
+pure func colorHabitatPrimary() -> int { 1246382079 }
+pure func colorHabitatAccent() -> int { 4294058223 }
+
+-- Corridor colors: #2a2a30FF, #80ff80FF
+pure func colorCorridorPrimary() -> int { 707406127 }
+pure func colorCorridorAccent() -> int { 2164195327 }
+
+-- Storage colors: #3a3a3aFF, #ffaa00FF
+pure func colorStoragePrimary() -> int { 976894207 }
+pure func colorStorageAccent() -> int { 4289331199 }
+
+-- Medical colors: #e8e8e8FF, #4080ffFF
+pure func colorMedicalPrimary() -> int { 3907101695 }
+pure func colorMedicalAccent() -> int { 1082195967 }
+
+-- =============================================================================
+-- Predefined Themes
+-- =============================================================================
+
+-- Bridge: Command center with blue/cyan aesthetic
+export pure func themeBridge() -> RoomTheme {
+    {
+        name: "bridge",
+        primaryColor: colorBridgePrimary(),
+        accentColor: colorBridgeAccent(),
+        styleKeywords: "command center, sleek, holographic displays, clean lines",
+        floorStyle: "brushed metal deck plating, subtle blue LED strip lighting",
+        wallStyle: "curved control panels, holographic displays, status screens",
+        ceilingStyle: "recessed white lighting panels, ventilation grilles",
+        windowStyle: "viewport"
+    }
+}
+
+-- Engineering: Industrial orange/brown aesthetic
+export pure func themeEngineering() -> RoomTheme {
+    {
+        name: "engineering",
+        primaryColor: colorEngineeringPrimary(),
+        accentColor: colorEngineeringAccent(),
+        styleKeywords: "industrial, pipes, machinery, maintenance access, heavy duty",
+        floorStyle: "heavy duty metal grating, yellow caution stripes, oil stains",
+        wallStyle: "exposed pipes, conduits, access panels, warning labels",
+        ceilingStyle: "cable trays, fluorescent lights, industrial ventilation",
+        windowStyle: "porthole"
+    }
+}
+
+-- Habitat: Comfortable residential with warm tones
+export pure func themeHabitat() -> RoomTheme {
+    {
+        name: "habitat",
+        primaryColor: colorHabitatPrimary(),
+        accentColor: colorHabitatAccent(),
+        styleKeywords: "comfortable, residential, soft lighting, living quarters",
+        floorStyle: "carpeted panels over deck plating, warm earth tones",
+        wallStyle: "padded panels, personal storage lockers, ambient lighting",
+        ceilingStyle: "indirect warm lighting, acoustic panels, air vents",
+        windowStyle: "viewport"
+    }
+}
+
+-- Corridor: Functional transit space with directional lighting
+export pure func themeCorridor() -> RoomTheme {
+    {
+        name: "corridor",
+        primaryColor: colorCorridorPrimary(),
+        accentColor: colorCorridorAccent(),
+        styleKeywords: "transitional, functional, emergency lighting, deck markers",
+        floorStyle: "deck plating with directional arrows, emergency lighting",
+        wallStyle: "smooth panels, deck markers, emergency equipment, handrails",
+        ceilingStyle: "continuous lighting strip, fire suppression, signs",
+        windowStyle: "none"
+    }
+}
+
+-- Storage: Utilitarian cargo space
+export pure func themeStorage() -> RoomTheme {
+    {
+        name: "storage",
+        primaryColor: colorStoragePrimary(),
+        accentColor: colorStorageAccent(),
+        styleKeywords: "utilitarian, cargo, warehouse, industrial, organized",
+        floorStyle: "reinforced deck plating, cargo tie-down points",
+        wallStyle: "bare metal panels, cargo shelving rails, inventory screens",
+        ceilingStyle: "high bay lighting, cargo crane tracks, sprinklers",
+        windowStyle: "none"
+    }
+}
+
+-- Medical: Clean clinical white/blue
+export pure func themeMedical() -> RoomTheme {
+    {
+        name: "medical",
+        primaryColor: colorMedicalPrimary(),
+        accentColor: colorMedicalAccent(),
+        styleKeywords: "clinical, sterile, medical, clean, professional",
+        floorStyle: "seamless antimicrobial surface, easy to clean, grid pattern",
+        wallStyle: "smooth white panels, medical equipment mounts, screens",
+        ceilingStyle: "bright surgical lighting, HEPA vents, sterile tiles",
+        windowStyle: "none"
+    }
+}
+
+-- =============================================================================
+-- Theme Lookup
+-- =============================================================================
+
+-- Get theme by name (defaults to corridor if unknown)
+export pure func getThemeByName(name: string) -> RoomTheme {
+    if name == "bridge" then themeBridge()
+    else if name == "engineering" then themeEngineering()
+    else if name == "habitat" then themeHabitat()
+    else if name == "corridor" then themeCorridor()
+    else if name == "storage" then themeStorage()
+    else if name == "medical" then themeMedical()
+    else themeCorridor()
+}
+
+-- =============================================================================
+-- Color Helpers
+-- =============================================================================
+
+-- Extract RGB components from packed color (R*16777216 + G*65536 + B*256 + A)
+export pure func colorR(c: int) -> int { (c / 16777216) % 256 }
+export pure func colorG(c: int) -> int { (c / 65536) % 256 }
+export pure func colorB(c: int) -> int { (c / 256) % 256 }
+export pure func colorA(c: int) -> int { c % 256 }
+
+-- Create packed color from RGBA components (named to avoid collision with celestial.packColor)
+export pure func packColorRGBA(r: int, g: int, b: int, a: int) -> int {
+    r * 16777216 + g * 65536 + b * 256 + a
+}

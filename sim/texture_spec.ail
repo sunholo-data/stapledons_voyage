@@ -1,0 +1,215 @@
+module sim/texture_spec
+
+import sim/interior_themes (RoomTheme)
+
+-- =============================================================================
+-- Texture Specification System
+-- Defines dimension-aware texture specs for AI generation and caching
+-- =============================================================================
+
+-- =============================================================================
+-- Texture Spec Type
+-- =============================================================================
+
+-- Texture specification for AI generation
+-- Used to generate textures at exact surface dimensions with consistent themes
+export type TextureSpec = {
+    surfaceType: string,     -- "floor", "wall_n", "wall_s", "wall_e", "wall_w", "ceiling"
+    widthMeters: float,      -- Physical width in meters
+    heightMeters: float,     -- Physical height in meters
+    pixelsPerMeter: int,     -- Resolution: 128 (low), 256 (med), 512 (high) ppm
+    theme: RoomTheme,        -- Theme to apply for style consistency
+    roomId: string,          -- Unique room identifier for caching
+    seed: int                -- Deterministic generation seed
+}
+
+-- =============================================================================
+-- Dimension Calculations
+-- =============================================================================
+
+-- Calculate pixel width from physical dimensions and resolution
+export pure func specPixelWidth(spec: TextureSpec) -> int {
+    floatToInt(spec.widthMeters * intToFloat(spec.pixelsPerMeter))
+}
+
+-- Calculate pixel height from physical dimensions and resolution
+export pure func specPixelHeight(spec: TextureSpec) -> int {
+    floatToInt(spec.heightMeters * intToFloat(spec.pixelsPerMeter))
+}
+
+-- Clamp pixel dimension to power-of-2 for GPU efficiency
+-- Returns nearest power of 2: 64, 128, 256, 512, 1024, 2048
+export pure func clampToPowerOf2(n: int) -> int {
+    if n <= 64 then 64
+    else if n <= 128 then 128
+    else if n <= 256 then 256
+    else if n <= 512 then 512
+    else if n <= 1024 then 1024
+    else 2048
+}
+
+-- Get clamped pixel width (power of 2)
+export pure func specPixelWidthClamped(spec: TextureSpec) -> int {
+    clampToPowerOf2(specPixelWidth(spec))
+}
+
+-- Get clamped pixel height (power of 2)
+export pure func specPixelHeightClamped(spec: TextureSpec) -> int {
+    clampToPowerOf2(specPixelHeight(spec))
+}
+
+-- =============================================================================
+-- Cache Key Generation
+-- =============================================================================
+
+-- Generate deterministic cache key combining all relevant parameters
+-- Format: {roomId}_{surface}_{w}x{h}_{theme}_{seed}
+export pure func specCacheKey(spec: TextureSpec) -> string {
+    let w = specPixelWidthClamped(spec);
+    let h = specPixelHeightClamped(spec);
+    -- Build cache key using string concatenation
+    spec.roomId ++ "_" ++ spec.surfaceType ++ "_" ++
+    intToStr(w) ++ "x" ++ intToStr(h) ++ "_" ++
+    spec.theme.name ++ "_s" ++ intToStr(spec.seed)
+}
+
+-- =============================================================================
+-- AI Prompt Generation
+-- =============================================================================
+
+-- Build AI prompt for texture generation
+-- Includes dimensions, theme keywords, and surface-specific style
+export pure func buildPrompt(spec: TextureSpec) -> string {
+    let w = specPixelWidthClamped(spec);
+    let h = specPixelHeightClamped(spec);
+    let surfaceStyle = getSurfaceStyle(spec);
+
+    -- Build comprehensive prompt for AI image generation
+    "Create a " ++ intToStr(w) ++ "x" ++ intToStr(h) ++
+    " pixel seamless tileable texture for a spaceship " ++ spec.surfaceType ++
+    ". Style: " ++ spec.theme.styleKeywords ++
+    ". Surface details: " ++ surfaceStyle ++
+    ". The texture should be photorealistic, high detail, sci-fi aesthetic."
+}
+
+-- Get surface-specific style description from theme
+pure func getSurfaceStyle(spec: TextureSpec) -> string {
+    if spec.surfaceType == "floor" then spec.theme.floorStyle
+    else if spec.surfaceType == "ceiling" then spec.theme.ceilingStyle
+    else spec.theme.wallStyle  -- wall_n, wall_s, wall_e, wall_w all use wall style
+}
+
+-- =============================================================================
+-- Spec Builders
+-- =============================================================================
+
+-- Create specs for all surfaces in a room
+-- Returns list: [floor, ceiling, wall_n, wall_s, wall_e, wall_w]
+export pure func buildRoomSpecs(
+    roomId: string,
+    width: float,
+    depth: float,
+    height: float,
+    theme: RoomTheme,
+    ppm: int,
+    seed: int
+) -> [TextureSpec] {
+    [
+        -- Floor (width x depth)
+        {
+            surfaceType: "floor",
+            widthMeters: width,
+            heightMeters: depth,
+            pixelsPerMeter: ppm,
+            theme: theme,
+            roomId: roomId,
+            seed: seed
+        },
+        -- Ceiling (width x depth)
+        {
+            surfaceType: "ceiling",
+            widthMeters: width,
+            heightMeters: depth,
+            pixelsPerMeter: ppm,
+            theme: theme,
+            roomId: roomId,
+            seed: seed + 1
+        },
+        -- North wall at -Z (width x height)
+        {
+            surfaceType: "wall_n",
+            widthMeters: width,
+            heightMeters: height,
+            pixelsPerMeter: ppm,
+            theme: theme,
+            roomId: roomId,
+            seed: seed + 2
+        },
+        -- South wall at +Z (width x height)
+        {
+            surfaceType: "wall_s",
+            widthMeters: width,
+            heightMeters: height,
+            pixelsPerMeter: ppm,
+            theme: theme,
+            roomId: roomId,
+            seed: seed + 3
+        },
+        -- East wall at +X (depth x height)
+        {
+            surfaceType: "wall_e",
+            widthMeters: depth,
+            heightMeters: height,
+            pixelsPerMeter: ppm,
+            theme: theme,
+            roomId: roomId,
+            seed: seed + 4
+        },
+        -- West wall at -X (depth x height)
+        {
+            surfaceType: "wall_w",
+            widthMeters: depth,
+            heightMeters: height,
+            pixelsPerMeter: ppm,
+            theme: theme,
+            roomId: roomId,
+            seed: seed + 5
+        }
+    ]
+}
+
+-- =============================================================================
+-- String Helpers (local to this module)
+-- =============================================================================
+
+-- Convert int to string (positive only for cache keys)
+pure func intToStr(n: int) -> string {
+    if n < 0 then "-" ++ positiveToStr(0 - n)
+    else if n == 0 then "0"
+    else positiveToStr(n)
+}
+
+-- Convert positive int to string via digit extraction
+pure func positiveToStr(n: int) -> string {
+    if n == 0 then ""
+    else {
+        let digit = n % 10;
+        let rest = n / 10;
+        let ch = digitToChar(digit);
+        positiveToStr(rest) ++ ch
+    }
+}
+
+-- Convert single digit (0-9) to character string
+pure func digitToChar(d: int) -> string {
+    if d == 0 then "0"
+    else if d == 1 then "1"
+    else if d == 2 then "2"
+    else if d == 3 then "3"
+    else if d == 4 then "4"
+    else if d == 5 then "5"
+    else if d == 6 then "6"
+    else if d == 7 then "7"
+    else if d == 8 then "8"
+    else "9"
+}

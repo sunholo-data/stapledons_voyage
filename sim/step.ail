@@ -8,6 +8,7 @@ import sim/interior (InteriorState, initInterior, renderInterior, stepInterior)
 import sim/starmap (initLocalCatalog, Star, Vec3, spectralColor, StarCatalog)
 import sim/celestial (initSolSystem, stepSystem, StarSystem, renderSolarSystem)
 import sim/ship_levels (init_ship_levels, ShipLevels)
+import sim/navigation (initNavigation, ShipNavigation)
 
 -- Import effects (v0.5.0)
 import std/rand (rand_int)
@@ -162,7 +163,8 @@ export func init_world(seed: int) -> World {
         viewMode: ViewInterior,
         starCatalog: catalog,
         currentSystem: solSystem,
-        shipLevels: init_ship_levels()
+        shipLevels: init_ship_levels(),
+        shipNavigation: initNavigation()
     }
 }
 
@@ -170,8 +172,8 @@ export func init_world(seed: int) -> World {
 pure func renderForView(world: World, input: FrameInput) -> [DrawCmd] {
     match world.viewMode {
         ViewInterior => {
-            -- Render 3D interior (first-person view)
-            renderInterior(world.interior)
+            -- Render 3D interior (first-person view) with ship navigation state
+            renderInterior(world.interior, world.shipNavigation)
         },
         ViewPlanet => {
             let tileCmds = tilesToDraw(world.planet.tiles, world.planet.width, 0);

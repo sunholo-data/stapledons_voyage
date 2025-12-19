@@ -1,0 +1,196 @@
+module sim/window
+
+-- =============================================================================
+-- Window System for Interior Spaces
+-- Provides windows that show space views with SR/GR effects
+-- =============================================================================
+
+-- =============================================================================
+-- Window Type ADT
+-- =============================================================================
+
+-- Types of windows available for ship interiors
+-- Each type has different visual characteristics and view properties
+export type WindowType =
+    | Viewport      -- Large rectangular window (bridge, observation)
+    | Porthole      -- Small circular window (engineering, corridors)
+    | Dome          -- Curved dome window (observation deck)
+    | Strip         -- Horizontal strip window (corridors)
+
+-- =============================================================================
+-- Window Definition
+-- =============================================================================
+
+-- A window definition specifies placement and properties
+export type WindowDef = {
+    id: string,           -- Unique identifier
+    windowType: WindowType,
+    wallSide: string,     -- "north", "south", "east", "west"
+    posX: float,          -- Position along wall (-0.5 to 0.5, 0 = center)
+    posY: float,          -- Height on wall (0 = floor, 1 = ceiling)
+    width: float,         -- Window width in meters
+    height: float,        -- Window height in meters
+    showStars: bool,      -- Show starfield through window
+    showPlanets: bool,    -- Show nearby planets
+    applyRelativity: bool -- Apply SR/GR effects to view
+}
+
+-- =============================================================================
+-- Window Constructors
+-- =============================================================================
+
+-- Create a viewport window (large, rectangular)
+export pure func makeViewport(id: string, wall: string, posX: float, posY: float, w: float, h: float) -> WindowDef {
+    {
+        id: id,
+        windowType: Viewport,
+        wallSide: wall,
+        posX: posX,
+        posY: posY,
+        width: w,
+        height: h,
+        showStars: true,
+        showPlanets: true,
+        applyRelativity: true
+    }
+}
+
+-- Create a porthole window (small, circular)
+export pure func makePorthole(id: string, wall: string, posX: float, posY: float, diameter: float) -> WindowDef {
+    {
+        id: id,
+        windowType: Porthole,
+        wallSide: wall,
+        posX: posX,
+        posY: posY,
+        width: diameter,
+        height: diameter,
+        showStars: true,
+        showPlanets: false,
+        applyRelativity: true
+    }
+}
+
+-- Create a dome window (curved, observation)
+export pure func makeDome(id: string, posX: float, radius: float) -> WindowDef {
+    {
+        id: id,
+        windowType: Dome,
+        wallSide: "ceiling",
+        posX: posX,
+        posY: 1.0,
+        width: radius * 2.0,
+        height: radius * 2.0,
+        showStars: true,
+        showPlanets: true,
+        applyRelativity: true
+    }
+}
+
+-- Create a strip window (horizontal, corridor style)
+export pure func makeStrip(id: string, wall: string, posY: float, length: float, height: float) -> WindowDef {
+    {
+        id: id,
+        windowType: Strip,
+        wallSide: wall,
+        posX: 0.0,
+        posY: posY,
+        width: length,
+        height: height,
+        showStars: true,
+        showPlanets: false,
+        applyRelativity: false
+    }
+}
+
+-- =============================================================================
+-- Window Configurations per Room Type
+-- =============================================================================
+
+-- Get default windows for bridge (large viewport on north wall)
+export pure func bridgeWindows() -> [WindowDef] {
+    [
+        makeViewport("bridge_main", "north", 0.0, 0.5, 4.0, 2.0)
+    ]
+}
+
+-- Get default windows for engineering (small portholes)
+export pure func engineeringWindows() -> [WindowDef] {
+    [
+        makePorthole("eng_port1", "east", 0.0, 0.6, 0.6),
+        makePorthole("eng_port2", "west", 0.0, 0.6, 0.6)
+    ]
+}
+
+-- Get default windows for habitat (observation window)
+export pure func habitatWindows() -> [WindowDef] {
+    [
+        makeViewport("hab_view", "south", 0.0, 0.5, 2.0, 1.5)
+    ]
+}
+
+-- Get default windows for corridor (strip windows or none)
+export pure func corridorWindows() -> [WindowDef] {
+    []  -- Corridors typically have no windows
+}
+
+-- Get default windows for storage (none)
+export pure func storageWindows() -> [WindowDef] {
+    []
+}
+
+-- Get default windows for medical (small observation)
+export pure func medicalWindows() -> [WindowDef] {
+    [
+        makePorthole("med_port", "north", 0.3, 0.6, 0.5)
+    ]
+}
+
+-- Get windows by room type name
+export pure func getWindowsByRoomType(roomType: string) -> [WindowDef] {
+    if roomType == "bridge" then bridgeWindows()
+    else if roomType == "engineering" then engineeringWindows()
+    else if roomType == "habitat" then habitatWindows()
+    else if roomType == "corridor" then corridorWindows()
+    else if roomType == "storage" then storageWindows()
+    else if roomType == "medical" then medicalWindows()
+    else []
+}
+
+-- =============================================================================
+-- Window Rendering Helpers
+-- =============================================================================
+
+-- Calculate window center position in room coordinates
+-- Returns (x, y, z) position for the window center
+export pure func windowWorldPos(win: WindowDef, roomW: float, roomD: float, roomH: float) -> (float, float, float) {
+    let wallOffset = 0.08;  -- Larger offset (8cm) to prevent z-fighting
+    let y = roomH * win.posY;
+    windowPosForWall(win.wallSide, win.posX, y, roomW, roomD, roomH, wallOffset)
+}
+
+-- Helper to get position based on wall side
+pure func windowPosForWall(wall: string, posX: float, y: float, roomW: float, roomD: float, roomH: float, offset: float) -> (float, float, float) {
+    if wall == "north" then (roomW * posX, y, 0.0 - roomD / 2.0 + offset)
+    else if wall == "south" then (roomW * posX, y, roomD / 2.0 - offset)
+    else if wall == "east" then (roomW / 2.0 - offset, y, roomD * posX)
+    else if wall == "west" then (0.0 - roomW / 2.0 + offset, y, roomD * posX)
+    else if wall == "ceiling" then (roomW * posX, roomH - offset, 0.0)
+    else (0.0, y, 0.0)
+}
+
+-- Get the normal direction for a window (which way it faces)
+-- Returns (nx, ny, nz) unit normal pointing into the room
+export pure func windowNormal(win: WindowDef) -> (float, float, float) {
+    normalForWall(win.wallSide)
+}
+
+-- Helper to get normal based on wall side
+pure func normalForWall(wall: string) -> (float, float, float) {
+    if wall == "north" then (0.0, 0.0, 1.0)
+    else if wall == "south" then (0.0, 0.0, 0.0 - 1.0)
+    else if wall == "east" then (0.0 - 1.0, 0.0, 0.0)
+    else if wall == "west" then (1.0, 0.0, 0.0)
+    else if wall == "ceiling" then (0.0, 0.0 - 1.0, 0.0)
+    else (0.0, 0.0, 1.0)
+}

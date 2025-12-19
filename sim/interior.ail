@@ -7,7 +7,15 @@ module sim/interior
 
 import sim/protocol (
     Coord, DrawCmd, FrameInput, KeyEvent,
-    Camera3D, Room3D, Prop3D, Billboard3D, Text, RectRGBA
+    Camera3D, Room3D, Prop3D, Billboard3D, Window3D, ShipState3D, Text, RectRGBA
+)
+import sim/navigation (
+    ShipNavigation, getForward, getUp
+)
+import sim/window (
+    WindowType, WindowDef, Viewport, Porthole, Dome, Strip,
+    windowWorldPos, windowNormal, bridgeWindows, engineeringWindows,
+    habitatWindows, corridorWindows
 )
 import std/option (Option, Some, None)
 import std/list (concat)
@@ -92,11 +100,12 @@ export type CharacterDef = {
     scale: float
 }
 
--- Complete room with props and characters
+-- Complete room with props, characters, and windows
 export type InteriorRoom = {
     room: RoomDef,
     props: [PropDef],
-    characters: [CharacterDef]
+    characters: [CharacterDef],
+    windows: [WindowDef]
 }
 
 -- =============================================================================
@@ -274,7 +283,8 @@ export pure func createBridgeInterior() -> InteriorRoom {
         makeCharacter("pilot", 0.0, 0.0 - 1.5, 1200),
         makeCharacter("engineer", 0.0 - 2.5, 0.0, 1202)
     ];
-    { room: room, props: props, characters: characters }
+    let wins = bridgeWindows();
+    { room: room, props: props, characters: characters, windows: wins }
 }
 
 -- =============================================================================
@@ -491,6 +501,56 @@ pure func renderCharactersRec(chars: [CharacterDef]) -> [DrawCmd] {
     }
 }
 
+-- =============================================================================
+-- Window Rendering
+-- =============================================================================
+
+-- Convert window type to integer for DrawCmd
+pure func windowTypeToInt(wt: WindowType) -> int {
+    match wt {
+        Viewport => 0,
+        Porthole => 1,
+        Dome => 2,
+        Strip => 3
+    }
+}
+
+-- Render a single window
+pure func renderWindow(win: WindowDef, room: RoomDef, shipVelocity: float, grPhi: float) -> DrawCmd {
+    let pos = windowWorldPos(win, room.width, room.depth, room.height);
+    let normal = windowNormal(win);
+    match pos {
+        (px, py, pz) =>
+            match normal {
+                (nx, ny, nz) =>
+                    Window3D(
+                        win.id,
+                        px, py, pz,
+                        nx, ny, nz,
+                        win.width, win.height,
+                        windowTypeToInt(win.windowType),
+                        win.showStars, win.showPlanets,
+                        if win.applyRelativity then shipVelocity else 0.0,
+                        if win.applyRelativity then grPhi else 0.0,
+                        3  -- z-layer for windows
+                    )
+            }
+    }
+}
+
+-- Render windows recursively
+pure func renderWindowsRec(wins: [WindowDef], room: RoomDef, velocity: float, grPhi: float) -> [DrawCmd] {
+    match wins {
+        [] => [],
+        w :: rest => renderWindow(w, room, velocity, grPhi) :: renderWindowsRec(rest, room, velocity, grPhi)
+    }
+}
+
+-- Render all windows in a room (with default relativity params)
+pure func renderWindows(wins: [WindowDef], room: RoomDef) -> [DrawCmd] {
+    renderWindowsRec(wins, room, 0.0, 0.0)  -- No SR/GR effects by default
+}
+
 -- Render HUD overlay
 pure func renderHUD(state: InteriorState) -> [DrawCmd] {
     [
@@ -502,16 +562,36 @@ pure func renderHUD(state: InteriorState) -> [DrawCmd] {
     ]
 }
 
--- Render entire interior scene
-export pure func renderInterior(state: InteriorState) -> [DrawCmd] {
+-- Create ShipState3D command from navigation state
+pure func renderShipState(nav: ShipNavigation) -> DrawCmd {
+    let forward = getForward(nav);
+    let up = getUp(nav);
+    ShipState3D(
+        nav.position.x, nav.position.y, nav.position.z,
+        forward.x, forward.y, forward.z,
+        up.x, up.y, up.z,
+        nav.velocity, nav.grPhi
+    )
+}
+
+-- Render entire interior scene with ship navigation state
+export pure func renderInterior(state: InteriorState, nav: ShipNavigation) -> [DrawCmd] {
+    let shipState = renderShipState(nav);
     let camera = renderCamera(state.player, state.fov);
     let room = renderRoom(state.currentRoom.room);
     let props = renderPropsRec(state.currentRoom.props);
     let chars = renderCharactersRec(state.currentRoom.characters);
+    -- Pass navigation velocity to window rendering for SR effects
+    let wins = renderWindowsRec(
+        state.currentRoom.windows,
+        state.currentRoom.room,
+        nav.velocity,
+        nav.grPhi
+    );
     let hud = renderHUD(state);
 
     concat(
-        [camera, room],
-        concat(props, concat(chars, hud))
+        [shipState, camera, room],
+        concat(props, concat(chars, concat(wins, hud)))
     )
 }

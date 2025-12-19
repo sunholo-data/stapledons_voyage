@@ -1,0 +1,123 @@
+{
+  "sprint_id": "interior-demo-iteration",
+  "created": "2025-12-19T00:00:00Z",
+  "status": "in_progress",
+  "design_doc": "design_docs/planned/next/interior-demo-iteration.md",
+  "features": [
+    {
+      "id": "theme-system",
+      "description": "Room theme system for visual identity per room type",
+      "estimated_loc": 200,
+      "actual_loc": 170,
+      "dependencies": [],
+      "acceptance_criteria": [
+        "RoomTheme type defined in AILANG",
+        "6 predefined themes: bridge, engineering, habitat, corridor, storage, medical",
+        "Demo shows visually distinct rooms per type"
+      ],
+      "passes": true,
+      "started": "2025-12-19T06:26:28Z",
+      "completed": "2025-12-19T06:31:48Z",
+      "notes": null
+    },
+    {
+      "id": "dimension-texture-spec",
+      "description": "Dimension-aware texture specification for AI generation",
+      "estimated_loc": 150,
+      "actual_loc": null,
+      "dependencies": [
+        "theme-system"
+      ],
+      "acceptance_criteria": [
+        "TextureSpec type calculates exact pixel dimensions",
+        "Cache key generation is deterministic",
+        "AI prompts include dimension and theme info"
+      ],
+      "passes": null,
+      "started": null,
+      "completed": null,
+      "notes": null
+    },
+    {
+      "id": "texture-cache",
+      "description": "Multi-level texture cache (memory + disk)",
+      "estimated_loc": 200,
+      "actual_loc": null,
+      "dependencies": [
+        "dimension-texture-spec"
+      ],
+      "acceptance_criteria": [
+        "Disk cache with hash-based filenames",
+        "Memory LRU cache with configurable size",
+        "Cache hit/miss logging shows second load uses cache"
+      ],
+      "passes": null,
+      "started": null,
+      "completed": null,
+      "notes": null
+    },
+    {
+      "id": "window-system",
+      "description": "Windows showing space views with SR/GR effects",
+      "estimated_loc": 400,
+      "actual_loc": null,
+      "dependencies": [
+        "theme-system"
+      ],
+      "acceptance_criteria": [
+        "WindowType ADT (viewport, porthole, dome)",
+        "Window3D DrawCmd renders space through window",
+        "SR/GR shaders apply to window content only",
+        "Planets visible through bridge viewport"
+      ],
+      "passes": null,
+      "started": null,
+      "completed": null,
+      "notes": null
+    },
+    {
+      "id": "parallax",
+      "description": "Parallax depth effect through windows",
+      "estimated_loc": 150,
+      "actual_loc": null,
+      "dependencies": [
+        "window-system"
+      ],
+      "acceptance_criteria": [
+        "Parallax layers defined (starfield, nebula, planets)",
+        "Camera offset tracked from player movement",
+        "Parallax visible when moving near window"
+      ],
+      "passes": null,
+      "started": null,
+      "completed": null,
+      "notes": null
+    },
+    {
+      "id": "room-lod",
+      "description": "Room LOD system for large ships",
+      "estimated_loc": 200,
+      "actual_loc": null,
+      "dependencies": [
+        "theme-system"
+      ],
+      "acceptance_criteria": [
+        "RoomLODTier ADT (full, simplified, minimal, unloaded)",
+        "Distance-based tier calculation",
+        "20+ rooms at 60 FPS"
+      ],
+      "passes": null,
+      "started": null,
+      "completed": null,
+      "notes": null
+    }
+  ],
+  "velocity": {
+    "target_loc_per_day": 200,
+    "actual_loc_per_day": 0
+  },
+  "ailang_issues": [],
+  "dx_issues_discovered": [],
+  "lessons_learned": [],
+  "last_updated": "2025-12-19T00:00:00Z"
+}
