@@ -1,0 +1,34 @@
+{
+  "deckID": "observation",
+  "deckType": "outward",
+  "name": "Observation Deck",
+  "description": "Contemplative lounge with massive curved windows for stargazing and processing cosmic events",
+  "layers": [
+    {
+      "id": "background",
+      "file": "background_final.png",
+      "parallax": 0.0,
+      "description": "Observation deck with curved panoramic windows and retro seating"
+    }
+  ],
+  "windows": {
+    "enabled": true,
+    "maskFile": "window_mask.png",
+    "starfieldDepth": 1000.0,
+    "description": "Massive curved panoramic windows spanning most of the view"
+  },
+  "crewSpawnPoints": [
+    {
+      "x": 512,
+      "y": 650,
+      "role": "any",
+      "description": "Seating area - crew come here to contemplate and process events"
+    },
+    {
+      "x": 830,
+      "y": 650,
+      "role": "any",
+      "description": "Right seating area - for contemplative conversations"
+    }
+  ]
+}

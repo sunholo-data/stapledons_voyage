@@ -9,7 +9,7 @@ func InitArrival() *ArrivalState {
 	return initArrival_impl(struct{}{}).(*ArrivalState)
 }
 
-func phaseTargetVelocity_impl(phase interface{}) interface{} {
+func arrival__phaseTargetVelocity_impl(phase interface{}) interface{} {
 	return func() interface{} {
 		_scrutinee := phase
 		_ = _scrutinee // suppress unused
@@ -37,11 +37,11 @@ func phaseTargetVelocity_impl(phase interface{}) interface{} {
 	}()
 }
 
-func phaseTargetVelocity(phase *ArrivalPhase) float64 {
-	return phaseTargetVelocity_impl(phase).(float64)
+func arrival__phaseTargetVelocity(phase *ArrivalPhase) float64 {
+	return arrival__phaseTargetVelocity_impl(phase).(float64)
 }
 
-func phasePlanet_impl(phase interface{}) interface{} {
+func arrival__phasePlanet_impl(phase interface{}) interface{} {
 	return func() interface{} {
 		_scrutinee := phase
 		_ = _scrutinee // suppress unused
@@ -61,11 +61,11 @@ func phasePlanet_impl(phase interface{}) interface{} {
 	}()
 }
 
-func phasePlanet(phase *ArrivalPhase) *CurrentPlanet {
-	return phasePlanet_impl(phase).(*CurrentPlanet)
+func arrival__phasePlanet(phase *ArrivalPhase) *CurrentPlanet {
+	return arrival__phasePlanet_impl(phase).(*CurrentPlanet)
 }
 
-func nextPhase_impl(phase interface{}) interface{} {
+func arrival__nextPhase_impl(phase interface{}) interface{} {
 	return func() interface{} {
 		_scrutinee := phase
 		_ = _scrutinee // suppress unused
@@ -93,11 +93,11 @@ func nextPhase_impl(phase interface{}) interface{} {
 	}()
 }
 
-func nextPhase(phase *ArrivalPhase) *ArrivalPhase {
-	return nextPhase_impl(phase).(*ArrivalPhase)
+func arrival__nextPhase(phase *ArrivalPhase) *ArrivalPhase {
+	return arrival__nextPhase_impl(phase).(*ArrivalPhase)
 }
 
-func shouldTransition_impl(phase interface{}, phaseTime interface{}) interface{} {
+func arrival__shouldTransition_impl(phase interface{}, phaseTime interface{}) interface{} {
 	return func() interface{} {
 		_scrutinee := phase
 		_ = _scrutinee // suppress unused
@@ -125,8 +125,8 @@ func shouldTransition_impl(phase interface{}, phaseTime interface{}) interface{}
 	}()
 }
 
-func shouldTransition(phase *ArrivalPhase, phaseTime float64) bool {
-	return shouldTransition_impl(phase, phaseTime).(bool)
+func arrival__shouldTransition(phase *ArrivalPhase, phaseTime float64) bool {
+	return arrival__shouldTransition_impl(phase, phaseTime).(bool)
 }
 
 func isArrivalComplete_impl(state interface{}) interface{} {
@@ -224,7 +224,7 @@ func GetGRIntensity(state *ArrivalState) float64 {
 	return getGRIntensity_impl(state).(float64)
 }
 
-func calcGRDecay_impl(phase interface{}, phaseTime interface{}, currentGR interface{}) interface{} {
+func arrival__calcGRDecay_impl(phase interface{}, phaseTime interface{}, currentGR interface{}) interface{} {
 	return func() interface{} {
 		_scrutinee := phase
 		_ = _scrutinee // suppress unused
@@ -249,8 +249,8 @@ func calcGRDecay_impl(phase interface{}, phaseTime interface{}, currentGR interf
 	}()
 }
 
-func calcGRDecay(phase *ArrivalPhase, phaseTime float64, currentGR float64) float64 {
-	return calcGRDecay_impl(phase, phaseTime, currentGR).(float64)
+func arrival__calcGRDecay(phase *ArrivalPhase, phaseTime float64, currentGR float64) float64 {
+	return arrival__calcGRDecay_impl(phase, phaseTime, currentGR).(float64)
 }
 
 func stepArrival_impl(state interface{}, input interface{}) interface{} {
@@ -270,12 +270,12 @@ func stepArrival_impl(state interface{}, input interface{}) interface{} {
 		_ = tmp9 // suppress unused
 		var tmp10 interface{} = FieldGet(state, "grIntensity")
 		_ = tmp10 // suppress unused
-		return calcGRDecay_impl(tmp9, newPhaseTime, tmp10)
+		return arrival__calcGRDecay_impl(tmp9, newPhaseTime, tmp10)
 	}()
 	var transition interface{} = func() interface{} {
 		var tmp8 interface{} = FieldGet(state, "phase")
 		_ = tmp8 // suppress unused
-		return shouldTransition_impl(tmp8, newPhaseTime)
+		return arrival__shouldTransition_impl(tmp8, newPhaseTime)
 	}()
 	return func() interface{} {
 		if transition.(bool) {
@@ -283,12 +283,12 @@ func stepArrival_impl(state interface{}, input interface{}) interface{} {
 				var nextPh interface{} = func() interface{} {
 					var tmp7 interface{} = FieldGet(state, "phase")
 					_ = tmp7 // suppress unused
-					return nextPhase_impl(tmp7)
+					return arrival__nextPhase_impl(tmp7)
 				}()
 				_ = nextPh // suppress unused
-				var nextVel interface{} = phaseTargetVelocity_impl(nextPh)
+				var nextVel interface{} = arrival__phaseTargetVelocity_impl(nextPh)
 				_ = nextVel // suppress unused
-				var nextPlanet interface{} = phasePlanet_impl(nextPh)
+				var nextPlanet interface{} = arrival__phasePlanet_impl(nextPh)
 				_ = nextPlanet // suppress unused
 				var tmp5 interface{} = FieldGet(state, "shipTimeYears")
 				_ = tmp5 // suppress unused

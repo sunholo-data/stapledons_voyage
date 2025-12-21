@@ -5,41 +5,41 @@ import (
 	"math"
 )
 
-func diskScaleLength_impl(_unused0 interface{}) interface{} {
+func galaxy_model__diskScaleLength_impl(_unused0 interface{}) interface{} {
 	return float64(10000)
 }
 
-func diskScaleLength() float64 {
-	return diskScaleLength_impl(struct{}{}).(float64)
+func galaxy_model__diskScaleLength() float64 {
+	return galaxy_model__diskScaleLength_impl(struct{}{}).(float64)
 }
 
-func diskScaleHeight_impl(_unused0 interface{}) interface{} {
+func galaxy_model__diskScaleHeight_impl(_unused0 interface{}) interface{} {
 	return float64(1000)
 }
 
-func diskScaleHeight() float64 {
-	return diskScaleHeight_impl(struct{}{}).(float64)
+func galaxy_model__diskScaleHeight() float64 {
+	return galaxy_model__diskScaleHeight_impl(struct{}{}).(float64)
 }
 
-func sunGalacticRadius_impl(_unused0 interface{}) interface{} {
+func galaxy_model__sunGalacticRadius_impl(_unused0 interface{}) interface{} {
 	return float64(26000)
 }
 
-func sunGalacticRadius() float64 {
-	return sunGalacticRadius_impl(struct{}{}).(float64)
+func galaxy_model__sunGalacticRadius() float64 {
+	return galaxy_model__sunGalacticRadius_impl(struct{}{}).(float64)
 }
 
-func localStellarDensity_impl(_unused0 interface{}) interface{} {
+func galaxy_model__localStellarDensity_impl(_unused0 interface{}) interface{} {
 	return float64(0.004)
 }
 
-func localStellarDensity() float64 {
-	return localStellarDensity_impl(struct{}{}).(float64)
+func galaxy_model__localStellarDensity() float64 {
+	return galaxy_model__localStellarDensity_impl(struct{}{}).(float64)
 }
 
-func galactocentricRadius_impl(pos interface{}) interface{} {
+func galaxy_model__galactocentricRadius_impl(pos interface{}) interface{} {
 	var r interface{} = func() interface{} {
-		var tmp6 interface{} = sunGalacticRadius_impl(struct{}{})
+		var tmp6 interface{} = galaxy_model__sunGalacticRadius_impl(struct{}{})
 		_ = tmp6 // suppress unused
 		var tmp7 interface{} = FieldGet(pos, "x")
 		_ = tmp7 // suppress unused
@@ -53,19 +53,19 @@ func galactocentricRadius_impl(pos interface{}) interface{} {
 	return math.Sqrt(tmp5.(float64))
 }
 
-func galactocentricRadius(pos *Vec3) float64 {
-	return galactocentricRadius_impl(pos).(float64)
+func galaxy_model__galactocentricRadius(pos *Vec3) float64 {
+	return galaxy_model__galactocentricRadius_impl(pos).(float64)
 }
 
 func stellarDensity_impl(pos interface{}) interface{} {
-	var r interface{} = galactocentricRadius_impl(pos)
+	var r interface{} = galaxy_model__galactocentricRadius_impl(pos)
 	var z interface{} = FieldGet(pos, "z")
 	var radialFactor interface{} = func() interface{} {
-		var tmp12 interface{} = sunGalacticRadius_impl(struct{}{})
+		var tmp12 interface{} = galaxy_model__sunGalacticRadius_impl(struct{}{})
 		_ = tmp12 // suppress unused
 		var tmp13 interface{} = SubFloat(tmp12, r)
 		_ = tmp13 // suppress unused
-		var tmp14 interface{} = diskScaleLength_impl(struct{}{})
+		var tmp14 interface{} = galaxy_model__diskScaleLength_impl(struct{}{})
 		_ = tmp14 // suppress unused
 		var tmp15 interface{} = DivFloat(tmp13, tmp14)
 		_ = tmp15 // suppress unused
@@ -83,7 +83,7 @@ func stellarDensity_impl(pos interface{}) interface{} {
 		}()
 	}()
 	var verticalFactor interface{} = func() interface{} {
-		var tmp8 interface{} = diskScaleHeight_impl(struct{}{})
+		var tmp8 interface{} = galaxy_model__diskScaleHeight_impl(struct{}{})
 		_ = tmp8 // suppress unused
 		var tmp9 interface{} = DivFloat(absZ, tmp8)
 		_ = tmp9 // suppress unused
@@ -98,7 +98,7 @@ func StellarDensity(pos *Vec3) float64 {
 	return stellarDensity_impl(pos).(float64)
 }
 
-func positionHash_impl(x interface{}, y interface{}, z interface{}, seed interface{}) interface{} {
+func galaxy_model__positionHash_impl(x interface{}, y interface{}, z interface{}, seed interface{}) interface{} {
 	var h1 interface{} = MulInt(x, int64(374761393))
 	var h2 interface{} = MulInt(y, int64(668265263))
 	var h3 interface{} = MulInt(z, int64(1274126177))
@@ -121,11 +121,11 @@ func positionHash_impl(x interface{}, y interface{}, z interface{}, seed interfa
 	}()
 }
 
-func positionHash(x int64, y int64, z int64, seed int64) int64 {
-	return positionHash_impl(x, y, z, seed).(int64)
+func galaxy_model__positionHash(x int64, y int64, z int64, seed int64) int64 {
+	return galaxy_model__positionHash_impl(x, y, z, seed).(int64)
 }
 
-func hashToFloat_impl(hash interface{}) interface{} {
+func galaxy_model__hashToFloat_impl(hash interface{}) interface{} {
 	var maxInt interface{} = int64(2147483647)
 	var tmp19 interface{} = ModInt(hash, maxInt)
 	var tmp20 interface{} = IntToFloat(tmp19)
@@ -133,11 +133,11 @@ func hashToFloat_impl(hash interface{}) interface{} {
 	return DivFloat(tmp20, tmp21)
 }
 
-func hashToFloat(hash int64) float64 {
-	return hashToFloat_impl(hash).(float64)
+func galaxy_model__hashToFloat(hash int64) float64 {
+	return galaxy_model__hashToFloat_impl(hash).(float64)
 }
 
-func intToStringPositive_impl(n interface{}) interface{} {
+func galaxy_model__intToStringPositive_impl(n interface{}) interface{} {
 	if EqInt(n, int64(0)).(bool) {
 		return ""
 	} else {
@@ -173,59 +173,59 @@ func intToStringPositive_impl(n interface{}) interface{} {
 				}
 			}()
 			_ = digitChar // suppress unused
-			var tmp23 interface{} = intToStringPositive_impl(rest)
+			var tmp23 interface{} = galaxy_model__intToStringPositive_impl(rest)
 			_ = tmp23 // suppress unused
 			return ConcatString(tmp23, digitChar)
 		}()
 	}
 }
 
-func intToStringPositive(n int64) string {
-	return intToStringPositive_impl(n).(string)
+func galaxy_model__intToStringPositive(n int64) string {
+	return galaxy_model__intToStringPositive_impl(n).(string)
 }
 
-func intToString_impl(n interface{}) interface{} {
+func galaxy_model__intToString_impl(n interface{}) interface{} {
 	if LtInt(n, int64(0)).(bool) {
 		return func() interface{} {
 			var tmp25 interface{} = SubInt(int64(0), n)
 			_ = tmp25 // suppress unused
-			var tmp26 interface{} = intToStringPositive_impl(tmp25)
+			var tmp26 interface{} = galaxy_model__intToStringPositive_impl(tmp25)
 			_ = tmp26 // suppress unused
 			return ConcatString("-", tmp26)
 		}()
 	} else if EqInt(n, int64(0)).(bool) {
 		return "0"
 	} else {
-		return intToStringPositive_impl(n)
+		return galaxy_model__intToStringPositive_impl(n)
 	}
 }
 
-func intToString(n int64) string {
-	return intToString_impl(n).(string)
+func galaxy_model__intToString(n int64) string {
+	return galaxy_model__intToString_impl(n).(string)
 }
 
 func generateStar_impl(seed interface{}, cellX interface{}, cellY interface{}, cellZ interface{}, cellSize interface{}) interface{} {
-	var hash interface{} = positionHash_impl(cellX, cellY, cellZ, seed)
+	var hash interface{} = galaxy_model__positionHash_impl(cellX, cellY, cellZ, seed)
 	var jitterX interface{} = func() interface{} {
 		var tmp43 interface{} = AddInt(seed, int64(1))
 		_ = tmp43 // suppress unused
-		var tmp44 interface{} = positionHash_impl(cellX, cellY, cellZ, tmp43)
+		var tmp44 interface{} = galaxy_model__positionHash_impl(cellX, cellY, cellZ, tmp43)
 		_ = tmp44 // suppress unused
-		return hashToFloat_impl(tmp44)
+		return galaxy_model__hashToFloat_impl(tmp44)
 	}()
 	var jitterY interface{} = func() interface{} {
 		var tmp41 interface{} = AddInt(seed, int64(2))
 		_ = tmp41 // suppress unused
-		var tmp42 interface{} = positionHash_impl(cellX, cellY, cellZ, tmp41)
+		var tmp42 interface{} = galaxy_model__positionHash_impl(cellX, cellY, cellZ, tmp41)
 		_ = tmp42 // suppress unused
-		return hashToFloat_impl(tmp42)
+		return galaxy_model__hashToFloat_impl(tmp42)
 	}()
 	var jitterZ interface{} = func() interface{} {
 		var tmp39 interface{} = AddInt(seed, int64(3))
 		_ = tmp39 // suppress unused
-		var tmp40 interface{} = positionHash_impl(cellX, cellY, cellZ, tmp39)
+		var tmp40 interface{} = galaxy_model__positionHash_impl(cellX, cellY, cellZ, tmp39)
 		_ = tmp40 // suppress unused
-		return hashToFloat_impl(tmp40)
+		return galaxy_model__hashToFloat_impl(tmp40)
 	}()
 	var x interface{} = func() interface{} {
 		var tmp37 interface{} = IntToFloat(cellX)
@@ -251,17 +251,17 @@ func generateStar_impl(seed interface{}, cellX interface{}, cellY interface{}, c
 	var spectralRoll interface{} = func() interface{} {
 		var tmp31 interface{} = AddInt(cellX, int64(100))
 		_ = tmp31 // suppress unused
-		var tmp32 interface{} = positionHash_impl(tmp31, cellY, cellZ, seed)
+		var tmp32 interface{} = galaxy_model__positionHash_impl(tmp31, cellY, cellZ, seed)
 		_ = tmp32 // suppress unused
-		return hashToFloat_impl(tmp32)
+		return galaxy_model__hashToFloat_impl(tmp32)
 	}()
 	var spectral interface{} = spectralFromRoll_impl(spectralRoll)
 	var hzRoll interface{} = func() interface{} {
 		var tmp29 interface{} = AddInt(cellY, int64(100))
 		_ = tmp29 // suppress unused
-		var tmp30 interface{} = positionHash_impl(cellX, tmp29, cellZ, seed)
+		var tmp30 interface{} = galaxy_model__positionHash_impl(cellX, tmp29, cellZ, seed)
 		_ = tmp30 // suppress unused
-		return hashToFloat_impl(tmp30)
+		return galaxy_model__hashToFloat_impl(tmp30)
 	}()
 	var hasHZ interface{} = func() interface{} {
 		_scrutinee := spectral
@@ -280,7 +280,7 @@ func generateStar_impl(seed interface{}, cellX interface{}, cellY interface{}, c
 	}()
 	var starId interface{} = ModInt(hash, int64(1000000000))
 	var name interface{} = func() interface{} {
-		var tmp28 interface{} = intToString_impl(starId)
+		var tmp28 interface{} = galaxy_model__intToString_impl(starId)
 		_ = tmp28 // suppress unused
 		return ConcatString("PStar-", tmp28)
 	}()
@@ -363,7 +363,7 @@ func shouldGenerateStar_impl(seed interface{}, cellX interface{}, cellY interfac
 		return MulFloat(tmp53, cellSize)
 	}()
 	var expectedStars interface{} = func() interface{} {
-		var tmp51 interface{} = localStellarDensity_impl(struct{}{})
+		var tmp51 interface{} = galaxy_model__localStellarDensity_impl(struct{}{})
 		_ = tmp51 // suppress unused
 		var tmp52 interface{} = MulFloat(density, tmp51)
 		_ = tmp52 // suppress unused
@@ -372,9 +372,9 @@ func shouldGenerateStar_impl(seed interface{}, cellX interface{}, cellY interfac
 	var roll interface{} = func() interface{} {
 		var tmp49 interface{} = AddInt(seed, int64(999))
 		_ = tmp49 // suppress unused
-		var tmp50 interface{} = positionHash_impl(cellX, cellY, cellZ, tmp49)
+		var tmp50 interface{} = galaxy_model__positionHash_impl(cellX, cellY, cellZ, tmp49)
 		_ = tmp50 // suppress unused
-		return hashToFloat_impl(tmp50)
+		return galaxy_model__hashToFloat_impl(tmp50)
 	}()
 	return LtFloat(roll, expectedStars)
 }

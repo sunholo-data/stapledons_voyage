@@ -1,0 +1,160 @@
+module sim/ship_levels
+
+-- Ship Level System for Stapledon's Voyage
+-- 5-deck structure with Higgs Spire as central anchor
+
+-- DeckType: The 5 decks of the ship (bottom to top)
+export type DeckType =
+    | DeckCore        -- 0: Antimatter core, engineering critical systems
+    | DeckEngineering -- 1: Propulsion, power management, maintenance
+    | DeckCulture     -- 2: Recreation, library, social spaces
+    | DeckHabitat     -- 3: Crew quarters, life support, medical
+    | DeckBridge      -- 4: Command center, navigation, communications
+
+-- DeckInfo: Static information about each deck
+export type DeckInfo = {
+    name: string,
+    description: string,
+    colorScheme: int,
+    yOffset: float
+}
+
+-- TransitionState: Current deck transition animation state
+export type TransitionState =
+    | TransitionIdle
+    | Transitioning(DeckType, DeckType, float)
+
+-- ShipLevels: Complete ship level state
+export type ShipLevels = {
+    currentDeck: DeckType,
+    transitionState: TransitionState,
+    spireGlow: float
+}
+
+-- Helper to create DeckInfo
+pure func makeDeckInfo(n: string, desc: string, color: int, y: float) -> DeckInfo {
+    { name: n, description: desc, colorScheme: color, yOffset: y }
+}
+
+-- Helper to create ShipLevels
+pure func makeShipLevels(deck: DeckType, trans: TransitionState, glow: float) -> ShipLevels {
+    { currentDeck: deck, transitionState: trans, spireGlow: glow }
+}
+
+-- Get deck index (0-4) for rendering calculations
+export pure func deck_index(deck: DeckType) -> int =
+    match deck {
+        DeckCore => 0,
+        DeckEngineering => 1,
+        DeckCulture => 2,
+        DeckHabitat => 3,
+        DeckBridge => 4
+    }
+
+-- Deck info helpers (one per deck)
+pure func deckInfoCore() -> DeckInfo =
+    makeDeckInfo("Core", "Antimatter containment and critical systems", 4280352255, 0.0)
+
+pure func deckInfoEngineering() -> DeckInfo =
+    makeDeckInfo("Engineering", "Propulsion and power management", 4287137535, 200.0)
+
+pure func deckInfoCulture() -> DeckInfo =
+    makeDeckInfo("Culture", "Recreation and social spaces", 872349695, 400.0)
+
+pure func deckInfoHabitat() -> DeckInfo =
+    makeDeckInfo("Habitat", "Crew quarters and life support", 864026623, 600.0)
+
+pure func deckInfoBridge() -> DeckInfo =
+    makeDeckInfo("Bridge", "Command center and navigation", 2285789439, 800.0)
+
+-- Get deck info for a specific deck type
+export pure func get_deck_info(deck: DeckType) -> DeckInfo =
+    match deck {
+        DeckCore => deckInfoCore(),
+        DeckEngineering => deckInfoEngineering(),
+        DeckCulture => deckInfoCulture(),
+        DeckHabitat => deckInfoHabitat(),
+        DeckBridge => deckInfoBridge()
+    }
+
+-- Get deck above current
+export pure func deck_above(deck: DeckType) -> DeckType =
+    match deck {
+        DeckCore => DeckEngineering,
+        DeckEngineering => DeckCulture,
+        DeckCulture => DeckHabitat,
+        DeckHabitat => DeckBridge,
+        DeckBridge => DeckBridge
+    }
+
+-- Get deck below current
+export pure func deck_below(deck: DeckType) -> DeckType =
+    match deck {
+        DeckCore => DeckCore,
+        DeckEngineering => DeckCore,
+        DeckCulture => DeckEngineering,
+        DeckHabitat => DeckCulture,
+        DeckBridge => DeckHabitat
+    }
+
+-- Check if at top deck
+export pure func is_top_deck(deck: DeckType) -> bool =
+    match deck {
+        DeckBridge => true,
+        _ => false
+    }
+
+-- Check if at bottom deck
+export pure func is_bottom_deck(deck: DeckType) -> bool =
+    match deck {
+        DeckCore => true,
+        _ => false
+    }
+
+-- Initialize ship levels (start on Bridge)
+export pure func init_ship_levels() -> ShipLevels =
+    makeShipLevels(DeckBridge, TransitionIdle, 0.5)
+
+-- Helper: start a transition (creates new ShipLevels with transition state)
+pure func beginTransition(levels: ShipLevels, target: DeckType) -> ShipLevels =
+    makeShipLevels(levels.currentDeck, Transitioning(levels.currentDeck, target, 0.0), levels.spireGlow)
+
+-- Start a transition to a new deck
+export pure func start_deck_transition(levels: ShipLevels, target: DeckType) -> ShipLevels =
+    match levels.transitionState {
+        TransitionIdle => beginTransition(levels, target),
+        Transitioning(_, _, _) => levels
+    }
+
+-- Helper: finish a transition (deck changes, goes back to idle)
+pure func finishTransition(levels: ShipLevels, newDeck: DeckType) -> ShipLevels =
+    makeShipLevels(newDeck, TransitionIdle, levels.spireGlow)
+
+-- Helper: continue a transition (progress updated)
+pure func continueTransition(levels: ShipLevels, from: DeckType, to: DeckType, newProgress: float) -> ShipLevels =
+    makeShipLevels(levels.currentDeck, Transitioning(from, to, newProgress), levels.spireGlow)
+
+-- Update transition progress (dt is delta time in seconds)
+export pure func update_transition(levels: ShipLevels, dt: float) -> ShipLevels =
+    match levels.transitionState {
+        TransitionIdle => levels,
+        Transitioning(from, to, progress) =>
+            let newProgress = progress + dt * 2.0 in
+            if newProgress >= 1.0
+                then finishTransition(levels, to)
+                else continueTransition(levels, from, to, newProgress)
+    }
+
+-- Get transition progress (0.0 if idle)
+export pure func get_transition_progress(levels: ShipLevels) -> float =
+    match levels.transitionState {
+        TransitionIdle => 0.0,
+        Transitioning(_, _, progress) => progress
+    }
+
+-- Check if currently transitioning
+export pure func is_transitioning(levels: ShipLevels) -> bool =
+    match levels.transitionState {
+        TransitionIdle => false,
+        Transitioning(_, _, _) => true
+    }

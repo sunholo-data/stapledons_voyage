@@ -4,11 +4,11 @@ module sim/step
 import sim/protocol (FrameInput, FrameOutput, DrawCmd, Rect, Coord, PlayerAction, ActionNone, Camera, CircleRGBA, Text, LODConfig)
 import sim/world (World, PlanetState, Tile, Selection, SelectionNone, SelectionTile, ViewMode, ViewInterior, ViewPlanet, ViewGalaxyMap)
 import sim/npc_ai (NPC, PatternStatic, PatternRandomWalk, PatternPatrol, Direction, North, South, East, West, updateAllNPCs)
-import sim/interior (InteriorState, initInterior, renderInterior, stepInterior)
+import sim/interior (InteriorState, initInterior, renderInterior, stepInterior, isVPressed, cycleVelocity)
 import sim/starmap (initLocalCatalog, Star, Vec3, spectralColor, StarCatalog)
 import sim/celestial (initSolSystem, stepSystem, StarSystem, renderSolarSystem)
 import sim/ship_levels (init_ship_levels, ShipLevels)
-import sim/navigation (initNavigation, ShipNavigation)
+import sim/navigation (initNavigation, ShipNavigation, timeDilationFactor)
 
 -- Import effects (v0.5.0)
 import std/rand (rand_int)
@@ -190,7 +190,10 @@ pure func updateInteriorView(world: World, input: FrameInput, newTick: int) -> W
     let updatedInterior = stepInterior(world.interior, input);
     -- Step orbital mechanics (dt = 0.001 years per frame ~= 8.7 hours)
     let updatedSystem = stepSystem(world.currentSystem, 0.001);
-    { world | tick: newTick, interior: updatedInterior, currentSystem: updatedSystem }
+    -- Check for velocity cycling (V key)
+    let newVelocity = if isVPressed(input) then cycleVelocity(world.shipNavigation.velocity) else world.shipNavigation.velocity;
+    let updatedNav = { world.shipNavigation | velocity: newVelocity };
+    { world | tick: newTick, interior: updatedInterior, currentSystem: updatedSystem, shipNavigation: updatedNav }
 }
 
 -- Helper: update world for planet view
@@ -222,9 +225,23 @@ export func step(world: World, input: FrameInput) -> (World, FrameOutput) ! {Ran
 
     let cam = { x: 0.0, y: 0.0, zoom: 1.0 };
 
-    -- Default relativity context (no effects enabled)
-    let srCtx = { enabled: false, velocity: 0.0, gamma: 1.0, viewAngle: 0.0 };
-    let grCtx = { enabled: false, centerX: 0.5, centerY: 0.5, phi: 0.0, rs: 0.0, objectType: "" };
+    -- Relativity effects based on ship velocity
+    let shipV = newWorld.shipNavigation.velocity;
+    let lorentzFactor = timeDilationFactor(newWorld.shipNavigation);
+    let srCtx = {
+        enabled: shipV > 0.01,  -- Enable SR above 1% c
+        velocity: shipV,
+        gamma: lorentzFactor,
+        viewAngle: 0.0
+    };
+    let grCtx = {
+        enabled: false,
+        centerX: 0.5,
+        centerY: 0.5,
+        phi: newWorld.shipNavigation.grPhi,
+        rs: 0.0,
+        objectType: ""
+    };
     let relCtx = { sr: srCtx, gr: grCtx };
 
     -- Default lighting context (no active lights)

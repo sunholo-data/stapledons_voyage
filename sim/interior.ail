@@ -7,16 +7,16 @@ module sim/interior
 
 import sim/protocol (
     Coord, DrawCmd, FrameInput, KeyEvent,
-    Camera3D, Room3D, Prop3D, Billboard3D, Window3D, ShipState3D, Text, RectRGBA
+    Camera3D, Room3D, Prop3D, Billboard3D, Window3D, ShipState3D, Text, RectRGBA,
+    Sprite, Viewport, Ui, UiPortrait, SpaceBg, TexturedPlanet
 )
 import sim/navigation (
     ShipNavigation, getForward, getUp
 )
-import sim/window (
-    WindowType, WindowDef, Viewport, Porthole, Dome, Strip,
-    windowWorldPos, windowNormal, bridgeWindows, engineeringWindows,
-    habitatWindows, corridorWindows
+import sim/solar_demo (
+    getAllSolarSystemBodies, SolarPlanet
 )
+-- Removed sim/window import - using scene-based rendering now (2D backgrounds + Viewport DrawCmd)
 import std/option (Option, Some, None)
 import std/list (concat)
 import std/math (sin, cos, PI)
@@ -100,12 +100,12 @@ export type CharacterDef = {
     scale: float
 }
 
--- Complete room with props, characters, and windows
+-- Complete room with props and characters (scene-based rendering)
 export type InteriorRoom = {
     room: RoomDef,
     props: [PropDef],
-    characters: [CharacterDef],
-    windows: [WindowDef]
+    characters: [CharacterDef]
+    -- Note: Windows are now defined in deck manifests, not runtime state
 }
 
 -- =============================================================================
@@ -120,10 +120,16 @@ export type InteriorPlayer = {
     isRunning: bool
 }
 
+-- Deck selection (for scene-based navigation)
+export type DeckSelection =
+    | SceneBridge
+    | SceneObservation
+
 -- Complete interior state
 export type InteriorState = {
     player: InteriorPlayer,
     currentRoom: InteriorRoom,
+    currentDeck: DeckSelection,  -- Which deck scene to show
     fov: float,           -- Field of view in degrees
     tick: int
 }
@@ -283,8 +289,8 @@ export pure func createBridgeInterior() -> InteriorRoom {
         makeCharacter("pilot", 0.0, 0.0 - 1.5, 1200),
         makeCharacter("engineer", 0.0 - 2.5, 0.0, 1202)
     ];
-    let wins = bridgeWindows();
-    { room: room, props: props, characters: characters, windows: wins }
+    -- Windows are now defined in deck manifests (scene-based rendering)
+    { room: room, props: props, characters: characters }
 }
 
 -- =============================================================================
@@ -301,6 +307,7 @@ export pure func initInterior() -> InteriorState {
             isRunning: false
         },
         currentRoom: createBridgeInterior(),
+        currentDeck: SceneBridge,  -- Start on bridge
         fov: 70.0,
         tick: 0
     }
@@ -419,8 +426,48 @@ pure func applyMovement(player: InteriorPlayer, delta: Vec3, room: RoomDef) -> I
 -- Step Function
 -- =============================================================================
 
+-- Check if Tab key was pressed (for deck switching)
+-- Tab key code is 117 (macOS) or 258 (other platforms)
+pure func isTabPressed(input: FrameInput) -> bool {
+    match input.keys {
+        [] => false,
+        key :: rest =>
+            if (key.key == 117 || key.key == 258) && key.kind == "press" then true
+            else isTabPressed({ input | keys: rest })
+    }
+}
+
+-- Check if V key was just pressed (for velocity cycling)
+export pure func isVPressed(input: FrameInput) -> bool {
+    match input.keys {
+        [] => false,
+        key :: rest =>
+            if key.key == 86 && key.kind == "press" then true
+            else isVPressed({ input | keys: rest })
+    }
+}
+
+-- Toggle between decks
+pure func toggleDeck(current: DeckSelection) -> DeckSelection {
+    match current {
+        SceneBridge => SceneObservation,
+        SceneObservation => SceneBridge
+    }
+}
+
+-- Cycle ship velocity (0.0 -> 0.2 -> 0.5 -> 0.8 -> 0.0)
+export pure func cycleVelocity(current: float) -> float {
+    if current < 0.1 then 0.2
+    else if current < 0.3 then 0.5
+    else if current < 0.6 then 0.8
+    else 0.0
+}
+
 -- Process one frame of interior simulation
 export pure func stepInterior(state: InteriorState, input: FrameInput) -> InteriorState {
+    -- Check for deck switch (Tab key)
+    let newDeck = if isTabPressed(input) then toggleDeck(state.currentDeck) else state.currentDeck;
+
     -- Calculate movement from input
     let moveDelta = calculateMovement(state.player, input);
 
@@ -438,7 +485,7 @@ export pure func stepInterior(state: InteriorState, input: FrameInput) -> Interi
         isRunning: isShiftHeld(input)
     };
 
-    { state | player: updatedPlayer, tick: state.tick + 1 }
+    { state | player: updatedPlayer, currentDeck: newDeck, tick: state.tick + 1 }
 }
 
 -- =============================================================================
@@ -505,59 +552,75 @@ pure func renderCharactersRec(chars: [CharacterDef]) -> [DrawCmd] {
 -- Window Rendering
 -- =============================================================================
 
+-- DEPRECATED: Old 3D window rendering functions (not used in scene-based rendering)
 -- Convert window type to integer for DrawCmd
-pure func windowTypeToInt(wt: WindowType) -> int {
-    match wt {
-        Viewport => 0,
-        Porthole => 1,
-        Dome => 2,
-        Strip => 3
-    }
-}
+-- pure func windowTypeToInt(wt: WindowType) -> int {
+--     match wt {
+--         Viewport => 0,
+--         Porthole => 1,
+--         Dome => 2,
+--         Strip => 3
+--     }
+-- }
 
 -- Render a single window
-pure func renderWindow(win: WindowDef, room: RoomDef, shipVelocity: float, grPhi: float) -> DrawCmd {
-    let pos = windowWorldPos(win, room.width, room.depth, room.height);
-    let normal = windowNormal(win);
-    match pos {
-        (px, py, pz) =>
-            match normal {
-                (nx, ny, nz) =>
-                    Window3D(
-                        win.id,
-                        px, py, pz,
-                        nx, ny, nz,
-                        win.width, win.height,
-                        windowTypeToInt(win.windowType),
-                        win.showStars, win.showPlanets,
-                        if win.applyRelativity then shipVelocity else 0.0,
-                        if win.applyRelativity then grPhi else 0.0,
-                        3  -- z-layer for windows
-                    )
-            }
-    }
-}
+-- pure func renderWindow(win: WindowDef, room: RoomDef, shipVelocity: float, grPhi: float) -> DrawCmd {
+--     let pos = windowWorldPos(win, room.width, room.depth, room.height);
+--     let normal = windowNormal(win);
+--     match pos {
+--         (px, py, pz) =>
+--             match normal {
+--                 (nx, ny, nz) =>
+--                     Window3D(
+--                         win.id,
+--                         px, py, pz,
+--                         nx, ny, nz,
+--                         win.width, win.height,
+--                         windowTypeToInt(win.windowType),
+--                         win.showStars, win.showPlanets,
+--                         if win.applyRelativity then shipVelocity else 0.0,
+--                         if win.applyRelativity then grPhi else 0.0,
+--                         3  -- z-layer for windows
+--                     )
+--             }
+--     }
+-- }
 
 -- Render windows recursively
-pure func renderWindowsRec(wins: [WindowDef], room: RoomDef, velocity: float, grPhi: float) -> [DrawCmd] {
-    match wins {
-        [] => [],
-        w :: rest => renderWindow(w, room, velocity, grPhi) :: renderWindowsRec(rest, room, velocity, grPhi)
-    }
-}
+-- pure func renderWindowsRec(wins: [WindowDef], room: RoomDef, velocity: float, grPhi: float) -> [DrawCmd] {
+--     match wins {
+--         [] => [],
+--         w :: rest => renderWindow(w, room, velocity, grPhi) :: renderWindowsRec(rest, room, velocity, grPhi)
+--     }
+-- }
 
 -- Render all windows in a room (with default relativity params)
-pure func renderWindows(wins: [WindowDef], room: RoomDef) -> [DrawCmd] {
-    renderWindowsRec(wins, room, 0.0, 0.0)  -- No SR/GR effects by default
-}
+-- pure func renderWindows(wins: [WindowDef], room: RoomDef) -> [DrawCmd] {
+--     renderWindowsRec(wins, room, 0.0, 0.0)  -- No SR/GR effects by default
+-- }
 
--- Render HUD overlay
-pure func renderHUD(state: InteriorState) -> [DrawCmd] {
+-- Render HUD overlay for scene-based interior
+pure func renderSceneHUD(state: InteriorState, nav: ShipNavigation) -> [DrawCmd] {
+    let deckName = match state.currentDeck {
+        SceneBridge => "Bridge",
+        SceneObservation => "Observation Deck"
+    };
+    let velocityText = if nav.velocity < 0.01 then "Velocity: 0.0c"
+                       else if nav.velocity < 0.3 then "Velocity: 0.2c"
+                       else if nav.velocity < 0.6 then "Velocity: 0.5c"
+                       else "Velocity: 0.8c";
     [
-        -- Position display
         Text(
-            "3D Interior - WASD: Move | Mouse: Look | Shift: Run",
+            deckName,
             10.0, 20.0, 12, 4294967295, layerUI()
+        ),
+        Text(
+            velocityText,
+            10.0, 40.0, 12, 4294967295, layerUI()
+        ),
+        Text(
+            "Tab: Switch Deck | V: Cycle Velocity | ESC: Exit",
+            10.0, 60.0, 12, 4294967295, layerUI()
         )
     ]
 }
@@ -574,24 +637,71 @@ pure func renderShipState(nav: ShipNavigation) -> DrawCmd {
     )
 }
 
--- Render entire interior scene with ship navigation state
-export pure func renderInterior(state: InteriorState, nav: ShipNavigation) -> [DrawCmd] {
-    let shipState = renderShipState(nav);
-    let camera = renderCamera(state.player, state.fov);
-    let room = renderRoom(state.currentRoom.room);
-    let props = renderPropsRec(state.currentRoom.props);
-    let chars = renderCharactersRec(state.currentRoom.characters);
-    -- Pass navigation velocity to window rendering for SR effects
-    let wins = renderWindowsRec(
-        state.currentRoom.windows,
-        state.currentRoom.room,
-        nav.velocity,
-        nav.grPhi
-    );
-    let hud = renderHUD(state);
+-- Get sprite ID for current deck background
+pure func getDeckSpriteId(deck: DeckSelection) -> int {
+    match deck {
+        SceneBridge => 9000,
+        SceneObservation => 9001
+    }
+}
 
-    concat(
-        [shipState, camera, room],
-        concat(props, concat(chars, concat(wins, hud)))
-    )
+-- Convert SolarPlanet to DrawCmd
+pure func planetToDrawCmd(p: SolarPlanet, z: int) -> DrawCmd {
+    TexturedPlanet(p.name, p.posX, p.posY, p.radius, p.rotation, p.hasRings, p.ringColor, z)
+}
+
+-- Convert list of planets to DrawCmds recursively
+pure func planetsToDrawCmds(planets: [SolarPlanet], z: int) -> [DrawCmd] {
+    match planets {
+        [] => [],
+        p :: rest => planetToDrawCmd(p, z) :: planetsToDrawCmds(rest, z)
+    }
+}
+
+-- Render a few key planets at visible screen positions for window view
+-- These are manually positioned to be visible through the bridge/observation windows
+pure func renderScenePlanets() -> [DrawCmd] {
+    [
+        -- Saturn (large, center-left window) - with golden rings
+        TexturedPlanet("saturn", 400.0, 480.0, 120.0, 0.0, true, 3095314687, 5),
+        -- Jupiter (large, center window)
+        TexturedPlanet("jupiter", 640.0, 400.0, 100.0, 0.0, false, 0, 5),
+        -- Mars (small, right window)
+        TexturedPlanet("mars", 900.0, 500.0, 40.0, 0.0, false, 0, 5),
+        -- Earth (medium, center-right)
+        TexturedPlanet("earth", 800.0, 350.0, 60.0, 0.0, false, 0, 5)
+    ]
+}
+
+-- Render entire interior scene with ship navigation state
+-- SCENE-BASED RENDERING (2D backgrounds + 3D solar system through transparent windows)
+export pure func renderInterior(state: InteriorState, nav: ShipNavigation) -> [DrawCmd] {
+    -- Ship state for SR/GR effects
+    let shipState = renderShipState(nav);
+
+    -- Space background (renders first, far behind everything)
+    let spaceBg = SpaceBg(0);
+
+    -- Manually positioned planets for window view (not orbital simulation)
+    let planetCmds = renderScenePlanets();
+
+    -- Deck background (2D scene with transparent windows)
+    -- Renders in front of planets, so planets show through window regions
+    let deckBackground = Ui(
+        "deck-background",
+        UiPortrait,
+        0.0, 0.0,  -- Fullscreen
+        1.0, 1.0,
+        "",
+        getDeckSpriteId(state.currentDeck),
+        50,  -- Mid-layer (planets at z=5, deck at z=50)
+        0,
+        0.0
+    );
+
+    -- HUD overlay (renders on top)
+    let hud = renderSceneHUD(state, nav);
+
+    -- Combine all layers: ship state, space, planets, deck, HUD
+    shipState :: spaceBg :: concat(planetCmds, concat([deckBackground], hud))
 }

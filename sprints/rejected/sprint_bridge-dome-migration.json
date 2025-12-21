@@ -1,0 +1,105 @@
+{
+  "sprint_id": "bridge-dome-migration",
+  "created": "2025-12-10T20:30:00Z",
+  "status": "in_progress",
+  "design_doc": "design_docs/planned/next/dome-state-migration.md",
+  "features": [
+    {
+      "id": "day1-placeholders",
+      "description": "Visible placeholders for bridge elements (floor, consoles, crew, player)",
+      "estimated_loc": 200,
+      "actual_loc": 350,
+      "dependencies": [],
+      "acceptance_criteria": [
+        "Floor tiles visible as colored rectangles",
+        "Consoles visible as colored rectangles",
+        "Crew visible as circles with names",
+        "Player visible as green square with YOU label"
+      ],
+      "passes": true,
+      "started": "2025-12-09T00:00:00Z",
+      "completed": "2025-12-09T00:00:00Z",
+      "notes": "Already implemented in bridge.ail - floor, consoles, crew, player all rendering"
+    },
+    {
+      "id": "day2-dome-state",
+      "description": "Migrate dome state (cruise time, velocity, camera) to AILANG",
+      "estimated_loc": 150,
+      "actual_loc": 80,
+      "dependencies": [
+        "day1-placeholders"
+      ],
+      "acceptance_criteria": [
+        "DomeState type with cruise animation fields",
+        "stepDome function updates cruise progress",
+        "Planet positions defined in AILANG"
+      ],
+      "passes": true,
+      "started": "2025-12-10T20:30:00Z",
+      "completed": "2025-12-10T19:41:30Z",
+      "notes": null
+    },
+    {
+      "id": "day3-dome-rendering",
+      "description": "Wire dome rendering to AILANG DrawCmds",
+      "estimated_loc": 200,
+      "actual_loc": 60,
+      "dependencies": [
+        "day2-dome-state"
+      ],
+      "acceptance_criteria": [
+        "Planets render as circles with distance-based scaling",
+        "Galaxy background integrated",
+        "Velocity/time HUD displays"
+      ],
+      "passes": true,
+      "started": null,
+      "completed": "2025-12-10T19:41:43Z",
+      "notes": null
+    },
+    {
+      "id": "day4-integration",
+      "description": "Connect AILANG dome to engine, disable Go renderer",
+      "estimated_loc": 50,
+      "actual_loc": null,
+      "dependencies": [
+        "day3-dome-rendering"
+      ],
+      "acceptance_criteria": [
+        "stepBridge calls stepDome with delta time",
+        "Go dome_renderer no longer used for state",
+        "All dome state comes from AILANG"
+      ],
+      "passes": null,
+      "started": "2025-12-10T19:45:43Z",
+      "completed": null,
+      "notes": null
+    },
+    {
+      "id": "day5-polish",
+      "description": "Polish, parallax effects, performance testing",
+      "estimated_loc": 100,
+      "actual_loc": null,
+      "dependencies": [
+        "day4-integration"
+      ],
+      "acceptance_criteria": [
+        "Struts have parallax based on cruise progress",
+        "Star field with subtle parallax",
+        "60 FPS maintained"
+      ],
+      "passes": null,
+      "started": null,
+      "completed": null,
+      "notes": null
+    }
+  ],
+  "velocity": {
+    "target_loc_per_day": 150,
+    "actual_loc_per_day": 0
+  },
+  "ailang_issues": [],
+  "dx_issues_discovered": [],
+  "lessons_learned": [],
+  "last_updated": "2025-12-10T20:30:00Z"
+}

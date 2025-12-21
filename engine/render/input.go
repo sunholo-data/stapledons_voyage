@@ -34,7 +34,7 @@ func CaptureInputWithCamera(cam sim_gen.Camera, screenW, screenH int) sim_gen.Fr
 	for _, k := range inpututil.AppendJustPressedKeys(nil) {
 		keys = append(keys, &sim_gen.KeyEvent{
 			Key:  int64(k),
-			Kind: "pressed",
+			Kind: "press",
 		})
 	}
 	// Capture held keys

@@ -172,8 +172,8 @@ func ListLen(list interface{}) int {
 	return 0
 }
 
-// Concat concatenates two lists (++ operator).
-func Concat(a, b interface{}) interface{} {
+// ConcatList concatenates two lists (++ operator).
+func ConcatList(a, b interface{}) interface{} {
 	if a == nil {
 		return b
 	}
@@ -788,6 +788,30 @@ func ConvertToCurrentPlanetSlice(v interface{}) []*CurrentPlanet {
 	return out
 }
 
+// ConvertToDeckSelectionSlice converts []interface{} to []*DeckSelection.
+// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
+func ConvertToDeckSelectionSlice(v interface{}) []*DeckSelection {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToDeckSelectionSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*DeckSelection{}
+	}
+	out := make([]*DeckSelection, len(src))
+	for i, e := range src {
+		elem, ok := e.(*DeckSelection)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToDeckSelectionSlice: element %d: expected *DeckSelection, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
 // ConvertToDeckTypeSlice converts []interface{} to []*DeckType.
 // M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
 func ConvertToDeckTypeSlice(v interface{}) []*DeckType {
@@ -1286,54 +1310,6 @@ func ConvertToViewModeSlice(v interface{}) []*ViewMode {
 		elem, ok := e.(*ViewMode)
 		if !ok {
 			panic(fmt.Sprintf("ConvertToViewModeSlice: element %d: expected *ViewMode, got %T", i, e))
-		}
-		out[i] = elem
-	}
-	return out
-}
-
-// ConvertToWindowDefSlice converts []interface{} to []*WindowDef.
-// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
-func ConvertToWindowDefSlice(v interface{}) []*WindowDef {
-	if v == nil {
-		return nil
-	}
-	src, ok := v.([]interface{})
-	if !ok {
-		panic(fmt.Sprintf("ConvertToWindowDefSlice: expected []interface{}, got %T", v))
-	}
-	if len(src) == 0 {
-		return []*WindowDef{}
-	}
-	out := make([]*WindowDef, len(src))
-	for i, e := range src {
-		elem, ok := e.(*WindowDef)
-		if !ok {
-			panic(fmt.Sprintf("ConvertToWindowDefSlice: element %d: expected *WindowDef, got %T", i, e))
-		}
-		out[i] = elem
-	}
-	return out
-}
-
-// ConvertToWindowTypeSlice converts []interface{} to []*WindowType.
-// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
-func ConvertToWindowTypeSlice(v interface{}) []*WindowType {
-	if v == nil {
-		return nil
-	}
-	src, ok := v.([]interface{})
-	if !ok {
-		panic(fmt.Sprintf("ConvertToWindowTypeSlice: expected []interface{}, got %T", v))
-	}
-	if len(src) == 0 {
-		return []*WindowType{}
-	}
-	out := make([]*WindowType, len(src))
-	for i, e := range src {
-		elem, ok := e.(*WindowType)
-		if !ok {
-			panic(fmt.Sprintf("ConvertToWindowTypeSlice: element %d: expected *WindowType, got %T", i, e))
 		}
 		out[i] = elem
 	}

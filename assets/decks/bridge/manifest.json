@@ -1,0 +1,45 @@
+{
+  "deckID": "bridge",
+  "deckType": "outward",
+  "name": "Bridge",
+  "description": "Main command center with panoramic windows showing space",
+  "layers": [
+    {
+      "id": "background",
+      "file": "background.png",
+      "parallax": 0.0,
+      "description": "Main bridge scene with command consoles and windows"
+    }
+  ],
+  "windows": {
+    "enabled": true,
+    "maskFile": "window_mask.png",
+    "starfieldDepth": 500.0,
+    "description": "Panoramic curved windows showing live starmap"
+  },
+  "crewSpawnPoints": [
+    {
+      "x": 1024,
+      "y": 900,
+      "role": "captain",
+      "description": "Captain's chair, center position"
+    },
+    {
+      "x": 600,
+      "y": 850,
+      "role": "pilot",
+      "description": "Left console, navigation"
+    },
+    {
+      "x": 1400,
+      "y": 850,
+      "role": "tactical",
+      "description": "Right console, tactical systems"
+    }
+  ],
+  "atmosphere": {
+    "lighting": "dramatic",
+    "mood": "professional",
+    "sounds": ["ambient_bridge_hum", "console_beeps"]
+  }
+}

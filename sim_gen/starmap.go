@@ -5,7 +5,7 @@ import (
 	"math"
 )
 
-func filterStars_impl(predicate interface{}, stars interface{}) interface{} {
+func starmap__filterStars_impl(predicate interface{}, stars interface{}) interface{} {
 	return func() interface{} {
 		_scrutinee := stars
 		_ = _scrutinee // suppress unused
@@ -22,12 +22,12 @@ func filterStars_impl(predicate interface{}, stars interface{}) interface{} {
 				return func() interface{} {
 					if tmp1.(bool) {
 						return func() interface{} {
-							var tmp2 interface{} = filterStars_impl(predicate, rest)
+							var tmp2 interface{} = starmap__filterStars_impl(predicate, rest)
 							_ = tmp2 // suppress unused
 							return Cons(s, tmp2)
 						}()
 					} else {
-						return filterStars_impl(predicate, rest)
+						return starmap__filterStars_impl(predicate, rest)
 					}
 				}()
 			}()
@@ -37,11 +37,11 @@ func filterStars_impl(predicate interface{}, stars interface{}) interface{} {
 	}()
 }
 
-func filterStars(predicate interface{}, stars []*Star) []*Star {
-	return ConvertToStarSlice(filterStars_impl(predicate, stars))
+func starmap__filterStars(predicate interface{}, stars []*Star) []*Star {
+	return ConvertToStarSlice(starmap__filterStars_impl(predicate, stars))
 }
 
-func countStars_impl(stars interface{}) interface{} {
+func starmap__countStars_impl(stars interface{}) interface{} {
 	return func() interface{} {
 		_scrutinee := stars
 		_ = _scrutinee // suppress unused
@@ -51,7 +51,7 @@ func countStars_impl(stars interface{}) interface{} {
 			rest := ListTail(_scrutinee)
 			_ = rest // suppress unused
 			return func() interface{} {
-				var tmp3 interface{} = countStars_impl(rest)
+				var tmp3 interface{} = starmap__countStars_impl(rest)
 				_ = tmp3 // suppress unused
 				return AddInt(int64(1), tmp3)
 			}()
@@ -61,8 +61,8 @@ func countStars_impl(stars interface{}) interface{} {
 	}()
 }
 
-func countStars(stars []*Star) int64 {
-	return countStars_impl(stars).(int64)
+func starmap__countStars(stars []*Star) int64 {
+	return starmap__countStars_impl(stars).(int64)
 }
 
 func distance_impl(a interface{}, b interface{}) interface{} {
@@ -137,27 +137,27 @@ func AddStar(cat *StarCatalog, star *Star) *StarCatalog {
 
 func starCount_impl(cat interface{}) interface{} {
 	var tmp19 interface{} = FieldGet(cat, "stars")
-	return countStars_impl(tmp19)
+	return starmap__countStars_impl(tmp19)
 }
 
 func StarCount(cat *StarCatalog) int64 {
 	return starCount_impl(cat).(int64)
 }
 
-func withinRadius_impl(center interface{}, radius interface{}, star interface{}) interface{} {
+func starmap__withinRadius_impl(center interface{}, radius interface{}, star interface{}) interface{} {
 	var tmp20 interface{} = FieldGet(star, "pos")
 	var tmp21 interface{} = distance_impl(tmp20, center)
 	return LeFloat(tmp21, radius)
 }
 
-func withinRadius(center *Vec3, radius float64, star *Star) bool {
-	return withinRadius_impl(center, radius, star).(bool)
+func starmap__withinRadius(center *Vec3, radius float64, star *Star) bool {
+	return starmap__withinRadius_impl(center, radius, star).(bool)
 }
 
 func starsWithinRadius_impl(cat interface{}, center interface{}, radius interface{}) interface{} {
 	var tmp22 interface{} = FieldGet(cat, "stars")
-	return filterStars_impl(func(s interface{}) interface{} {
-		return withinRadius_impl(center, radius, s)
+	return starmap__filterStars_impl(func(s interface{}) interface{} {
+		return starmap__withinRadius_impl(center, radius, s)
 	}, tmp22)
 }
 
@@ -165,7 +165,7 @@ func StarsWithinRadius(cat *StarCatalog, center *Vec3, radius float64) []*Star {
 	return ConvertToStarSlice(starsWithinRadius_impl(cat, center, radius))
 }
 
-func minByDistanceHelper_impl(pos interface{}, best interface{}, rest interface{}) interface{} {
+func starmap__minByDistanceHelper_impl(pos interface{}, best interface{}, rest interface{}) interface{} {
 	return func() interface{} {
 		_scrutinee := rest
 		_ = _scrutinee // suppress unused
@@ -193,9 +193,9 @@ func minByDistanceHelper_impl(pos interface{}, best interface{}, rest interface{
 				_ = tmp23 // suppress unused
 				return func() interface{} {
 					if tmp23.(bool) {
-						return minByDistanceHelper_impl(pos, s, remaining)
+						return starmap__minByDistanceHelper_impl(pos, s, remaining)
 					} else {
-						return minByDistanceHelper_impl(pos, best, remaining)
+						return starmap__minByDistanceHelper_impl(pos, best, remaining)
 					}
 				}()
 			}()
@@ -205,8 +205,8 @@ func minByDistanceHelper_impl(pos interface{}, best interface{}, rest interface{
 	}()
 }
 
-func minByDistanceHelper(pos *Vec3, best *Star, rest []*Star) *Star {
-	return minByDistanceHelper_impl(pos, best, rest).(*Star)
+func starmap__minByDistanceHelper(pos *Vec3, best *Star, rest []*Star) *Star {
+	return starmap__minByDistanceHelper_impl(pos, best, rest).(*Star)
 }
 
 func nearestStar_impl(cat interface{}, pos interface{}) interface{} {
@@ -227,7 +227,7 @@ func nearestStar_impl(cat interface{}, pos interface{}) interface{} {
 			_ = first // suppress unused
 			rest := ListTail(_scrutinee)
 			_ = rest // suppress unused
-			return minByDistanceHelper_impl(pos, first, rest)
+			return starmap__minByDistanceHelper_impl(pos, first, rest)
 		} else {
 			panic("non-exhaustive match")
 		}

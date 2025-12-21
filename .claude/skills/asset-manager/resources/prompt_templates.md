@@ -363,3 +363,156 @@ Should convey: Functional ship infrastructure above crew heads.
 - **Habitat**: Softer, warmer lighting, residential feel
 - **Culture**: Communal spaces, varied lighting, decorative elements
 - **Core**: High-tech, red safety lighting, minimal aesthetic
+
+## Scene Images with Transparent Windows
+
+### ⚠️ CRITICAL: Gemini Cannot Generate True Alpha
+
+Gemini image generation outputs RGB images only - it cannot produce RGBA with actual alpha transparency. When you ask for "transparent", it renders a checkerboard pattern as visible pixels.
+
+**Solution:** Post-process AI-generated images using `generate-window-mask` tool to convert detected regions to true transparency.
+
+### Recommended Workflow: Bright Windows + Keep-Top-N (Best Results)
+
+The most reliable approach for window masking:
+
+1. **Generate scene with bright/white windows** - AI understands "bright overexposed"
+2. **Extract mask with `-keep-top=N`** - Keeps only the N largest bright regions (windows)
+3. **Use mask for compositing** - Pixel-perfect alignment guaranteed
+
+#### Step 1: Generate with Bright Windows
+
+```
+Spaceship bridge interior scene: [DESCRIPTION].
+Windows showing pure bright white overexposed light (no space details visible).
+Dark metallic interior with control consoles, crew chairs, detailed panels.
+Art style: Detailed sci-fi illustration, warm orange/amber accent lighting.
+The window areas will be extracted for compositing a dynamic starfield.
+```
+
+**Example prompt for bridge:**
+```bash
+go run ./cmd/voyage ai -generate-image -prompt "Spaceship bridge interior, three large panoramic windows showing pure bright white overexposed light, dark metallic interior with control consoles and pilot chairs, sci-fi cockpit with orange accent lighting, detailed panels and screens, cinematic composition"
+```
+
+#### Step 2: Extract Window Mask
+
+Use `-mode=bright` with `-keep-top=N` to extract only the N largest bright regions (filtering out small lights, console LEDs, etc.):
+
+```bash
+# Extract top 3 largest bright regions as mask (for 3-window bridge)
+go run ./cmd/generate-window-mask \
+  -mode=bright \
+  -threshold=180 \
+  -keep-top=3 \
+  -mask \
+  input.png mask.png
+```
+
+#### Step 3: Generate Transparent Background
+
+To get the bridge image with transparent windows (for overlay compositing):
+
+```bash
+# Same command without -mask flag creates transparent image
+go run ./cmd/generate-window-mask \
+  -mode=bright \
+  -threshold=180 \
+  -keep-top=3 \
+  input.png transparent.png
+```
+
+#### Why This Works Better
+
+- **AI can't preserve exact pixel positions** when given a mask as reference
+- **Extracting from generated image** guarantees pixel-perfect alignment
+- **keep-top=N** filters out small bright areas (lights, screens, reflections)
+- **Result:** Clean mask with only the main window regions
+
+### Alternative Methods
+
+#### Method 1: Black Windows
+
+Request pure black windows, then convert black pixels to transparent.
+
+```
+Sci-fi spaceship interior scene: [DESCRIPTION].
+CRITICAL: All windows showing space must be PURE BLACK (#000000).
+The window glass areas should be solid black with no stars, no reflections, no gradients.
+Interior should have warm ambient lighting with detailed sci-fi aesthetic.
+```
+
+**Post-process:**
+```bash
+go run ./cmd/generate-window-mask -mode=black -keep-top=3 input.png output.png
+```
+
+**Pros:** Works when bright mode catches too many interior lights
+**Cons:** Dark interior areas may be misidentified as windows
+
+#### Method 2: Checkerboard (Frame-Only Images)
+
+Request transparent areas, AI renders checkerboard pattern.
+
+```
+PNG with alpha transparency. Spaceship interior frame: [DESCRIPTION].
+CRITICAL: Window openings must be COMPLETELY TRANSPARENT (alpha=0).
+Only render the solid interior surfaces and frames.
+```
+
+**Post-process:**
+```bash
+go run ./cmd/generate-window-mask -mode=checker input.png output.png
+```
+
+#### Method 3: Magenta Chroma Key
+
+Request magenta (#FF00FF) windows for easy detection.
+
+```
+[SCENE DESCRIPTION]
+CRITICAL: All window/viewport areas must be filled with PURE MAGENTA (#FF00FF).
+```
+
+**Post-process:**
+```bash
+go run ./cmd/generate-window-mask -mode=magenta input.png output.png
+```
+
+### Tool Reference
+
+```bash
+# RECOMMENDED: Bright mode with keep-top filtering
+go run ./cmd/generate-window-mask -mode=bright -threshold=180 -keep-top=3 -mask input.png mask.png
+go run ./cmd/generate-window-mask -mode=bright -threshold=180 -keep-top=3 input.png transparent.png
+
+# Other modes
+go run ./cmd/generate-window-mask -mode=black input.png output.png
+go run ./cmd/generate-window-mask -mode=checker input.png output.png
+go run ./cmd/generate-window-mask -mode=magenta input.png output.png
+
+# Adjust thresholds
+go run ./cmd/generate-window-mask -mode=bright -threshold=200 ...  # Higher = stricter
+go run ./cmd/generate-window-mask -mode=black -threshold=48 ...    # Higher = catches more
+
+# Invert detection
+go run ./cmd/generate-window-mask -mode=bright -invert input.png output.png
+```
+
+### Quick Pipeline Example
+
+```bash
+# 1. Generate bridge with bright windows
+go run ./cmd/voyage ai -generate-image -prompt "Spaceship bridge, 3 windows showing bright white light, dark interior"
+
+# 2. Extract mask (top 3 regions)
+go run ./cmd/generate-window-mask -mode=bright -threshold=180 -keep-top=3 -mask \
+  assets/generated/response_XXX.png \
+  assets/decks/bridge/window_mask_large.png
+
+# 3. Copy background
+cp assets/generated/response_XXX.png assets/decks/bridge/background.png
+
+# 4. Test
+go run ./cmd/game
+```

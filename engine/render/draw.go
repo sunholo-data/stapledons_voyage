@@ -69,6 +69,13 @@ type Renderer struct {
 
 	// 3D interior scene for first-person ship views
 	interior *interiorScene
+
+	// Scene-based interior window masks (for compositing space views through windows)
+	sceneMasks       *sceneWindowMasks
+	sceneMasksLoaded bool
+
+	// Debug: frame counter
+	frame int
 }
 
 // NewRenderer creates a renderer with the given asset manager.
@@ -199,6 +206,20 @@ func (r *Renderer) RenderFrame(screen *ebiten.Image, out sim_gen.FrameOutput) {
 	// Get screen dimensions
 	screenW, screenH := screen.Bounds().Dx(), screen.Bounds().Dy()
 
+	// Detect scene-based interior mode (deck background + space DrawCmds)
+	// If present, use window compositing
+	if r.isSceneBasedMode(&out) {
+		// Load window masks on first use
+		if !r.sceneMasksLoaded {
+			r.sceneMasks = r.loadSceneWindowMasks()
+			r.sceneMasksLoaded = true
+		}
+		if r.sceneMasks != nil && r.sceneMasks.loaded {
+			r.compositeSceneWindows(screen, &out, r.sceneMasks, screenW, screenH)
+			return
+		}
+	}
+
 	// If layer rendering is enabled, use the layered path
 	if r.layersEnabled && r.layers != nil {
 		r.renderFrameLayered(screen, out, screenW, screenH)
@@ -274,6 +295,10 @@ func (r *Renderer) RenderFrame(screen *ebiten.Image, out sim_gen.FrameOutput) {
 
 		case sim_gen.DrawCmdKindStar:
 			r.drawStar(screen, cmd.Star)
+
+		case sim_gen.DrawCmdKindSpaceBg:
+			// Deep space background - fill with dark blue/black
+			screen.Fill(color.RGBA{0, 0, 10, 255})
 
 		case sim_gen.DrawCmdKindSpireBg:
 			r.drawSpireBg(screen, screenW, screenH)
@@ -443,8 +468,16 @@ func (r *Renderer) renderCommandsToBuffer(
 		case sim_gen.DrawCmdKindStar:
 			r.drawStar(buffer, cmd.Star)
 
+		case sim_gen.DrawCmdKindSpaceBg:
+			// Deep space background - fill with dark blue/black
+			buffer.Fill(color.RGBA{0, 0, 10, 255})
+
 		case sim_gen.DrawCmdKindSpireBg:
 			r.drawSpireBgParallax(buffer, screenW, screenH, transform)
+
+		case sim_gen.DrawCmdKindTexturedPlanet:
+			c := cmd.TexturedPlanet
+			r.drawTexturedPlanet(buffer, c.Name, c.X, c.Y, c.Radius, c.Rotation, c.HasRings, c.RingRgba)
 
 		case sim_gen.DrawCmdKindRectRGBA:
 			c := cmd.RectRGBA

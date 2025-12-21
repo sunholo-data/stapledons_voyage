@@ -81,7 +81,7 @@ func SpecPixelHeightClamped(spec *TextureSpec) int64 {
 	return specPixelHeightClamped_impl(spec).(int64)
 }
 
-func digitToChar_impl(d interface{}) interface{} {
+func texture_spec__digitToChar_impl(d interface{}) interface{} {
 	var tmp16 interface{} = EqInt(d, int64(0))
 	return func() interface{} {
 		var tmp17 interface{} = EqInt(d, int64(1))
@@ -131,11 +131,11 @@ func digitToChar_impl(d interface{}) interface{} {
 	}()
 }
 
-func digitToChar(d int64) string {
-	return digitToChar_impl(d).(string)
+func texture_spec__digitToChar(d int64) string {
+	return texture_spec__digitToChar_impl(d).(string)
 }
 
-func positiveToStr_impl(n interface{}) interface{} {
+func texture_spec__positiveToStr_impl(n interface{}) interface{} {
 	var tmp25 interface{} = EqInt(n, int64(0))
 	return func() interface{} {
 		if tmp25.(bool) {
@@ -146,20 +146,20 @@ func positiveToStr_impl(n interface{}) interface{} {
 			_ = digit // suppress unused
 			var rest interface{} = DivInt(n, int64(10))
 			_ = rest // suppress unused
-			var ch interface{} = digitToChar_impl(digit)
+			var ch interface{} = texture_spec__digitToChar_impl(digit)
 			_ = ch // suppress unused
-			var tmp26 interface{} = positiveToStr_impl(rest)
+			var tmp26 interface{} = texture_spec__positiveToStr_impl(rest)
 			_ = tmp26 // suppress unused
 			return ConcatString(tmp26, ch)
 		}()
 	}()
 }
 
-func positiveToStr(n int64) string {
-	return positiveToStr_impl(n).(string)
+func texture_spec__positiveToStr(n int64) string {
+	return texture_spec__positiveToStr_impl(n).(string)
 }
 
-func intToStr_impl(n interface{}) interface{} {
+func texture_spec__intToStr_impl(n interface{}) interface{} {
 	var tmp27 interface{} = LtInt(n, int64(0))
 	return func() interface{} {
 		var tmp30 interface{} = EqInt(n, int64(0))
@@ -169,7 +169,7 @@ func intToStr_impl(n interface{}) interface{} {
 				var tmp28 interface{} = SubInt(int64(0), n)
 				_ = tmp28 // suppress unused
 				return func() interface{} {
-					var tmp29 interface{} = positiveToStr_impl(tmp28)
+					var tmp29 interface{} = texture_spec__positiveToStr_impl(tmp28)
 					_ = tmp29 // suppress unused
 					return ConcatString("-", tmp29)
 				}()
@@ -178,12 +178,12 @@ func intToStr_impl(n interface{}) interface{} {
 		if tmp30.(bool) {
 			return "0"
 		}
-		return positiveToStr_impl(n)
+		return texture_spec__positiveToStr_impl(n)
 	}()
 }
 
-func intToStr(n int64) string {
-	return intToStr_impl(n).(string)
+func texture_spec__intToStr(n int64) string {
+	return texture_spec__intToStr_impl(n).(string)
 }
 
 func specCacheKey_impl(spec interface{}) interface{} {
@@ -213,7 +213,7 @@ func SpecCacheKey(spec *TextureSpec) string {
 	return specCacheKey_impl(spec).(string)
 }
 
-func getSurfaceStyle_impl(spec interface{}) interface{} {
+func texture_spec__getSurfaceStyle_impl(spec interface{}) interface{} {
 	var tmp48 interface{} = FieldGet(spec, "surfaceType")
 	var tmp49 interface{} = EqString(tmp48, "floor")
 	return func() interface{} {
@@ -243,14 +243,14 @@ func getSurfaceStyle_impl(spec interface{}) interface{} {
 	}()
 }
 
-func getSurfaceStyle(spec *TextureSpec) string {
-	return getSurfaceStyle_impl(spec).(string)
+func texture_spec__getSurfaceStyle(spec *TextureSpec) string {
+	return texture_spec__getSurfaceStyle_impl(spec).(string)
 }
 
 func buildPrompt_impl(spec interface{}) interface{} {
 	var w interface{} = specPixelWidthClamped_impl(spec)
 	var h interface{} = specPixelHeightClamped_impl(spec)
-	var surfaceStyle interface{} = getSurfaceStyle_impl(spec)
+	var surfaceStyle interface{} = texture_spec__getSurfaceStyle_impl(spec)
 	var tmp55 interface{} = strconv.Itoa(int(w.(int64)))
 	var tmp56 interface{} = ConcatString("Create a ", tmp55)
 	var tmp57 interface{} = ConcatString(tmp56, "x")

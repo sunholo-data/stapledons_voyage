@@ -2206,7 +2206,6 @@ type InteriorRoom struct {
 	Room       *RoomDef
 	Props      []*PropDef
 	Characters []*CharacterDef
-	Windows    []*WindowDef
 }
 
 // InteriorPlayer is a record type
@@ -2217,10 +2216,60 @@ type InteriorPlayer struct {
 	IsRunning bool
 }
 
+// DeckSelectionKind discriminates between variants of DeckSelection
+type DeckSelectionKind int
+
+const (
+	DeckSelectionKindSceneBridge DeckSelectionKind = iota
+	DeckSelectionKindSceneObservation
+)
+
+// DeckSelectionSceneBridge holds data for the SceneBridge variant
+type DeckSelectionSceneBridge struct {
+}
+
+// DeckSelectionSceneObservation holds data for the SceneObservation variant
+type DeckSelectionSceneObservation struct {
+}
+
+// DeckSelection is a sum type (discriminated union)
+type DeckSelection struct {
+	Kind             DeckSelectionKind
+	SceneBridge      *DeckSelectionSceneBridge
+	SceneObservation *DeckSelectionSceneObservation
+}
+
+// NewDeckSelectionSceneBridge creates a new SceneBridge variant
+func NewDeckSelectionSceneBridge() *DeckSelection {
+	return &DeckSelection{
+		Kind:        DeckSelectionKindSceneBridge,
+		SceneBridge: &DeckSelectionSceneBridge{},
+	}
+}
+
+// NewDeckSelectionSceneObservation creates a new SceneObservation variant
+func NewDeckSelectionSceneObservation() *DeckSelection {
+	return &DeckSelection{
+		Kind:             DeckSelectionKindSceneObservation,
+		SceneObservation: &DeckSelectionSceneObservation{},
+	}
+}
+
+// IsSceneBridge returns true if this is a SceneBridge variant
+func (v *DeckSelection) IsSceneBridge() bool {
+	return v.Kind == DeckSelectionKindSceneBridge
+}
+
+// IsSceneObservation returns true if this is a SceneObservation variant
+func (v *DeckSelection) IsSceneObservation() bool {
+	return v.Kind == DeckSelectionKindSceneObservation
+}
+
 // InteriorState is a record type
 type InteriorState struct {
 	Player      *InteriorPlayer
 	CurrentRoom *InteriorRoom
+	CurrentDeck *DeckSelection
 	Fov         float64
 	Tick        int64
 }
@@ -2229,6 +2278,70 @@ type InteriorState struct {
 type LookDelta struct {
 	YawDelta   float64
 	PitchDelta float64
+}
+
+// Vector3 is a record type
+type Vector3 struct {
+	X float64
+	Y float64
+	Z float64
+}
+
+// Moon is a record type
+type Moon struct {
+	Name        string
+	Radius      float64
+	ColorR      float64
+	ColorG      float64
+	ColorB      float64
+	OrbitRadius float64
+	OrbitSpeed  float64
+	OrbitPhase  float64
+}
+
+// RingBand is a record type
+type RingBand struct {
+	InnerRadius float64
+	OuterRadius float64
+	ColorRgba   int64
+	Opacity     float64
+}
+
+// SolarPlanet is a record type
+type SolarPlanet struct {
+	Name          string
+	PosX          float64
+	PosY          float64
+	PosZ          float64
+	Radius        float64
+	ColorRgba     int64
+	TextureName   string
+	Rotation      float64
+	RotationSpeed float64
+	HasRings      bool
+	RingColor     int64
+	OrbitRadius   float64
+	OrbitSpeed    float64
+	OrbitPhase    float64
+	ParentName    string
+}
+
+// SolarDemoState is a record type
+type SolarDemoState struct {
+	Tick         int64
+	CameraX      float64
+	CameraY      float64
+	CameraZ      float64
+	LookAtX      float64
+	LookAtY      float64
+	LookAtZ      float64
+	ShipVelocity float64
+	GrEnabled    bool
+	GrCenterX    float64
+	GrCenterY    float64
+	GrPhi        float64
+	SunEnergy    float64
+	AmbientLevel float64
 }
 
 // Quaternion is a record type
@@ -2246,107 +2359,6 @@ type ShipNavigation struct {
 	Velocity    float64
 	Heading     *Vec3
 	GrPhi       float64
-}
-
-// WindowTypeKind discriminates between variants of WindowType
-type WindowTypeKind int
-
-const (
-	WindowTypeKindViewport WindowTypeKind = iota
-	WindowTypeKindPorthole
-	WindowTypeKindDome
-	WindowTypeKindStrip
-)
-
-// WindowTypeViewport holds data for the Viewport variant
-type WindowTypeViewport struct {
-}
-
-// WindowTypePorthole holds data for the Porthole variant
-type WindowTypePorthole struct {
-}
-
-// WindowTypeDome holds data for the Dome variant
-type WindowTypeDome struct {
-}
-
-// WindowTypeStrip holds data for the Strip variant
-type WindowTypeStrip struct {
-}
-
-// WindowType is a sum type (discriminated union)
-type WindowType struct {
-	Kind     WindowTypeKind
-	Viewport *WindowTypeViewport
-	Porthole *WindowTypePorthole
-	Dome     *WindowTypeDome
-	Strip    *WindowTypeStrip
-}
-
-// NewWindowTypeViewport creates a new Viewport variant
-func NewWindowTypeViewport() *WindowType {
-	return &WindowType{
-		Kind:     WindowTypeKindViewport,
-		Viewport: &WindowTypeViewport{},
-	}
-}
-
-// NewWindowTypePorthole creates a new Porthole variant
-func NewWindowTypePorthole() *WindowType {
-	return &WindowType{
-		Kind:     WindowTypeKindPorthole,
-		Porthole: &WindowTypePorthole{},
-	}
-}
-
-// NewWindowTypeDome creates a new Dome variant
-func NewWindowTypeDome() *WindowType {
-	return &WindowType{
-		Kind: WindowTypeKindDome,
-		Dome: &WindowTypeDome{},
-	}
-}
-
-// NewWindowTypeStrip creates a new Strip variant
-func NewWindowTypeStrip() *WindowType {
-	return &WindowType{
-		Kind:  WindowTypeKindStrip,
-		Strip: &WindowTypeStrip{},
-	}
-}
-
-// IsViewport returns true if this is a Viewport variant
-func (v *WindowType) IsViewport() bool {
-	return v.Kind == WindowTypeKindViewport
-}
-
-// IsPorthole returns true if this is a Porthole variant
-func (v *WindowType) IsPorthole() bool {
-	return v.Kind == WindowTypeKindPorthole
-}
-
-// IsDome returns true if this is a Dome variant
-func (v *WindowType) IsDome() bool {
-	return v.Kind == WindowTypeKindDome
-}
-
-// IsStrip returns true if this is a Strip variant
-func (v *WindowType) IsStrip() bool {
-	return v.Kind == WindowTypeKindStrip
-}
-
-// WindowDef is a record type
-type WindowDef struct {
-	Id              string
-	WindowType      *WindowType
-	WallSide        string
-	PosX            float64
-	PosY            float64
-	Width           float64
-	Height          float64
-	ShowStars       bool
-	ShowPlanets     bool
-	ApplyRelativity bool
 }
 
 // RoomTheme is a record type
@@ -2698,70 +2710,6 @@ type ShipLevels struct {
 	CurrentDeck     *DeckType
 	TransitionState *TransitionState
 	SpireGlow       float64
-}
-
-// Vector3 is a record type
-type Vector3 struct {
-	X float64
-	Y float64
-	Z float64
-}
-
-// Moon is a record type
-type Moon struct {
-	Name        string
-	Radius      float64
-	ColorR      float64
-	ColorG      float64
-	ColorB      float64
-	OrbitRadius float64
-	OrbitSpeed  float64
-	OrbitPhase  float64
-}
-
-// RingBand is a record type
-type RingBand struct {
-	InnerRadius float64
-	OuterRadius float64
-	ColorRgba   int64
-	Opacity     float64
-}
-
-// SolarPlanet is a record type
-type SolarPlanet struct {
-	Name          string
-	PosX          float64
-	PosY          float64
-	PosZ          float64
-	Radius        float64
-	ColorRgba     int64
-	TextureName   string
-	Rotation      float64
-	RotationSpeed float64
-	HasRings      bool
-	RingColor     int64
-	OrbitRadius   float64
-	OrbitSpeed    float64
-	OrbitPhase    float64
-	ParentName    string
-}
-
-// SolarDemoState is a record type
-type SolarDemoState struct {
-	Tick         int64
-	CameraX      float64
-	CameraY      float64
-	CameraZ      float64
-	LookAtX      float64
-	LookAtY      float64
-	LookAtZ      float64
-	ShipVelocity float64
-	GrEnabled    bool
-	GrCenterX    float64
-	GrCenterY    float64
-	GrPhi        float64
-	SunEnergy    float64
-	AmbientLevel float64
 }
 
 // StarmapVisualsState is a record type

@@ -30,7 +30,7 @@ func IsInBounds(x int64, y int64, width int64, height int64) bool {
 	return isInBounds_impl(x, y, width, height).(bool)
 }
 
-func directionDx_impl(dir interface{}) interface{} {
+func npc_ai__directionDx_impl(dir interface{}) interface{} {
 	return func() interface{} {
 		_scrutinee := dir
 		_ = _scrutinee // suppress unused
@@ -50,11 +50,11 @@ func directionDx_impl(dir interface{}) interface{} {
 	}()
 }
 
-func directionDx(dir *Direction) int64 {
-	return directionDx_impl(dir).(int64)
+func npc_ai__directionDx(dir *Direction) int64 {
+	return npc_ai__directionDx_impl(dir).(int64)
 }
 
-func directionDy_impl(dir interface{}) interface{} {
+func npc_ai__directionDy_impl(dir interface{}) interface{} {
 	return func() interface{} {
 		_scrutinee := dir
 		_ = _scrutinee // suppress unused
@@ -74,11 +74,11 @@ func directionDy_impl(dir interface{}) interface{} {
 	}()
 }
 
-func directionDy(dir *Direction) int64 {
-	return directionDy_impl(dir).(int64)
+func npc_ai__directionDy(dir *Direction) int64 {
+	return npc_ai__directionDy_impl(dir).(int64)
 }
 
-func indexToDirection_impl(idx interface{}) interface{} {
+func npc_ai__indexToDirection_impl(idx interface{}) interface{} {
 	var tmp7 interface{} = ModInt(idx, int64(4))
 	return func() interface{} {
 		_scrutinee := tmp7
@@ -96,19 +96,19 @@ func indexToDirection_impl(idx interface{}) interface{} {
 	}()
 }
 
-func indexToDirection(idx int64) *Direction {
-	return indexToDirection_impl(idx).(*Direction)
+func npc_ai__indexToDirection(idx int64) *Direction {
+	return npc_ai__indexToDirection_impl(idx).(*Direction)
 }
 
-func pathLength_impl(path interface{}) interface{} {
+func npc_ai__pathLength_impl(path interface{}) interface{} {
 	return Length(path)
 }
 
-func pathLength(path []*Direction) int64 {
-	return pathLength_impl(path).(int64)
+func npc_ai__pathLength(path []*Direction) int64 {
+	return npc_ai__pathLength_impl(path).(int64)
 }
 
-func pathGet_impl(path interface{}, idx interface{}) interface{} {
+func npc_ai__pathGet_impl(path interface{}, idx interface{}) interface{} {
 	var tmp8 interface{} = GetOpt(path, idx)
 	return func() interface{} {
 		_scrutinee := tmp8
@@ -127,30 +127,30 @@ func pathGet_impl(path interface{}, idx interface{}) interface{} {
 	}()
 }
 
-func pathGet(path []*Direction, idx int64) *Direction {
-	return pathGet_impl(path, idx).(*Direction)
+func npc_ai__pathGet(path []*Direction, idx int64) *Direction {
+	return npc_ai__pathGet_impl(path, idx).(*Direction)
 }
 
-func npcWithPos_impl(npc interface{}, newX interface{}, newY interface{}) interface{} {
+func npc_ai__npcWithPos_impl(npc interface{}, newX interface{}, newY interface{}) interface{} {
 	var tmp9 interface{} = &Coord{X: newX.(int64), Y: newY.(int64)}
 	return RecordUpdate(npc, map[string]interface{}{"pos": tmp9})
 }
 
-func npcWithPos(npc *NPC, newX int64, newY int64) *NPC {
-	return npcWithPos_impl(npc, newX, newY).(*NPC)
+func npc_ai__npcWithPos(npc *NPC, newX int64, newY int64) *NPC {
+	return npc_ai__npcWithPos_impl(npc, newX, newY).(*NPC)
 }
 
-func npcWithCounter_impl(npc interface{}, counter interface{}) interface{} {
+func npc_ai__npcWithCounter_impl(npc interface{}, counter interface{}) interface{} {
 	return RecordUpdate(npc, map[string]interface{}{"moveCounter": counter})
 }
 
-func npcWithCounter(npc *NPC, counter int64) *NPC {
-	return npcWithCounter_impl(npc, counter).(*NPC)
+func npc_ai__npcWithCounter(npc *NPC, counter int64) *NPC {
+	return npc_ai__npcWithCounter_impl(npc, counter).(*NPC)
 }
 
 func tryMoveDirection_impl(npc interface{}, dir interface{}, width interface{}, height interface{}) interface{} {
-	var dx interface{} = directionDx_impl(dir)
-	var dy interface{} = directionDy_impl(dir)
+	var dx interface{} = npc_ai__directionDx_impl(dir)
+	var dy interface{} = npc_ai__directionDy_impl(dir)
 	var newX interface{} = func() interface{} {
 		var tmp13 interface{} = FieldGet(npc, "pos")
 		_ = tmp13 // suppress unused
@@ -168,7 +168,7 @@ func tryMoveDirection_impl(npc interface{}, dir interface{}, width interface{}, 
 	var tmp10 interface{} = isInBounds_impl(newX, newY, width, height)
 	return func() interface{} {
 		if tmp10.(bool) {
-			return npcWithPos_impl(npc, newX, newY)
+			return npc_ai__npcWithPos_impl(npc, newX, newY)
 		}
 		return npc
 	}()
@@ -178,7 +178,7 @@ func TryMoveDirection(npc *NPC, dir *Direction, width int64, height int64) *NPC 
 	return tryMoveDirection_impl(npc, dir, width, height).(*NPC)
 }
 
-func updateRandomWalk_impl(npc interface{}, interval interface{}, width interface{}, height interface{}) interface{} {
+func npc_ai__updateRandomWalk_impl(npc interface{}, interval interface{}, width interface{}, height interface{}) interface{} {
 	var tmp15 interface{} = FieldGet(npc, "moveCounter")
 	var tmp16 interface{} = LeInt(tmp15, int64(0))
 	return func() interface{} {
@@ -186,11 +186,11 @@ func updateRandomWalk_impl(npc interface{}, interval interface{}, width interfac
 			return func() interface{} {
 				var dirIndex interface{} = requireRand().RandInt(int64(0), int64(3))
 				_ = dirIndex // suppress unused
-				var dir interface{} = indexToDirection_impl(dirIndex)
+				var dir interface{} = npc_ai__indexToDirection_impl(dirIndex)
 				_ = dir // suppress unused
 				var movedNpc interface{} = tryMoveDirection_impl(npc, dir, width, height)
 				_ = movedNpc // suppress unused
-				return npcWithCounter_impl(movedNpc, interval)
+				return npc_ai__npcWithCounter_impl(movedNpc, interval)
 			}()
 		}
 		return func() interface{} {
@@ -198,17 +198,17 @@ func updateRandomWalk_impl(npc interface{}, interval interface{}, width interfac
 			_ = tmp17 // suppress unused
 			var tmp18 interface{} = SubInt(tmp17, int64(1))
 			_ = tmp18 // suppress unused
-			return npcWithCounter_impl(npc, tmp18)
+			return npc_ai__npcWithCounter_impl(npc, tmp18)
 		}()
 	}()
 }
 
-func updateRandomWalk(npc *NPC, interval int64, width int64, height int64) *NPC {
-	return updateRandomWalk_impl(npc, interval, width, height).(*NPC)
+func npc_ai__updateRandomWalk(npc *NPC, interval int64, width int64, height int64) *NPC {
+	return npc_ai__updateRandomWalk_impl(npc, interval, width, height).(*NPC)
 }
 
-func updatePatrol_impl(npc interface{}, path interface{}, width interface{}, height interface{}) interface{} {
-	var len interface{} = pathLength_impl(path)
+func npc_ai__updatePatrol_impl(npc interface{}, path interface{}, width interface{}, height interface{}) interface{} {
+	var len interface{} = npc_ai__pathLength_impl(path)
 	var tmp19 interface{} = LeInt(len, int64(0))
 	return func() interface{} {
 		var tmp20 interface{} = FieldGet(npc, "moveCounter")
@@ -223,7 +223,7 @@ func updatePatrol_impl(npc interface{}, path interface{}, width interface{}, hei
 				var dir interface{} = func() interface{} {
 					var tmp24 interface{} = FieldGet(npc, "patrolIndex")
 					_ = tmp24 // suppress unused
-					return pathGet_impl(path, tmp24)
+					return npc_ai__pathGet_impl(path, tmp24)
 				}()
 				_ = dir // suppress unused
 				return func() interface{} {
@@ -240,7 +240,7 @@ func updatePatrol_impl(npc interface{}, path interface{}, width interface{}, hei
 							}()
 						}()
 						_ = nextIndex // suppress unused
-						return RecordUpdate(movedNpc, map[string]interface{}{"patrolIndex": nextIndex, "moveCounter": int64(20)})
+						return RecordUpdate(movedNpc, map[string]interface{}{"moveCounter": int64(20), "patrolIndex": nextIndex})
 					}()
 				}()
 			}()
@@ -251,14 +251,14 @@ func updatePatrol_impl(npc interface{}, path interface{}, width interface{}, hei
 			return func() interface{} {
 				var tmp26 interface{} = SubInt(tmp25, int64(1))
 				_ = tmp26 // suppress unused
-				return npcWithCounter_impl(npc, tmp26)
+				return npc_ai__npcWithCounter_impl(npc, tmp26)
 			}()
 		}()
 	}()
 }
 
-func updatePatrol(npc *NPC, path []*Direction, width int64, height int64) *NPC {
-	return updatePatrol_impl(npc, path, width, height).(*NPC)
+func npc_ai__updatePatrol(npc *NPC, path []*Direction, width int64, height int64) *NPC {
+	return npc_ai__updatePatrol_impl(npc, path, width, height).(*NPC)
 }
 
 func updateNPC_impl(npc interface{}, width interface{}, height interface{}) interface{} {
@@ -273,11 +273,11 @@ func updateNPC_impl(npc interface{}, width interface{}, height interface{}) inte
 		case MovementPatternKindPatternRandomWalk:
 			interval := _adt.PatternRandomWalk.Value0
 			_ = interval // suppress unused
-			return updateRandomWalk_impl(npc, interval, width, height)
+			return npc_ai__updateRandomWalk_impl(npc, interval, width, height)
 		case MovementPatternKindPatternPatrol:
 			path := _adt.PatternPatrol.Value0
 			_ = path // suppress unused
-			return updatePatrol_impl(npc, path, width, height)
+			return npc_ai__updatePatrol_impl(npc, path, width, height)
 		default:
 			panic("non-exhaustive match")
 		}

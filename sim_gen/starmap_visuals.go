@@ -15,7 +15,7 @@ func InitStarmapVisuals() *StarmapVisualsState {
 	return initStarmapVisuals_impl(struct{}{}).(*StarmapVisualsState)
 }
 
-func apparentRadius_impl(starPos interface{}, starRadius interface{}, camPos interface{}) interface{} {
+func starmap_visuals__apparentRadius_impl(starPos interface{}, starRadius interface{}, camPos interface{}) interface{} {
 	var dx interface{} = func() interface{} {
 		var tmp13 interface{} = FieldGet(starPos, "x")
 		_ = tmp13 // suppress unused
@@ -65,11 +65,11 @@ func apparentRadius_impl(starPos interface{}, starRadius interface{}, camPos int
 	}()
 }
 
-func apparentRadius(starPos *Vec3, starRadius float64, camPos *Vec3) float64 {
-	return apparentRadius_impl(starPos, starRadius, camPos).(float64)
+func starmap_visuals__apparentRadius(starPos *Vec3, starRadius float64, camPos *Vec3) float64 {
+	return starmap_visuals__apparentRadius_impl(starPos, starRadius, camPos).(float64)
 }
 
-func textureForSpectral_impl(spec interface{}) interface{} {
+func starmap_visuals__textureForSpectral_impl(spec interface{}) interface{} {
 	return func() interface{} {
 		_scrutinee := spec
 		_ = _scrutinee // suppress unused
@@ -95,11 +95,11 @@ func textureForSpectral_impl(spec interface{}) interface{} {
 	}()
 }
 
-func textureForSpectral(spec *SpectralType) string {
-	return textureForSpectral_impl(spec).(string)
+func starmap_visuals__textureForSpectral(spec *SpectralType) string {
+	return starmap_visuals__textureForSpectral_impl(spec).(string)
 }
 
-func spriteIdForSpectral_impl(spec interface{}) interface{} {
+func starmap_visuals__spriteIdForSpectral_impl(spec interface{}) interface{} {
 	return func() interface{} {
 		_scrutinee := spec
 		_ = _scrutinee // suppress unused
@@ -125,16 +125,16 @@ func spriteIdForSpectral_impl(spec interface{}) interface{} {
 	}()
 }
 
-func spriteIdForSpectral(spec *SpectralType) int64 {
-	return spriteIdForSpectral_impl(spec).(int64)
+func starmap_visuals__spriteIdForSpectral(spec *SpectralType) int64 {
+	return starmap_visuals__spriteIdForSpectral_impl(spec).(int64)
 }
 
-func generateStarDrawCmd_impl(star interface{}, camPos interface{}) interface{} {
+func starmap_visuals__generateStarDrawCmd_impl(star interface{}, camPos interface{}) interface{} {
 	var lodRadius interface{} = float64(0.1)
 	var size interface{} = func() interface{} {
 		var tmp26 interface{} = FieldGet(star, "pos")
 		_ = tmp26 // suppress unused
-		return apparentRadius_impl(tmp26, lodRadius, camPos)
+		return starmap_visuals__apparentRadius_impl(tmp26, lodRadius, camPos)
 	}()
 	var screenX interface{} = func() interface{} {
 		var tmp23 interface{} = FieldGet(star, "pos")
@@ -185,16 +185,16 @@ func generateStarDrawCmd_impl(star interface{}, camPos interface{}) interface{} 
 	var spriteId interface{} = func() interface{} {
 		var tmp15 interface{} = FieldGet(star, "spectral")
 		_ = tmp15 // suppress unused
-		return spriteIdForSpectral_impl(tmp15)
+		return starmap_visuals__spriteIdForSpectral_impl(tmp15)
 	}()
 	return NewDrawCmdStar(screenX.(float64), screenY.(float64), spriteId.(int64), scale.(float64), alpha.(float64), int64(10))
 }
 
-func generateStarDrawCmd(star *Star, camPos *Vec3) *DrawCmd {
-	return generateStarDrawCmd_impl(star, camPos).(*DrawCmd)
+func starmap_visuals__generateStarDrawCmd(star *Star, camPos *Vec3) *DrawCmd {
+	return starmap_visuals__generateStarDrawCmd_impl(star, camPos).(*DrawCmd)
 }
 
-func mapStarsToCmds_impl(stars interface{}, camPos interface{}) interface{} {
+func starmap_visuals__mapStarsToCmds_impl(stars interface{}, camPos interface{}) interface{} {
 	return func() interface{} {
 		_scrutinee := stars
 		_ = _scrutinee // suppress unused
@@ -206,9 +206,9 @@ func mapStarsToCmds_impl(stars interface{}, camPos interface{}) interface{} {
 			rest := ListTail(_scrutinee)
 			_ = rest // suppress unused
 			return func() interface{} {
-				var tmp27 interface{} = generateStarDrawCmd_impl(s, camPos)
+				var tmp27 interface{} = starmap_visuals__generateStarDrawCmd_impl(s, camPos)
 				_ = tmp27 // suppress unused
-				var tmp28 interface{} = mapStarsToCmds_impl(rest, camPos)
+				var tmp28 interface{} = starmap_visuals__mapStarsToCmds_impl(rest, camPos)
 				_ = tmp28 // suppress unused
 				return Cons(tmp27, tmp28)
 			}()
@@ -218,11 +218,11 @@ func mapStarsToCmds_impl(stars interface{}, camPos interface{}) interface{} {
 	}()
 }
 
-func mapStarsToCmds(stars []*Star, camPos *Vec3) []*DrawCmd {
-	return ConvertToDrawCmdSlice(mapStarsToCmds_impl(stars, camPos))
+func starmap_visuals__mapStarsToCmds(stars []*Star, camPos *Vec3) []*DrawCmd {
+	return ConvertToDrawCmdSlice(starmap_visuals__mapStarsToCmds_impl(stars, camPos))
 }
 
-func generateStarmapDrawCommands_impl(state interface{}) interface{} {
+func starmap_visuals__generateStarmapDrawCommands_impl(state interface{}) interface{} {
 	var camPos interface{} = func() interface{} {
 		var tmp30 interface{} = FieldGet(state, "cameraX")
 		_ = tmp30 // suppress unused
@@ -233,14 +233,14 @@ func generateStarmapDrawCommands_impl(state interface{}) interface{} {
 		return &Vec3{X: tmp30.(float64), Y: tmp31.(float64), Z: tmp32.(float64)}
 	}()
 	var tmp29 interface{} = FieldGet(state, "stars")
-	return mapStarsToCmds_impl(tmp29, camPos)
+	return starmap_visuals__mapStarsToCmds_impl(tmp29, camPos)
 }
 
-func generateStarmapDrawCommands(state *StarmapVisualsState) []*DrawCmd {
-	return ConvertToDrawCmdSlice(generateStarmapDrawCommands_impl(state))
+func starmap_visuals__generateStarmapDrawCommands(state *StarmapVisualsState) []*DrawCmd {
+	return ConvertToDrawCmdSlice(starmap_visuals__generateStarmapDrawCommands_impl(state))
 }
 
-func updateCamera_impl(state interface{}, input interface{}) interface{} {
+func starmap_visuals__updateCamera_impl(state interface{}, input interface{}) interface{} {
 	var speed interface{} = func() interface{} {
 		var tmp51 interface{} = FieldGet(input, "shift")
 		_ = tmp51 // suppress unused
@@ -305,17 +305,17 @@ func updateCamera_impl(state interface{}, input interface{}) interface{} {
 	return &StarmapVisualsState{Tick: tmp34.(int64), CameraX: tmp36.(float64), CameraY: tmp38.(float64), CameraZ: tmp40.(float64), LookAtX: tmp41.(float64), LookAtY: tmp42.(float64), LookAtZ: tmp43.(float64), Stars: ConvertToStarSlice(tmp44)}
 }
 
-func updateCamera(state *StarmapVisualsState, input *FlightInput) *StarmapVisualsState {
-	return updateCamera_impl(state, input).(*StarmapVisualsState)
+func starmap_visuals__updateCamera(state *StarmapVisualsState, input *FlightInput) *StarmapVisualsState {
+	return starmap_visuals__updateCamera_impl(state, input).(*StarmapVisualsState)
 }
 
 func stepStarmapVisuals_impl(state interface{}, input interface{}) interface{} {
 	var newState interface{} = func() interface{} {
 		var tmp61 interface{} = FieldGet(input, "flight")
 		_ = tmp61 // suppress unused
-		return updateCamera_impl(state, tmp61)
+		return starmap_visuals__updateCamera_impl(state, tmp61)
 	}()
-	var drawCmds interface{} = generateStarmapDrawCommands_impl(newState)
+	var drawCmds interface{} = starmap_visuals__generateStarmapDrawCommands_impl(newState)
 	var camera interface{} = func() interface{} {
 		var tmp59 interface{} = FieldGet(newState, "cameraX")
 		_ = tmp59 // suppress unused

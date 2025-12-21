@@ -1,0 +1,130 @@
+{
+  "sprint_id": "bubble-ship-dome-system",
+  "name": "Bubble Ship Dome System - Dual Coordinate Spaces",
+  "status": "completed",
+  "type": "engine",
+  "started": "2025-12-19",
+  "design_doc": "design_docs/planned/bubble-ship-dome-system.md",
+  "phases": [
+    {
+      "id": "phase1",
+      "name": "Separate Variables",
+      "status": "completed",
+      "tasks": [
+        {
+          "id": "1.1",
+          "name": "Add shipVelocity field to Game struct",
+          "status": "completed",
+          "notes": ""
+        },
+        {
+          "id": "1.2",
+          "name": "Add shipHeading vector field to Game struct",
+          "status": "completed",
+          "notes": ""
+        },
+        {
+          "id": "1.3",
+          "name": "Add shipHeadingIndex for cycling presets",
+          "status": "completed",
+          "notes": ""
+        },
+        {
+          "id": "1.4",
+          "name": "Add V key handler to cycle ship velocity",
+          "status": "completed",
+          "notes": ""
+        },
+        {
+          "id": "1.5",
+          "name": "Add H key handler to cycle ship heading",
+          "status": "completed",
+          "notes": ""
+        },
+        {
+          "id": "1.6",
+          "name": "Remove broken coordinate coupling (lines 698-707)",
+          "status": "completed",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "phase2",
+      "name": "Fix Coordinate Systems",
+      "status": "completed",
+      "tasks": [
+        {
+          "id": "2.1",
+          "name": "Refactor updateStarTexture() to use ship params",
+          "status": "completed",
+          "notes": ""
+        },
+        {
+          "id": "2.2",
+          "name": "Set platform to fixed ship-local position",
+          "status": "completed",
+          "notes": ""
+        },
+        {
+          "id": "2.3",
+          "name": "Set struts to fixed ship-local position",
+          "status": "completed",
+          "notes": ""
+        },
+        {
+          "id": "2.4",
+          "name": "Fix LOD star positioning",
+          "status": "completed",
+          "notes": ""
+        },
+        {
+          "id": "2.5",
+          "name": "Update sky sphere texture regeneration",
+          "status": "completed",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "phase3",
+      "name": "Test & Polish",
+      "status": "completed",
+      "tasks": [
+        {
+          "id": "3.1",
+          "name": "Manual testing - Player movement isolation",
+          "status": "completed",
+          "notes": ""
+        },
+        {
+          "id": "3.2",
+          "name": "Manual testing - Ship velocity effects",
+          "status": "completed",
+          "notes": ""
+        },
+        {
+          "id": "3.3",
+          "name": "Manual testing - Ship heading effects",
+          "status": "completed",
+          "notes": ""
+        },
+        {
+          "id": "3.4",
+          "name": "Update HUD display",
+          "status": "completed",
+          "notes": ""
+        },
+        {
+          "id": "3.5",
+          "name": "Update file header controls documentation",
+          "status": "completed",
+          "notes": ""
+        }
+      ]
+    }
+  ],
+  "notes": [],
+  "lessons_learned": [],
+  "last_updated": "2025-12-19T18:57:53Z"
+}

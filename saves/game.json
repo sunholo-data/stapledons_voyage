@@ -1,9 +1,9 @@
 {
-  "version": "0.2.0",
-  "timestamp": 1765624091,
-  "play_time": 25.949999999999807,
+  "version": "0.4.0",
+  "timestamp": 1766354340,
+  "play_time": 1525.133333332275,
   "world": {
-    "Tick": 1557,
+    "Tick": 91508,
     "Planet": {
       "Width": 8,
       "Height": 8,
@@ -332,372 +332,118 @@
       "SelectionNone": {},
       "SelectionTile": null
     },
-    "Bridge": {
-      "PlayerPos": {
-        "X": 24,
-        "Y": 40
+    "Interior": {
+      "Player": {
+        "Pos": {
+          "X": 2.804298320222478,
+          "Y": 1.7,
+          "Z": -2.45683120952047
+        },
+        "Yaw": 0.597,
+        "Pitch": -1.362,
+        "IsRunning": false
       },
-      "PlayerFacing": {
+      "CurrentRoom": {
+        "Room": {
+          "Width": 8,
+          "Depth": 6,
+          "Height": 3,
+          "FloorTex": "assets/textures/interior/bridge_floor.png",
+          "WallTex": "assets/textures/interior/bridge_wall.png",
+          "CeilingTex": "assets/textures/interior/bridge_ceiling.png",
+          "FloorColor": 1296649727,
+          "WallColor": 1515870463,
+          "CeilingColor": 859126016,
+          "UvScale": 1
+        },
+        "Props": [
+          {
+            "Id": "helm",
+            "Pos": {
+              "X": 0,
+              "Y": 0.5,
+              "Z": -2
+            },
+            "ScaleX": 1.5,
+            "ScaleY": 0.6,
+            "ScaleZ": 0.5,
+            "Texture": "",
+            "Color": 276865279
+          },
+          {
+            "Id": "left_console",
+            "Pos": {
+              "X": -3,
+              "Y": 0.5,
+              "Z": 0
+            },
+            "ScaleX": 1.5,
+            "ScaleY": 0.6,
+            "ScaleZ": 0.5,
+            "Texture": "",
+            "Color": 276865279
+          },
+          {
+            "Id": "right_console",
+            "Pos": {
+              "X": 3,
+              "Y": 0.5,
+              "Z": 0
+            },
+            "ScaleX": 1.5,
+            "ScaleY": 0.6,
+            "ScaleZ": 0.5,
+            "Texture": "",
+            "Color": 276865279
+          },
+          {
+            "Id": "captain_chair",
+            "Pos": {
+              "X": 0,
+              "Y": 0.4,
+              "Z": 1
+            },
+            "ScaleX": 0.8,
+            "ScaleY": 0.8,
+            "ScaleZ": 0.8,
+            "Texture": "",
+            "Color": 2150379007
+          }
+        ],
+        "Characters": [
+          {
+            "Id": "pilot",
+            "Pos": {
+              "X": 0,
+              "Y": 0,
+              "Z": -1.5
+            },
+            "SpriteId": 1200,
+            "Scale": 1
+          },
+          {
+            "Id": "engineer",
+            "Pos": {
+              "X": -2.5,
+              "Y": 0,
+              "Z": 0
+            },
+            "SpriteId": 1202,
+            "Scale": 1
+          }
+        ]
+      },
+      "CurrentDeck": {
         "Kind": 0,
-        "North": {},
-        "South": null,
-        "East": null,
-        "West": null
+        "SceneBridge": {},
+        "SceneObservation": null
       },
-      "MoveState": {
-        "Kind": 0,
-        "MoveIdle": {},
-        "MoveWalking": null,
-        "MoveTransitioning": null
-      },
-      "CameraX": 24,
-      "CameraY": 40,
-      "CrewPositions": [
-        {
-          "Crew": {
-            "Id": 1,
-            "Name": "Pilot Chen"
-          },
-          "Station": {
-            "Kind": 0,
-            "StationHelm": {},
-            "StationComms": null,
-            "StationStatus": null,
-            "StationNav": null,
-            "StationScience": null,
-            "StationCaptain": null,
-            "StationNone": null
-          },
-          "Pos": {
-            "X": 24,
-            "Y": 1
-          },
-          "Facing": {
-            "Kind": 1,
-            "North": null,
-            "South": {},
-            "East": null,
-            "West": null
-          },
-          "Activity": {
-            "Kind": 1,
-            "ActivityIdle": null,
-            "ActivityWorking": {},
-            "ActivityTalking": null
-          }
-        },
-        {
-          "Crew": {
-            "Id": 2,
-            "Name": "Comms Officer Patel"
-          },
-          "Station": {
-            "Kind": 1,
-            "StationHelm": null,
-            "StationComms": {},
-            "StationStatus": null,
-            "StationNav": null,
-            "StationScience": null,
-            "StationCaptain": null,
-            "StationNone": null
-          },
-          "Pos": {
-            "X": 16,
-            "Y": 2
-          },
-          "Facing": {
-            "Kind": 2,
-            "North": null,
-            "South": null,
-            "East": {},
-            "West": null
-          },
-          "Activity": {
-            "Kind": 1,
-            "ActivityIdle": null,
-            "ActivityWorking": {},
-            "ActivityTalking": null
-          }
-        },
-        {
-          "Crew": {
-            "Id": 3,
-            "Name": "Engineer Torres"
-          },
-          "Station": {
-            "Kind": 2,
-            "StationHelm": null,
-            "StationComms": null,
-            "StationStatus": {},
-            "StationNav": null,
-            "StationScience": null,
-            "StationCaptain": null,
-            "StationNone": null
-          },
-          "Pos": {
-            "X": 32,
-            "Y": 2
-          },
-          "Facing": {
-            "Kind": 0,
-            "North": {},
-            "South": null,
-            "East": null,
-            "West": null
-          },
-          "Activity": {
-            "Kind": 1,
-            "ActivityIdle": null,
-            "ActivityWorking": {},
-            "ActivityTalking": null
-          }
-        },
-        {
-          "Crew": {
-            "Id": 4,
-            "Name": "Navigator Kim"
-          },
-          "Station": {
-            "Kind": 3,
-            "StationHelm": null,
-            "StationComms": null,
-            "StationStatus": null,
-            "StationNav": {},
-            "StationScience": null,
-            "StationCaptain": null,
-            "StationNone": null
-          },
-          "Pos": {
-            "X": 13,
-            "Y": 3
-          },
-          "Facing": {
-            "Kind": 3,
-            "North": null,
-            "South": null,
-            "East": null,
-            "West": {}
-          },
-          "Activity": {
-            "Kind": 1,
-            "ActivityIdle": null,
-            "ActivityWorking": {},
-            "ActivityTalking": null
-          }
-        },
-        {
-          "Crew": {
-            "Id": 5,
-            "Name": "Science Officer Okafor"
-          },
-          "Station": {
-            "Kind": 4,
-            "StationHelm": null,
-            "StationComms": null,
-            "StationStatus": null,
-            "StationNav": null,
-            "StationScience": {},
-            "StationCaptain": null,
-            "StationNone": null
-          },
-          "Pos": {
-            "X": 35,
-            "Y": 3
-          },
-          "Facing": {
-            "Kind": 1,
-            "North": null,
-            "South": {},
-            "East": null,
-            "West": null
-          },
-          "Activity": {
-            "Kind": 1,
-            "ActivityIdle": null,
-            "ActivityWorking": {},
-            "ActivityTalking": null
-          }
-        },
-        {
-          "Crew": {
-            "Id": 6,
-            "Name": "Captain Reyes"
-          },
-          "Station": {
-            "Kind": 5,
-            "StationHelm": null,
-            "StationComms": null,
-            "StationStatus": null,
-            "StationNav": null,
-            "StationScience": null,
-            "StationCaptain": {},
-            "StationNone": null
-          },
-          "Pos": {
-            "X": 24,
-            "Y": 1
-          },
-          "Facing": {
-            "Kind": 2,
-            "North": null,
-            "South": null,
-            "East": {},
-            "West": null
-          },
-          "Activity": {
-            "Kind": 0,
-            "ActivityIdle": {},
-            "ActivityWorking": null,
-            "ActivityTalking": null
-          }
-        }
-      ],
-      "Consoles": [
-        {
-          "Station": {
-            "Kind": 0,
-            "StationHelm": {},
-            "StationComms": null,
-            "StationStatus": null,
-            "StationNav": null,
-            "StationScience": null,
-            "StationCaptain": null,
-            "StationNone": null
-          },
-          "Pos": {
-            "X": 24,
-            "Y": 14
-          },
-          "Active": true,
-          "HasAlert": false,
-          "SpriteId": 1100
-        },
-        {
-          "Station": {
-            "Kind": 1,
-            "StationHelm": null,
-            "StationComms": {},
-            "StationStatus": null,
-            "StationNav": null,
-            "StationScience": null,
-            "StationCaptain": null,
-            "StationNone": null
-          },
-          "Pos": {
-            "X": 16,
-            "Y": 16
-          },
-          "Active": true,
-          "HasAlert": false,
-          "SpriteId": 1101
-        },
-        {
-          "Station": {
-            "Kind": 2,
-            "StationHelm": null,
-            "StationComms": null,
-            "StationStatus": {},
-            "StationNav": null,
-            "StationScience": null,
-            "StationCaptain": null,
-            "StationNone": null
-          },
-          "Pos": {
-            "X": 32,
-            "Y": 16
-          },
-          "Active": true,
-          "HasAlert": false,
-          "SpriteId": 1102
-        },
-        {
-          "Station": {
-            "Kind": 5,
-            "StationHelm": null,
-            "StationComms": null,
-            "StationStatus": null,
-            "StationNav": null,
-            "StationScience": null,
-            "StationCaptain": {},
-            "StationNone": null
-          },
-          "Pos": {
-            "X": 24,
-            "Y": 24
-          },
-          "Active": true,
-          "HasAlert": false,
-          "SpriteId": 1105
-        },
-        {
-          "Station": {
-            "Kind": 3,
-            "StationHelm": null,
-            "StationComms": null,
-            "StationStatus": null,
-            "StationNav": {},
-            "StationScience": null,
-            "StationCaptain": null,
-            "StationNone": null
-          },
-          "Pos": {
-            "X": 12,
-            "Y": 24
-          },
-          "Active": true,
-          "HasAlert": false,
-          "SpriteId": 1103
-        },
-        {
-          "Station": {
-            "Kind": 4,
-            "StationHelm": null,
-            "StationComms": null,
-            "StationStatus": null,
-            "StationNav": null,
-            "StationScience": {},
-            "StationCaptain": null,
-            "StationNone": null
-          },
-          "Pos": {
-            "X": 36,
-            "Y": 24
-          },
-          "Active": true,
-          "HasAlert": false,
-          "SpriteId": 1104
-        }
-      ],
-      "HoveredInteractable": {
-        "Kind": 1,
-        "Some": null,
-        "None": {}
-      },
-      "SelectedInteractable": {
-        "Kind": 1,
-        "Some": null,
-        "None": {}
-      },
-      "DomeView": {
-        "TargetPlanetId": 4,
-        "ShipVelocity": 0.15,
-        "ViewAngle": 0
-      },
-      "DomeState": {
-        "CruiseTime": 25.949999999999807,
-        "CruiseDuration": 60,
-        "CruiseVelocity": 0.15,
-        "CameraZ": -55.895240468749215,
-        "TargetPlanet": 4
-      },
-      "Tick": 1557,
-      "DiscRadius": 24,
-      "DiscCenterX": 24,
-      "DiscCenterY": 24
+      "Fov": 70,
+      "Tick": 91508
     },
     "ViewMode": {
       "Kind": 0,
-      "ViewBridge": {},
+      "ViewInterior": {},
       "ViewPlanet": null,
       "ViewGalaxyMap": null
     },
@@ -722,6 +468,8 @@
             "M": null
           },
           "Luminosity": 1,
+          "Radius": 1,
+          "Temperature": 5778,
           "HasHZPlanet": true
         },
         {
@@ -743,6 +491,8 @@
             "M": {}
           },
           "Luminosity": 0.04,
+          "Radius": 0.15,
+          "Temperature": 3042,
           "HasHZPlanet": true
         },
         {
@@ -764,6 +514,8 @@
             "M": null
           },
           "Luminosity": 1,
+          "Radius": 1.22,
+          "Temperature": 5790,
           "HasHZPlanet": true
         },
         {
@@ -785,6 +537,8 @@
             "M": null
           },
           "Luminosity": 0.4,
+          "Radius": 0.86,
+          "Temperature": 5260,
           "HasHZPlanet": true
         },
         {
@@ -806,6 +560,8 @@
             "M": {}
           },
           "Luminosity": 0.04,
+          "Radius": 0.2,
+          "Temperature": 3134,
           "HasHZPlanet": false
         },
         {
@@ -827,6 +583,8 @@
             "M": {}
           },
           "Luminosity": 0.04,
+          "Radius": 0.16,
+          "Temperature": 2800,
           "HasHZPlanet": false
         },
         {
@@ -848,6 +606,8 @@
             "M": {}
           },
           "Luminosity": 0.04,
+          "Radius": 0.39,
+          "Temperature": 3550,
           "HasHZPlanet": true
         },
         {
@@ -869,6 +629,8 @@
             "M": null
           },
           "Luminosity": 20,
+          "Radius": 1.71,
+          "Temperature": 9940,
           "HasHZPlanet": false
         },
         {
@@ -890,6 +652,8 @@
             "M": null
           },
           "Luminosity": 20,
+          "Radius": 0.0084,
+          "Temperature": 25200,
           "HasHZPlanet": false
         },
         {
@@ -911,6 +675,8 @@
             "M": {}
           },
           "Luminosity": 0.04,
+          "Radius": 0.14,
+          "Temperature": 2670,
           "HasHZPlanet": false
         },
         {
@@ -932,6 +698,8 @@
             "M": {}
           },
           "Luminosity": 0.04,
+          "Radius": 0.24,
+          "Temperature": 3340,
           "HasHZPlanet": false
         },
         {
@@ -953,6 +721,8 @@
             "M": {}
           },
           "Luminosity": 0.04,
+          "Radius": 0.16,
+          "Temperature": 2800,
           "HasHZPlanet": false
         },
         {
@@ -974,6 +744,8 @@
             "M": null
           },
           "Luminosity": 0.4,
+          "Radius": 0.74,
+          "Temperature": 5084,
           "HasHZPlanet": true
         },
         {
@@ -995,6 +767,8 @@
             "M": {}
           },
           "Luminosity": 0.04,
+          "Radius": 0.46,
+          "Temperature": 3626,
           "HasHZPlanet": false
         },
         {
@@ -1016,6 +790,8 @@
             "M": {}
           },
           "Luminosity": 0.04,
+          "Radius": 0.21,
+          "Temperature": 3192,
           "HasHZPlanet": true
         },
         {
@@ -1037,6 +813,8 @@
             "M": {}
           },
           "Luminosity": 0.04,
+          "Radius": 0.12,
+          "Temperature": 2800,
           "HasHZPlanet": false
         },
         {
@@ -1058,6 +836,8 @@
             "M": null
           },
           "Luminosity": 3,
+          "Radius": 2.05,
+          "Temperature": 6530,
           "HasHZPlanet": false
         },
         {
@@ -1079,6 +859,8 @@
             "M": null
           },
           "Luminosity": 0.4,
+          "Radius": 0.67,
+          "Temperature": 4520,
           "HasHZPlanet": false
         },
         {
@@ -1100,6 +882,8 @@
             "M": null
           },
           "Luminosity": 0.4,
+          "Radius": 0.6,
+          "Temperature": 4110,
           "HasHZPlanet": false
         },
         {
@@ -1121,6 +905,8 @@
             "M": {}
           },
           "Luminosity": 0.04,
+          "Radius": 0.35,
+          "Temperature": 3480,
           "HasHZPlanet": false
         },
         {
@@ -1142,6 +928,8 @@
             "M": {}
           },
           "Luminosity": 0.04,
+          "Radius": 0.38,
+          "Temperature": 3596,
           "HasHZPlanet": false
         }
       ],
@@ -1191,7 +979,7 @@
           "OrbitDistance": 0.39,
           "Radius": 0.38,
           "OrbitalPeriod": 0.24,
-          "CurrentAngle": 3.063052837250443,
+          "CurrentAngle": 1.780235837046176,
           "HasRings": false,
           "RingColor": {
             "Kind": 1,
@@ -1220,7 +1008,7 @@
           "OrbitDistance": 0.72,
           "Radius": 0.95,
           "OrbitalPeriod": 0.62,
-          "CurrentAngle": 4.412531842541853,
+          "CurrentAngle": 4.929374504896476,
           "HasRings": false,
           "RingColor": {
             "Kind": 1,
@@ -1256,7 +1044,7 @@
           "OrbitDistance": 1,
           "Radius": 1,
           "OrbitalPeriod": 1,
-          "CurrentAngle": 5.599734216099373,
+          "CurrentAngle": 5.291858136053544,
           "HasRings": false,
           "RingColor": {
             "Kind": 1,
@@ -1292,7 +1080,7 @@
           "OrbitDistance": 1.52,
           "Radius": 0.53,
           "OrbitalPeriod": 1.88,
-          "CurrentAngle": 2.4204952903090056,
+          "CurrentAngle": 1.4546226553244597,
           "HasRings": false,
           "RingColor": {
             "Kind": 1,
@@ -1328,7 +1116,7 @@
           "OrbitDistance": 5.2,
           "Radius": 11.2,
           "OrbitalPeriod": 11.86,
-          "CurrentAngle": 1.6248667388937132,
+          "CurrentAngle": 5.2967687088836835,
           "HasRings": false,
           "RingColor": {
             "Kind": 1,
@@ -1357,7 +1145,7 @@
           "OrbitDistance": 9.5,
           "Radius": 9.4,
           "OrbitalPeriod": 29.46,
-          "CurrentAngle": 4.532074661346466,
+          "CurrentAngle": 4.8671352220195185,
           "HasRings": true,
           "RingColor": {
             "Kind": 0,
@@ -1393,7 +1181,7 @@
           "OrbitDistance": 19.2,
           "Radius": 4,
           "OrbitalPeriod": 84.01,
-          "CurrentAngle": 5.216449464626805,
+          "CurrentAngle": 5.660782328698203,
           "HasRings": true,
           "RingColor": {
             "Kind": 0,
@@ -1429,7 +1217,7 @@
           "OrbitDistance": 30.1,
           "Radius": 3.9,
           "OrbitalPeriod": 164.8,
-          "CurrentAngle": 1.9593623757482173,
+          "CurrentAngle": 5.3888453949661725,
           "HasRings": false,
           "RingColor": {
             "Kind": 1,
@@ -1444,6 +1232,41 @@
         }
       ]
     },
-    "ShipLevels": null
+    "ShipLevels": {
+      "CurrentDeck": {
+        "Kind": 4,
+        "DeckCore": null,
+        "DeckEngineering": null,
+        "DeckCulture": null,
+        "DeckHabitat": null,
+        "DeckBridge": {}
+      },
+      "TransitionState": {
+        "Kind": 0,
+        "TransitionIdle": {},
+        "Transitioning": null
+      },
+      "SpireGlow": 0.5
+    },
+    "ShipNavigation": {
+      "Position": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Orientation": {
+        "W": 1,
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+      },
+      "Velocity": 0,
+      "Heading": {
+        "X": 0,
+        "Y": 0,
+        "Z": 1
+      },
+      "GrPhi": 0
+    }
   }
 }

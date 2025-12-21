@@ -4,6 +4,8 @@
     "201": {"file": "stars/star_white.png", "width": 16, "height": 16, "type": "star"},
     "202": {"file": "stars/star_yellow.png", "width": 16, "height": 16, "type": "star"},
     "203": {"file": "stars/star_orange.png", "width": 16, "height": 16, "type": "star"},
-    "204": {"file": "stars/star_red.png", "width": 16, "height": 16, "type": "star"}
+    "204": {"file": "stars/star_red.png", "width": 16, "height": 16, "type": "star"},
+    "9000": {"file": "../decks/bridge/background.png", "width": 1920, "height": 1080, "type": "background"},
+    "9001": {"file": "../decks/observation/background.png", "width": 1920, "height": 1080, "type": "background"}
   }
 }

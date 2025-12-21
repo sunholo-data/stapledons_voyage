@@ -15,7 +15,7 @@ import (
 
 // CurrentSaveVersion is the current save format version.
 // Increment this when World schema changes.
-const CurrentSaveVersion = "0.2.0" // 0.2.0: Added currentSystem (StarSystem)
+const CurrentSaveVersion = "0.4.0" // 0.4.0: Added currentDeck field to InteriorState for deck switching
 
 // DefaultSavePath is the single save file location.
 // No save slots - just one file that gets overwritten.
@@ -155,8 +155,20 @@ func (m *Manager) migrateWorld(world *sim_gen.World, fromVersion string) (err er
 		}
 	}
 
+	// Migration: 0.2.0 -> 0.3.0: Scene-based interior navigation
+	// Incompatible change: InteriorRoom no longer has windows field
+	if fromVersion == "0.2.0" {
+		return fmt.Errorf("save version 0.2.0 is incompatible with scene-based interior system. Please start a new game")
+	}
+
+	// Migration: 0.3.0 -> 0.4.0: Added currentDeck field
+	// Incompatible change: InteriorState now requires currentDeck
+	if fromVersion == "0.3.0" {
+		return fmt.Errorf("save version 0.3.0 is incompatible (missing currentDeck field). Please start a new game")
+	}
+
 	// Future migrations go here:
-	// if fromVersion == "0.2.0" { ... migrate to 0.3.0 ... }
+	// if fromVersion == "0.4.0" { ... migrate to 0.5.0 ... }
 
 	return nil
 }

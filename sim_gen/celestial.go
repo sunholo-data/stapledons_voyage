@@ -22,60 +22,60 @@ func PackColor(c *Color) int64 {
 	return packColor_impl(c).(int64)
 }
 
-func colorRocky_impl(_unused0 interface{}) interface{} {
+func celestial__colorRocky_impl(_unused0 interface{}) interface{} {
 	return &Color{R: int64(180), G: int64(140), B: int64(100), A: int64(255)}
 }
 
-func colorRocky() *Color {
-	return colorRocky_impl(struct{}{}).(*Color)
+func celestial__colorRocky() *Color {
+	return celestial__colorRocky_impl(struct{}{}).(*Color)
 }
 
-func colorGasGiant_impl(_unused0 interface{}) interface{} {
+func celestial__colorGasGiant_impl(_unused0 interface{}) interface{} {
 	return &Color{R: int64(200), G: int64(170), B: int64(130), A: int64(255)}
 }
 
-func colorGasGiant() *Color {
-	return colorGasGiant_impl(struct{}{}).(*Color)
+func celestial__colorGasGiant() *Color {
+	return celestial__colorGasGiant_impl(struct{}{}).(*Color)
 }
 
-func colorIceGiant_impl(_unused0 interface{}) interface{} {
+func celestial__colorIceGiant_impl(_unused0 interface{}) interface{} {
 	return &Color{R: int64(80), G: int64(120), B: int64(200), A: int64(255)}
 }
 
-func colorIceGiant() *Color {
-	return colorIceGiant_impl(struct{}{}).(*Color)
+func celestial__colorIceGiant() *Color {
+	return celestial__colorIceGiant_impl(struct{}{}).(*Color)
 }
 
-func colorTerrestrial_impl(_unused0 interface{}) interface{} {
+func celestial__colorTerrestrial_impl(_unused0 interface{}) interface{} {
 	return &Color{R: int64(80), G: int64(140), B: int64(200), A: int64(255)}
 }
 
-func colorTerrestrial() *Color {
-	return colorTerrestrial_impl(struct{}{}).(*Color)
+func celestial__colorTerrestrial() *Color {
+	return celestial__colorTerrestrial_impl(struct{}{}).(*Color)
 }
 
-func colorOcean_impl(_unused0 interface{}) interface{} {
+func celestial__colorOcean_impl(_unused0 interface{}) interface{} {
 	return &Color{R: int64(40), G: int64(80), B: int64(180), A: int64(255)}
 }
 
-func colorOcean() *Color {
-	return colorOcean_impl(struct{}{}).(*Color)
+func celestial__colorOcean() *Color {
+	return celestial__colorOcean_impl(struct{}{}).(*Color)
 }
 
-func colorVolcanic_impl(_unused0 interface{}) interface{} {
+func celestial__colorVolcanic_impl(_unused0 interface{}) interface{} {
 	return &Color{R: int64(200), G: int64(80), B: int64(40), A: int64(255)}
 }
 
-func colorVolcanic() *Color {
-	return colorVolcanic_impl(struct{}{}).(*Color)
+func celestial__colorVolcanic() *Color {
+	return celestial__colorVolcanic_impl(struct{}{}).(*Color)
 }
 
-func colorDwarf_impl(_unused0 interface{}) interface{} {
+func celestial__colorDwarf_impl(_unused0 interface{}) interface{} {
 	return &Color{R: int64(150), G: int64(140), B: int64(130), A: int64(255)}
 }
 
-func colorDwarf() *Color {
-	return colorDwarf_impl(struct{}{}).(*Color)
+func celestial__colorDwarf() *Color {
+	return celestial__colorDwarf_impl(struct{}{}).(*Color)
 }
 
 func planetBaseColor_impl(pt interface{}) interface{} {
@@ -85,19 +85,19 @@ func planetBaseColor_impl(pt interface{}) interface{} {
 		_adt := _scrutinee.(*PlanetType)
 		switch _adt.Kind {
 		case PlanetTypeKindRocky:
-			return colorRocky_impl(struct{}{})
+			return celestial__colorRocky_impl(struct{}{})
 		case PlanetTypeKindGasGiant:
-			return colorGasGiant_impl(struct{}{})
+			return celestial__colorGasGiant_impl(struct{}{})
 		case PlanetTypeKindIceGiant:
-			return colorIceGiant_impl(struct{}{})
+			return celestial__colorIceGiant_impl(struct{}{})
 		case PlanetTypeKindTerrestrial:
-			return colorTerrestrial_impl(struct{}{})
+			return celestial__colorTerrestrial_impl(struct{}{})
 		case PlanetTypeKindOcean:
-			return colorOcean_impl(struct{}{})
+			return celestial__colorOcean_impl(struct{}{})
 		case PlanetTypeKindVolcanic:
-			return colorVolcanic_impl(struct{}{})
+			return celestial__colorVolcanic_impl(struct{}{})
 		case PlanetTypeKindDwarf:
-			return colorDwarf_impl(struct{}{})
+			return celestial__colorDwarf_impl(struct{}{})
 		default:
 			panic("non-exhaustive match")
 		}
@@ -108,20 +108,20 @@ func PlanetBaseColor(pt *PlanetType) *Color {
 	return planetBaseColor_impl(pt).(*Color)
 }
 
-func atmoGasGiant_impl(_unused0 interface{}) interface{} {
+func celestial__atmoGasGiant_impl(_unused0 interface{}) interface{} {
 	return &Color{R: int64(220), G: int64(180), B: int64(140), A: int64(100)}
 }
 
-func atmoGasGiant() *Color {
-	return atmoGasGiant_impl(struct{}{}).(*Color)
+func celestial__atmoGasGiant() *Color {
+	return celestial__atmoGasGiant_impl(struct{}{}).(*Color)
 }
 
-func atmoIceGiant_impl(_unused0 interface{}) interface{} {
+func celestial__atmoIceGiant_impl(_unused0 interface{}) interface{} {
 	return &Color{R: int64(150), G: int64(200), B: int64(255), A: int64(100)}
 }
 
-func atmoIceGiant() *Color {
-	return atmoIceGiant_impl(struct{}{}).(*Color)
+func celestial__atmoIceGiant() *Color {
+	return celestial__atmoIceGiant_impl(struct{}{}).(*Color)
 }
 
 func atmosphereTint_impl(planet interface{}) interface{} {
@@ -133,13 +133,13 @@ func atmosphereTint_impl(planet interface{}) interface{} {
 		switch _adt.Kind {
 		case PlanetTypeKindGasGiant:
 			return func() interface{} {
-				var tmp11 interface{} = atmoGasGiant_impl(struct{}{})
+				var tmp11 interface{} = celestial__atmoGasGiant_impl(struct{}{})
 				_ = tmp11 // suppress unused
 				return NewOptionSome(tmp11)
 			}()
 		case PlanetTypeKindIceGiant:
 			return func() interface{} {
-				var tmp12 interface{} = atmoIceGiant_impl(struct{}{})
+				var tmp12 interface{} = celestial__atmoIceGiant_impl(struct{}{})
 				_ = tmp12 // suppress unused
 				return NewOptionSome(tmp12)
 			}()
@@ -212,39 +212,39 @@ func InitSolSystem() *StarSystem {
 	return initSolSystem_impl(struct{}{}).(*StarSystem)
 }
 
-func twoPi_impl(_unused0 interface{}) interface{} {
+func celestial__twoPi_impl(_unused0 interface{}) interface{} {
 	return float64(6.28318530718)
 }
 
-func twoPi() float64 {
-	return twoPi_impl(struct{}{}).(float64)
+func celestial__twoPi() float64 {
+	return celestial__twoPi_impl(struct{}{}).(float64)
 }
 
-func modFloat_impl(x interface{}, m interface{}) interface{} {
+func celestial__modFloat_impl(x interface{}, m interface{}) interface{} {
 	if LtFloat(x, float64(0)).(bool) {
 		return func() interface{} {
 			var tmp34 interface{} = AddFloat(x, m)
 			_ = tmp34 // suppress unused
-			return modFloat_impl(tmp34, m)
+			return celestial__modFloat_impl(tmp34, m)
 		}()
 	} else if GeFloat(x, m).(bool) {
 		return func() interface{} {
 			var tmp36 interface{} = SubFloat(x, m)
 			_ = tmp36 // suppress unused
-			return modFloat_impl(tmp36, m)
+			return celestial__modFloat_impl(tmp36, m)
 		}()
 	} else {
 		return x
 	}
 }
 
-func modFloat(x float64, m float64) float64 {
-	return modFloat_impl(x, m).(float64)
+func celestial__modFloat(x float64, m float64) float64 {
+	return celestial__modFloat_impl(x, m).(float64)
 }
 
 func stepPlanetOrbit_impl(planet interface{}, dt interface{}) interface{} {
 	var angularVel interface{} = func() interface{} {
-		var tmp50 interface{} = twoPi_impl(struct{}{})
+		var tmp50 interface{} = celestial__twoPi_impl(struct{}{})
 		_ = tmp50 // suppress unused
 		var tmp51 interface{} = FieldGet(planet, "orbitalPeriod")
 		_ = tmp51 // suppress unused
@@ -257,9 +257,9 @@ func stepPlanetOrbit_impl(planet interface{}, dt interface{}) interface{} {
 		_ = tmp47 // suppress unused
 		var tmp48 interface{} = AddFloat(tmp46, tmp47)
 		_ = tmp48 // suppress unused
-		var tmp49 interface{} = twoPi_impl(struct{}{})
+		var tmp49 interface{} = celestial__twoPi_impl(struct{}{})
 		_ = tmp49 // suppress unused
-		return modFloat_impl(tmp48, tmp49)
+		return celestial__modFloat_impl(tmp48, tmp49)
 	}()
 	var tmp37 interface{} = FieldGet(planet, "id")
 	var tmp38 interface{} = FieldGet(planet, "name")
@@ -277,7 +277,7 @@ func StepPlanetOrbit(planet *CelestialPlanet, dt float64) *CelestialPlanet {
 	return stepPlanetOrbit_impl(planet, dt).(*CelestialPlanet)
 }
 
-func stepPlanetsOrbit_impl(planets interface{}, dt interface{}) interface{} {
+func celestial__stepPlanetsOrbit_impl(planets interface{}, dt interface{}) interface{} {
 	return func() interface{} {
 		_scrutinee := planets
 		_ = _scrutinee // suppress unused
@@ -291,7 +291,7 @@ func stepPlanetsOrbit_impl(planets interface{}, dt interface{}) interface{} {
 			return func() interface{} {
 				var tmp52 interface{} = stepPlanetOrbit_impl(p, dt)
 				_ = tmp52 // suppress unused
-				var tmp53 interface{} = stepPlanetsOrbit_impl(rest, dt)
+				var tmp53 interface{} = celestial__stepPlanetsOrbit_impl(rest, dt)
 				_ = tmp53 // suppress unused
 				return Cons(tmp52, tmp53)
 			}()
@@ -301,15 +301,15 @@ func stepPlanetsOrbit_impl(planets interface{}, dt interface{}) interface{} {
 	}()
 }
 
-func stepPlanetsOrbit(planets []*CelestialPlanet, dt float64) []*CelestialPlanet {
-	return ConvertToCelestialPlanetSlice(stepPlanetsOrbit_impl(planets, dt))
+func celestial__stepPlanetsOrbit(planets []*CelestialPlanet, dt float64) []*CelestialPlanet {
+	return ConvertToCelestialPlanetSlice(celestial__stepPlanetsOrbit_impl(planets, dt))
 }
 
 func stepSystem_impl(system interface{}, dt interface{}) interface{} {
 	var updatedPlanets interface{} = func() interface{} {
 		var tmp58 interface{} = FieldGet(system, "planets")
 		_ = tmp58 // suppress unused
-		return stepPlanetsOrbit_impl(tmp58, dt)
+		return celestial__stepPlanetsOrbit_impl(tmp58, dt)
 	}()
 	var tmp54 interface{} = FieldGet(system, "id")
 	var tmp55 interface{} = FieldGet(system, "name")
@@ -322,7 +322,7 @@ func StepSystem(system *StarSystem, dt float64) *StarSystem {
 	return stepSystem_impl(system, dt).(*StarSystem)
 }
 
-func countPlanets_impl(planets interface{}) interface{} {
+func celestial__countPlanets_impl(planets interface{}) interface{} {
 	return func() interface{} {
 		_scrutinee := planets
 		_ = _scrutinee // suppress unused
@@ -332,7 +332,7 @@ func countPlanets_impl(planets interface{}) interface{} {
 			rest := ListTail(_scrutinee)
 			_ = rest // suppress unused
 			return func() interface{} {
-				var tmp59 interface{} = countPlanets_impl(rest)
+				var tmp59 interface{} = celestial__countPlanets_impl(rest)
 				_ = tmp59 // suppress unused
 				return AddInt(int64(1), tmp59)
 			}()
@@ -342,20 +342,20 @@ func countPlanets_impl(planets interface{}) interface{} {
 	}()
 }
 
-func countPlanets(planets []*CelestialPlanet) int64 {
-	return countPlanets_impl(planets).(int64)
+func celestial__countPlanets(planets []*CelestialPlanet) int64 {
+	return celestial__countPlanets_impl(planets).(int64)
 }
 
 func planetCount_impl(system interface{}) interface{} {
 	var tmp60 interface{} = FieldGet(system, "planets")
-	return countPlanets_impl(tmp60)
+	return celestial__countPlanets_impl(tmp60)
 }
 
 func PlanetCount(system *StarSystem) int64 {
 	return planetCount_impl(system).(int64)
 }
 
-func getPlanetAt_impl(planets interface{}, idx interface{}) interface{} {
+func celestial__getPlanetAt_impl(planets interface{}, idx interface{}) interface{} {
 	return func() interface{} {
 		_scrutinee := planets
 		_ = _scrutinee // suppress unused
@@ -373,7 +373,7 @@ func getPlanetAt_impl(planets interface{}, idx interface{}) interface{} {
 					return func() interface{} {
 						var tmp62 interface{} = SubInt(idx, int64(1))
 						_ = tmp62 // suppress unused
-						return getPlanetAt_impl(rest, tmp62)
+						return celestial__getPlanetAt_impl(rest, tmp62)
 					}()
 				}
 			}()
@@ -383,13 +383,13 @@ func getPlanetAt_impl(planets interface{}, idx interface{}) interface{} {
 	}()
 }
 
-func getPlanetAt(planets []*CelestialPlanet, idx int64) *Option {
-	return getPlanetAt_impl(planets, idx).(*Option)
+func celestial__getPlanetAt(planets []*CelestialPlanet, idx int64) *Option {
+	return celestial__getPlanetAt_impl(planets, idx).(*Option)
 }
 
 func getPlanet_impl(system interface{}, idx interface{}) interface{} {
 	var tmp63 interface{} = FieldGet(system, "planets")
-	return getPlanetAt_impl(tmp63, idx)
+	return celestial__getPlanetAt_impl(tmp63, idx)
 }
 
 func GetPlanet(system *StarSystem, idx int64) *Option {
@@ -426,31 +426,31 @@ func PlanetPosition2D(planet *CelestialPlanet, scale float64) interface{} {
 	return planetPosition2D_impl(planet, scale)
 }
 
-func renderScreenWidth_impl(_unused0 interface{}) interface{} {
+func celestial__renderScreenWidth_impl(_unused0 interface{}) interface{} {
 	return float64(1280)
 }
 
-func renderScreenWidth() float64 {
-	return renderScreenWidth_impl(struct{}{}).(float64)
+func celestial__renderScreenWidth() float64 {
+	return celestial__renderScreenWidth_impl(struct{}{}).(float64)
 }
 
-func renderScreenHeight_impl(_unused0 interface{}) interface{} {
+func celestial__renderScreenHeight_impl(_unused0 interface{}) interface{} {
 	return float64(960)
 }
 
-func renderScreenHeight() float64 {
-	return renderScreenHeight_impl(struct{}{}).(float64)
+func celestial__renderScreenHeight() float64 {
+	return celestial__renderScreenHeight_impl(struct{}{}).(float64)
 }
 
-func layerPlanets_impl(_unused0 interface{}) interface{} {
+func celestial__layerPlanets_impl(_unused0 interface{}) interface{} {
 	return SubInt(int64(0), int64(5))
 }
 
-func layerPlanets() int64 {
-	return layerPlanets_impl(struct{}{}).(int64)
+func celestial__layerPlanets() int64 {
+	return celestial__layerPlanets_impl(struct{}{}).(int64)
 }
 
-func planetScreenRadius_impl(planet interface{}) interface{} {
+func celestial__planetScreenRadius_impl(planet interface{}) interface{} {
 	var tmp72 interface{} = FieldGet(planet, "radius")
 	var tmp73 interface{} = GtFloat(tmp72, float64(5))
 	return func() interface{} {
@@ -479,8 +479,8 @@ func planetScreenRadius_impl(planet interface{}) interface{} {
 	}()
 }
 
-func planetScreenRadius(planet *CelestialPlanet) float64 {
-	return planetScreenRadius_impl(planet).(float64)
+func celestial__planetScreenRadius(planet *CelestialPlanet) float64 {
+	return celestial__planetScreenRadius_impl(planet).(float64)
 }
 
 func renderPlanet2D_impl(planet interface{}, centerX interface{}, centerY interface{}, scale interface{}) interface{} {
@@ -498,7 +498,7 @@ func renderPlanet2D_impl(planet interface{}, centerX interface{}, centerY interf
 				_ = screenX // suppress unused
 				var screenY interface{} = SubFloat(centerY, py)
 				_ = screenY // suppress unused
-				var radius interface{} = planetScreenRadius_impl(planet)
+				var radius interface{} = celestial__planetScreenRadius_impl(planet)
 				_ = radius // suppress unused
 				var baseColor interface{} = func() interface{} {
 					var tmp79 interface{} = FieldGet(planet, "planetType")
@@ -508,7 +508,7 @@ func renderPlanet2D_impl(planet interface{}, centerX interface{}, centerY interf
 				_ = baseColor // suppress unused
 				var colorInt interface{} = packColor_impl(baseColor)
 				_ = colorInt // suppress unused
-				var tmp78 interface{} = layerPlanets_impl(struct{}{})
+				var tmp78 interface{} = celestial__layerPlanets_impl(struct{}{})
 				_ = tmp78 // suppress unused
 				return NewDrawCmdCircleRGBA(screenX.(float64), screenY.(float64), radius.(float64), colorInt.(int64), true, tmp78.(int64))
 			}()
@@ -522,20 +522,20 @@ func RenderPlanet2D(planet *CelestialPlanet, centerX float64, centerY float64, s
 	return renderPlanet2D_impl(planet, centerX, centerY, scale).(*DrawCmd)
 }
 
-func layerOrbits_impl(_unused0 interface{}) interface{} {
+func celestial__layerOrbits_impl(_unused0 interface{}) interface{} {
 	return SubInt(int64(0), int64(10))
 }
 
-func layerOrbits() int64 {
-	return layerOrbits_impl(struct{}{}).(int64)
+func celestial__layerOrbits() int64 {
+	return celestial__layerOrbits_impl(struct{}{}).(int64)
 }
 
-func orbitPathColor_impl(_unused0 interface{}) interface{} {
+func celestial__orbitPathColor_impl(_unused0 interface{}) interface{} {
 	return int64(1077952576)
 }
 
-func orbitPathColor() int64 {
-	return orbitPathColor_impl(struct{}{}).(int64)
+func celestial__orbitPathColor() int64 {
+	return celestial__orbitPathColor_impl(struct{}{}).(int64)
 }
 
 func renderOrbitPath_impl(planet interface{}, centerX interface{}, centerY interface{}, scale interface{}) interface{} {
@@ -544,8 +544,8 @@ func renderOrbitPath_impl(planet interface{}, centerX interface{}, centerY inter
 		_ = tmp82 // suppress unused
 		return MulFloat(tmp82, scale)
 	}()
-	var tmp80 interface{} = orbitPathColor_impl(struct{}{})
-	var tmp81 interface{} = layerOrbits_impl(struct{}{})
+	var tmp80 interface{} = celestial__orbitPathColor_impl(struct{}{})
+	var tmp81 interface{} = celestial__layerOrbits_impl(struct{}{})
 	return NewDrawCmdCircle(centerX.(float64), centerY.(float64), orbitRadius.(float64), tmp80.(int64), false, tmp81.(int64))
 }
 
@@ -568,7 +568,7 @@ func renderPlanetTextured_impl(planet interface{}, centerX interface{}, centerY 
 				_ = screenX // suppress unused
 				var screenY interface{} = SubFloat(centerY, py)
 				_ = screenY // suppress unused
-				var radius interface{} = planetScreenRadius_impl(planet)
+				var radius interface{} = celestial__planetScreenRadius_impl(planet)
 				_ = radius // suppress unused
 				var ringColor interface{} = func() interface{} {
 					var tmp87 interface{} = FieldGet(planet, "hasRings")
@@ -606,7 +606,7 @@ func renderPlanetTextured_impl(planet interface{}, centerX interface{}, centerY 
 				_ = tmp84 // suppress unused
 				var tmp85 interface{} = FieldGet(planet, "hasRings")
 				_ = tmp85 // suppress unused
-				var tmp86 interface{} = layerPlanets_impl(struct{}{})
+				var tmp86 interface{} = celestial__layerPlanets_impl(struct{}{})
 				_ = tmp86 // suppress unused
 				return NewDrawCmdTexturedPlanet(tmp83.(string), screenX.(float64), screenY.(float64), radius.(float64), tmp84.(float64), tmp85.(bool), ringColor.(int64), tmp86.(int64))
 			}()
@@ -620,7 +620,7 @@ func RenderPlanetTextured(planet *CelestialPlanet, centerX float64, centerY floa
 	return renderPlanetTextured_impl(planet, centerX, centerY, scale).(*DrawCmd)
 }
 
-func renderPlanetRing_impl(planet interface{}, centerX interface{}, centerY interface{}, scale interface{}) interface{} {
+func celestial__renderPlanetRing_impl(planet interface{}, centerX interface{}, centerY interface{}, scale interface{}) interface{} {
 	var tmp89 interface{} = FieldGet(planet, "hasRings")
 	return func() interface{} {
 		if tmp89.(bool) {
@@ -640,7 +640,7 @@ func renderPlanetRing_impl(planet interface{}, centerX interface{}, centerY inte
 							_ = screenX // suppress unused
 							var screenY interface{} = SubFloat(centerY, py)
 							_ = screenY // suppress unused
-							var planetRadius interface{} = planetScreenRadius_impl(planet)
+							var planetRadius interface{} = celestial__planetScreenRadius_impl(planet)
 							_ = planetRadius // suppress unused
 							var innerRing interface{} = MulFloat(planetRadius, float64(1.5))
 							_ = innerRing // suppress unused
@@ -666,13 +666,13 @@ func renderPlanetRing_impl(planet interface{}, centerX interface{}, centerY inte
 								}()
 							}()
 							_ = ringColor // suppress unused
-							var tmp90 interface{} = layerPlanets_impl(struct{}{})
+							var tmp90 interface{} = celestial__layerPlanets_impl(struct{}{})
 							_ = tmp90 // suppress unused
 							var tmp91 interface{} = SubInt(tmp90, int64(1))
 							_ = tmp91 // suppress unused
 							var tmp92 interface{} = NewDrawCmdCircleRGBA(screenX.(float64), screenY.(float64), outerRing.(float64), ringColor.(int64), false, tmp91.(int64))
 							_ = tmp92 // suppress unused
-							var tmp93 interface{} = layerPlanets_impl(struct{}{})
+							var tmp93 interface{} = celestial__layerPlanets_impl(struct{}{})
 							_ = tmp93 // suppress unused
 							var tmp94 interface{} = SubInt(tmp93, int64(1))
 							_ = tmp94 // suppress unused
@@ -691,11 +691,11 @@ func renderPlanetRing_impl(planet interface{}, centerX interface{}, centerY inte
 	}()
 }
 
-func renderPlanetRing(planet *CelestialPlanet, centerX float64, centerY float64, scale float64) []*DrawCmd {
-	return ConvertToDrawCmdSlice(renderPlanetRing_impl(planet, centerX, centerY, scale))
+func celestial__renderPlanetRing(planet *CelestialPlanet, centerX float64, centerY float64, scale float64) []*DrawCmd {
+	return ConvertToDrawCmdSlice(celestial__renderPlanetRing_impl(planet, centerX, centerY, scale))
 }
 
-func concatCmds_impl(a interface{}, b interface{}) interface{} {
+func celestial__concatCmds_impl(a interface{}, b interface{}) interface{} {
 	return func() interface{} {
 		_scrutinee := a
 		_ = _scrutinee // suppress unused
@@ -707,7 +707,7 @@ func concatCmds_impl(a interface{}, b interface{}) interface{} {
 			rest := ListTail(_scrutinee)
 			_ = rest // suppress unused
 			return func() interface{} {
-				var tmp97 interface{} = concatCmds_impl(rest, b)
+				var tmp97 interface{} = celestial__concatCmds_impl(rest, b)
 				_ = tmp97 // suppress unused
 				return Cons(x, tmp97)
 			}()
@@ -717,11 +717,11 @@ func concatCmds_impl(a interface{}, b interface{}) interface{} {
 	}()
 }
 
-func concatCmds(a []*DrawCmd, b []*DrawCmd) []*DrawCmd {
-	return ConvertToDrawCmdSlice(concatCmds_impl(a, b))
+func celestial__concatCmds(a []*DrawCmd, b []*DrawCmd) []*DrawCmd {
+	return ConvertToDrawCmdSlice(celestial__concatCmds_impl(a, b))
 }
 
-func renderOrbitalPlanetsRec_impl(planets interface{}, centerX interface{}, centerY interface{}, scale interface{}) interface{} {
+func celestial__renderOrbitalPlanetsRec_impl(planets interface{}, centerX interface{}, centerY interface{}, scale interface{}) interface{} {
 	return func() interface{} {
 		_scrutinee := planets
 		_ = _scrutinee // suppress unused
@@ -735,15 +735,15 @@ func renderOrbitalPlanetsRec_impl(planets interface{}, centerX interface{}, cent
 			return func() interface{} {
 				var planetCmd interface{} = renderPlanet2D_impl(p, centerX, centerY, scale)
 				_ = planetCmd // suppress unused
-				var ringCmds interface{} = renderPlanetRing_impl(p, centerX, centerY, scale)
+				var ringCmds interface{} = celestial__renderPlanetRing_impl(p, centerX, centerY, scale)
 				_ = ringCmds // suppress unused
 				var tmp98 interface{} = []interface{}{planetCmd}
 				_ = tmp98 // suppress unused
-				var tmp99 interface{} = renderOrbitalPlanetsRec_impl(rest, centerX, centerY, scale)
+				var tmp99 interface{} = celestial__renderOrbitalPlanetsRec_impl(rest, centerX, centerY, scale)
 				_ = tmp99 // suppress unused
-				var tmp100 interface{} = concatCmds_impl(ringCmds, tmp99)
+				var tmp100 interface{} = celestial__concatCmds_impl(ringCmds, tmp99)
 				_ = tmp100 // suppress unused
-				return concatCmds_impl(tmp98, tmp100)
+				return celestial__concatCmds_impl(tmp98, tmp100)
 			}()
 		} else {
 			panic("non-exhaustive match")
@@ -751,11 +751,11 @@ func renderOrbitalPlanetsRec_impl(planets interface{}, centerX interface{}, cent
 	}()
 }
 
-func renderOrbitalPlanetsRec(planets []*CelestialPlanet, centerX float64, centerY float64, scale float64) []*DrawCmd {
-	return ConvertToDrawCmdSlice(renderOrbitalPlanetsRec_impl(planets, centerX, centerY, scale))
+func celestial__renderOrbitalPlanetsRec(planets []*CelestialPlanet, centerX float64, centerY float64, scale float64) []*DrawCmd {
+	return ConvertToDrawCmdSlice(celestial__renderOrbitalPlanetsRec_impl(planets, centerX, centerY, scale))
 }
 
-func renderOrbitPathsRec_impl(planets interface{}, centerX interface{}, centerY interface{}, scale interface{}) interface{} {
+func celestial__renderOrbitPathsRec_impl(planets interface{}, centerX interface{}, centerY interface{}, scale interface{}) interface{} {
 	return func() interface{} {
 		_scrutinee := planets
 		_ = _scrutinee // suppress unused
@@ -769,7 +769,7 @@ func renderOrbitPathsRec_impl(planets interface{}, centerX interface{}, centerY 
 			return func() interface{} {
 				var tmp101 interface{} = renderOrbitPath_impl(p, centerX, centerY, scale)
 				_ = tmp101 // suppress unused
-				var tmp102 interface{} = renderOrbitPathsRec_impl(rest, centerX, centerY, scale)
+				var tmp102 interface{} = celestial__renderOrbitPathsRec_impl(rest, centerX, centerY, scale)
 				_ = tmp102 // suppress unused
 				return Cons(tmp101, tmp102)
 			}()
@@ -779,20 +779,20 @@ func renderOrbitPathsRec_impl(planets interface{}, centerX interface{}, centerY 
 	}()
 }
 
-func renderOrbitPathsRec(planets []*CelestialPlanet, centerX float64, centerY float64, scale float64) []*DrawCmd {
-	return ConvertToDrawCmdSlice(renderOrbitPathsRec_impl(planets, centerX, centerY, scale))
+func celestial__renderOrbitPathsRec(planets []*CelestialPlanet, centerX float64, centerY float64, scale float64) []*DrawCmd {
+	return ConvertToDrawCmdSlice(celestial__renderOrbitPathsRec_impl(planets, centerX, centerY, scale))
 }
 
 func renderOrbitPaths_impl(system interface{}, centerX interface{}, centerY interface{}, scale interface{}) interface{} {
 	var tmp103 interface{} = FieldGet(system, "planets")
-	return renderOrbitPathsRec_impl(tmp103, centerX, centerY, scale)
+	return celestial__renderOrbitPathsRec_impl(tmp103, centerX, centerY, scale)
 }
 
 func RenderOrbitPaths(system *StarSystem, centerX float64, centerY float64, scale float64) []*DrawCmd {
 	return ConvertToDrawCmdSlice(renderOrbitPaths_impl(system, centerX, centerY, scale))
 }
 
-func renderTexturedPlanetsRec_impl(planets interface{}, centerX interface{}, centerY interface{}, scale interface{}) interface{} {
+func celestial__renderTexturedPlanetsRec_impl(planets interface{}, centerX interface{}, centerY interface{}, scale interface{}) interface{} {
 	return func() interface{} {
 		_scrutinee := planets
 		_ = _scrutinee // suppress unused
@@ -806,7 +806,7 @@ func renderTexturedPlanetsRec_impl(planets interface{}, centerX interface{}, cen
 			return func() interface{} {
 				var planetCmd interface{} = renderPlanetTextured_impl(p, centerX, centerY, scale)
 				_ = planetCmd // suppress unused
-				var tmp104 interface{} = renderTexturedPlanetsRec_impl(rest, centerX, centerY, scale)
+				var tmp104 interface{} = celestial__renderTexturedPlanetsRec_impl(rest, centerX, centerY, scale)
 				_ = tmp104 // suppress unused
 				return Cons(planetCmd, tmp104)
 			}()
@@ -816,13 +816,13 @@ func renderTexturedPlanetsRec_impl(planets interface{}, centerX interface{}, cen
 	}()
 }
 
-func renderTexturedPlanetsRec(planets []*CelestialPlanet, centerX float64, centerY float64, scale float64) []*DrawCmd {
-	return ConvertToDrawCmdSlice(renderTexturedPlanetsRec_impl(planets, centerX, centerY, scale))
+func celestial__renderTexturedPlanetsRec(planets []*CelestialPlanet, centerX float64, centerY float64, scale float64) []*DrawCmd {
+	return ConvertToDrawCmdSlice(celestial__renderTexturedPlanetsRec_impl(planets, centerX, centerY, scale))
 }
 
 func renderTexturedPlanets_impl(system interface{}, centerX interface{}, centerY interface{}, scale interface{}) interface{} {
 	var tmp105 interface{} = FieldGet(system, "planets")
-	return renderTexturedPlanetsRec_impl(tmp105, centerX, centerY, scale)
+	return celestial__renderTexturedPlanetsRec_impl(tmp105, centerX, centerY, scale)
 }
 
 func RenderTexturedPlanets(system *StarSystem, centerX float64, centerY float64, scale float64) []*DrawCmd {
@@ -831,25 +831,25 @@ func RenderTexturedPlanets(system *StarSystem, centerX float64, centerY float64,
 
 func renderPlanets_impl(system interface{}, centerX interface{}, centerY interface{}, scale interface{}) interface{} {
 	var tmp106 interface{} = FieldGet(system, "planets")
-	return renderOrbitalPlanetsRec_impl(tmp106, centerX, centerY, scale)
+	return celestial__renderOrbitalPlanetsRec_impl(tmp106, centerX, centerY, scale)
 }
 
 func RenderPlanets(system *StarSystem, centerX float64, centerY float64, scale float64) []*DrawCmd {
 	return ConvertToDrawCmdSlice(renderPlanets_impl(system, centerX, centerY, scale))
 }
 
-func sunColor_impl(_unused0 interface{}) interface{} {
+func celestial__sunColor_impl(_unused0 interface{}) interface{} {
 	return &Color{R: int64(255), G: int64(200), B: int64(50), A: int64(255)}
 }
 
-func sunColor() *Color {
-	return sunColor_impl(struct{}{}).(*Color)
+func celestial__sunColor() *Color {
+	return celestial__sunColor_impl(struct{}{}).(*Color)
 }
 
 func renderSun_impl(centerX interface{}, centerY interface{}) interface{} {
-	var tmp107 interface{} = sunColor_impl(struct{}{})
+	var tmp107 interface{} = celestial__sunColor_impl(struct{}{})
 	var tmp108 interface{} = packColor_impl(tmp107)
-	var tmp109 interface{} = layerPlanets_impl(struct{}{})
+	var tmp109 interface{} = celestial__layerPlanets_impl(struct{}{})
 	return NewDrawCmdCircleRGBA(centerX.(float64), centerY.(float64), float64(20), tmp108.(int64), true, tmp109.(int64))
 }
 
@@ -858,7 +858,7 @@ func RenderSun(centerX float64, centerY float64) *DrawCmd {
 }
 
 func renderSunTextured_impl(centerX interface{}, centerY interface{}) interface{} {
-	var tmp110 interface{} = layerPlanets_impl(struct{}{})
+	var tmp110 interface{} = celestial__layerPlanets_impl(struct{}{})
 	return NewDrawCmdTexturedPlanet("sun", centerX.(float64), centerY.(float64), float64(25), float64(0), false, int64(0), tmp110.(int64))
 }
 
@@ -868,7 +868,7 @@ func RenderSunTextured(centerX float64, centerY float64) *DrawCmd {
 
 func renderSolarSystem_impl(system interface{}) interface{} {
 	var centerX interface{} = func() interface{} {
-		var tmp112 interface{} = renderScreenWidth_impl(struct{}{})
+		var tmp112 interface{} = celestial__renderScreenWidth_impl(struct{}{})
 		_ = tmp112 // suppress unused
 		return DivFloat(tmp112, float64(2))
 	}()
@@ -885,12 +885,12 @@ func RenderSolarSystem(system *StarSystem) []*DrawCmd {
 
 func renderSolarSystemTextured_impl(system interface{}) interface{} {
 	var centerX interface{} = func() interface{} {
-		var tmp115 interface{} = renderScreenWidth_impl(struct{}{})
+		var tmp115 interface{} = celestial__renderScreenWidth_impl(struct{}{})
 		_ = tmp115 // suppress unused
 		return DivFloat(tmp115, float64(2))
 	}()
 	var centerY interface{} = func() interface{} {
-		var tmp114 interface{} = renderScreenHeight_impl(struct{}{})
+		var tmp114 interface{} = celestial__renderScreenHeight_impl(struct{}{})
 		_ = tmp114 // suppress unused
 		return DivFloat(tmp114, float64(2))
 	}()
@@ -899,7 +899,7 @@ func renderSolarSystemTextured_impl(system interface{}) interface{} {
 	var planetCmds interface{} = renderTexturedPlanets_impl(system, centerX, centerY, scale)
 	var sunCmd interface{} = renderSunTextured_impl(centerX, centerY)
 	var tmp113 interface{} = Cons(sunCmd, planetCmds)
-	return concatCmds_impl(orbitCmds, tmp113)
+	return celestial__concatCmds_impl(orbitCmds, tmp113)
 }
 
 func RenderSolarSystemTextured(system *StarSystem) []*DrawCmd {
