@@ -16,15 +16,42 @@ import (
 	"google.golang.org/genai"
 )
 
-// loadImagePart loads an image from file path and creates a Gemini part.
+// loadImagePart loads an image from file path or data URI and creates a Gemini part.
 func (h *GeminiAIHandler) loadImagePart(ref string, mimeType string) (*genai.Part, error) {
-	data, err := os.ReadFile(ref)
-	if err != nil {
-		return nil, fmt.Errorf("reading image file: %w", err)
-	}
+	var data []byte
+	var err error
 
-	if mimeType == "" {
-		mimeType = mimeTypeFromExt(filepath.Ext(ref))
+	// Check if ref is a data URI (data:image/png;base64,...)
+	if strings.HasPrefix(ref, "data:") {
+		// Parse data URI
+		parts := strings.SplitN(ref, ",", 2)
+		if len(parts) != 2 {
+			return nil, fmt.Errorf("invalid data URI format")
+		}
+
+		// Extract MIME type from data URI if not provided
+		if mimeType == "" {
+			headerParts := strings.Split(parts[0], ";")
+			if len(headerParts) > 0 {
+				mimeType = strings.TrimPrefix(headerParts[0], "data:")
+			}
+		}
+
+		// Decode base64
+		data, err = base64.StdEncoding.DecodeString(parts[1])
+		if err != nil {
+			return nil, fmt.Errorf("decoding base64 data: %w", err)
+		}
+	} else {
+		// Regular file path
+		data, err = os.ReadFile(ref)
+		if err != nil {
+			return nil, fmt.Errorf("reading image file: %w", err)
+		}
+
+		if mimeType == "" {
+			mimeType = mimeTypeFromExt(filepath.Ext(ref))
+		}
 	}
 
 	return &genai.Part{

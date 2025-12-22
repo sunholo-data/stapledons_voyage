@@ -316,7 +316,7 @@ func (g *OrbitalGame) Draw(screen *ebiten.Image) {
 			Draw:   drawCmds,
 			Sounds: nil,
 			Debug:  nil,
-			Camera: &sim_gen.Camera{X: 0, Y: 0, Zoom: 1.0},
+			Camera: sim_gen.Camera{X: 0, Y: 0, Zoom: 1.0},
 		}
 		g.renderer.RenderFrame(screen, frameOut)
 	}

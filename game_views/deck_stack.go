@@ -169,7 +169,7 @@ func (dsr *DeckStackRenderer) deckToDepthLayer(deckIndex int) depth.Layer {
 }
 
 // GetDeckInfo returns info for a deck from AILANG.
-func GetDeckInfo(deckIndex int) *sim_gen.DeckInfo {
+func GetDeckInfo(deckIndex int) sim_gen.DeckInfo {
 	deckType := indexToDeckType(deckIndex)
 	return sim_gen.GetDeckInfo(deckType)
 }

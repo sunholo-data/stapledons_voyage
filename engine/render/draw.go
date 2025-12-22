@@ -226,8 +226,8 @@ func (r *Renderer) RenderFrame(screen *ebiten.Image, out sim_gen.FrameOutput) {
 		return
 	}
 
-	// Create camera transform (dereference pointer)
-	cam := *out.Camera
+	// Create camera transform
+	cam := out.Camera
 	transform := camera.FromOutput(cam, screenW, screenH)
 
 	// Calculate viewport for culling
@@ -361,7 +361,7 @@ func (r *Renderer) RenderFrame(screen *ebiten.Image, out sim_gen.FrameOutput) {
 // then composited back-to-front for proper parallax and transparency effects.
 func (r *Renderer) renderFrameLayered(screen *ebiten.Image, out sim_gen.FrameOutput, screenW, screenH int) {
 	// Update parallax camera from game camera
-	cam := *out.Camera
+	cam := out.Camera
 	r.parallaxCam.SetPosition(cam.X, cam.Y)
 	r.parallaxCam.SetZoom(cam.Zoom)
 

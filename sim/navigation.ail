@@ -8,6 +8,12 @@ module sim/navigation
 
 import std/math (sqrt, sin, cos)
 import sim/starmap (Vec3, makeVec3, vec3Zero, distance)
+import sim/protocol (FrameInput)
+import sim/input (
+    is_key_just_pressed,
+    KEY_V, KEY_UP, KEY_DOWN, KEY_0,
+    KEY_BRACKET_LEFT, KEY_BRACKET_RIGHT
+)
 
 -- =============================================================================
 -- Orientation (Quaternion)
@@ -226,5 +232,84 @@ export pure func travel(nav: ShipNavigation, properDuration: float) -> ShipNavig
         velocity: nav.velocity,
         heading: nav.heading,
         grPhi: nav.grPhi
+    }
+}
+
+-- =============================================================================
+-- Input-Driven Navigation Update
+-- =============================================================================
+
+-- Velocity step for Up/Down keys (fraction of c per press)
+pure func velocityStep() -> float { 0.05 }
+
+-- GR phi step for [/] keys
+pure func grPhiStep() -> float { 0.1 }
+
+-- Maximum velocity (fraction of c)
+pure func maxVelocity() -> float { 0.99 }
+
+-- Maximum gravitational potential
+pure func maxGrPhi() -> float { 2.0 }
+
+-- Cycle velocity through preset values (0.0 -> 0.2 -> 0.5 -> 0.8 -> 0.0)
+export pure func cycleVelocity(current: float) -> float {
+    if current < 0.1 then 0.2
+    else if current < 0.3 then 0.5
+    else if current < 0.6 then 0.8
+    else 0.0
+}
+
+-- Clamp a value between min and max
+pure func clampFloat(value: float, minVal: float, maxVal: float) -> float {
+    if value < minVal then minVal
+    else if value > maxVal then maxVal
+    else value
+}
+
+-- Process navigation input for one frame
+-- Handles: V (cycle velocity), Up/Down (adjust velocity), [/] (adjust GR phi), 0 (reset)
+export pure func stepNavigation(nav: ShipNavigation, input: FrameInput) -> ShipNavigation {
+    let keys = input.keys;
+
+    -- V key: cycle through velocity presets
+    let v1 = if is_key_just_pressed(keys, KEY_V()) then
+        cycleVelocity(nav.velocity)
+    else
+        nav.velocity;
+
+    -- Up key: increase velocity
+    let v2 = if is_key_just_pressed(keys, KEY_UP()) then
+        clampFloat(v1 + velocityStep(), 0.0, maxVelocity())
+    else
+        v1;
+
+    -- Down key: decrease velocity
+    let v3 = if is_key_just_pressed(keys, KEY_DOWN()) then
+        clampFloat(v2 - velocityStep(), 0.0, maxVelocity())
+    else
+        v2;
+
+    -- ] key: increase GR phi
+    let phi1 = if is_key_just_pressed(keys, KEY_BRACKET_RIGHT()) then
+        clampFloat(nav.grPhi + grPhiStep(), 0.0, maxGrPhi())
+    else
+        nav.grPhi;
+
+    -- [ key: decrease GR phi
+    let phi2 = if is_key_just_pressed(keys, KEY_BRACKET_LEFT()) then
+        clampFloat(phi1 - grPhiStep(), 0.0, maxGrPhi())
+    else
+        phi1;
+
+    -- 0 key: reset to defaults
+    let finalV = if is_key_just_pressed(keys, KEY_0()) then 0.5 else v3;
+    let finalPhi = if is_key_just_pressed(keys, KEY_0()) then 0.0 else phi2;
+
+    {
+        position: nav.position,
+        orientation: nav.orientation,
+        velocity: finalV,
+        heading: nav.heading,
+        grPhi: finalPhi
     }
 }

@@ -24,7 +24,13 @@ export type MouseState = {
 -- Keyboard event
 export type KeyEvent = {
     key: int,
-    kind: string
+    kind: string   -- "press" (edge), "down" (held), "up" (released)
+}
+
+-- Mouse button event (mirrors KeyEvent pattern)
+export type MouseEvent = {
+    button: int,   -- 0=left, 1=right, 2=middle
+    kind: string   -- "press" (edge), "down" (held), "up" (released)
 }
 
 -- Structure types for building
@@ -51,6 +57,7 @@ export type FlightInput = {
 export type FrameInput = {
     mouse: MouseState,
     keys: [KeyEvent],
+    mouseEvents: [MouseEvent],  -- Mouse button events (press/down/up)
     flight: FlightInput,
     clickedThisFrame: bool,
     worldMouseX: float,

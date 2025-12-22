@@ -68,8 +68,8 @@ func (g *screenshotGame) Update() error {
 
 	// Empty input (no keys, no clicks)
 	input := &sim_gen.FrameInput{
-		Mouse:            &sim_gen.MouseState{},
-		Keys:             []*sim_gen.KeyEvent{},
+		Mouse:            sim_gen.MouseState{},
+		Keys:             []sim_gen.KeyEvent{},
 		Flight:           &sim_gen.FlightInput{}, // Empty flight input (no keys pressed)
 		ClickedThisFrame: false,
 		ActionRequested:  sim_gen.NewPlayerActionActionNone(),

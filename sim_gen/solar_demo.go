@@ -551,8 +551,8 @@ func InitSolarDemo() *SolarDemoState {
 }
 
 func solar_demo__buildAmbientSettings_impl(level interface{}) interface{} {
-	var tmp53 interface{} = &RGBColor{R: float64(0.08), G: float64(0.08), B: float64(0.1)}
-	return &AmbientSettings{Energy: level.(float64), Color: tmp53.(*RGBColor)}
+	var tmp53 interface{} = RGBColor{R: float64(0.08), G: float64(0.08), B: float64(0.1)}
+	return &AmbientSettings{Energy: level.(float64), Color: tmp53.(RGBColor)}
 }
 
 func solar_demo__buildAmbientSettings(level float64) *AmbientSettings {
@@ -560,8 +560,8 @@ func solar_demo__buildAmbientSettings(level float64) *AmbientSettings {
 }
 
 func solar_demo__buildSunLight_impl(energy interface{}) interface{} {
-	var tmp54 interface{} = &RGBColor{R: float64(1), G: float64(0.95), B: float64(0.85)}
-	return &LightSource{Id: "sun", X: float64(0), Y: float64(0), Z: float64(0), Energy: energy.(float64), Color: tmp54.(*RGBColor), Range: float64(0)}
+	var tmp54 interface{} = RGBColor{R: float64(1), G: float64(0.95), B: float64(0.85)}
+	return &LightSource{Id: "sun", X: float64(0), Y: float64(0), Z: float64(0), Energy: energy.(float64), Color: tmp54.(RGBColor), Range: float64(0)}
 }
 
 func solar_demo__buildSunLight(energy float64) *LightSource {
@@ -581,11 +581,11 @@ func solar_demo__buildLightingContext(sunEnergy float64, ambientLevel float64) *
 
 func solar_demo__buildSRContext_impl(velocity interface{}) interface{} {
 	var tmp58 interface{} = GtFloat(velocity, float64(0.01))
-	return &SRContext{Enabled: tmp58.(bool), Velocity: velocity.(float64), Gamma: float64(1), ViewAngle: float64(0)}
+	return SRContext{Enabled: tmp58.(bool), Velocity: velocity.(float64), Gamma: float64(1), ViewAngle: float64(0)}
 }
 
-func solar_demo__buildSRContext(velocity float64) *SRContext {
-	return solar_demo__buildSRContext_impl(velocity).(*SRContext)
+func solar_demo__buildSRContext(velocity float64) SRContext {
+	return solar_demo__buildSRContext_impl(velocity).(SRContext)
 }
 
 func solar_demo__buildGRContext_impl(enabled interface{}, centerX interface{}, centerY interface{}, phi interface{}) interface{} {
@@ -599,7 +599,7 @@ func solar_demo__buildGRContext(enabled bool, centerX float64, centerY float64, 
 func solar_demo__buildRelativityContext_impl(velocity interface{}, grEnabled interface{}, grCenterX interface{}, grCenterY interface{}, grPhi interface{}) interface{} {
 	var tmp59 interface{} = solar_demo__buildSRContext_impl(velocity)
 	var tmp60 interface{} = solar_demo__buildGRContext_impl(grEnabled, grCenterX, grCenterY, grPhi)
-	return &RelativityContext{Sr: tmp59.(*SRContext), Gr: tmp60.(*GRContext)}
+	return &RelativityContext{Sr: tmp59.(SRContext), Gr: tmp60.(*GRContext)}
 }
 
 func solar_demo__buildRelativityContext(velocity float64, grEnabled bool, grCenterX float64, grCenterY float64, grPhi float64) *RelativityContext {
@@ -718,11 +718,11 @@ func solar_demo__updatePlanetRotations(planets []*SolarPlanet) []*SolarPlanet {
 func solar_demo__buildCamera_impl(state interface{}) interface{} {
 	var tmp91 interface{} = FieldGet(state, "cameraX")
 	var tmp92 interface{} = FieldGet(state, "cameraY")
-	return &Camera{X: tmp91.(float64), Y: tmp92.(float64), Zoom: float64(1)}
+	return Camera{X: tmp91.(float64), Y: tmp92.(float64), Zoom: float64(1)}
 }
 
-func solar_demo__buildCamera(state *SolarDemoState) *Camera {
-	return solar_demo__buildCamera_impl(state).(*Camera)
+func solar_demo__buildCamera(state *SolarDemoState) Camera {
+	return solar_demo__buildCamera_impl(state).(Camera)
 }
 
 func solar_demo__buildDefaultLODConfig_impl(_unused0 interface{}) interface{} {
@@ -763,7 +763,7 @@ func solar_demo__buildFrameOutput_impl(state interface{}) interface{} {
 	var tmp94 interface{} = []interface{}{}
 	var tmp95 interface{} = solar_demo__buildCamera_impl(state)
 	var tmp96 interface{} = solar_demo__buildDefaultLODConfig_impl(struct{}{})
-	return &FrameOutput{Draw: ConvertToDrawCmdSlice(drawCmds), Sounds: ConvertToInt64Slice(tmp93), Debug: ConvertToStringSlice(tmp94), Camera: tmp95.(*Camera), Relativity: relativity.(*RelativityContext), Lighting: lighting.(*LightingContext), Lod: tmp96.(*LODConfig)}
+	return &FrameOutput{Draw: ConvertToDrawCmdSlice(drawCmds), Sounds: ConvertToInt64Slice(tmp93), Debug: ConvertToStringSlice(tmp94), Camera: tmp95.(Camera), Relativity: relativity.(*RelativityContext), Lighting: lighting.(*LightingContext), Lod: tmp96.(*LODConfig)}
 }
 
 func solar_demo__buildFrameOutput(state *SolarDemoState) *FrameOutput {
@@ -820,9 +820,9 @@ func GetAllSolarSystemBodies() []*SolarPlanet {
 }
 
 func getInitialCameraPos_impl(_unused0 interface{}) interface{} {
-	return &Vector3{X: float64(300), Y: float64(100), Z: float64(200)}
+	return Vector3{X: float64(300), Y: float64(100), Z: float64(200)}
 }
 
-func GetInitialCameraPos() *Vector3 {
-	return getInitialCameraPos_impl(struct{}{}).(*Vector3)
+func GetInitialCameraPos() Vector3 {
+	return getInitialCameraPos_impl(struct{}{}).(Vector3)
 }

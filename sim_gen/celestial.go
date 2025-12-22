@@ -18,64 +18,64 @@ func packColor_impl(c interface{}) interface{} {
 	return AddInt(tmp8, tmp9)
 }
 
-func PackColor(c *Color) int64 {
+func PackColor(c Color) int64 {
 	return packColor_impl(c).(int64)
 }
 
 func celestial__colorRocky_impl(_unused0 interface{}) interface{} {
-	return &Color{R: int64(180), G: int64(140), B: int64(100), A: int64(255)}
+	return Color{R: int64(180), G: int64(140), B: int64(100), A: int64(255)}
 }
 
-func celestial__colorRocky() *Color {
-	return celestial__colorRocky_impl(struct{}{}).(*Color)
+func celestial__colorRocky() Color {
+	return celestial__colorRocky_impl(struct{}{}).(Color)
 }
 
 func celestial__colorGasGiant_impl(_unused0 interface{}) interface{} {
-	return &Color{R: int64(200), G: int64(170), B: int64(130), A: int64(255)}
+	return Color{R: int64(200), G: int64(170), B: int64(130), A: int64(255)}
 }
 
-func celestial__colorGasGiant() *Color {
-	return celestial__colorGasGiant_impl(struct{}{}).(*Color)
+func celestial__colorGasGiant() Color {
+	return celestial__colorGasGiant_impl(struct{}{}).(Color)
 }
 
 func celestial__colorIceGiant_impl(_unused0 interface{}) interface{} {
-	return &Color{R: int64(80), G: int64(120), B: int64(200), A: int64(255)}
+	return Color{R: int64(80), G: int64(120), B: int64(200), A: int64(255)}
 }
 
-func celestial__colorIceGiant() *Color {
-	return celestial__colorIceGiant_impl(struct{}{}).(*Color)
+func celestial__colorIceGiant() Color {
+	return celestial__colorIceGiant_impl(struct{}{}).(Color)
 }
 
 func celestial__colorTerrestrial_impl(_unused0 interface{}) interface{} {
-	return &Color{R: int64(80), G: int64(140), B: int64(200), A: int64(255)}
+	return Color{R: int64(80), G: int64(140), B: int64(200), A: int64(255)}
 }
 
-func celestial__colorTerrestrial() *Color {
-	return celestial__colorTerrestrial_impl(struct{}{}).(*Color)
+func celestial__colorTerrestrial() Color {
+	return celestial__colorTerrestrial_impl(struct{}{}).(Color)
 }
 
 func celestial__colorOcean_impl(_unused0 interface{}) interface{} {
-	return &Color{R: int64(40), G: int64(80), B: int64(180), A: int64(255)}
+	return Color{R: int64(40), G: int64(80), B: int64(180), A: int64(255)}
 }
 
-func celestial__colorOcean() *Color {
-	return celestial__colorOcean_impl(struct{}{}).(*Color)
+func celestial__colorOcean() Color {
+	return celestial__colorOcean_impl(struct{}{}).(Color)
 }
 
 func celestial__colorVolcanic_impl(_unused0 interface{}) interface{} {
-	return &Color{R: int64(200), G: int64(80), B: int64(40), A: int64(255)}
+	return Color{R: int64(200), G: int64(80), B: int64(40), A: int64(255)}
 }
 
-func celestial__colorVolcanic() *Color {
-	return celestial__colorVolcanic_impl(struct{}{}).(*Color)
+func celestial__colorVolcanic() Color {
+	return celestial__colorVolcanic_impl(struct{}{}).(Color)
 }
 
 func celestial__colorDwarf_impl(_unused0 interface{}) interface{} {
-	return &Color{R: int64(150), G: int64(140), B: int64(130), A: int64(255)}
+	return Color{R: int64(150), G: int64(140), B: int64(130), A: int64(255)}
 }
 
-func celestial__colorDwarf() *Color {
-	return celestial__colorDwarf_impl(struct{}{}).(*Color)
+func celestial__colorDwarf() Color {
+	return celestial__colorDwarf_impl(struct{}{}).(Color)
 }
 
 func planetBaseColor_impl(pt interface{}) interface{} {
@@ -104,24 +104,24 @@ func planetBaseColor_impl(pt interface{}) interface{} {
 	}()
 }
 
-func PlanetBaseColor(pt *PlanetType) *Color {
-	return planetBaseColor_impl(pt).(*Color)
+func PlanetBaseColor(pt *PlanetType) Color {
+	return planetBaseColor_impl(pt).(Color)
 }
 
 func celestial__atmoGasGiant_impl(_unused0 interface{}) interface{} {
-	return &Color{R: int64(220), G: int64(180), B: int64(140), A: int64(100)}
+	return Color{R: int64(220), G: int64(180), B: int64(140), A: int64(100)}
 }
 
-func celestial__atmoGasGiant() *Color {
-	return celestial__atmoGasGiant_impl(struct{}{}).(*Color)
+func celestial__atmoGasGiant() Color {
+	return celestial__atmoGasGiant_impl(struct{}{}).(Color)
 }
 
 func celestial__atmoIceGiant_impl(_unused0 interface{}) interface{} {
-	return &Color{R: int64(150), G: int64(200), B: int64(255), A: int64(100)}
+	return Color{R: int64(150), G: int64(200), B: int64(255), A: int64(100)}
 }
 
-func celestial__atmoIceGiant() *Color {
-	return celestial__atmoIceGiant_impl(struct{}{}).(*Color)
+func celestial__atmoIceGiant() Color {
+	return celestial__atmoIceGiant_impl(struct{}{}).(Color)
 }
 
 func atmosphereTint_impl(planet interface{}) interface{} {
@@ -167,19 +167,19 @@ func initSolSystem_impl(_unused0 interface{}) interface{} {
 	var planets interface{} = func() interface{} {
 		var tmp15 interface{} = makePlanet_impl(int64(0), "Mercury", NewPlanetTypeRocky(), float64(0.39), float64(0.38), float64(0.24), float64(0), false, NewOptionNone(), NewOptionNone())
 		_ = tmp15 // suppress unused
-		var tmp16 interface{} = &Color{R: int64(255), G: int64(200), B: int64(100), A: int64(150)}
+		var tmp16 interface{} = Color{R: int64(255), G: int64(200), B: int64(100), A: int64(150)}
 		_ = tmp16 // suppress unused
 		var tmp17 interface{} = NewOptionSome(tmp16)
 		_ = tmp17 // suppress unused
 		var tmp18 interface{} = makePlanet_impl(int64(1), "Venus", NewPlanetTypeRocky(), float64(0.72), float64(0.95), float64(0.62), float64(1.2), false, NewOptionNone(), tmp17)
 		_ = tmp18 // suppress unused
-		var tmp19 interface{} = &Color{R: int64(100), G: int64(150), B: int64(255), A: int64(100)}
+		var tmp19 interface{} = Color{R: int64(100), G: int64(150), B: int64(255), A: int64(100)}
 		_ = tmp19 // suppress unused
 		var tmp20 interface{} = NewOptionSome(tmp19)
 		_ = tmp20 // suppress unused
 		var tmp21 interface{} = makePlanet_impl(int64(2), "Earth", NewPlanetTypeTerrestrial(), float64(1), float64(1), float64(1), float64(2.1), false, NewOptionNone(), tmp20)
 		_ = tmp21 // suppress unused
-		var tmp22 interface{} = &Color{R: int64(200), G: int64(150), B: int64(100), A: int64(50)}
+		var tmp22 interface{} = Color{R: int64(200), G: int64(150), B: int64(100), A: int64(50)}
 		_ = tmp22 // suppress unused
 		var tmp23 interface{} = NewOptionSome(tmp22)
 		_ = tmp23 // suppress unused
@@ -187,13 +187,13 @@ func initSolSystem_impl(_unused0 interface{}) interface{} {
 		_ = tmp24 // suppress unused
 		var tmp25 interface{} = makePlanet_impl(int64(4), "Jupiter", NewPlanetTypeGasGiant(), float64(5.2), float64(11.2), float64(11.86), float64(0.8), false, NewOptionNone(), NewOptionNone())
 		_ = tmp25 // suppress unused
-		var tmp26 interface{} = &Color{R: int64(210), G: int64(190), B: int64(150), A: int64(200)}
+		var tmp26 interface{} = Color{R: int64(210), G: int64(190), B: int64(150), A: int64(200)}
 		_ = tmp26 // suppress unused
 		var tmp27 interface{} = NewOptionSome(tmp26)
 		_ = tmp27 // suppress unused
 		var tmp28 interface{} = makePlanet_impl(int64(5), "Saturn", NewPlanetTypeGasGiant(), float64(9.5), float64(9.4), float64(29.46), float64(4.2), true, tmp27, NewOptionNone())
 		_ = tmp28 // suppress unused
-		var tmp29 interface{} = &Color{R: int64(150), G: int64(180), B: int64(200), A: int64(100)}
+		var tmp29 interface{} = Color{R: int64(150), G: int64(180), B: int64(200), A: int64(100)}
 		_ = tmp29 // suppress unused
 		var tmp30 interface{} = NewOptionSome(tmp29)
 		_ = tmp30 // suppress unused
@@ -204,8 +204,8 @@ func initSolSystem_impl(_unused0 interface{}) interface{} {
 		return []interface{}{tmp15, tmp18, tmp21, tmp24, tmp25, tmp28, tmp31, tmp32}
 	}()
 	var tmp13 interface{} = NewStarTypeMainSequence(NewSpectralClassG())
-	var tmp14 interface{} = &SystemPos{X: float64(0), Y: float64(0), Z: float64(0)}
-	return &StarSystem{Id: int64(0), Name: "Sol", StarType: tmp13.(*StarType), Position: tmp14.(*SystemPos), Planets: ConvertToCelestialPlanetSlice(planets)}
+	var tmp14 interface{} = SystemPos{X: float64(0), Y: float64(0), Z: float64(0)}
+	return &StarSystem{Id: int64(0), Name: "Sol", StarType: tmp13.(*StarType), Position: tmp14.(SystemPos), Planets: ConvertToCelestialPlanetSlice(planets)}
 }
 
 func InitSolSystem() *StarSystem {
@@ -315,7 +315,7 @@ func stepSystem_impl(system interface{}, dt interface{}) interface{} {
 	var tmp55 interface{} = FieldGet(system, "name")
 	var tmp56 interface{} = FieldGet(system, "starType")
 	var tmp57 interface{} = FieldGet(system, "position")
-	return &StarSystem{Id: tmp54.(int64), Name: tmp55.(string), StarType: tmp56.(*StarType), Position: tmp57.(*SystemPos), Planets: ConvertToCelestialPlanetSlice(updatedPlanets)}
+	return &StarSystem{Id: tmp54.(int64), Name: tmp55.(string), StarType: tmp56.(*StarType), Position: tmp57.(SystemPos), Planets: ConvertToCelestialPlanetSlice(updatedPlanets)}
 }
 
 func StepSystem(system *StarSystem, dt float64) *StarSystem {
@@ -839,11 +839,11 @@ func RenderPlanets(system *StarSystem, centerX float64, centerY float64, scale f
 }
 
 func celestial__sunColor_impl(_unused0 interface{}) interface{} {
-	return &Color{R: int64(255), G: int64(200), B: int64(50), A: int64(255)}
+	return Color{R: int64(255), G: int64(200), B: int64(50), A: int64(255)}
 }
 
-func celestial__sunColor() *Color {
-	return celestial__sunColor_impl(struct{}{}).(*Color)
+func celestial__sunColor() Color {
+	return celestial__sunColor_impl(struct{}{}).(Color)
 }
 
 func renderSun_impl(centerX interface{}, centerY interface{}) interface{} {

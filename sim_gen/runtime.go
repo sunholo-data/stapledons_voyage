@@ -908,9 +908,9 @@ func ConvertToDrawCmdSlice(v interface{}) []*DrawCmd {
 	return out
 }
 
-// ConvertToKeyEventSlice converts []interface{} to []*KeyEvent.
+// ConvertToKeyEventSlice converts []interface{} to []KeyEvent.
 // M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
-func ConvertToKeyEventSlice(v interface{}) []*KeyEvent {
+func ConvertToKeyEventSlice(v interface{}) []KeyEvent {
 	if v == nil {
 		return nil
 	}
@@ -919,13 +919,13 @@ func ConvertToKeyEventSlice(v interface{}) []*KeyEvent {
 		panic(fmt.Sprintf("ConvertToKeyEventSlice: expected []interface{}, got %T", v))
 	}
 	if len(src) == 0 {
-		return []*KeyEvent{}
+		return []KeyEvent{}
 	}
-	out := make([]*KeyEvent, len(src))
+	out := make([]KeyEvent, len(src))
 	for i, e := range src {
-		elem, ok := e.(*KeyEvent)
+		elem, ok := e.(KeyEvent)
 		if !ok {
-			panic(fmt.Sprintf("ConvertToKeyEventSlice: element %d: expected *KeyEvent, got %T", i, e))
+			panic(fmt.Sprintf("ConvertToKeyEventSlice: element %d: expected KeyEvent, got %T", i, e))
 		}
 		out[i] = elem
 	}
@@ -950,6 +950,30 @@ func ConvertToLightSourceSlice(v interface{}) []*LightSource {
 		elem, ok := e.(*LightSource)
 		if !ok {
 			panic(fmt.Sprintf("ConvertToLightSourceSlice: element %d: expected *LightSource, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
+// ConvertToMouseEventSlice converts []interface{} to []MouseEvent.
+// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
+func ConvertToMouseEventSlice(v interface{}) []MouseEvent {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToMouseEventSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []MouseEvent{}
+	}
+	out := make([]MouseEvent, len(src))
+	for i, e := range src {
+		elem, ok := e.(MouseEvent)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToMouseEventSlice: element %d: expected MouseEvent, got %T", i, e))
 		}
 		out[i] = elem
 	}
@@ -1124,6 +1148,30 @@ func ConvertToSelectionSlice(v interface{}) []*Selection {
 	return out
 }
 
+// ConvertToSpectralClassSlice converts []interface{} to []*SpectralClass.
+// M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
+func ConvertToSpectralClassSlice(v interface{}) []*SpectralClass {
+	if v == nil {
+		return nil
+	}
+	src, ok := v.([]interface{})
+	if !ok {
+		panic(fmt.Sprintf("ConvertToSpectralClassSlice: expected []interface{}, got %T", v))
+	}
+	if len(src) == 0 {
+		return []*SpectralClass{}
+	}
+	out := make([]*SpectralClass, len(src))
+	for i, e := range src {
+		elem, ok := e.(*SpectralClass)
+		if !ok {
+			panic(fmt.Sprintf("ConvertToSpectralClassSlice: element %d: expected *SpectralClass, got %T", i, e))
+		}
+		out[i] = elem
+	}
+	return out
+}
+
 // ConvertToSpectralTypeSlice converts []interface{} to []*SpectralType.
 // M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
 func ConvertToSpectralTypeSlice(v interface{}) []*SpectralType {
@@ -1220,9 +1268,9 @@ func ConvertToStructureTypeSlice(v interface{}) []*StructureType {
 	return out
 }
 
-// ConvertToTileSlice converts []interface{} to []*Tile.
+// ConvertToTileSlice converts []interface{} to []Tile.
 // M-DX12: Fail-fast - panics on type mismatch (compiler bug detection).
-func ConvertToTileSlice(v interface{}) []*Tile {
+func ConvertToTileSlice(v interface{}) []Tile {
 	if v == nil {
 		return nil
 	}
@@ -1231,13 +1279,13 @@ func ConvertToTileSlice(v interface{}) []*Tile {
 		panic(fmt.Sprintf("ConvertToTileSlice: expected []interface{}, got %T", v))
 	}
 	if len(src) == 0 {
-		return []*Tile{}
+		return []Tile{}
 	}
-	out := make([]*Tile, len(src))
+	out := make([]Tile, len(src))
 	for i, e := range src {
-		elem, ok := e.(*Tile)
+		elem, ok := e.(Tile)
 		if !ok {
-			panic(fmt.Sprintf("ConvertToTileSlice: element %d: expected *Tile, got %T", i, e))
+			panic(fmt.Sprintf("ConvertToTileSlice: element %d: expected Tile, got %T", i, e))
 		}
 		out[i] = elem
 	}
@@ -1340,9 +1388,9 @@ func ConvertToAmbientSettingsSlice(v interface{}) []*AmbientSettings {
 	return out
 }
 
-// ConvertToArrivalInputSlice converts []interface{} to []*ArrivalInput.
-// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
-func ConvertToArrivalInputSlice(v interface{}) []*ArrivalInput {
+// ConvertToArrivalInputSlice converts []interface{} to []ArrivalInput.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter (value type).
+func ConvertToArrivalInputSlice(v interface{}) []ArrivalInput {
 	if v == nil {
 		return nil
 	}
@@ -1351,13 +1399,13 @@ func ConvertToArrivalInputSlice(v interface{}) []*ArrivalInput {
 		panic(fmt.Sprintf("ConvertToArrivalInputSlice: expected []interface{}, got %T", v))
 	}
 	if len(src) == 0 {
-		return []*ArrivalInput{}
+		return []ArrivalInput{}
 	}
-	out := make([]*ArrivalInput, len(src))
+	out := make([]ArrivalInput, len(src))
 	for i, e := range src {
-		elem, ok := e.(*ArrivalInput)
+		elem, ok := e.(ArrivalInput)
 		if !ok {
-			panic(fmt.Sprintf("ConvertToArrivalInputSlice: element %d: expected *ArrivalInput, got %T", i, e))
+			panic(fmt.Sprintf("ConvertToArrivalInputSlice: element %d: expected ArrivalInput, got %T", i, e))
 		}
 		out[i] = elem
 	}
@@ -1388,9 +1436,9 @@ func ConvertToArrivalStateSlice(v interface{}) []*ArrivalState {
 	return out
 }
 
-// ConvertToCameraSlice converts []interface{} to []*Camera.
-// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
-func ConvertToCameraSlice(v interface{}) []*Camera {
+// ConvertToCameraSlice converts []interface{} to []Camera.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter (value type).
+func ConvertToCameraSlice(v interface{}) []Camera {
 	if v == nil {
 		return nil
 	}
@@ -1399,22 +1447,22 @@ func ConvertToCameraSlice(v interface{}) []*Camera {
 		panic(fmt.Sprintf("ConvertToCameraSlice: expected []interface{}, got %T", v))
 	}
 	if len(src) == 0 {
-		return []*Camera{}
+		return []Camera{}
 	}
-	out := make([]*Camera, len(src))
+	out := make([]Camera, len(src))
 	for i, e := range src {
-		elem, ok := e.(*Camera)
+		elem, ok := e.(Camera)
 		if !ok {
-			panic(fmt.Sprintf("ConvertToCameraSlice: element %d: expected *Camera, got %T", i, e))
+			panic(fmt.Sprintf("ConvertToCameraSlice: element %d: expected Camera, got %T", i, e))
 		}
 		out[i] = elem
 	}
 	return out
 }
 
-// ConvertToColorSlice converts []interface{} to []*Color.
-// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
-func ConvertToColorSlice(v interface{}) []*Color {
+// ConvertToColorSlice converts []interface{} to []Color.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter (value type).
+func ConvertToColorSlice(v interface{}) []Color {
 	if v == nil {
 		return nil
 	}
@@ -1423,22 +1471,22 @@ func ConvertToColorSlice(v interface{}) []*Color {
 		panic(fmt.Sprintf("ConvertToColorSlice: expected []interface{}, got %T", v))
 	}
 	if len(src) == 0 {
-		return []*Color{}
+		return []Color{}
 	}
-	out := make([]*Color, len(src))
+	out := make([]Color, len(src))
 	for i, e := range src {
-		elem, ok := e.(*Color)
+		elem, ok := e.(Color)
 		if !ok {
-			panic(fmt.Sprintf("ConvertToColorSlice: element %d: expected *Color, got %T", i, e))
+			panic(fmt.Sprintf("ConvertToColorSlice: element %d: expected Color, got %T", i, e))
 		}
 		out[i] = elem
 	}
 	return out
 }
 
-// ConvertToCoordSlice converts []interface{} to []*Coord.
-// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
-func ConvertToCoordSlice(v interface{}) []*Coord {
+// ConvertToCoordSlice converts []interface{} to []Coord.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter (value type).
+func ConvertToCoordSlice(v interface{}) []Coord {
 	if v == nil {
 		return nil
 	}
@@ -1447,22 +1495,22 @@ func ConvertToCoordSlice(v interface{}) []*Coord {
 		panic(fmt.Sprintf("ConvertToCoordSlice: expected []interface{}, got %T", v))
 	}
 	if len(src) == 0 {
-		return []*Coord{}
+		return []Coord{}
 	}
-	out := make([]*Coord, len(src))
+	out := make([]Coord, len(src))
 	for i, e := range src {
-		elem, ok := e.(*Coord)
+		elem, ok := e.(Coord)
 		if !ok {
-			panic(fmt.Sprintf("ConvertToCoordSlice: element %d: expected *Coord, got %T", i, e))
+			panic(fmt.Sprintf("ConvertToCoordSlice: element %d: expected Coord, got %T", i, e))
 		}
 		out[i] = elem
 	}
 	return out
 }
 
-// ConvertToDeckInfoSlice converts []interface{} to []*DeckInfo.
-// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
-func ConvertToDeckInfoSlice(v interface{}) []*DeckInfo {
+// ConvertToDeckInfoSlice converts []interface{} to []DeckInfo.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter (value type).
+func ConvertToDeckInfoSlice(v interface{}) []DeckInfo {
 	if v == nil {
 		return nil
 	}
@@ -1471,13 +1519,13 @@ func ConvertToDeckInfoSlice(v interface{}) []*DeckInfo {
 		panic(fmt.Sprintf("ConvertToDeckInfoSlice: expected []interface{}, got %T", v))
 	}
 	if len(src) == 0 {
-		return []*DeckInfo{}
+		return []DeckInfo{}
 	}
-	out := make([]*DeckInfo, len(src))
+	out := make([]DeckInfo, len(src))
 	for i, e := range src {
-		elem, ok := e.(*DeckInfo)
+		elem, ok := e.(DeckInfo)
 		if !ok {
-			panic(fmt.Sprintf("ConvertToDeckInfoSlice: element %d: expected *DeckInfo, got %T", i, e))
+			panic(fmt.Sprintf("ConvertToDeckInfoSlice: element %d: expected DeckInfo, got %T", i, e))
 		}
 		out[i] = elem
 	}
@@ -1700,9 +1748,9 @@ func ConvertToLightingContextSlice(v interface{}) []*LightingContext {
 	return out
 }
 
-// ConvertToLookDeltaSlice converts []interface{} to []*LookDelta.
-// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
-func ConvertToLookDeltaSlice(v interface{}) []*LookDelta {
+// ConvertToLookDeltaSlice converts []interface{} to []LookDelta.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter (value type).
+func ConvertToLookDeltaSlice(v interface{}) []LookDelta {
 	if v == nil {
 		return nil
 	}
@@ -1711,13 +1759,13 @@ func ConvertToLookDeltaSlice(v interface{}) []*LookDelta {
 		panic(fmt.Sprintf("ConvertToLookDeltaSlice: expected []interface{}, got %T", v))
 	}
 	if len(src) == 0 {
-		return []*LookDelta{}
+		return []LookDelta{}
 	}
-	out := make([]*LookDelta, len(src))
+	out := make([]LookDelta, len(src))
 	for i, e := range src {
-		elem, ok := e.(*LookDelta)
+		elem, ok := e.(LookDelta)
 		if !ok {
-			panic(fmt.Sprintf("ConvertToLookDeltaSlice: element %d: expected *LookDelta, got %T", i, e))
+			panic(fmt.Sprintf("ConvertToLookDeltaSlice: element %d: expected LookDelta, got %T", i, e))
 		}
 		out[i] = elem
 	}
@@ -1796,9 +1844,9 @@ func ConvertToPlanetStateSlice(v interface{}) []*PlanetState {
 	return out
 }
 
-// ConvertToQuaternionSlice converts []interface{} to []*Quaternion.
-// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
-func ConvertToQuaternionSlice(v interface{}) []*Quaternion {
+// ConvertToQuaternionSlice converts []interface{} to []Quaternion.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter (value type).
+func ConvertToQuaternionSlice(v interface{}) []Quaternion {
 	if v == nil {
 		return nil
 	}
@@ -1807,22 +1855,22 @@ func ConvertToQuaternionSlice(v interface{}) []*Quaternion {
 		panic(fmt.Sprintf("ConvertToQuaternionSlice: expected []interface{}, got %T", v))
 	}
 	if len(src) == 0 {
-		return []*Quaternion{}
+		return []Quaternion{}
 	}
-	out := make([]*Quaternion, len(src))
+	out := make([]Quaternion, len(src))
 	for i, e := range src {
-		elem, ok := e.(*Quaternion)
+		elem, ok := e.(Quaternion)
 		if !ok {
-			panic(fmt.Sprintf("ConvertToQuaternionSlice: element %d: expected *Quaternion, got %T", i, e))
+			panic(fmt.Sprintf("ConvertToQuaternionSlice: element %d: expected Quaternion, got %T", i, e))
 		}
 		out[i] = elem
 	}
 	return out
 }
 
-// ConvertToRGBColorSlice converts []interface{} to []*RGBColor.
-// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
-func ConvertToRGBColorSlice(v interface{}) []*RGBColor {
+// ConvertToRGBColorSlice converts []interface{} to []RGBColor.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter (value type).
+func ConvertToRGBColorSlice(v interface{}) []RGBColor {
 	if v == nil {
 		return nil
 	}
@@ -1831,13 +1879,13 @@ func ConvertToRGBColorSlice(v interface{}) []*RGBColor {
 		panic(fmt.Sprintf("ConvertToRGBColorSlice: expected []interface{}, got %T", v))
 	}
 	if len(src) == 0 {
-		return []*RGBColor{}
+		return []RGBColor{}
 	}
-	out := make([]*RGBColor, len(src))
+	out := make([]RGBColor, len(src))
 	for i, e := range src {
-		elem, ok := e.(*RGBColor)
+		elem, ok := e.(RGBColor)
 		if !ok {
-			panic(fmt.Sprintf("ConvertToRGBColorSlice: element %d: expected *RGBColor, got %T", i, e))
+			panic(fmt.Sprintf("ConvertToRGBColorSlice: element %d: expected RGBColor, got %T", i, e))
 		}
 		out[i] = elem
 	}
@@ -1868,9 +1916,9 @@ func ConvertToRelativityContextSlice(v interface{}) []*RelativityContext {
 	return out
 }
 
-// ConvertToRingBandSlice converts []interface{} to []*RingBand.
-// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
-func ConvertToRingBandSlice(v interface{}) []*RingBand {
+// ConvertToRingBandSlice converts []interface{} to []RingBand.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter (value type).
+func ConvertToRingBandSlice(v interface{}) []RingBand {
 	if v == nil {
 		return nil
 	}
@@ -1879,13 +1927,13 @@ func ConvertToRingBandSlice(v interface{}) []*RingBand {
 		panic(fmt.Sprintf("ConvertToRingBandSlice: expected []interface{}, got %T", v))
 	}
 	if len(src) == 0 {
-		return []*RingBand{}
+		return []RingBand{}
 	}
-	out := make([]*RingBand, len(src))
+	out := make([]RingBand, len(src))
 	for i, e := range src {
-		elem, ok := e.(*RingBand)
+		elem, ok := e.(RingBand)
 		if !ok {
-			panic(fmt.Sprintf("ConvertToRingBandSlice: element %d: expected *RingBand, got %T", i, e))
+			panic(fmt.Sprintf("ConvertToRingBandSlice: element %d: expected RingBand, got %T", i, e))
 		}
 		out[i] = elem
 	}
@@ -1940,9 +1988,9 @@ func ConvertToRoomThemeSlice(v interface{}) []*RoomTheme {
 	return out
 }
 
-// ConvertToSRContextSlice converts []interface{} to []*SRContext.
-// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
-func ConvertToSRContextSlice(v interface{}) []*SRContext {
+// ConvertToSRContextSlice converts []interface{} to []SRContext.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter (value type).
+func ConvertToSRContextSlice(v interface{}) []SRContext {
 	if v == nil {
 		return nil
 	}
@@ -1951,13 +1999,13 @@ func ConvertToSRContextSlice(v interface{}) []*SRContext {
 		panic(fmt.Sprintf("ConvertToSRContextSlice: expected []interface{}, got %T", v))
 	}
 	if len(src) == 0 {
-		return []*SRContext{}
+		return []SRContext{}
 	}
-	out := make([]*SRContext, len(src))
+	out := make([]SRContext, len(src))
 	for i, e := range src {
-		elem, ok := e.(*SRContext)
+		elem, ok := e.(SRContext)
 		if !ok {
-			panic(fmt.Sprintf("ConvertToSRContextSlice: element %d: expected *SRContext, got %T", i, e))
+			panic(fmt.Sprintf("ConvertToSRContextSlice: element %d: expected SRContext, got %T", i, e))
 		}
 		out[i] = elem
 	}
@@ -2132,9 +2180,9 @@ func ConvertToStarmapVisualsStateSlice(v interface{}) []*StarmapVisualsState {
 	return out
 }
 
-// ConvertToSystemPosSlice converts []interface{} to []*SystemPos.
-// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
-func ConvertToSystemPosSlice(v interface{}) []*SystemPos {
+// ConvertToSystemPosSlice converts []interface{} to []SystemPos.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter (value type).
+func ConvertToSystemPosSlice(v interface{}) []SystemPos {
 	if v == nil {
 		return nil
 	}
@@ -2143,13 +2191,13 @@ func ConvertToSystemPosSlice(v interface{}) []*SystemPos {
 		panic(fmt.Sprintf("ConvertToSystemPosSlice: expected []interface{}, got %T", v))
 	}
 	if len(src) == 0 {
-		return []*SystemPos{}
+		return []SystemPos{}
 	}
-	out := make([]*SystemPos, len(src))
+	out := make([]SystemPos, len(src))
 	for i, e := range src {
-		elem, ok := e.(*SystemPos)
+		elem, ok := e.(SystemPos)
 		if !ok {
-			panic(fmt.Sprintf("ConvertToSystemPosSlice: element %d: expected *SystemPos, got %T", i, e))
+			panic(fmt.Sprintf("ConvertToSystemPosSlice: element %d: expected SystemPos, got %T", i, e))
 		}
 		out[i] = elem
 	}
@@ -2204,9 +2252,9 @@ func ConvertToTransparentTileSlice(v interface{}) []*TransparentTile {
 	return out
 }
 
-// ConvertToVec3Slice converts []interface{} to []*Vec3.
-// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
-func ConvertToVec3Slice(v interface{}) []*Vec3 {
+// ConvertToVec3Slice converts []interface{} to []Vec3.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter (value type).
+func ConvertToVec3Slice(v interface{}) []Vec3 {
 	if v == nil {
 		return nil
 	}
@@ -2215,22 +2263,22 @@ func ConvertToVec3Slice(v interface{}) []*Vec3 {
 		panic(fmt.Sprintf("ConvertToVec3Slice: expected []interface{}, got %T", v))
 	}
 	if len(src) == 0 {
-		return []*Vec3{}
+		return []Vec3{}
 	}
-	out := make([]*Vec3, len(src))
+	out := make([]Vec3, len(src))
 	for i, e := range src {
-		elem, ok := e.(*Vec3)
+		elem, ok := e.(Vec3)
 		if !ok {
-			panic(fmt.Sprintf("ConvertToVec3Slice: element %d: expected *Vec3, got %T", i, e))
+			panic(fmt.Sprintf("ConvertToVec3Slice: element %d: expected Vec3, got %T", i, e))
 		}
 		out[i] = elem
 	}
 	return out
 }
 
-// ConvertToVector3Slice converts []interface{} to []*Vector3.
-// M-CODEGEN-UNIFIED-SLICE: Record slice converter.
-func ConvertToVector3Slice(v interface{}) []*Vector3 {
+// ConvertToVector3Slice converts []interface{} to []Vector3.
+// M-CODEGEN-UNIFIED-SLICE: Record slice converter (value type).
+func ConvertToVector3Slice(v interface{}) []Vector3 {
 	if v == nil {
 		return nil
 	}
@@ -2239,13 +2287,13 @@ func ConvertToVector3Slice(v interface{}) []*Vector3 {
 		panic(fmt.Sprintf("ConvertToVector3Slice: expected []interface{}, got %T", v))
 	}
 	if len(src) == 0 {
-		return []*Vector3{}
+		return []Vector3{}
 	}
-	out := make([]*Vector3, len(src))
+	out := make([]Vector3, len(src))
 	for i, e := range src {
-		elem, ok := e.(*Vector3)
+		elem, ok := e.(Vector3)
 		if !ok {
-			panic(fmt.Sprintf("ConvertToVector3Slice: element %d: expected *Vector3, got %T", i, e))
+			panic(fmt.Sprintf("ConvertToVector3Slice: element %d: expected Vector3, got %T", i, e))
 		}
 		out[i] = elem
 	}

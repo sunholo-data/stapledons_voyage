@@ -221,9 +221,9 @@ func captureInput() *sim_gen.FrameInput {
 		buttons = append(buttons, 0)
 	}
 
-	var keys []*sim_gen.KeyEvent
+	var keys []sim_gen.KeyEvent
 	for _, k := range inpututil.AppendJustPressedKeys(nil) {
-		keys = append(keys, &sim_gen.KeyEvent{
+		keys = append(keys, sim_gen.KeyEvent{
 			Key:  int64(k),
 			Kind: "pressed",
 		})
@@ -238,7 +238,7 @@ func captureInput() *sim_gen.FrameInput {
 	}
 
 	return &sim_gen.FrameInput{
-		Mouse: &sim_gen.MouseState{
+		Mouse: sim_gen.MouseState{
 			X:       float64(x),
 			Y:       float64(y),
 			Buttons: buttons,
@@ -324,7 +324,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	// Create frame output
 	output := sim_gen.FrameOutput{
 		Draw:   drawCmds,
-		Camera: &sim_gen.Camera{X: 0, Y: 0, Zoom: 1.0},
+		Camera: sim_gen.Camera{X: 0, Y: 0, Zoom: 1.0},
 	}
 
 	// Override window texture with our 3D rendered texture

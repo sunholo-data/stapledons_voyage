@@ -4,11 +4,12 @@ module sim/step
 import sim/protocol (FrameInput, FrameOutput, DrawCmd, Rect, Coord, PlayerAction, ActionNone, Camera, CircleRGBA, Text, LODConfig)
 import sim/world (World, PlanetState, Tile, Selection, SelectionNone, SelectionTile, ViewMode, ViewInterior, ViewPlanet, ViewGalaxyMap)
 import sim/npc_ai (NPC, PatternStatic, PatternRandomWalk, PatternPatrol, Direction, North, South, East, West, updateAllNPCs)
-import sim/interior (InteriorState, initInterior, renderInterior, stepInterior, isVPressed, cycleVelocity)
+import sim/interior (InteriorState, initInterior, renderInterior, stepInterior, isVPressed)
 import sim/starmap (initLocalCatalog, Star, Vec3, spectralColor, StarCatalog)
 import sim/celestial (initSolSystem, stepSystem, StarSystem, renderSolarSystem)
 import sim/ship_levels (init_ship_levels, ShipLevels)
-import sim/navigation (initNavigation, ShipNavigation, timeDilationFactor)
+import sim/navigation (initNavigation, ShipNavigation, timeDilationFactor, stepNavigation, cycleVelocity)
+import sim/input (is_left_click)
 
 -- Import effects (v0.5.0)
 import std/rand (rand_int)
@@ -124,8 +125,9 @@ pure func renderGalaxyMap(catalog: StarCatalog) -> [DrawCmd] {
 }
 
 -- Process click to update selection (tileSize=8 inlined, TVar2 fix v0.5.0)
+-- Uses is_left_click from sim/input for consistent input handling
 pure func processSelection(input: FrameInput, world: World) -> Selection {
-    if input.clickedThisFrame then {
+    if is_left_click(input.mouseEvents) then {
         let tileX = floatToInt(input.worldMouseX / 8.0);
         let tileY = floatToInt(input.worldMouseY / 8.0);
         if tileX >= 0 && tileX < world.planet.width && tileY >= 0 && tileY < world.planet.height then

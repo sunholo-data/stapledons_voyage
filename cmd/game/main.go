@@ -75,7 +75,7 @@ func (g *Game) Update() error {
 func (g *Game) updatePlaying() error {
 	// Capture game input with camera for screen-to-world conversion
 	// Uses internal resolution (640x480) for coordinate conversion
-	input := render.CaptureInputWithCamera(*g.out.Camera, display.InternalWidth, display.InternalHeight)
+	input := render.CaptureInputWithCamera(g.out.Camera, display.InternalWidth, display.InternalHeight)
 
 	// Step returns []interface{}{*World, *FrameOutput} in v0.5.8+
 	result := sim_gen.Step(g.world, &input)
@@ -391,7 +391,7 @@ func main() {
 		save:     saveMgr,
 		effects:  effects,
 		out: sim_gen.FrameOutput{
-			Camera: &sim_gen.Camera{X: 0, Y: 0, Zoom: 1.0},
+			Camera: sim_gen.Camera{X: 0, Y: 0, Zoom: 1.0},
 		},
 	}
 

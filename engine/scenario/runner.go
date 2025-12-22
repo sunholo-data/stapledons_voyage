@@ -73,7 +73,7 @@ func runStepScenario() Result {
 	world := sim_gen.InitWorld(int64(42))
 
 	input := &sim_gen.FrameInput{
-		Keys:            []*sim_gen.KeyEvent{},
+		Keys:            []sim_gen.KeyEvent{},
 		ActionRequested: sim_gen.NewPlayerActionActionNone(),
 	}
 

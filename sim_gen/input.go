@@ -529,7 +529,7 @@ func input__hasKeyEvent_impl(keys interface{}, keyCode interface{}, eventKind in
 	}()
 }
 
-func input__hasKeyEvent(keys []*KeyEvent, keyCode int64, eventKind string) bool {
+func input__hasKeyEvent(keys []KeyEvent, keyCode int64, eventKind string) bool {
 	return input__hasKeyEvent_impl(keys, keyCode, eventKind).(bool)
 }
 
@@ -537,7 +537,7 @@ func isKeyJustPressed_impl(keys interface{}, keyCode interface{}) interface{} {
 	return input__hasKeyEvent_impl(keys, keyCode, "press")
 }
 
-func IsKeyJustPressed(keys []*KeyEvent, keyCode int64) bool {
+func IsKeyJustPressed(keys []KeyEvent, keyCode int64) bool {
 	return isKeyJustPressed_impl(keys, keyCode).(bool)
 }
 
@@ -545,7 +545,7 @@ func isKeyHeld_impl(keys interface{}, keyCode interface{}) interface{} {
 	return input__hasKeyEvent_impl(keys, keyCode, "down")
 }
 
-func IsKeyHeld(keys []*KeyEvent, keyCode int64) bool {
+func IsKeyHeld(keys []KeyEvent, keyCode int64) bool {
 	return isKeyHeld_impl(keys, keyCode).(bool)
 }
 
@@ -553,7 +553,7 @@ func isKeyJustReleased_impl(keys interface{}, keyCode interface{}) interface{} {
 	return input__hasKeyEvent_impl(keys, keyCode, "up")
 }
 
-func IsKeyJustReleased(keys []*KeyEvent, keyCode int64) bool {
+func IsKeyJustReleased(keys []KeyEvent, keyCode int64) bool {
 	return isKeyJustReleased_impl(keys, keyCode).(bool)
 }
 
@@ -584,7 +584,7 @@ func input__anyKeyPressedHelper_impl(keys interface{}, keyCodes interface{}) int
 	}()
 }
 
-func input__anyKeyPressedHelper(keys []*KeyEvent, keyCodes []int64) bool {
+func input__anyKeyPressedHelper(keys []KeyEvent, keyCodes []int64) bool {
 	return input__anyKeyPressedHelper_impl(keys, keyCodes).(bool)
 }
 
@@ -592,7 +592,7 @@ func anyKeyJustPressed_impl(keys interface{}, keyCodes interface{}) interface{} 
 	return input__anyKeyPressedHelper_impl(keys, keyCodes)
 }
 
-func AnyKeyJustPressed(keys []*KeyEvent, keyCodes []int64) bool {
+func AnyKeyJustPressed(keys []KeyEvent, keyCodes []int64) bool {
 	return anyKeyJustPressed_impl(keys, keyCodes).(bool)
 }
 
@@ -623,7 +623,7 @@ func input__anyKeyHeldHelper_impl(keys interface{}, keyCodes interface{}) interf
 	}()
 }
 
-func input__anyKeyHeldHelper(keys []*KeyEvent, keyCodes []int64) bool {
+func input__anyKeyHeldHelper(keys []KeyEvent, keyCodes []int64) bool {
 	return input__anyKeyHeldHelper_impl(keys, keyCodes).(bool)
 }
 
@@ -631,6 +631,116 @@ func anyKeyHeld_impl(keys interface{}, keyCodes interface{}) interface{} {
 	return input__anyKeyHeldHelper_impl(keys, keyCodes)
 }
 
-func AnyKeyHeld(keys []*KeyEvent, keyCodes []int64) bool {
+func AnyKeyHeld(keys []KeyEvent, keyCodes []int64) bool {
 	return anyKeyHeld_impl(keys, keyCodes).(bool)
+}
+
+func mOUSELEFT_impl(_unused0 interface{}) interface{} {
+	return int64(0)
+}
+
+func MOUSELEFT() int64 {
+	return mOUSELEFT_impl(struct{}{}).(int64)
+}
+
+func mOUSERIGHT_impl(_unused0 interface{}) interface{} {
+	return int64(1)
+}
+
+func MOUSERIGHT() int64 {
+	return mOUSERIGHT_impl(struct{}{}).(int64)
+}
+
+func mOUSEMIDDLE_impl(_unused0 interface{}) interface{} {
+	return int64(2)
+}
+
+func MOUSEMIDDLE() int64 {
+	return mOUSEMIDDLE_impl(struct{}{}).(int64)
+}
+
+func input__hasMouseEvent_impl(events interface{}, buttonCode interface{}, eventKind interface{}) interface{} {
+	return func() interface{} {
+		_scrutinee := events
+		_ = _scrutinee // suppress unused
+		if ListLen(_scrutinee) == 0 {
+			return false
+		} else if ListLen(_scrutinee) >= 1 {
+			e := ListHead(_scrutinee)
+			_ = e // suppress unused
+			rest := ListTail(_scrutinee)
+			_ = rest // suppress unused
+			return func() interface{} {
+				var tmp8 interface{} = FieldGet(e, "button")
+				_ = tmp8 // suppress unused
+				var tmp9 interface{} = EqInt(tmp8, buttonCode)
+				_ = tmp9 // suppress unused
+				var tmp10 interface{} = FieldGet(e, "kind")
+				_ = tmp10 // suppress unused
+				var tmp11 interface{} = EqString(tmp10, eventKind)
+				_ = tmp11 // suppress unused
+				var tmp12 interface{} = func() interface{} {
+					if tmp9.(bool) {
+						return tmp11
+					}
+					return false
+				}()
+				_ = tmp12 // suppress unused
+				return func() interface{} {
+					if tmp12.(bool) {
+						return true
+					}
+					return input__hasMouseEvent_impl(rest, buttonCode, eventKind)
+				}()
+			}()
+		} else {
+			panic("non-exhaustive match")
+		}
+	}()
+}
+
+func input__hasMouseEvent(events []MouseEvent, buttonCode int64, eventKind string) bool {
+	return input__hasMouseEvent_impl(events, buttonCode, eventKind).(bool)
+}
+
+func isMouseJustPressed_impl(events interface{}, buttonCode interface{}) interface{} {
+	return input__hasMouseEvent_impl(events, buttonCode, "press")
+}
+
+func IsMouseJustPressed(events []MouseEvent, buttonCode int64) bool {
+	return isMouseJustPressed_impl(events, buttonCode).(bool)
+}
+
+func isMouseHeld_impl(events interface{}, buttonCode interface{}) interface{} {
+	return input__hasMouseEvent_impl(events, buttonCode, "down")
+}
+
+func IsMouseHeld(events []MouseEvent, buttonCode int64) bool {
+	return isMouseHeld_impl(events, buttonCode).(bool)
+}
+
+func isMouseJustReleased_impl(events interface{}, buttonCode interface{}) interface{} {
+	return input__hasMouseEvent_impl(events, buttonCode, "up")
+}
+
+func IsMouseJustReleased(events []MouseEvent, buttonCode int64) bool {
+	return isMouseJustReleased_impl(events, buttonCode).(bool)
+}
+
+func isLeftClick_impl(events interface{}) interface{} {
+	var tmp13 interface{} = mOUSELEFT_impl(struct{}{})
+	return isMouseJustPressed_impl(events, tmp13)
+}
+
+func IsLeftClick(events []MouseEvent) bool {
+	return isLeftClick_impl(events).(bool)
+}
+
+func isRightClick_impl(events interface{}) interface{} {
+	var tmp14 interface{} = mOUSERIGHT_impl(struct{}{})
+	return isMouseJustPressed_impl(events, tmp14)
+}
+
+func IsRightClick(events []MouseEvent) bool {
+	return isRightClick_impl(events).(bool)
 }

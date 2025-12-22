@@ -30,9 +30,12 @@ type ContentBlock struct {
 
 // AIRequest represents a multimodal AI request
 type AIRequest struct {
-	Messages []ContentBlock         `json:"messages"`
-	Context  map[string]interface{} `json:"context,omitempty"`
-	System   string                 `json:"system,omitempty"` // System prompt
+	Messages           []ContentBlock         `json:"messages"`
+	Context            map[string]interface{} `json:"context,omitempty"`
+	System             string                 `json:"system,omitempty"`                  // System prompt
+	ResponseMIMEType   string                 `json:"response_mime_type,omitempty"`      // e.g., "application/json"
+	ResponseJSONSchema map[string]interface{} `json:"response_json_schema,omitempty"`    // JSON Schema for structured output
+	MaxOutputTokens    int                    `json:"max_output_tokens,omitempty"`       // Max tokens in response (0 = use default)
 }
 
 // AIResponse represents a multimodal AI response

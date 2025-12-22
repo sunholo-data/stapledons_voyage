@@ -11,7 +11,7 @@ import sim/protocol (
     Sprite, Viewport, Ui, UiPortrait, SpaceBg, TexturedPlanet
 )
 import sim/navigation (
-    ShipNavigation, getForward, getUp
+    ShipNavigation, getForward, getUp, cycleVelocity
 )
 import sim/solar_demo (
     getAllSolarSystemBodies, SolarPlanet
@@ -445,13 +445,7 @@ pure func toggleDeck(current: DeckSelection) -> DeckSelection {
     }
 }
 
--- Cycle ship velocity (0.0 -> 0.2 -> 0.5 -> 0.8 -> 0.0)
-export pure func cycleVelocity(current: float) -> float {
-    if current < 0.1 then 0.2
-    else if current < 0.3 then 0.5
-    else if current < 0.6 then 0.8
-    else 0.0
-}
+-- cycleVelocity is now imported from sim/navigation
 
 -- Process one frame of interior simulation
 export pure func stepInterior(state: InteriorState, input: FrameInput) -> InteriorState {

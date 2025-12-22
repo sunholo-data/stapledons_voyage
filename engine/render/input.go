@@ -29,24 +29,24 @@ func CaptureInputWithCamera(cam sim_gen.Camera, screenW, screenH int) sim_gen.Fr
 		buttons = append(buttons, 2)
 	}
 
-	var keys []*sim_gen.KeyEvent
+	var keys []sim_gen.KeyEvent
 	// Capture "just pressed" events (edge detection for mode switching, etc.)
 	for _, k := range inpututil.AppendJustPressedKeys(nil) {
-		keys = append(keys, &sim_gen.KeyEvent{
+		keys = append(keys, sim_gen.KeyEvent{
 			Key:  int64(k),
 			Kind: "press",
 		})
 	}
 	// Capture held keys
 	for _, k := range inpututil.AppendPressedKeys(nil) {
-		keys = append(keys, &sim_gen.KeyEvent{
+		keys = append(keys, sim_gen.KeyEvent{
 			Key:  int64(k),
 			Kind: "down",
 		})
 	}
 	// Capture released keys
 	for _, k := range inpututil.AppendJustReleasedKeys(nil) {
-		keys = append(keys, &sim_gen.KeyEvent{
+		keys = append(keys, sim_gen.KeyEvent{
 			Key:  int64(k),
 			Kind: "up",
 		})
@@ -84,7 +84,7 @@ func CaptureInputWithCamera(cam sim_gen.Camera, screenW, screenH int) sim_gen.Fr
 	}
 
 	return sim_gen.FrameInput{
-		Mouse: &sim_gen.MouseState{
+		Mouse: sim_gen.MouseState{
 			X:       float64(x),
 			Y:       float64(y),
 			Buttons: buttons,

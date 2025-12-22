@@ -4,10 +4,10 @@ module sim/input
 -- AILANG Input Helpers
 -- =============================================================================
 --
--- This module provides helper functions for working with keyboard input.
--- The engine captures all key events and passes them in FrameInput.keys.
+-- This module provides helper functions for working with keyboard and mouse input.
+-- The engine captures all input events and passes them in FrameInput.
 --
--- Usage:
+-- Keyboard Usage:
 --   import sim/input (is_key_just_pressed, KEY_V)
 --
 --   if is_key_just_pressed(input.keys, KEY_V()) then
@@ -15,14 +15,22 @@ module sim/input
 --   else
 --       state
 --
--- Key event kinds:
---   "press" - Key was just pressed this frame (edge detection)
---   "down"  - Key is currently held down
---   "up"    - Key was just released this frame
+-- Mouse Usage:
+--   import sim/input (is_mouse_just_pressed, MOUSE_LEFT)
+--
+--   if is_mouse_just_pressed(input.mouseEvents, MOUSE_LEFT()) then
+--       { state | selected: true }
+--   else
+--       state
+--
+-- Event kinds (same for both keys and mouse):
+--   "press" - Just pressed this frame (edge detection)
+--   "down"  - Currently held down
+--   "up"    - Just released this frame
 --
 -- =============================================================================
 
-import sim/protocol (KeyEvent)
+import sim/protocol (KeyEvent, MouseEvent)
 
 -- =============================================================================
 -- Key Code Constants (matches Ebiten key codes exactly)
@@ -161,3 +169,54 @@ pure func any_key_held_helper(keys: [KeyEvent], keyCodes: [int]) -> bool =
 
 export pure func any_key_held(keys: [KeyEvent], keyCodes: [int]) -> bool =
     any_key_held_helper(keys, keyCodes)
+
+-- =============================================================================
+-- Mouse Button Constants
+-- =============================================================================
+
+-- Mouse buttons (matches Ebiten mouse button codes)
+export pure func MOUSE_LEFT() -> int = 0
+export pure func MOUSE_RIGHT() -> int = 1
+export pure func MOUSE_MIDDLE() -> int = 2
+
+-- =============================================================================
+-- Mouse Helper Functions
+-- =============================================================================
+
+-- Check if a mouse button has a specific event kind
+pure func has_mouse_event(events: [MouseEvent], buttonCode: int, eventKind: string) -> bool =
+    match events {
+        [] => false,
+        e :: rest =>
+            if e.button == buttonCode && e.kind == eventKind then
+                true
+            else
+                has_mouse_event(rest, buttonCode, eventKind)
+    }
+
+-- Returns true if mouse button was just pressed this frame (edge detection)
+-- Use for click actions (select, toggle, etc.)
+export pure func is_mouse_just_pressed(events: [MouseEvent], buttonCode: int) -> bool =
+    has_mouse_event(events, buttonCode, "press")
+
+-- Returns true if mouse button is currently held down
+-- Use for drag operations, continuous fire, etc.
+export pure func is_mouse_held(events: [MouseEvent], buttonCode: int) -> bool =
+    has_mouse_event(events, buttonCode, "down")
+
+-- Returns true if mouse button was just released this frame
+-- Use for drop operations, charge release, etc.
+export pure func is_mouse_just_released(events: [MouseEvent], buttonCode: int) -> bool =
+    has_mouse_event(events, buttonCode, "up")
+
+-- =============================================================================
+-- Convenience: Check Left/Right Click (common patterns)
+-- =============================================================================
+
+-- Check if left mouse button was just clicked
+export pure func is_left_click(events: [MouseEvent]) -> bool =
+    is_mouse_just_pressed(events, MOUSE_LEFT())
+
+-- Check if right mouse button was just clicked
+export pure func is_right_click(events: [MouseEvent]) -> bool =
+    is_mouse_just_pressed(events, MOUSE_RIGHT())

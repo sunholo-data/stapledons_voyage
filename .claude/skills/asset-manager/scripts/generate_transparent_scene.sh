@@ -1,43 +1,34 @@
 #!/bin/bash
-# Generate scene images with transparent windows
-# Pipeline: AI generation -> transparency conversion
+# Generate scene images with transparent windows using AI vision
+# Pipeline: AI generation (bright windows) -> AI vision count -> transparency conversion
 #
-# Usage: generate_transparent_scene.sh <name> <description> [--mode black|checker]
+# Usage: generate_transparent_scene.sh <name> <description>
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
 
-# Default mode
-MODE="black"
 NAME=""
 DESCRIPTION=""
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --mode)
-            MODE="$2"
-            shift 2
-            ;;
         --help|-h)
-            echo "Generate scene images with transparent windows"
+            echo "Generate scene images with transparent windows using AI vision"
             echo ""
-            echo "Usage: $0 <name> <description> [--mode black|checker]"
-            echo ""
-            echo "Modes:"
-            echo "  black   - Request black windows, convert to transparent (default)"
-            echo "  checker - Request transparent windows (AI renders checkerboard)"
+            echo "Usage: $0 <name> <description>"
             echo ""
             echo "Examples:"
             echo "  $0 observation_deck 'luxury observation lounge with curved windows'"
-            echo "  $0 bridge_frame 'spaceship bridge window frame only' --mode checker"
+            echo "  $0 bridge 'spaceship bridge with three large panoramic windows'"
             echo ""
             echo "The script will:"
-            echo "  1. Generate image with AI (prompting for appropriate window style)"
-            echo "  2. Convert detected regions to true alpha transparency"
-            echo "  3. Save to assets/decks/<name>.png"
+            echo "  1. Generate 16:9 2K image with bright windows (AI)"
+            echo "  2. Use AI vision to detect number of distinct window regions"
+            echo "  3. Extract mask and create transparent PNG"
+            echo "  4. Save both to assets/decks/<name>.png and <name>_mask.png"
             exit 0
             ;;
         *)
@@ -52,44 +43,26 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ -z "$NAME" ]] || [[ -z "$DESCRIPTION" ]]; then
-    echo "Usage: $0 <name> <description> [--mode black|checker]"
+    echo "Usage: $0 <name> <description>"
     echo "Run with --help for more information"
     exit 1
 fi
 
-# Build prompts based on mode
-case "$MODE" in
-    black)
-        PROMPT="Sci-fi spaceship interior scene: ${DESCRIPTION}.
-CRITICAL: All windows showing space must be PURE BLACK (#000000).
-The window glass areas should be solid black with no stars, no reflections, no gradients.
-Interior should have warm ambient lighting with detailed sci-fi aesthetic.
-The black window areas will be used as a mask for compositing a dynamic starfield.
-Art style: Detailed illustration, warm orange/amber interior lighting, art-deco sci-fi."
-        ;;
-    checker)
-        PROMPT="PNG with alpha transparency. Spaceship interior frame: ${DESCRIPTION}.
-CRITICAL: Window openings must be COMPLETELY TRANSPARENT (alpha=0, rendered as transparency).
-Only render the solid interior surfaces and frames.
-Leave window/viewport areas as transparent cutouts for compositing.
-This is for layering over a starfield background.
-Art style: Detailed illustration, warm orange/amber interior lighting, art-deco sci-fi."
-        ;;
-    *)
-        echo "Unknown mode: $MODE (use 'black' or 'checker')"
-        exit 1
-        ;;
-esac
+# Build prompt for bright windows (best for AI vision detection)
+PROMPT="Spaceship interior scene: ${DESCRIPTION}.
+Windows showing pure bright white overexposed light (no space details visible).
+Dark metallic interior with detailed sci-fi panels, consoles, and ambient lighting.
+Art style: Detailed illustration, warm orange/amber accent lighting, art-deco sci-fi aesthetic.
+The bright window areas will be detected by AI vision for masking."
 
-echo "=== Transparent Scene Generator ==="
+echo "=== Transparent Scene Generator (AI Vision) ==="
 echo "Name: $NAME"
-echo "Mode: $MODE"
 echo "Description: $DESCRIPTION"
 echo ""
 
-# Step 1: Generate with AI
-echo "[1/3] Generating image with AI..."
-OUTPUT=$(go run "$PROJECT_ROOT/cmd/voyage" ai -generate-image -prompt "$PROMPT" 2>&1)
+# Step 1: Generate with AI (16:9, 2K resolution for deck backgrounds)
+echo "[1/3] Generating image with AI (16:9, 2K)..."
+OUTPUT=$(go run "$PROJECT_ROOT/cmd/voyage" ai -generate-image -aspect 16:9 -size 2K -prompt "$PROMPT" 2>&1)
 echo "$OUTPUT"
 
 # Extract generated file path
@@ -100,27 +73,35 @@ if [[ -z "$GENERATED" ]]; then
 fi
 
 echo ""
-echo "[2/3] Converting to transparent PNG..."
+echo "[2/3] Generating transparent PNG and mask with AI vision..."
 
-# Step 2: Convert to transparent
-TEMP_OUTPUT="/tmp/${NAME}_transparent.png"
-go run "$PROJECT_ROOT/cmd/generate-window-mask" -mode="$MODE" "$PROJECT_ROOT/$GENERATED" "$TEMP_OUTPUT"
+# Step 2: Convert to transparent using AI vision auto-detection
+TEMP_TRANSPARENT="/tmp/${NAME}_transparent.png"
+TEMP_MASK="/tmp/${NAME}_mask.png"
+
+# Use AI auto-detection for bright mode (default)
+echo "Using AI vision to auto-detect window count..."
+go run "$PROJECT_ROOT/cmd/generate-window-mask" -mode=bright -threshold=180 -auto-detect "$PROJECT_ROOT/$GENERATED" "$TEMP_TRANSPARENT"
+go run "$PROJECT_ROOT/cmd/generate-window-mask" -mode=bright -threshold=180 -auto-detect -mask "$PROJECT_ROOT/$GENERATED" "$TEMP_MASK"
 
 # Step 3: Move to final location
 FINAL_DIR="$PROJECT_ROOT/assets/decks"
 mkdir -p "$FINAL_DIR"
-FINAL_PATH="$FINAL_DIR/${NAME}.png"
+FINAL_TRANSPARENT="$FINAL_DIR/${NAME}.png"
+FINAL_MASK="$FINAL_DIR/${NAME}_mask.png"
 
 echo ""
-echo "[3/3] Saving to $FINAL_PATH..."
-cp "$TEMP_OUTPUT" "$FINAL_PATH"
+echo "[3/3] Saving to $FINAL_DIR..."
+cp "$TEMP_TRANSPARENT" "$FINAL_TRANSPARENT"
+cp "$TEMP_MASK" "$FINAL_MASK"
 
 # Verify alpha
 echo ""
 echo "=== Result ==="
-sips -g hasAlpha -g pixelWidth -g pixelHeight "$FINAL_PATH" 2>/dev/null | grep -E "(hasAlpha|pixel)"
+sips -g hasAlpha -g pixelWidth -g pixelHeight "$FINAL_TRANSPARENT" 2>/dev/null | grep -E "(hasAlpha|pixel)"
 echo ""
 echo "Generated: $GENERATED (original)"
-echo "Output: $FINAL_PATH (with transparency)"
+echo "Transparent: $FINAL_TRANSPARENT (windows are transparent)"
+echo "Mask: $FINAL_MASK (white windows, transparent elsewhere)"
 echo ""
-echo "To preview: open $FINAL_PATH"
+echo "To preview: open $FINAL_TRANSPARENT"

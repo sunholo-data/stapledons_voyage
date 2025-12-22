@@ -132,7 +132,7 @@ func npc_ai__pathGet(path []*Direction, idx int64) *Direction {
 }
 
 func npc_ai__npcWithPos_impl(npc interface{}, newX interface{}, newY interface{}) interface{} {
-	var tmp9 interface{} = &Coord{X: newX.(int64), Y: newY.(int64)}
+	var tmp9 interface{} = Coord{X: newX.(int64), Y: newY.(int64)}
 	return RecordUpdate(npc, map[string]interface{}{"pos": tmp9})
 }
 

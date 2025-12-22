@@ -65,7 +65,7 @@ func starmap_visuals__apparentRadius_impl(starPos interface{}, starRadius interf
 	}()
 }
 
-func starmap_visuals__apparentRadius(starPos *Vec3, starRadius float64, camPos *Vec3) float64 {
+func starmap_visuals__apparentRadius(starPos Vec3, starRadius float64, camPos Vec3) float64 {
 	return starmap_visuals__apparentRadius_impl(starPos, starRadius, camPos).(float64)
 }
 
@@ -190,7 +190,7 @@ func starmap_visuals__generateStarDrawCmd_impl(star interface{}, camPos interfac
 	return NewDrawCmdStar(screenX.(float64), screenY.(float64), spriteId.(int64), scale.(float64), alpha.(float64), int64(10))
 }
 
-func starmap_visuals__generateStarDrawCmd(star *Star, camPos *Vec3) *DrawCmd {
+func starmap_visuals__generateStarDrawCmd(star *Star, camPos Vec3) *DrawCmd {
 	return starmap_visuals__generateStarDrawCmd_impl(star, camPos).(*DrawCmd)
 }
 
@@ -218,7 +218,7 @@ func starmap_visuals__mapStarsToCmds_impl(stars interface{}, camPos interface{})
 	}()
 }
 
-func starmap_visuals__mapStarsToCmds(stars []*Star, camPos *Vec3) []*DrawCmd {
+func starmap_visuals__mapStarsToCmds(stars []*Star, camPos Vec3) []*DrawCmd {
 	return ConvertToDrawCmdSlice(starmap_visuals__mapStarsToCmds_impl(stars, camPos))
 }
 
@@ -230,7 +230,7 @@ func starmap_visuals__generateStarmapDrawCommands_impl(state interface{}) interf
 		_ = tmp31 // suppress unused
 		var tmp32 interface{} = FieldGet(state, "cameraZ")
 		_ = tmp32 // suppress unused
-		return &Vec3{X: tmp30.(float64), Y: tmp31.(float64), Z: tmp32.(float64)}
+		return Vec3{X: tmp30.(float64), Y: tmp31.(float64), Z: tmp32.(float64)}
 	}()
 	var tmp29 interface{} = FieldGet(state, "stars")
 	return starmap_visuals__mapStarsToCmds_impl(tmp29, camPos)
@@ -321,23 +321,23 @@ func stepStarmapVisuals_impl(state interface{}, input interface{}) interface{} {
 		_ = tmp59 // suppress unused
 		var tmp60 interface{} = FieldGet(newState, "cameraY")
 		_ = tmp60 // suppress unused
-		return &Camera{X: tmp59.(float64), Y: tmp60.(float64), Zoom: float64(1)}
+		return Camera{X: tmp59.(float64), Y: tmp60.(float64), Zoom: float64(1)}
 	}()
 	var lighting interface{} = func() interface{} {
-		var tmp56 interface{} = &RGBColor{R: float64(0), G: float64(0), B: float64(0)}
+		var tmp56 interface{} = RGBColor{R: float64(0), G: float64(0), B: float64(0)}
 		_ = tmp56 // suppress unused
-		var tmp57 interface{} = &AmbientSettings{Energy: float64(0), Color: tmp56.(*RGBColor)}
+		var tmp57 interface{} = &AmbientSettings{Energy: float64(0), Color: tmp56.(RGBColor)}
 		_ = tmp57 // suppress unused
 		var tmp58 interface{} = []interface{}{}
 		_ = tmp58 // suppress unused
 		return &LightingContext{Enabled: false, Ambient: tmp57.(*AmbientSettings), Lights: ConvertToLightSourceSlice(tmp58), LightMultiplier: float64(1)}
 	}()
 	var relativity interface{} = func() interface{} {
-		var tmp54 interface{} = &SRContext{Enabled: false, Velocity: float64(0), Gamma: float64(1), ViewAngle: float64(0)}
+		var tmp54 interface{} = SRContext{Enabled: false, Velocity: float64(0), Gamma: float64(1), ViewAngle: float64(0)}
 		_ = tmp54 // suppress unused
 		var tmp55 interface{} = &GRContext{Enabled: false, CenterX: float64(0.5), CenterY: float64(0.5), Phi: float64(0), Rs: float64(0), ObjectType: "none"}
 		_ = tmp55 // suppress unused
-		return &RelativityContext{Sr: tmp54.(*SRContext), Gr: tmp55.(*GRContext)}
+		return &RelativityContext{Sr: tmp54.(SRContext), Gr: tmp55.(*GRContext)}
 	}()
 	var lod interface{} = &LODConfig{Enabled: false, TransitionTime: float64(0), Hysteresis: float64(0), Full3DPixels: float64(0), BillboardPixels: float64(0), CirclePixels: float64(0), PointPixels: float64(0), Max3DObjects: int64(0)}
 	var output interface{} = func() interface{} {
@@ -345,7 +345,7 @@ func stepStarmapVisuals_impl(state interface{}, input interface{}) interface{} {
 		_ = tmp52 // suppress unused
 		var tmp53 interface{} = []interface{}{}
 		_ = tmp53 // suppress unused
-		return &FrameOutput{Draw: ConvertToDrawCmdSlice(drawCmds), Sounds: ConvertToInt64Slice(tmp52), Debug: ConvertToStringSlice(tmp53), Camera: camera.(*Camera), Relativity: relativity.(*RelativityContext), Lighting: lighting.(*LightingContext), Lod: lod.(*LODConfig)}
+		return &FrameOutput{Draw: ConvertToDrawCmdSlice(drawCmds), Sounds: ConvertToInt64Slice(tmp52), Debug: ConvertToStringSlice(tmp53), Camera: camera.(Camera), Relativity: relativity.(*RelativityContext), Lighting: lighting.(*LightingContext), Lod: lod.(*LODConfig)}
 	}()
 	return []interface{}{newState, output}
 }

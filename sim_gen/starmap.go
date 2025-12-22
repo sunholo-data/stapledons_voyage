@@ -95,24 +95,24 @@ func distance_impl(a interface{}, b interface{}) interface{} {
 	return math.Sqrt(tmp8.(float64))
 }
 
-func Distance(a *Vec3, b *Vec3) float64 {
+func Distance(a Vec3, b Vec3) float64 {
 	return distance_impl(a, b).(float64)
 }
 
 func vec3Zero_impl(_unused0 interface{}) interface{} {
-	return &Vec3{X: float64(0), Y: float64(0), Z: float64(0)}
+	return Vec3{X: float64(0), Y: float64(0), Z: float64(0)}
 }
 
-func Vec3Zero() *Vec3 {
-	return vec3Zero_impl(struct{}{}).(*Vec3)
+func Vec3Zero() Vec3 {
+	return vec3Zero_impl(struct{}{}).(Vec3)
 }
 
 func makeVec3_impl(x interface{}, y interface{}, z interface{}) interface{} {
-	return &Vec3{X: x.(float64), Y: y.(float64), Z: z.(float64)}
+	return Vec3{X: x.(float64), Y: y.(float64), Z: z.(float64)}
 }
 
-func MakeVec3(x float64, y float64, z float64) *Vec3 {
-	return makeVec3_impl(x, y, z).(*Vec3)
+func MakeVec3(x float64, y float64, z float64) Vec3 {
+	return makeVec3_impl(x, y, z).(Vec3)
 }
 
 func emptyCatalog_impl(_unused0 interface{}) interface{} {
@@ -150,7 +150,7 @@ func starmap__withinRadius_impl(center interface{}, radius interface{}, star int
 	return LeFloat(tmp21, radius)
 }
 
-func starmap__withinRadius(center *Vec3, radius float64, star *Star) bool {
+func starmap__withinRadius(center Vec3, radius float64, star *Star) bool {
 	return starmap__withinRadius_impl(center, radius, star).(bool)
 }
 
@@ -161,7 +161,7 @@ func starsWithinRadius_impl(cat interface{}, center interface{}, radius interfac
 	}, tmp22)
 }
 
-func StarsWithinRadius(cat *StarCatalog, center *Vec3, radius float64) []*Star {
+func StarsWithinRadius(cat *StarCatalog, center Vec3, radius float64) []*Star {
 	return ConvertToStarSlice(starsWithinRadius_impl(cat, center, radius))
 }
 
@@ -205,7 +205,7 @@ func starmap__minByDistanceHelper_impl(pos interface{}, best interface{}, rest i
 	}()
 }
 
-func starmap__minByDistanceHelper(pos *Vec3, best *Star, rest []*Star) *Star {
+func starmap__minByDistanceHelper(pos Vec3, best *Star, rest []*Star) *Star {
 	return starmap__minByDistanceHelper_impl(pos, best, rest).(*Star)
 }
 
@@ -220,7 +220,7 @@ func nearestStar_impl(cat interface{}, pos interface{}) interface{} {
 				_ = tmp27 // suppress unused
 				var tmp28 interface{} = vec3Zero_impl(struct{}{})
 				_ = tmp28 // suppress unused
-				return &Star{Id: tmp27.(int64), Name: "NONE", Pos: tmp28.(*Vec3), Spectral: NewSpectralTypeM(), Luminosity: float64(0), Radius: float64(0), Temperature: int64(0), HasHZPlanet: false}
+				return &Star{Id: tmp27.(int64), Name: "NONE", Pos: tmp28.(Vec3), Spectral: NewSpectralTypeM(), Luminosity: float64(0), Radius: float64(0), Temperature: int64(0), HasHZPlanet: false}
 			}()
 		} else if ListLen(_scrutinee) >= 1 {
 			first := ListHead(_scrutinee)
@@ -234,7 +234,7 @@ func nearestStar_impl(cat interface{}, pos interface{}) interface{} {
 	}()
 }
 
-func NearestStar(cat *StarCatalog, pos *Vec3) *Star {
+func NearestStar(cat *StarCatalog, pos Vec3) *Star {
 	return nearestStar_impl(cat, pos).(*Star)
 }
 
@@ -383,7 +383,7 @@ func SpectralColor(spec *SpectralType) int64 {
 func makeStar_impl(id interface{}, name interface{}, x interface{}, y interface{}, z interface{}, spec interface{}, radius interface{}, temp interface{}, hasHZ interface{}) interface{} {
 	var tmp35 interface{} = makeVec3_impl(x, y, z)
 	var tmp36 interface{} = luminosityForSpectral_impl(spec)
-	return &Star{Id: id.(int64), Name: name.(string), Pos: tmp35.(*Vec3), Spectral: spec.(*SpectralType), Luminosity: tmp36.(float64), Radius: radius.(float64), Temperature: temp.(int64), HasHZPlanet: hasHZ.(bool)}
+	return &Star{Id: id.(int64), Name: name.(string), Pos: tmp35.(Vec3), Spectral: spec.(*SpectralType), Luminosity: tmp36.(float64), Radius: radius.(float64), Temperature: temp.(int64), HasHZPlanet: hasHZ.(bool)}
 }
 
 func MakeStar(id int64, name string, x float64, y float64, z float64, spec *SpectralType, radius float64, temp int64, hasHZ bool) *Star {
@@ -527,6 +527,6 @@ func solPosition_impl(_unused0 interface{}) interface{} {
 	return vec3Zero_impl(struct{}{})
 }
 
-func SolPosition() *Vec3 {
-	return solPosition_impl(struct{}{}).(*Vec3)
+func SolPosition() Vec3 {
+	return solPosition_impl(struct{}{}).(Vec3)
 }

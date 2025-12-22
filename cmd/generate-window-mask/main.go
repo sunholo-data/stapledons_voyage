@@ -9,6 +9,9 @@
 package main
 
 import (
+	"context"
+	"encoding/base64"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"image"
@@ -18,6 +21,9 @@ import (
 	"math"
 	"os"
 	"sort"
+	"strings"
+
+	"stapledons_voyage/engine/handlers"
 )
 
 func main() {
@@ -27,6 +33,7 @@ func main() {
 	outputMask := flag.Bool("mask", false, "Output mask instead of transparent image")
 	invert := flag.Bool("invert", false, "Invert detection (make detected areas opaque)")
 	keepTop := flag.Int("keep-top", 0, "Keep only N largest regions (0=all, use with -mode=bright)")
+	autoDetect := flag.Bool("auto-detect", false, "Use AI vision to automatically detect window count (bright mode only)")
 	flag.Parse()
 
 	args := flag.Args()
@@ -58,6 +65,26 @@ func main() {
 	img, _, err := image.Decode(f)
 	if err != nil {
 		log.Fatalf("Failed to decode image: %v", err)
+	}
+
+	// Auto-detect window count if requested
+	if *autoDetect && *keepTop == 0 {
+		log.Println("Auto-detecting window count with AI vision...")
+		ctx := context.Background()
+		aiHandler, err := handlers.NewAIHandlerFromEnv(ctx)
+		if err != nil {
+			log.Printf("Warning: Failed to create AI handler (%v), using default keep-top=3", err)
+			*keepTop = 3
+		} else {
+			count, err := detectWindowCount(inputPath, aiHandler)
+			if err != nil {
+				log.Printf("Warning: AI detection failed (%v), using default keep-top=3", err)
+				*keepTop = 3
+			} else {
+				log.Printf("AI detected %d window region(s)", count)
+				*keepTop = count
+			}
+		}
 	}
 
 	bounds := img.Bounds()
@@ -325,4 +352,120 @@ func floodFill(binary [][]bool, labels [][]int, startX, startY, width, height, l
 	}
 
 	return size
+}
+
+// WindowCount is the structured output from AI vision analysis
+type WindowCount struct {
+	Count int    `json:"count"`
+	Note  string `json:"note,omitempty"`
+}
+
+// detectWindowCount uses AI vision to count distinct window regions in a spaceship interior image
+func detectWindowCount(imagePath string, aiHandler handlers.AIHandler) (int, error) {
+	// Read and encode image to base64
+	imageData, err := os.ReadFile(imagePath)
+	if err != nil {
+		return 0, fmt.Errorf("reading image: %w", err)
+	}
+
+	base64Image := base64.StdEncoding.EncodeToString(imageData)
+
+	// Build structured AI request with vision using JSON schema for guaranteed valid output
+	request := handlers.AIRequest{
+		System: `You are analyzing spaceship interior scenes to count window regions for masking.
+
+Count distinct window regions showing bright white light. If many small panels form one large dome, count as ONE region.`,
+		ResponseMIMEType:   "application/json",
+		ResponseJSONSchema: map[string]interface{}{
+			"type": "object",
+			"properties": map[string]interface{}{
+				"count": map[string]interface{}{
+					"type":        "integer",
+					"description": "Number of distinct window regions (1-10)",
+					"minimum":     1,
+					"maximum":     10,
+				},
+				"note": map[string]interface{}{
+					"type":        "string",
+					"description": "Brief explanation of the count",
+				},
+			},
+			"required": []string{"count", "note"},
+		},
+		MaxOutputTokens: 256, // Small JSON response only
+		Messages: []handlers.ContentBlock{
+			{
+				Type:     handlers.ContentTypeImage,
+				ImageRef: "data:image/png;base64," + base64Image,
+				MimeType: "image/png",
+			},
+			{
+				Type: handlers.ContentTypeText,
+				Text: `Count the distinct window regions in this spaceship interior that show bright white light.
+
+Rules:
+- One large panoramic window = 1
+- Three separate viewport windows = 3
+- A geodesic dome made of many triangular panels = 1 (it's one dome)
+- Two curved observation windows on the sides = 2
+
+Return JSON only: {"count": N, "note": "brief explanation"}`,
+			},
+		},
+	}
+
+	// Encode request as JSON
+	requestJSON, err := json.Marshal(request)
+	if err != nil {
+		return 0, fmt.Errorf("encoding request: %w", err)
+	}
+
+	// Call AI handler
+	responseJSON, err := aiHandler.Call(string(requestJSON))
+	if err != nil {
+		return 0, fmt.Errorf("AI call failed: %w", err)
+	}
+
+	// Parse structured response
+	var aiResponse handlers.AIResponse
+	if err := json.Unmarshal([]byte(responseJSON), &aiResponse); err != nil {
+		return 0, fmt.Errorf("parsing AI response: %w", err)
+	}
+
+	// Extract text from all content blocks (AI might split response)
+	if len(aiResponse.Content) == 0 {
+		return 0, fmt.Errorf("no content in AI response")
+	}
+
+	// Concatenate all text blocks in case response is split
+	var fullText string
+	for _, block := range aiResponse.Content {
+		fullText += block.Text
+	}
+
+	// Try to extract JSON from response (in case it's wrapped in markdown or other text)
+	responseText := fullText
+	if strings.Contains(fullText, "{") && strings.Contains(fullText, "}") {
+		start := strings.Index(fullText, "{")
+		end := strings.LastIndex(fullText, "}") + 1
+		responseText = fullText[start:end]
+	}
+
+	// Parse the structured JSON output from AI
+	var result WindowCount
+	if err := json.Unmarshal([]byte(responseText), &result); err != nil {
+		// Show truncated version for error message
+		displayText := responseText
+		if len(displayText) > 200 {
+			displayText = displayText[:200] + "... (truncated)"
+		}
+		return 0, fmt.Errorf("parsing window count JSON: %w (response: %s)", err, displayText)
+	}
+
+	// Validate count
+	if result.Count < 1 || result.Count > 10 {
+		return 0, fmt.Errorf("invalid count %d (must be 1-10)", result.Count)
+	}
+
+	return result.Count, nil
 }

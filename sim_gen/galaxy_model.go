@@ -53,7 +53,7 @@ func galaxy_model__galactocentricRadius_impl(pos interface{}) interface{} {
 	return math.Sqrt(tmp5.(float64))
 }
 
-func galaxy_model__galactocentricRadius(pos *Vec3) float64 {
+func galaxy_model__galactocentricRadius(pos Vec3) float64 {
 	return galaxy_model__galactocentricRadius_impl(pos).(float64)
 }
 
@@ -94,7 +94,7 @@ func stellarDensity_impl(pos interface{}) interface{} {
 	return MulFloat(radialFactor, verticalFactor)
 }
 
-func StellarDensity(pos *Vec3) float64 {
+func StellarDensity(pos Vec3) float64 {
 	return stellarDensity_impl(pos).(float64)
 }
 
@@ -266,13 +266,13 @@ func generateStar_impl(seed interface{}, cellX interface{}, cellY interface{}, c
 	var hasHZ interface{} = func() interface{} {
 		_scrutinee := spectral
 		_ = _scrutinee // suppress unused
-		_adt := _scrutinee.(*SpectralType)
+		_adt := _scrutinee.(*SpectralClass)
 		switch _adt.Kind {
-		case SpectralTypeKindG:
+		case SpectralClassKindG:
 			return LtFloat(hzRoll, float64(0.22))
-		case SpectralTypeKindK:
+		case SpectralClassKindK:
 			return LtFloat(hzRoll, float64(0.15))
-		case SpectralTypeKindM:
+		case SpectralClassKindM:
 			return LtFloat(hzRoll, float64(0.05))
 		default:
 			return false

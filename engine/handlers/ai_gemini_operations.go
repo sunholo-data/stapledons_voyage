@@ -27,7 +27,12 @@ func (h *GeminiAIHandler) chat(req AIRequest) (string, error) {
 			if msg.ImageRef != "" {
 				imgPart, err := h.loadImagePart(msg.ImageRef, msg.MimeType)
 				if err != nil {
-					fmt.Printf("[Gemini] Warning: failed to load image %s: %v\n", msg.ImageRef, err)
+					// Truncate base64 data in logs to avoid spam
+					ref := msg.ImageRef
+					if len(ref) > 60 {
+						ref = ref[:60] + "... (truncated)"
+					}
+					fmt.Printf("[Gemini] Warning: failed to load image %s: %v\n", ref, err)
 					continue
 				}
 				parts = append(parts, imgPart)
@@ -49,14 +54,28 @@ func (h *GeminiAIHandler) chat(req AIRequest) (string, error) {
 		return h.errorResponse("no content in request")
 	}
 
-	// Build config
+	// Build config with token limit
+	maxTokens := req.MaxOutputTokens
+	if maxTokens == 0 {
+		maxTokens = 2048 // Default for general use
+	}
 	config := &genai.GenerateContentConfig{
-		MaxOutputTokens: 1024,
+		MaxOutputTokens: int32(maxTokens),
 	}
 
 	// Add system prompt if provided
 	if req.System != "" {
 		config.SystemInstruction = genai.NewContentFromText(req.System, genai.RoleUser)
+	}
+
+	// Add response formatting if requested
+	if req.ResponseMIMEType != "" {
+		config.ResponseMIMEType = req.ResponseMIMEType
+		fmt.Printf("[Gemini] Using ResponseMIMEType: %s\n", req.ResponseMIMEType)
+	}
+	if req.ResponseJSONSchema != nil {
+		config.ResponseJsonSchema = req.ResponseJSONSchema
+		fmt.Printf("[Gemini] Using structured JSON schema\n")
 	}
 
 	// Create content and call API

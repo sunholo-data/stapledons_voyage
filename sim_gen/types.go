@@ -716,8 +716,58 @@ type StarSystem struct {
 	Id       int64
 	Name     string
 	StarType *StarType
-	Position *SystemPos
+	Position SystemPos
 	Planets  []*CelestialPlanet
+}
+
+// OptionKind discriminates between variants of Option
+type OptionKind int
+
+const (
+	OptionKindSome OptionKind = iota
+	OptionKindNone
+)
+
+// OptionSome holds data for the Some variant
+type OptionSome struct {
+	Value0 interface{}
+}
+
+// OptionNone holds data for the None variant
+type OptionNone struct {
+}
+
+// Option is a sum type (discriminated union)
+type Option struct {
+	Kind OptionKind
+	Some *OptionSome
+	None *OptionNone
+}
+
+// NewOptionSome creates a new Some variant
+func NewOptionSome(v0 interface{}) *Option {
+	return &Option{
+		Kind: OptionKindSome,
+		Some: &OptionSome{Value0: v0},
+	}
+}
+
+// NewOptionNone creates a new None variant
+func NewOptionNone() *Option {
+	return &Option{
+		Kind: OptionKindNone,
+		None: &OptionNone{},
+	}
+}
+
+// IsSome returns true if this is a Some variant
+func (v *Option) IsSome() bool {
+	return v.Kind == OptionKindSome
+}
+
+// IsNone returns true if this is a None variant
+func (v *Option) IsNone() bool {
+	return v.Kind == OptionKindNone
 }
 
 // Coord is a record type
@@ -744,6 +794,12 @@ type MouseState struct {
 type KeyEvent struct {
 	Key  int64
 	Kind string
+}
+
+// MouseEvent is a record type
+type MouseEvent struct {
+	Button int64
+	Kind   string
 }
 
 // StructureTypeKind discriminates between variants of StructureType
@@ -985,8 +1041,9 @@ type FlightInput struct {
 
 // FrameInput is a record type
 type FrameInput struct {
-	Mouse            *MouseState
-	Keys             []*KeyEvent
+	Mouse            MouseState
+	Keys             []KeyEvent
+	MouseEvents      []MouseEvent
 	Flight           *FlightInput
 	ClickedThisFrame bool
 	WorldMouseX      float64
@@ -1795,7 +1852,7 @@ type GRContext struct {
 
 // RelativityContext is a record type
 type RelativityContext struct {
-	Sr *SRContext
+	Sr SRContext
 	Gr *GRContext
 }
 
@@ -1813,14 +1870,14 @@ type LightSource struct {
 	Y      float64
 	Z      float64
 	Energy float64
-	Color  *RGBColor
+	Color  RGBColor
 	Range  float64
 }
 
 // AmbientSettings is a record type
 type AmbientSettings struct {
 	Energy float64
-	Color  *RGBColor
+	Color  RGBColor
 }
 
 // LightingContext is a record type
@@ -1848,60 +1905,10 @@ type FrameOutput struct {
 	Draw       []*DrawCmd
 	Sounds     []int64
 	Debug      []string
-	Camera     *Camera
+	Camera     Camera
 	Relativity *RelativityContext
 	Lighting   *LightingContext
 	Lod        *LODConfig
-}
-
-// OptionKind discriminates between variants of Option
-type OptionKind int
-
-const (
-	OptionKindSome OptionKind = iota
-	OptionKindNone
-)
-
-// OptionSome holds data for the Some variant
-type OptionSome struct {
-	Value0 interface{}
-}
-
-// OptionNone holds data for the None variant
-type OptionNone struct {
-}
-
-// Option is a sum type (discriminated union)
-type Option struct {
-	Kind OptionKind
-	Some *OptionSome
-	None *OptionNone
-}
-
-// NewOptionSome creates a new Some variant
-func NewOptionSome(v0 interface{}) *Option {
-	return &Option{
-		Kind: OptionKindSome,
-		Some: &OptionSome{Value0: v0},
-	}
-}
-
-// NewOptionNone creates a new None variant
-func NewOptionNone() *Option {
-	return &Option{
-		Kind: OptionKindNone,
-		None: &OptionNone{},
-	}
-}
-
-// IsSome returns true if this is a Some variant
-func (v *Option) IsSome() bool {
-	return v.Kind == OptionKindSome
-}
-
-// IsNone returns true if this is a None variant
-func (v *Option) IsNone() bool {
-	return v.Kind == OptionKindNone
 }
 
 // DepthLayerKind discriminates between variants of DepthLayer
@@ -2154,7 +2161,7 @@ func (v *SpectralType) IsM() bool {
 type Star struct {
 	Id          int64
 	Name        string
-	Pos         *Vec3
+	Pos         Vec3
 	Spectral    *SpectralType
 	Luminosity  float64
 	Radius      float64
@@ -2185,7 +2192,7 @@ type RoomDef struct {
 // PropDef is a record type
 type PropDef struct {
 	Id      string
-	Pos     *Vec3
+	Pos     Vec3
 	ScaleX  float64
 	ScaleY  float64
 	ScaleZ  float64
@@ -2196,7 +2203,7 @@ type PropDef struct {
 // CharacterDef is a record type
 type CharacterDef struct {
 	Id       string
-	Pos      *Vec3
+	Pos      Vec3
 	SpriteId int64
 	Scale    float64
 }
@@ -2210,7 +2217,7 @@ type InteriorRoom struct {
 
 // InteriorPlayer is a record type
 type InteriorPlayer struct {
-	Pos       *Vec3
+	Pos       Vec3
 	Yaw       float64
 	Pitch     float64
 	IsRunning bool
@@ -2280,6 +2287,23 @@ type LookDelta struct {
 	PitchDelta float64
 }
 
+// Quaternion is a record type
+type Quaternion struct {
+	W float64
+	X float64
+	Y float64
+	Z float64
+}
+
+// ShipNavigation is a record type
+type ShipNavigation struct {
+	Position    Vec3
+	Orientation Quaternion
+	Velocity    float64
+	Heading     Vec3
+	GrPhi       float64
+}
+
 // Vector3 is a record type
 type Vector3 struct {
 	X float64
@@ -2342,23 +2366,6 @@ type SolarDemoState struct {
 	GrPhi        float64
 	SunEnergy    float64
 	AmbientLevel float64
-}
-
-// Quaternion is a record type
-type Quaternion struct {
-	W float64
-	X float64
-	Y float64
-	Z float64
-}
-
-// ShipNavigation is a record type
-type ShipNavigation struct {
-	Position    *Vec3
-	Orientation *Quaternion
-	Velocity    float64
-	Heading     *Vec3
-	GrPhi       float64
 }
 
 // RoomTheme is a record type
@@ -2533,7 +2540,7 @@ func (v *MovementPattern) IsPatternPatrol() bool {
 // NPC is a record type
 type NPC struct {
 	Id          int64
-	Pos         *Coord
+	Pos         Coord
 	Pattern     *MovementPattern
 	MoveCounter int64
 	PatrolIndex int64
@@ -2733,7 +2740,7 @@ type Tile struct {
 type PlanetState struct {
 	Width  int64
 	Height int64
-	Tiles  []*Tile
+	Tiles  []Tile
 }
 
 // SelectionKind discriminates between variants of Selection

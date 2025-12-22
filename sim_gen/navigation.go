@@ -6,11 +6,11 @@ import (
 )
 
 func quatIdentity_impl(_unused0 interface{}) interface{} {
-	return &Quaternion{W: float64(1), X: float64(0), Y: float64(0), Z: float64(0)}
+	return Quaternion{W: float64(1), X: float64(0), Y: float64(0), Z: float64(0)}
 }
 
-func QuatIdentity() *Quaternion {
-	return quatIdentity_impl(struct{}{}).(*Quaternion)
+func QuatIdentity() Quaternion {
+	return quatIdentity_impl(struct{}{}).(Quaternion)
 }
 
 func quatFromAxisAngle_impl(ax interface{}, ay interface{}, az interface{}, angle interface{}) interface{} {
@@ -20,11 +20,11 @@ func quatFromAxisAngle_impl(ax interface{}, ay interface{}, az interface{}, angl
 	var tmp2 interface{} = MulFloat(ax, s)
 	var tmp3 interface{} = MulFloat(ay, s)
 	var tmp4 interface{} = MulFloat(az, s)
-	return &Quaternion{W: tmp1.(float64), X: tmp2.(float64), Y: tmp3.(float64), Z: tmp4.(float64)}
+	return Quaternion{W: tmp1.(float64), X: tmp2.(float64), Y: tmp3.(float64), Z: tmp4.(float64)}
 }
 
-func QuatFromAxisAngle(ax float64, ay float64, az float64, angle float64) *Quaternion {
-	return quatFromAxisAngle_impl(ax, ay, az, angle).(*Quaternion)
+func QuatFromAxisAngle(ax float64, ay float64, az float64, angle float64) Quaternion {
+	return quatFromAxisAngle_impl(ax, ay, az, angle).(Quaternion)
 }
 
 func quatRotateVec_impl(q interface{}, v interface{}) interface{} {
@@ -92,15 +92,15 @@ func quatRotateVec_impl(q interface{}, v interface{}) interface{} {
 	return makeVec3_impl(tmp8, tmp12, tmp16)
 }
 
-func QuatRotateVec(q *Quaternion, v *Vec3) *Vec3 {
-	return quatRotateVec_impl(q, v).(*Vec3)
+func QuatRotateVec(q Quaternion, v Vec3) Vec3 {
+	return quatRotateVec_impl(q, v).(Vec3)
 }
 
 func initNavigation_impl(_unused0 interface{}) interface{} {
 	var tmp29 interface{} = vec3Zero_impl(struct{}{})
 	var tmp30 interface{} = quatIdentity_impl(struct{}{})
 	var tmp31 interface{} = makeVec3_impl(float64(0), float64(0), float64(1))
-	return &ShipNavigation{Position: tmp29.(*Vec3), Orientation: tmp30.(*Quaternion), Velocity: float64(0), Heading: tmp31.(*Vec3), GrPhi: float64(0)}
+	return &ShipNavigation{Position: tmp29.(Vec3), Orientation: tmp30.(Quaternion), Velocity: float64(0), Heading: tmp31.(Vec3), GrPhi: float64(0)}
 }
 
 func InitNavigation() *ShipNavigation {
@@ -113,7 +113,7 @@ func setPosition_impl(nav interface{}, x interface{}, y interface{}, z interface
 	var tmp34 interface{} = FieldGet(nav, "velocity")
 	var tmp35 interface{} = FieldGet(nav, "heading")
 	var tmp36 interface{} = FieldGet(nav, "grPhi")
-	return &ShipNavigation{Position: tmp32.(*Vec3), Orientation: tmp33.(*Quaternion), Velocity: tmp34.(float64), Heading: tmp35.(*Vec3), GrPhi: tmp36.(float64)}
+	return &ShipNavigation{Position: tmp32.(Vec3), Orientation: tmp33.(Quaternion), Velocity: tmp34.(float64), Heading: tmp35.(Vec3), GrPhi: tmp36.(float64)}
 }
 
 func SetPosition(nav *ShipNavigation, x float64, y float64, z float64) *ShipNavigation {
@@ -138,7 +138,7 @@ func setVelocity_impl(nav interface{}, v interface{}) interface{} {
 	var tmp38 interface{} = FieldGet(nav, "orientation")
 	var tmp39 interface{} = FieldGet(nav, "heading")
 	var tmp40 interface{} = FieldGet(nav, "grPhi")
-	return &ShipNavigation{Position: tmp37.(*Vec3), Orientation: tmp38.(*Quaternion), Velocity: clampedV.(float64), Heading: tmp39.(*Vec3), GrPhi: tmp40.(float64)}
+	return &ShipNavigation{Position: tmp37.(Vec3), Orientation: tmp38.(Quaternion), Velocity: clampedV.(float64), Heading: tmp39.(Vec3), GrPhi: tmp40.(float64)}
 }
 
 func SetVelocity(nav *ShipNavigation, v float64) *ShipNavigation {
@@ -181,7 +181,7 @@ func setHeading_impl(nav interface{}, hx interface{}, hy interface{}, hz interfa
 	var tmp44 interface{} = FieldGet(nav, "orientation")
 	var tmp45 interface{} = FieldGet(nav, "velocity")
 	var tmp46 interface{} = FieldGet(nav, "grPhi")
-	return &ShipNavigation{Position: tmp43.(*Vec3), Orientation: tmp44.(*Quaternion), Velocity: tmp45.(float64), Heading: normalizedH.(*Vec3), GrPhi: tmp46.(float64)}
+	return &ShipNavigation{Position: tmp43.(Vec3), Orientation: tmp44.(Quaternion), Velocity: tmp45.(float64), Heading: normalizedH.(Vec3), GrPhi: tmp46.(float64)}
 }
 
 func SetHeading(nav *ShipNavigation, hx float64, hy float64, hz float64) *ShipNavigation {
@@ -194,8 +194,8 @@ func getForward_impl(nav interface{}) interface{} {
 	return quatRotateVec_impl(tmp56, tmp57)
 }
 
-func GetForward(nav *ShipNavigation) *Vec3 {
-	return getForward_impl(nav).(*Vec3)
+func GetForward(nav *ShipNavigation) Vec3 {
+	return getForward_impl(nav).(Vec3)
 }
 
 func getUp_impl(nav interface{}) interface{} {
@@ -204,8 +204,8 @@ func getUp_impl(nav interface{}) interface{} {
 	return quatRotateVec_impl(tmp58, tmp59)
 }
 
-func GetUp(nav *ShipNavigation) *Vec3 {
-	return getUp_impl(nav).(*Vec3)
+func GetUp(nav *ShipNavigation) Vec3 {
+	return getUp_impl(nav).(Vec3)
 }
 
 func getRight_impl(nav interface{}) interface{} {
@@ -214,8 +214,8 @@ func getRight_impl(nav interface{}) interface{} {
 	return quatRotateVec_impl(tmp60, tmp61)
 }
 
-func GetRight(nav *ShipNavigation) *Vec3 {
-	return getRight_impl(nav).(*Vec3)
+func GetRight(nav *ShipNavigation) Vec3 {
+	return getRight_impl(nav).(Vec3)
 }
 
 func windowViewDirection_impl(nav interface{}, windowNormalX interface{}, windowNormalY interface{}, windowNormalZ interface{}) interface{} {
@@ -232,16 +232,16 @@ func windowViewDirection_impl(nav interface{}, windowNormalX interface{}, window
 	return quatRotateVec_impl(tmp62, localView)
 }
 
-func WindowViewDirection(nav *ShipNavigation, windowNormalX float64, windowNormalY float64, windowNormalZ float64) *Vec3 {
-	return windowViewDirection_impl(nav, windowNormalX, windowNormalY, windowNormalZ).(*Vec3)
+func WindowViewDirection(nav *ShipNavigation, windowNormalX float64, windowNormalY float64, windowNormalZ float64) Vec3 {
+	return windowViewDirection_impl(nav, windowNormalX, windowNormalY, windowNormalZ).(Vec3)
 }
 
 func windowViewUp_impl(nav interface{}) interface{} {
 	return getUp_impl(nav)
 }
 
-func WindowViewUp(nav *ShipNavigation) *Vec3 {
-	return windowViewUp_impl(nav).(*Vec3)
+func WindowViewUp(nav *ShipNavigation) Vec3 {
+	return windowViewUp_impl(nav).(Vec3)
 }
 
 func timeDilationFactor_impl(nav interface{}) interface{} {
@@ -301,9 +301,236 @@ func travel_impl(nav interface{}, properDuration interface{}) interface{} {
 	var tmp71 interface{} = FieldGet(nav, "velocity")
 	var tmp72 interface{} = FieldGet(nav, "heading")
 	var tmp73 interface{} = FieldGet(nav, "grPhi")
-	return &ShipNavigation{Position: tmp69.(*Vec3), Orientation: tmp70.(*Quaternion), Velocity: tmp71.(float64), Heading: tmp72.(*Vec3), GrPhi: tmp73.(float64)}
+	return &ShipNavigation{Position: tmp69.(Vec3), Orientation: tmp70.(Quaternion), Velocity: tmp71.(float64), Heading: tmp72.(Vec3), GrPhi: tmp73.(float64)}
 }
 
 func Travel(nav *ShipNavigation, properDuration float64) *ShipNavigation {
 	return travel_impl(nav, properDuration).(*ShipNavigation)
+}
+
+func navigation__velocityStep_impl(_unused0 interface{}) interface{} {
+	return float64(0.05)
+}
+
+func navigation__velocityStep() float64 {
+	return navigation__velocityStep_impl(struct{}{}).(float64)
+}
+
+func navigation__grPhiStep_impl(_unused0 interface{}) interface{} {
+	return float64(0.1)
+}
+
+func navigation__grPhiStep() float64 {
+	return navigation__grPhiStep_impl(struct{}{}).(float64)
+}
+
+func navigation__maxVelocity_impl(_unused0 interface{}) interface{} {
+	return float64(0.99)
+}
+
+func navigation__maxVelocity() float64 {
+	return navigation__maxVelocity_impl(struct{}{}).(float64)
+}
+
+func navigation__maxGrPhi_impl(_unused0 interface{}) interface{} {
+	return float64(2)
+}
+
+func navigation__maxGrPhi() float64 {
+	return navigation__maxGrPhi_impl(struct{}{}).(float64)
+}
+
+func cycleVelocity_impl(current interface{}) interface{} {
+	var tmp78 interface{} = LtFloat(current, float64(0.1))
+	return func() interface{} {
+		var tmp79 interface{} = LtFloat(current, float64(0.3))
+		_ = tmp79 // suppress unused
+		var tmp80 interface{} = LtFloat(current, float64(0.6))
+		_ = tmp80 // suppress unused
+		if tmp78.(bool) {
+			return float64(0.2)
+		}
+		if tmp79.(bool) {
+			return float64(0.5)
+		}
+		if tmp80.(bool) {
+			return float64(0.8)
+		}
+		return float64(0)
+	}()
+}
+
+func CycleVelocity(current float64) float64 {
+	return cycleVelocity_impl(current).(float64)
+}
+
+func navigation__clampFloat_impl(value interface{}, minVal interface{}, maxVal interface{}) interface{} {
+	var tmp81 interface{} = LtFloat(value, minVal)
+	return func() interface{} {
+		var tmp82 interface{} = GtFloat(value, maxVal)
+		_ = tmp82 // suppress unused
+		if tmp81.(bool) {
+			return minVal
+		}
+		if tmp82.(bool) {
+			return maxVal
+		}
+		return value
+	}()
+}
+
+func navigation__clampFloat(value float64, minVal float64, maxVal float64) float64 {
+	return navigation__clampFloat_impl(value, minVal, maxVal).(float64)
+}
+
+func stepNavigation_impl(nav interface{}, input interface{}) interface{} {
+	var keys interface{} = FieldGet(input, "keys")
+	var v1 interface{} = func() interface{} {
+		var tmp111 interface{} = kEYV_impl(struct{}{})
+		_ = tmp111 // suppress unused
+		var tmp112 interface{} = isKeyJustPressed_impl(keys, tmp111)
+		_ = tmp112 // suppress unused
+		return func() interface{} {
+			if tmp112.(bool) {
+				return func() interface{} {
+					var tmp113 interface{} = FieldGet(nav, "velocity")
+					_ = tmp113 // suppress unused
+					return cycleVelocity_impl(tmp113)
+				}()
+			}
+			return FieldGet(nav, "velocity")
+		}()
+	}()
+	var v2 interface{} = func() interface{} {
+		var tmp106 interface{} = kEYUP_impl(struct{}{})
+		_ = tmp106 // suppress unused
+		var tmp107 interface{} = isKeyJustPressed_impl(keys, tmp106)
+		_ = tmp107 // suppress unused
+		return func() interface{} {
+			if tmp107.(bool) {
+				return func() interface{} {
+					var tmp108 interface{} = navigation__velocityStep_impl(struct{}{})
+					_ = tmp108 // suppress unused
+					return func() interface{} {
+						var tmp109 interface{} = AddFloat(v1, tmp108)
+						_ = tmp109 // suppress unused
+						return func() interface{} {
+							var tmp110 interface{} = navigation__maxVelocity_impl(struct{}{})
+							_ = tmp110 // suppress unused
+							return navigation__clampFloat_impl(tmp109, float64(0), tmp110)
+						}()
+					}()
+				}()
+			}
+			return v1
+		}()
+	}()
+	var v3 interface{} = func() interface{} {
+		var tmp101 interface{} = kEYDOWN_impl(struct{}{})
+		_ = tmp101 // suppress unused
+		var tmp102 interface{} = isKeyJustPressed_impl(keys, tmp101)
+		_ = tmp102 // suppress unused
+		return func() interface{} {
+			if tmp102.(bool) {
+				return func() interface{} {
+					var tmp103 interface{} = navigation__velocityStep_impl(struct{}{})
+					_ = tmp103 // suppress unused
+					return func() interface{} {
+						var tmp104 interface{} = SubFloat(v2, tmp103)
+						_ = tmp104 // suppress unused
+						return func() interface{} {
+							var tmp105 interface{} = navigation__maxVelocity_impl(struct{}{})
+							_ = tmp105 // suppress unused
+							return navigation__clampFloat_impl(tmp104, float64(0), tmp105)
+						}()
+					}()
+				}()
+			}
+			return v2
+		}()
+	}()
+	var phi1 interface{} = func() interface{} {
+		var tmp95 interface{} = kEYBRACKETRIGHT_impl(struct{}{})
+		_ = tmp95 // suppress unused
+		var tmp96 interface{} = isKeyJustPressed_impl(keys, tmp95)
+		_ = tmp96 // suppress unused
+		return func() interface{} {
+			if tmp96.(bool) {
+				return func() interface{} {
+					var tmp97 interface{} = FieldGet(nav, "grPhi")
+					_ = tmp97 // suppress unused
+					return func() interface{} {
+						var tmp98 interface{} = navigation__grPhiStep_impl(struct{}{})
+						_ = tmp98 // suppress unused
+						return func() interface{} {
+							var tmp99 interface{} = AddFloat(tmp97, tmp98)
+							_ = tmp99 // suppress unused
+							return func() interface{} {
+								var tmp100 interface{} = navigation__maxGrPhi_impl(struct{}{})
+								_ = tmp100 // suppress unused
+								return navigation__clampFloat_impl(tmp99, float64(0), tmp100)
+							}()
+						}()
+					}()
+				}()
+			}
+			return FieldGet(nav, "grPhi")
+		}()
+	}()
+	var phi2 interface{} = func() interface{} {
+		var tmp90 interface{} = kEYBRACKETLEFT_impl(struct{}{})
+		_ = tmp90 // suppress unused
+		var tmp91 interface{} = isKeyJustPressed_impl(keys, tmp90)
+		_ = tmp91 // suppress unused
+		return func() interface{} {
+			if tmp91.(bool) {
+				return func() interface{} {
+					var tmp92 interface{} = navigation__grPhiStep_impl(struct{}{})
+					_ = tmp92 // suppress unused
+					return func() interface{} {
+						var tmp93 interface{} = SubFloat(phi1, tmp92)
+						_ = tmp93 // suppress unused
+						return func() interface{} {
+							var tmp94 interface{} = navigation__maxGrPhi_impl(struct{}{})
+							_ = tmp94 // suppress unused
+							return navigation__clampFloat_impl(tmp93, float64(0), tmp94)
+						}()
+					}()
+				}()
+			}
+			return phi1
+		}()
+	}()
+	var finalV interface{} = func() interface{} {
+		var tmp88 interface{} = kEY0_impl(struct{}{})
+		_ = tmp88 // suppress unused
+		var tmp89 interface{} = isKeyJustPressed_impl(keys, tmp88)
+		_ = tmp89 // suppress unused
+		return func() interface{} {
+			if tmp89.(bool) {
+				return float64(0.5)
+			}
+			return v3
+		}()
+	}()
+	var finalPhi interface{} = func() interface{} {
+		var tmp86 interface{} = kEY0_impl(struct{}{})
+		_ = tmp86 // suppress unused
+		var tmp87 interface{} = isKeyJustPressed_impl(keys, tmp86)
+		_ = tmp87 // suppress unused
+		return func() interface{} {
+			if tmp87.(bool) {
+				return float64(0)
+			}
+			return phi2
+		}()
+	}()
+	var tmp83 interface{} = FieldGet(nav, "position")
+	var tmp84 interface{} = FieldGet(nav, "orientation")
+	var tmp85 interface{} = FieldGet(nav, "heading")
+	return &ShipNavigation{Position: tmp83.(Vec3), Orientation: tmp84.(Quaternion), Velocity: finalV.(float64), Heading: tmp85.(Vec3), GrPhi: finalPhi.(float64)}
+}
+
+func StepNavigation(nav *ShipNavigation, input *FrameInput) *ShipNavigation {
+	return stepNavigation_impl(nav, input).(*ShipNavigation)
 }

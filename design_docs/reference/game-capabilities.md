@@ -11,6 +11,8 @@
 | Module | File | Status | Demo |
 |--------|------|--------|------|
 | Protocol (DrawCmd, Input) | `protocol.ail` | Working | - |
+| Input Helpers (Keyboard/Mouse) | `input.ail` | Working | `demo-game-interior` |
+| Ship Navigation | `navigation.ail` | Working | `demo-game-interior` |
 | World State | `world.ail` | Working | `game` |
 | Step Function | `step.ail` | Working | `game` |
 | NPC AI | `npc_ai.ail` | Working | `game` |
@@ -37,12 +39,18 @@ export type Camera = { x: float, y: float, zoom: float }
 
 export type MouseState = {
     x: float, y: float,
-    worldX: float, worldY: float,
-    leftPressed: bool, rightPressed: bool
+    buttons: [int]  -- Currently pressed button codes
 }
 
-export type KeyEvent = { key: string, pressed: bool }
-export type ClickKind = ClickLeft | ClickRight | ClickMiddle
+export type KeyEvent = {
+    key: int,      -- Ebiten key code (see sim/input.ail for constants)
+    kind: string   -- "press" (just pressed), "down" (held), "up" (released)
+}
+
+export type MouseEvent = {
+    button: int,   -- 0=left, 1=right, 2=middle
+    kind: string   -- "press" (just clicked), "down" (held), "up" (released)
+}
 
 export type PlayerAction =
     | ActionNone
@@ -53,10 +61,188 @@ export type PlayerAction =
 export type FrameInput = {
     mouse: MouseState,
     keys: [KeyEvent],
-    dt: float,
-    action: PlayerAction
+    mouseEvents: [MouseEvent],   -- NEW: Edge-detected mouse events
+    flight: FlightInput,
+    clickedThisFrame: bool,      -- Legacy: use is_left_click() instead
+    worldMouseX: float,
+    worldMouseY: float,
+    action: PlayerAction,
+    testMode: bool
 }
 ```
+
+---
+
+## 1b. Input Helpers (`sim/input.ail`)
+
+Helper functions for keyboard and mouse input handling.
+
+### Keyboard Constants
+
+```ailang
+-- Letters (A=0 through Z=25)
+export pure func KEY_A() -> int = 0
+export pure func KEY_V() -> int = 21
+export pure func KEY_W() -> int = 22
+-- ... etc
+
+-- Arrow keys
+export pure func KEY_UP() -> int = 31
+export pure func KEY_DOWN() -> int = 28
+export pure func KEY_LEFT() -> int = 29
+export pure func KEY_RIGHT() -> int = 30
+
+-- Special keys
+export pure func KEY_SPACE() -> int = 116
+export pure func KEY_ESCAPE() -> int = 56
+export pure func KEY_ENTER() -> int = 54
+export pure func KEY_SHIFT() -> int = 120
+```
+
+### Keyboard Helper Functions
+
+```ailang
+-- Returns true if key was just pressed this frame (edge detection)
+-- Use for toggle actions, mode switching, etc.
+export pure func is_key_just_pressed(keys: [KeyEvent], keyCode: int) -> bool
+
+-- Returns true if key is currently held down
+-- Use for continuous movement, acceleration, etc.
+export pure func is_key_held(keys: [KeyEvent], keyCode: int) -> bool
+
+-- Returns true if key was just released this frame
+export pure func is_key_just_released(keys: [KeyEvent], keyCode: int) -> bool
+
+-- Check if any of the given keys were just pressed
+export pure func any_key_just_pressed(keys: [KeyEvent], keyCodes: [int]) -> bool
+
+-- Check if any of the given keys are held
+export pure func any_key_held(keys: [KeyEvent], keyCodes: [int]) -> bool
+```
+
+### Mouse Constants
+
+```ailang
+export pure func MOUSE_LEFT() -> int = 0
+export pure func MOUSE_RIGHT() -> int = 1
+export pure func MOUSE_MIDDLE() -> int = 2
+```
+
+### Mouse Helper Functions
+
+```ailang
+-- Returns true if mouse button was just pressed this frame (edge detection)
+-- Use for click actions (select, toggle, etc.)
+export pure func is_mouse_just_pressed(events: [MouseEvent], buttonCode: int) -> bool
+
+-- Returns true if mouse button is currently held down
+-- Use for drag operations, continuous fire, etc.
+export pure func is_mouse_held(events: [MouseEvent], buttonCode: int) -> bool
+
+-- Returns true if mouse button was just released this frame
+export pure func is_mouse_just_released(events: [MouseEvent], buttonCode: int) -> bool
+
+-- Convenience: Check if left mouse button was just clicked
+export pure func is_left_click(events: [MouseEvent]) -> bool
+
+-- Convenience: Check if right mouse button was just clicked
+export pure func is_right_click(events: [MouseEvent]) -> bool
+```
+
+### Usage Example
+
+```ailang
+import sim/input (is_key_just_pressed, is_left_click, KEY_V, KEY_SPACE)
+import sim/protocol (FrameInput)
+
+pure func handleInput(input: FrameInput) -> GameState {
+    -- Toggle velocity with V key (edge detection)
+    if is_key_just_pressed(input.keys, KEY_V()) then
+        toggleVelocity(state)
+    -- Handle left click (edge detection)
+    else if is_left_click(input.mouseEvents) then
+        selectAtMouse(state, input.worldMouseX, input.worldMouseY)
+    else
+        state
+}
+```
+
+---
+
+## 1c. Ship Navigation (`sim/navigation.ail`)
+
+Ship navigation state with keyboard-driven controls for velocity and GR effects.
+
+### Navigation State
+
+```ailang
+export type Quaternion = { w: float, x: float, y: float, z: float }
+
+export type ShipNavigation = {
+    position: Vec3,          -- Light-years (Sol-centered galactocentric)
+    orientation: Quaternion, -- Ship rotation
+    velocity: float,         -- Fraction of c (0.0 to 0.999)
+    heading: Vec3,           -- Normalized direction of travel
+    grPhi: float             -- Gravitational potential (0.0 = flat space)
+}
+```
+
+### Keyboard Controls
+
+The navigation module handles these keys via `stepNavigation`:
+
+| Key | Action |
+|-----|--------|
+| `V` | Cycle velocity presets (0 → 0.2 → 0.5 → 0.8 → 0) |
+| `↑` | Increase velocity by 0.05c |
+| `↓` | Decrease velocity by 0.05c |
+| `]` | Increase GR phi (gravitational potential) |
+| `[` | Decrease GR phi |
+| `0` | Reset to defaults (v=0.5c, phi=0) |
+
+### Functions
+
+```ailang
+-- Initialize ship at Sol
+export pure func initNavigation() -> ShipNavigation
+
+-- Process one frame of navigation input
+export pure func stepNavigation(nav: ShipNavigation, input: FrameInput) -> ShipNavigation
+
+-- Velocity presets
+export pure func cycleVelocity(current: float) -> float
+
+-- Time dilation (Special Relativity)
+export pure func timeDilationFactor(nav: ShipNavigation) -> float
+export pure func properTime(nav: ShipNavigation, coordinateTime: float) -> float
+
+-- Travel for proper time (ship time)
+export pure func travel(nav: ShipNavigation, properDuration: float) -> ShipNavigation
+
+-- View direction helpers
+export pure func getForward(nav: ShipNavigation) -> Vec3
+export pure func getUp(nav: ShipNavigation) -> Vec3
+export pure func getRight(nav: ShipNavigation) -> Vec3
+export pure func windowViewDirection(nav: ShipNavigation, normalX: float, normalY: float, normalZ: float) -> Vec3
+```
+
+### Usage Example
+
+```ailang
+import sim/navigation (ShipNavigation, initNavigation, stepNavigation, timeDilationFactor)
+import sim/protocol (FrameInput)
+
+pure func updateShip(nav: ShipNavigation, input: FrameInput) -> ShipNavigation {
+    let updatedNav = stepNavigation(nav, input);
+    let gamma = timeDilationFactor(updatedNav);
+    -- At v=0.9c, gamma ≈ 2.29 (ship time passes 2.29x slower)
+    updatedNav
+}
+```
+
+**Demo:** `go run ./cmd/demo-game-interior`
+
+---
 
 ### Output Types (DrawCmd)
 
@@ -511,4 +697,4 @@ export pure func getGRIntensity(state: ArrivalState) -> float
 ---
 
 **Document created**: 2025-12-12
-**Last updated**: 2025-12-12
+**Last updated**: 2025-12-22

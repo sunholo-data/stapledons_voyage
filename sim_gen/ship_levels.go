@@ -2,11 +2,11 @@
 package sim_gen
 
 func ship_levels__makeDeckInfo_impl(n interface{}, desc interface{}, color interface{}, y interface{}) interface{} {
-	return &DeckInfo{Name: n.(string), Description: desc.(string), ColorScheme: color.(int64), YOffset: y.(float64)}
+	return DeckInfo{Name: n.(string), Description: desc.(string), ColorScheme: color.(int64), YOffset: y.(float64)}
 }
 
-func ship_levels__makeDeckInfo(n string, desc string, color int64, y float64) *DeckInfo {
-	return ship_levels__makeDeckInfo_impl(n, desc, color, y).(*DeckInfo)
+func ship_levels__makeDeckInfo(n string, desc string, color int64, y float64) DeckInfo {
+	return ship_levels__makeDeckInfo_impl(n, desc, color, y).(DeckInfo)
 }
 
 func ship_levels__makeShipLevels_impl(deck interface{}, trans interface{}, glow interface{}) interface{} {
@@ -47,40 +47,40 @@ func ship_levels__deckInfoCore_impl(_unused0 interface{}) interface{} {
 	return ship_levels__makeDeckInfo_impl("Core", "Antimatter containment and critical systems", int64(4280352255), float64(0))
 }
 
-func ship_levels__deckInfoCore() *DeckInfo {
-	return ship_levels__deckInfoCore_impl(struct{}{}).(*DeckInfo)
+func ship_levels__deckInfoCore() DeckInfo {
+	return ship_levels__deckInfoCore_impl(struct{}{}).(DeckInfo)
 }
 
 func ship_levels__deckInfoEngineering_impl(_unused0 interface{}) interface{} {
 	return ship_levels__makeDeckInfo_impl("Engineering", "Propulsion and power management", int64(4287137535), float64(200))
 }
 
-func ship_levels__deckInfoEngineering() *DeckInfo {
-	return ship_levels__deckInfoEngineering_impl(struct{}{}).(*DeckInfo)
+func ship_levels__deckInfoEngineering() DeckInfo {
+	return ship_levels__deckInfoEngineering_impl(struct{}{}).(DeckInfo)
 }
 
 func ship_levels__deckInfoCulture_impl(_unused0 interface{}) interface{} {
 	return ship_levels__makeDeckInfo_impl("Culture", "Recreation and social spaces", int64(872349695), float64(400))
 }
 
-func ship_levels__deckInfoCulture() *DeckInfo {
-	return ship_levels__deckInfoCulture_impl(struct{}{}).(*DeckInfo)
+func ship_levels__deckInfoCulture() DeckInfo {
+	return ship_levels__deckInfoCulture_impl(struct{}{}).(DeckInfo)
 }
 
 func ship_levels__deckInfoHabitat_impl(_unused0 interface{}) interface{} {
 	return ship_levels__makeDeckInfo_impl("Habitat", "Crew quarters and life support", int64(864026623), float64(600))
 }
 
-func ship_levels__deckInfoHabitat() *DeckInfo {
-	return ship_levels__deckInfoHabitat_impl(struct{}{}).(*DeckInfo)
+func ship_levels__deckInfoHabitat() DeckInfo {
+	return ship_levels__deckInfoHabitat_impl(struct{}{}).(DeckInfo)
 }
 
 func ship_levels__deckInfoBridge_impl(_unused0 interface{}) interface{} {
 	return ship_levels__makeDeckInfo_impl("Bridge", "Command center and navigation", int64(2285789439), float64(800))
 }
 
-func ship_levels__deckInfoBridge() *DeckInfo {
-	return ship_levels__deckInfoBridge_impl(struct{}{}).(*DeckInfo)
+func ship_levels__deckInfoBridge() DeckInfo {
+	return ship_levels__deckInfoBridge_impl(struct{}{}).(DeckInfo)
 }
 
 func getDeckInfo_impl(deck interface{}) interface{} {
@@ -105,8 +105,8 @@ func getDeckInfo_impl(deck interface{}) interface{} {
 	}()
 }
 
-func GetDeckInfo(deck *DeckType) *DeckInfo {
-	return getDeckInfo_impl(deck).(*DeckInfo)
+func GetDeckInfo(deck *DeckType) DeckInfo {
+	return getDeckInfo_impl(deck).(DeckInfo)
 }
 
 func deckAbove_impl(deck interface{}) interface{} {
