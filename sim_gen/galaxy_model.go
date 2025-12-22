@@ -266,13 +266,13 @@ func generateStar_impl(seed interface{}, cellX interface{}, cellY interface{}, c
 	var hasHZ interface{} = func() interface{} {
 		_scrutinee := spectral
 		_ = _scrutinee // suppress unused
-		_adt := _scrutinee.(*SpectralClass)
+		_adt := _scrutinee.(*SpectralType)
 		switch _adt.Kind {
-		case SpectralClassKindG:
+		case SpectralTypeKindG:
 			return LtFloat(hzRoll, float64(0.22))
-		case SpectralClassKindK:
+		case SpectralTypeKindK:
 			return LtFloat(hzRoll, float64(0.15))
-		case SpectralClassKindM:
+		case SpectralTypeKindM:
 			return LtFloat(hzRoll, float64(0.05))
 		default:
 			return false

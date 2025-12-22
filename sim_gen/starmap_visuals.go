@@ -326,7 +326,7 @@ func stepStarmapVisuals_impl(state interface{}, input interface{}) interface{} {
 	var lighting interface{} = func() interface{} {
 		var tmp56 interface{} = RGBColor{R: float64(0), G: float64(0), B: float64(0)}
 		_ = tmp56 // suppress unused
-		var tmp57 interface{} = &AmbientSettings{Energy: float64(0), Color: tmp56.(RGBColor)}
+		var tmp57 interface{} = &AmbientSettings{Energy: float64(0), Color: AsRGBColor(tmp56)}
 		_ = tmp57 // suppress unused
 		var tmp58 interface{} = []interface{}{}
 		_ = tmp58 // suppress unused
@@ -337,7 +337,7 @@ func stepStarmapVisuals_impl(state interface{}, input interface{}) interface{} {
 		_ = tmp54 // suppress unused
 		var tmp55 interface{} = &GRContext{Enabled: false, CenterX: float64(0.5), CenterY: float64(0.5), Phi: float64(0), Rs: float64(0), ObjectType: "none"}
 		_ = tmp55 // suppress unused
-		return &RelativityContext{Sr: tmp54.(SRContext), Gr: tmp55.(*GRContext)}
+		return &RelativityContext{Sr: AsSRContext(tmp54), Gr: tmp55.(*GRContext)}
 	}()
 	var lod interface{} = &LODConfig{Enabled: false, TransitionTime: float64(0), Hysteresis: float64(0), Full3DPixels: float64(0), BillboardPixels: float64(0), CirclePixels: float64(0), PointPixels: float64(0), Max3DObjects: int64(0)}
 	var output interface{} = func() interface{} {
@@ -345,7 +345,7 @@ func stepStarmapVisuals_impl(state interface{}, input interface{}) interface{} {
 		_ = tmp52 // suppress unused
 		var tmp53 interface{} = []interface{}{}
 		_ = tmp53 // suppress unused
-		return &FrameOutput{Draw: ConvertToDrawCmdSlice(drawCmds), Sounds: ConvertToInt64Slice(tmp52), Debug: ConvertToStringSlice(tmp53), Camera: camera.(Camera), Relativity: relativity.(*RelativityContext), Lighting: lighting.(*LightingContext), Lod: lod.(*LODConfig)}
+		return &FrameOutput{Draw: ConvertToDrawCmdSlice(drawCmds), Sounds: ConvertToInt64Slice(tmp52), Debug: ConvertToStringSlice(tmp53), Camera: AsCamera(camera), Relativity: relativity.(*RelativityContext), Lighting: lighting.(*LightingContext), Lod: lod.(*LODConfig)}
 	}()
 	return []interface{}{newState, output}
 }

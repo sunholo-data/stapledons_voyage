@@ -297,7 +297,7 @@ func stepArrival_impl(state interface{}, input interface{}) interface{} {
 				return &ArrivalState{Phase: nextPh.(*ArrivalPhase), PhaseTime: float64(0), TotalTime: newTotalTime.(float64), Velocity: nextVel.(float64), GrIntensity: float64(0), CurrentPlanet: nextPlanet.(*CurrentPlanet), ShipTimeYears: tmp5.(float64), GalaxyYear: tmp6.(int64)}
 			}()
 		}
-		return RecordUpdate(state, map[string]interface{}{"grIntensity": newGR, "phaseTime": newPhaseTime, "totalTime": newTotalTime})
+		return RecordUpdate(state, map[string]interface{}{"phaseTime": newPhaseTime, "totalTime": newTotalTime, "grIntensity": newGR})
 	}()
 }
 

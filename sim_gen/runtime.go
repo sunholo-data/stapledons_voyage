@@ -923,11 +923,13 @@ func ConvertToKeyEventSlice(v interface{}) []KeyEvent {
 	}
 	out := make([]KeyEvent, len(src))
 	for i, e := range src {
-		elem, ok := e.(KeyEvent)
-		if !ok {
-			panic(fmt.Sprintf("ConvertToKeyEventSlice: element %d: expected KeyEvent, got %T", i, e))
+		if elem, ok := e.(KeyEvent); ok {
+			out[i] = elem
+		} else if ptr, ok := e.(*KeyEvent); ok {
+			out[i] = *ptr
+		} else {
+			panic(fmt.Sprintf("ConvertToKeyEventSlice: element %d: expected KeyEvent or *KeyEvent, got %T", i, e))
 		}
-		out[i] = elem
 	}
 	return out
 }
@@ -971,11 +973,13 @@ func ConvertToMouseEventSlice(v interface{}) []MouseEvent {
 	}
 	out := make([]MouseEvent, len(src))
 	for i, e := range src {
-		elem, ok := e.(MouseEvent)
-		if !ok {
-			panic(fmt.Sprintf("ConvertToMouseEventSlice: element %d: expected MouseEvent, got %T", i, e))
+		if elem, ok := e.(MouseEvent); ok {
+			out[i] = elem
+		} else if ptr, ok := e.(*MouseEvent); ok {
+			out[i] = *ptr
+		} else {
+			panic(fmt.Sprintf("ConvertToMouseEventSlice: element %d: expected MouseEvent or *MouseEvent, got %T", i, e))
 		}
-		out[i] = elem
 	}
 	return out
 }
@@ -1283,11 +1287,13 @@ func ConvertToTileSlice(v interface{}) []Tile {
 	}
 	out := make([]Tile, len(src))
 	for i, e := range src {
-		elem, ok := e.(Tile)
-		if !ok {
-			panic(fmt.Sprintf("ConvertToTileSlice: element %d: expected Tile, got %T", i, e))
+		if elem, ok := e.(Tile); ok {
+			out[i] = elem
+		} else if ptr, ok := e.(*Tile); ok {
+			out[i] = *ptr
+		} else {
+			panic(fmt.Sprintf("ConvertToTileSlice: element %d: expected Tile or *Tile, got %T", i, e))
 		}
-		out[i] = elem
 	}
 	return out
 }
@@ -1403,11 +1409,13 @@ func ConvertToArrivalInputSlice(v interface{}) []ArrivalInput {
 	}
 	out := make([]ArrivalInput, len(src))
 	for i, e := range src {
-		elem, ok := e.(ArrivalInput)
-		if !ok {
-			panic(fmt.Sprintf("ConvertToArrivalInputSlice: element %d: expected ArrivalInput, got %T", i, e))
+		if elem, ok := e.(ArrivalInput); ok {
+			out[i] = elem
+		} else if ptr, ok := e.(*ArrivalInput); ok {
+			out[i] = *ptr
+		} else {
+			panic(fmt.Sprintf("ConvertToArrivalInputSlice: element %d: expected ArrivalInput or *ArrivalInput, got %T", i, e))
 		}
-		out[i] = elem
 	}
 	return out
 }
@@ -1451,11 +1459,13 @@ func ConvertToCameraSlice(v interface{}) []Camera {
 	}
 	out := make([]Camera, len(src))
 	for i, e := range src {
-		elem, ok := e.(Camera)
-		if !ok {
-			panic(fmt.Sprintf("ConvertToCameraSlice: element %d: expected Camera, got %T", i, e))
+		if elem, ok := e.(Camera); ok {
+			out[i] = elem
+		} else if ptr, ok := e.(*Camera); ok {
+			out[i] = *ptr
+		} else {
+			panic(fmt.Sprintf("ConvertToCameraSlice: element %d: expected Camera or *Camera, got %T", i, e))
 		}
-		out[i] = elem
 	}
 	return out
 }
@@ -1475,11 +1485,13 @@ func ConvertToColorSlice(v interface{}) []Color {
 	}
 	out := make([]Color, len(src))
 	for i, e := range src {
-		elem, ok := e.(Color)
-		if !ok {
-			panic(fmt.Sprintf("ConvertToColorSlice: element %d: expected Color, got %T", i, e))
+		if elem, ok := e.(Color); ok {
+			out[i] = elem
+		} else if ptr, ok := e.(*Color); ok {
+			out[i] = *ptr
+		} else {
+			panic(fmt.Sprintf("ConvertToColorSlice: element %d: expected Color or *Color, got %T", i, e))
 		}
-		out[i] = elem
 	}
 	return out
 }
@@ -1499,11 +1511,13 @@ func ConvertToCoordSlice(v interface{}) []Coord {
 	}
 	out := make([]Coord, len(src))
 	for i, e := range src {
-		elem, ok := e.(Coord)
-		if !ok {
-			panic(fmt.Sprintf("ConvertToCoordSlice: element %d: expected Coord, got %T", i, e))
+		if elem, ok := e.(Coord); ok {
+			out[i] = elem
+		} else if ptr, ok := e.(*Coord); ok {
+			out[i] = *ptr
+		} else {
+			panic(fmt.Sprintf("ConvertToCoordSlice: element %d: expected Coord or *Coord, got %T", i, e))
 		}
-		out[i] = elem
 	}
 	return out
 }
@@ -1523,11 +1537,13 @@ func ConvertToDeckInfoSlice(v interface{}) []DeckInfo {
 	}
 	out := make([]DeckInfo, len(src))
 	for i, e := range src {
-		elem, ok := e.(DeckInfo)
-		if !ok {
-			panic(fmt.Sprintf("ConvertToDeckInfoSlice: element %d: expected DeckInfo, got %T", i, e))
+		if elem, ok := e.(DeckInfo); ok {
+			out[i] = elem
+		} else if ptr, ok := e.(*DeckInfo); ok {
+			out[i] = *ptr
+		} else {
+			panic(fmt.Sprintf("ConvertToDeckInfoSlice: element %d: expected DeckInfo or *DeckInfo, got %T", i, e))
 		}
-		out[i] = elem
 	}
 	return out
 }
@@ -1763,11 +1779,13 @@ func ConvertToLookDeltaSlice(v interface{}) []LookDelta {
 	}
 	out := make([]LookDelta, len(src))
 	for i, e := range src {
-		elem, ok := e.(LookDelta)
-		if !ok {
-			panic(fmt.Sprintf("ConvertToLookDeltaSlice: element %d: expected LookDelta, got %T", i, e))
+		if elem, ok := e.(LookDelta); ok {
+			out[i] = elem
+		} else if ptr, ok := e.(*LookDelta); ok {
+			out[i] = *ptr
+		} else {
+			panic(fmt.Sprintf("ConvertToLookDeltaSlice: element %d: expected LookDelta or *LookDelta, got %T", i, e))
 		}
-		out[i] = elem
 	}
 	return out
 }
@@ -1859,11 +1877,13 @@ func ConvertToQuaternionSlice(v interface{}) []Quaternion {
 	}
 	out := make([]Quaternion, len(src))
 	for i, e := range src {
-		elem, ok := e.(Quaternion)
-		if !ok {
-			panic(fmt.Sprintf("ConvertToQuaternionSlice: element %d: expected Quaternion, got %T", i, e))
+		if elem, ok := e.(Quaternion); ok {
+			out[i] = elem
+		} else if ptr, ok := e.(*Quaternion); ok {
+			out[i] = *ptr
+		} else {
+			panic(fmt.Sprintf("ConvertToQuaternionSlice: element %d: expected Quaternion or *Quaternion, got %T", i, e))
 		}
-		out[i] = elem
 	}
 	return out
 }
@@ -1883,11 +1903,13 @@ func ConvertToRGBColorSlice(v interface{}) []RGBColor {
 	}
 	out := make([]RGBColor, len(src))
 	for i, e := range src {
-		elem, ok := e.(RGBColor)
-		if !ok {
-			panic(fmt.Sprintf("ConvertToRGBColorSlice: element %d: expected RGBColor, got %T", i, e))
+		if elem, ok := e.(RGBColor); ok {
+			out[i] = elem
+		} else if ptr, ok := e.(*RGBColor); ok {
+			out[i] = *ptr
+		} else {
+			panic(fmt.Sprintf("ConvertToRGBColorSlice: element %d: expected RGBColor or *RGBColor, got %T", i, e))
 		}
-		out[i] = elem
 	}
 	return out
 }
@@ -1931,11 +1953,13 @@ func ConvertToRingBandSlice(v interface{}) []RingBand {
 	}
 	out := make([]RingBand, len(src))
 	for i, e := range src {
-		elem, ok := e.(RingBand)
-		if !ok {
-			panic(fmt.Sprintf("ConvertToRingBandSlice: element %d: expected RingBand, got %T", i, e))
+		if elem, ok := e.(RingBand); ok {
+			out[i] = elem
+		} else if ptr, ok := e.(*RingBand); ok {
+			out[i] = *ptr
+		} else {
+			panic(fmt.Sprintf("ConvertToRingBandSlice: element %d: expected RingBand or *RingBand, got %T", i, e))
 		}
-		out[i] = elem
 	}
 	return out
 }
@@ -2003,11 +2027,13 @@ func ConvertToSRContextSlice(v interface{}) []SRContext {
 	}
 	out := make([]SRContext, len(src))
 	for i, e := range src {
-		elem, ok := e.(SRContext)
-		if !ok {
-			panic(fmt.Sprintf("ConvertToSRContextSlice: element %d: expected SRContext, got %T", i, e))
+		if elem, ok := e.(SRContext); ok {
+			out[i] = elem
+		} else if ptr, ok := e.(*SRContext); ok {
+			out[i] = *ptr
+		} else {
+			panic(fmt.Sprintf("ConvertToSRContextSlice: element %d: expected SRContext or *SRContext, got %T", i, e))
 		}
-		out[i] = elem
 	}
 	return out
 }
@@ -2195,11 +2221,13 @@ func ConvertToSystemPosSlice(v interface{}) []SystemPos {
 	}
 	out := make([]SystemPos, len(src))
 	for i, e := range src {
-		elem, ok := e.(SystemPos)
-		if !ok {
-			panic(fmt.Sprintf("ConvertToSystemPosSlice: element %d: expected SystemPos, got %T", i, e))
+		if elem, ok := e.(SystemPos); ok {
+			out[i] = elem
+		} else if ptr, ok := e.(*SystemPos); ok {
+			out[i] = *ptr
+		} else {
+			panic(fmt.Sprintf("ConvertToSystemPosSlice: element %d: expected SystemPos or *SystemPos, got %T", i, e))
 		}
-		out[i] = elem
 	}
 	return out
 }
@@ -2267,11 +2295,13 @@ func ConvertToVec3Slice(v interface{}) []Vec3 {
 	}
 	out := make([]Vec3, len(src))
 	for i, e := range src {
-		elem, ok := e.(Vec3)
-		if !ok {
-			panic(fmt.Sprintf("ConvertToVec3Slice: element %d: expected Vec3, got %T", i, e))
+		if elem, ok := e.(Vec3); ok {
+			out[i] = elem
+		} else if ptr, ok := e.(*Vec3); ok {
+			out[i] = *ptr
+		} else {
+			panic(fmt.Sprintf("ConvertToVec3Slice: element %d: expected Vec3 or *Vec3, got %T", i, e))
 		}
-		out[i] = elem
 	}
 	return out
 }
@@ -2291,11 +2321,13 @@ func ConvertToVector3Slice(v interface{}) []Vector3 {
 	}
 	out := make([]Vector3, len(src))
 	for i, e := range src {
-		elem, ok := e.(Vector3)
-		if !ok {
-			panic(fmt.Sprintf("ConvertToVector3Slice: element %d: expected Vector3, got %T", i, e))
+		if elem, ok := e.(Vector3); ok {
+			out[i] = elem
+		} else if ptr, ok := e.(*Vector3); ok {
+			out[i] = *ptr
+		} else {
+			panic(fmt.Sprintf("ConvertToVector3Slice: element %d: expected Vector3 or *Vector3, got %T", i, e))
 		}
-		out[i] = elem
 	}
 	return out
 }
@@ -2322,4 +2354,196 @@ func ConvertToWorldSlice(v interface{}) []*World {
 		out[i] = elem
 	}
 	return out
+}
+
+// AsArrivalInput extracts ArrivalInput from interface{} that may contain value or pointer.
+// M-CODEGEN-VALUE-TYPES: Handles both direct construction (value) and FieldGet (pointer).
+func AsArrivalInput(v interface{}) ArrivalInput {
+	if val, ok := v.(ArrivalInput); ok {
+		return val
+	}
+	if ptr, ok := v.(*ArrivalInput); ok {
+		return *ptr
+	}
+	panic(fmt.Sprintf("AsArrivalInput: expected ArrivalInput or *ArrivalInput, got %T", v))
+}
+
+// AsCamera extracts Camera from interface{} that may contain value or pointer.
+// M-CODEGEN-VALUE-TYPES: Handles both direct construction (value) and FieldGet (pointer).
+func AsCamera(v interface{}) Camera {
+	if val, ok := v.(Camera); ok {
+		return val
+	}
+	if ptr, ok := v.(*Camera); ok {
+		return *ptr
+	}
+	panic(fmt.Sprintf("AsCamera: expected Camera or *Camera, got %T", v))
+}
+
+// AsColor extracts Color from interface{} that may contain value or pointer.
+// M-CODEGEN-VALUE-TYPES: Handles both direct construction (value) and FieldGet (pointer).
+func AsColor(v interface{}) Color {
+	if val, ok := v.(Color); ok {
+		return val
+	}
+	if ptr, ok := v.(*Color); ok {
+		return *ptr
+	}
+	panic(fmt.Sprintf("AsColor: expected Color or *Color, got %T", v))
+}
+
+// AsCoord extracts Coord from interface{} that may contain value or pointer.
+// M-CODEGEN-VALUE-TYPES: Handles both direct construction (value) and FieldGet (pointer).
+func AsCoord(v interface{}) Coord {
+	if val, ok := v.(Coord); ok {
+		return val
+	}
+	if ptr, ok := v.(*Coord); ok {
+		return *ptr
+	}
+	panic(fmt.Sprintf("AsCoord: expected Coord or *Coord, got %T", v))
+}
+
+// AsDeckInfo extracts DeckInfo from interface{} that may contain value or pointer.
+// M-CODEGEN-VALUE-TYPES: Handles both direct construction (value) and FieldGet (pointer).
+func AsDeckInfo(v interface{}) DeckInfo {
+	if val, ok := v.(DeckInfo); ok {
+		return val
+	}
+	if ptr, ok := v.(*DeckInfo); ok {
+		return *ptr
+	}
+	panic(fmt.Sprintf("AsDeckInfo: expected DeckInfo or *DeckInfo, got %T", v))
+}
+
+// AsKeyEvent extracts KeyEvent from interface{} that may contain value or pointer.
+// M-CODEGEN-VALUE-TYPES: Handles both direct construction (value) and FieldGet (pointer).
+func AsKeyEvent(v interface{}) KeyEvent {
+	if val, ok := v.(KeyEvent); ok {
+		return val
+	}
+	if ptr, ok := v.(*KeyEvent); ok {
+		return *ptr
+	}
+	panic(fmt.Sprintf("AsKeyEvent: expected KeyEvent or *KeyEvent, got %T", v))
+}
+
+// AsLookDelta extracts LookDelta from interface{} that may contain value or pointer.
+// M-CODEGEN-VALUE-TYPES: Handles both direct construction (value) and FieldGet (pointer).
+func AsLookDelta(v interface{}) LookDelta {
+	if val, ok := v.(LookDelta); ok {
+		return val
+	}
+	if ptr, ok := v.(*LookDelta); ok {
+		return *ptr
+	}
+	panic(fmt.Sprintf("AsLookDelta: expected LookDelta or *LookDelta, got %T", v))
+}
+
+// AsMouseEvent extracts MouseEvent from interface{} that may contain value or pointer.
+// M-CODEGEN-VALUE-TYPES: Handles both direct construction (value) and FieldGet (pointer).
+func AsMouseEvent(v interface{}) MouseEvent {
+	if val, ok := v.(MouseEvent); ok {
+		return val
+	}
+	if ptr, ok := v.(*MouseEvent); ok {
+		return *ptr
+	}
+	panic(fmt.Sprintf("AsMouseEvent: expected MouseEvent or *MouseEvent, got %T", v))
+}
+
+// AsQuaternion extracts Quaternion from interface{} that may contain value or pointer.
+// M-CODEGEN-VALUE-TYPES: Handles both direct construction (value) and FieldGet (pointer).
+func AsQuaternion(v interface{}) Quaternion {
+	if val, ok := v.(Quaternion); ok {
+		return val
+	}
+	if ptr, ok := v.(*Quaternion); ok {
+		return *ptr
+	}
+	panic(fmt.Sprintf("AsQuaternion: expected Quaternion or *Quaternion, got %T", v))
+}
+
+// AsRGBColor extracts RGBColor from interface{} that may contain value or pointer.
+// M-CODEGEN-VALUE-TYPES: Handles both direct construction (value) and FieldGet (pointer).
+func AsRGBColor(v interface{}) RGBColor {
+	if val, ok := v.(RGBColor); ok {
+		return val
+	}
+	if ptr, ok := v.(*RGBColor); ok {
+		return *ptr
+	}
+	panic(fmt.Sprintf("AsRGBColor: expected RGBColor or *RGBColor, got %T", v))
+}
+
+// AsRingBand extracts RingBand from interface{} that may contain value or pointer.
+// M-CODEGEN-VALUE-TYPES: Handles both direct construction (value) and FieldGet (pointer).
+func AsRingBand(v interface{}) RingBand {
+	if val, ok := v.(RingBand); ok {
+		return val
+	}
+	if ptr, ok := v.(*RingBand); ok {
+		return *ptr
+	}
+	panic(fmt.Sprintf("AsRingBand: expected RingBand or *RingBand, got %T", v))
+}
+
+// AsSRContext extracts SRContext from interface{} that may contain value or pointer.
+// M-CODEGEN-VALUE-TYPES: Handles both direct construction (value) and FieldGet (pointer).
+func AsSRContext(v interface{}) SRContext {
+	if val, ok := v.(SRContext); ok {
+		return val
+	}
+	if ptr, ok := v.(*SRContext); ok {
+		return *ptr
+	}
+	panic(fmt.Sprintf("AsSRContext: expected SRContext or *SRContext, got %T", v))
+}
+
+// AsSystemPos extracts SystemPos from interface{} that may contain value or pointer.
+// M-CODEGEN-VALUE-TYPES: Handles both direct construction (value) and FieldGet (pointer).
+func AsSystemPos(v interface{}) SystemPos {
+	if val, ok := v.(SystemPos); ok {
+		return val
+	}
+	if ptr, ok := v.(*SystemPos); ok {
+		return *ptr
+	}
+	panic(fmt.Sprintf("AsSystemPos: expected SystemPos or *SystemPos, got %T", v))
+}
+
+// AsTile extracts Tile from interface{} that may contain value or pointer.
+// M-CODEGEN-VALUE-TYPES: Handles both direct construction (value) and FieldGet (pointer).
+func AsTile(v interface{}) Tile {
+	if val, ok := v.(Tile); ok {
+		return val
+	}
+	if ptr, ok := v.(*Tile); ok {
+		return *ptr
+	}
+	panic(fmt.Sprintf("AsTile: expected Tile or *Tile, got %T", v))
+}
+
+// AsVec3 extracts Vec3 from interface{} that may contain value or pointer.
+// M-CODEGEN-VALUE-TYPES: Handles both direct construction (value) and FieldGet (pointer).
+func AsVec3(v interface{}) Vec3 {
+	if val, ok := v.(Vec3); ok {
+		return val
+	}
+	if ptr, ok := v.(*Vec3); ok {
+		return *ptr
+	}
+	panic(fmt.Sprintf("AsVec3: expected Vec3 or *Vec3, got %T", v))
+}
+
+// AsVector3 extracts Vector3 from interface{} that may contain value or pointer.
+// M-CODEGEN-VALUE-TYPES: Handles both direct construction (value) and FieldGet (pointer).
+func AsVector3(v interface{}) Vector3 {
+	if val, ok := v.(Vector3); ok {
+		return val
+	}
+	if ptr, ok := v.(*Vector3); ok {
+		return *ptr
+	}
+	panic(fmt.Sprintf("AsVector3: expected Vector3 or *Vector3, got %T", v))
 }

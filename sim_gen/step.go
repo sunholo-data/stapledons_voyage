@@ -446,23 +446,23 @@ func initWorld_impl(seed interface{}) interface{} {
 		_ = tmp71 // suppress unused
 		var tmp72 interface{} = NewMovementPatternPatternRandomWalk(int64(30))
 		_ = tmp72 // suppress unused
-		var tmp73 interface{} = &NPC{Id: int64(1), Pos: tmp71.(Coord), Pattern: tmp72.(*MovementPattern), MoveCounter: int64(30), PatrolIndex: int64(0)}
+		var tmp73 interface{} = &NPC{Id: int64(1), Pos: AsCoord(tmp71), Pattern: tmp72.(*MovementPattern), MoveCounter: int64(30), PatrolIndex: int64(0)}
 		_ = tmp73 // suppress unused
 		var tmp74 interface{} = Coord{X: int64(5), Y: int64(3)}
 		_ = tmp74 // suppress unused
 		var tmp75 interface{} = NewMovementPatternPatternRandomWalk(int64(45))
 		_ = tmp75 // suppress unused
-		var tmp76 interface{} = &NPC{Id: int64(2), Pos: tmp74.(Coord), Pattern: tmp75.(*MovementPattern), MoveCounter: int64(45), PatrolIndex: int64(0)}
+		var tmp76 interface{} = &NPC{Id: int64(2), Pos: AsCoord(tmp74), Pattern: tmp75.(*MovementPattern), MoveCounter: int64(45), PatrolIndex: int64(0)}
 		_ = tmp76 // suppress unused
 		var tmp77 interface{} = Coord{X: int64(4), Y: int64(4)}
 		_ = tmp77 // suppress unused
-		var tmp78 interface{} = &NPC{Id: int64(3), Pos: tmp77.(Coord), Pattern: NewMovementPatternPatternStatic(), MoveCounter: int64(0), PatrolIndex: int64(0)}
+		var tmp78 interface{} = &NPC{Id: int64(3), Pos: AsCoord(tmp77), Pattern: NewMovementPatternPatternStatic(), MoveCounter: int64(0), PatrolIndex: int64(0)}
 		_ = tmp78 // suppress unused
 		var tmp79 interface{} = Coord{X: int64(1), Y: int64(1)}
 		_ = tmp79 // suppress unused
 		var tmp80 interface{} = NewMovementPatternPatternPatrol(ConvertToDirectionSlice(patrolPath))
 		_ = tmp80 // suppress unused
-		var tmp81 interface{} = &NPC{Id: int64(4), Pos: tmp79.(Coord), Pattern: tmp80.(*MovementPattern), MoveCounter: int64(0), PatrolIndex: int64(0)}
+		var tmp81 interface{} = &NPC{Id: int64(4), Pos: AsCoord(tmp79), Pattern: tmp80.(*MovementPattern), MoveCounter: int64(0), PatrolIndex: int64(0)}
 		_ = tmp81 // suppress unused
 		return []interface{}{tmp73, tmp76, tmp78, tmp81}
 	}()
@@ -582,7 +582,7 @@ func step__updateInteriorView_impl(world interface{}, input interface{}, newTick
 		_ = tmp95 // suppress unused
 		return RecordUpdate(tmp95, map[string]interface{}{"velocity": newVelocity})
 	}()
-	return RecordUpdate(world, map[string]interface{}{"currentSystem": updatedSystem, "shipNavigation": updatedNav, "tick": newTick, "interior": updatedInterior})
+	return RecordUpdate(world, map[string]interface{}{"interior": updatedInterior, "currentSystem": updatedSystem, "shipNavigation": updatedNav, "tick": newTick})
 }
 
 func step__updateInteriorView(world *World, input *FrameInput, newTick int64) *World {
@@ -668,11 +668,11 @@ func step_impl(world interface{}, input interface{}) interface{} {
 		_ = tmp112 // suppress unused
 		return &GRContext{Enabled: false, CenterX: float64(0.5), CenterY: float64(0.5), Phi: tmp112.(float64), Rs: float64(0), ObjectType: ""}
 	}()
-	var relCtx interface{} = &RelativityContext{Sr: srCtx.(SRContext), Gr: grCtx.(*GRContext)}
+	var relCtx interface{} = &RelativityContext{Sr: AsSRContext(srCtx), Gr: grCtx.(*GRContext)}
 	var ambientSettings interface{} = func() interface{} {
 		var tmp110 interface{} = RGBColor{R: float64(1), G: float64(1), B: float64(1)}
 		_ = tmp110 // suppress unused
-		return &AmbientSettings{Energy: float64(1), Color: tmp110.(RGBColor)}
+		return &AmbientSettings{Energy: float64(1), Color: AsRGBColor(tmp110)}
 	}()
 	var lightingCtx interface{} = func() interface{} {
 		var tmp109 interface{} = []interface{}{}
@@ -685,7 +685,7 @@ func step_impl(world interface{}, input interface{}) interface{} {
 		_ = tmp107 // suppress unused
 		var tmp108 interface{} = []interface{}{}
 		_ = tmp108 // suppress unused
-		return &FrameOutput{Draw: ConvertToDrawCmdSlice(drawCmds), Sounds: ConvertToInt64Slice(tmp107), Debug: ConvertToStringSlice(tmp108), Camera: cam.(Camera), Relativity: relCtx.(*RelativityContext), Lighting: lightingCtx.(*LightingContext), Lod: lodConfig.(*LODConfig)}
+		return &FrameOutput{Draw: ConvertToDrawCmdSlice(drawCmds), Sounds: ConvertToInt64Slice(tmp107), Debug: ConvertToStringSlice(tmp108), Camera: AsCamera(cam), Relativity: relCtx.(*RelativityContext), Lighting: lightingCtx.(*LightingContext), Lod: lodConfig.(*LODConfig)}
 	}()
 	return []interface{}{newWorld, output}
 }

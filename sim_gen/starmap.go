@@ -220,7 +220,7 @@ func nearestStar_impl(cat interface{}, pos interface{}) interface{} {
 				_ = tmp27 // suppress unused
 				var tmp28 interface{} = vec3Zero_impl(struct{}{})
 				_ = tmp28 // suppress unused
-				return &Star{Id: tmp27.(int64), Name: "NONE", Pos: tmp28.(Vec3), Spectral: NewSpectralTypeM(), Luminosity: float64(0), Radius: float64(0), Temperature: int64(0), HasHZPlanet: false}
+				return &Star{Id: tmp27.(int64), Name: "NONE", Pos: AsVec3(tmp28), Spectral: NewSpectralTypeM(), Luminosity: float64(0), Radius: float64(0), Temperature: int64(0), HasHZPlanet: false}
 			}()
 		} else if ListLen(_scrutinee) >= 1 {
 			first := ListHead(_scrutinee)
@@ -383,7 +383,7 @@ func SpectralColor(spec *SpectralType) int64 {
 func makeStar_impl(id interface{}, name interface{}, x interface{}, y interface{}, z interface{}, spec interface{}, radius interface{}, temp interface{}, hasHZ interface{}) interface{} {
 	var tmp35 interface{} = makeVec3_impl(x, y, z)
 	var tmp36 interface{} = luminosityForSpectral_impl(spec)
-	return &Star{Id: id.(int64), Name: name.(string), Pos: tmp35.(Vec3), Spectral: spec.(*SpectralType), Luminosity: tmp36.(float64), Radius: radius.(float64), Temperature: temp.(int64), HasHZPlanet: hasHZ.(bool)}
+	return &Star{Id: id.(int64), Name: name.(string), Pos: AsVec3(tmp35), Spectral: spec.(*SpectralType), Luminosity: tmp36.(float64), Radius: radius.(float64), Temperature: temp.(int64), HasHZPlanet: hasHZ.(bool)}
 }
 
 func MakeStar(id int64, name string, x float64, y float64, z float64, spec *SpectralType, radius float64, temp int64, hasHZ bool) *Star {

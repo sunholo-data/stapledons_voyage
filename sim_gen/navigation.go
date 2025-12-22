@@ -100,7 +100,7 @@ func initNavigation_impl(_unused0 interface{}) interface{} {
 	var tmp29 interface{} = vec3Zero_impl(struct{}{})
 	var tmp30 interface{} = quatIdentity_impl(struct{}{})
 	var tmp31 interface{} = makeVec3_impl(float64(0), float64(0), float64(1))
-	return &ShipNavigation{Position: tmp29.(Vec3), Orientation: tmp30.(Quaternion), Velocity: float64(0), Heading: tmp31.(Vec3), GrPhi: float64(0)}
+	return &ShipNavigation{Position: AsVec3(tmp29), Orientation: AsQuaternion(tmp30), Velocity: float64(0), Heading: AsVec3(tmp31), GrPhi: float64(0)}
 }
 
 func InitNavigation() *ShipNavigation {
@@ -113,7 +113,7 @@ func setPosition_impl(nav interface{}, x interface{}, y interface{}, z interface
 	var tmp34 interface{} = FieldGet(nav, "velocity")
 	var tmp35 interface{} = FieldGet(nav, "heading")
 	var tmp36 interface{} = FieldGet(nav, "grPhi")
-	return &ShipNavigation{Position: tmp32.(Vec3), Orientation: tmp33.(Quaternion), Velocity: tmp34.(float64), Heading: tmp35.(Vec3), GrPhi: tmp36.(float64)}
+	return &ShipNavigation{Position: AsVec3(tmp32), Orientation: AsQuaternion(tmp33), Velocity: tmp34.(float64), Heading: AsVec3(tmp35), GrPhi: tmp36.(float64)}
 }
 
 func SetPosition(nav *ShipNavigation, x float64, y float64, z float64) *ShipNavigation {
@@ -138,7 +138,7 @@ func setVelocity_impl(nav interface{}, v interface{}) interface{} {
 	var tmp38 interface{} = FieldGet(nav, "orientation")
 	var tmp39 interface{} = FieldGet(nav, "heading")
 	var tmp40 interface{} = FieldGet(nav, "grPhi")
-	return &ShipNavigation{Position: tmp37.(Vec3), Orientation: tmp38.(Quaternion), Velocity: clampedV.(float64), Heading: tmp39.(Vec3), GrPhi: tmp40.(float64)}
+	return &ShipNavigation{Position: AsVec3(tmp37), Orientation: AsQuaternion(tmp38), Velocity: clampedV.(float64), Heading: AsVec3(tmp39), GrPhi: tmp40.(float64)}
 }
 
 func SetVelocity(nav *ShipNavigation, v float64) *ShipNavigation {
@@ -181,7 +181,7 @@ func setHeading_impl(nav interface{}, hx interface{}, hy interface{}, hz interfa
 	var tmp44 interface{} = FieldGet(nav, "orientation")
 	var tmp45 interface{} = FieldGet(nav, "velocity")
 	var tmp46 interface{} = FieldGet(nav, "grPhi")
-	return &ShipNavigation{Position: tmp43.(Vec3), Orientation: tmp44.(Quaternion), Velocity: tmp45.(float64), Heading: normalizedH.(Vec3), GrPhi: tmp46.(float64)}
+	return &ShipNavigation{Position: AsVec3(tmp43), Orientation: AsQuaternion(tmp44), Velocity: tmp45.(float64), Heading: AsVec3(normalizedH), GrPhi: tmp46.(float64)}
 }
 
 func SetHeading(nav *ShipNavigation, hx float64, hy float64, hz float64) *ShipNavigation {
@@ -301,7 +301,7 @@ func travel_impl(nav interface{}, properDuration interface{}) interface{} {
 	var tmp71 interface{} = FieldGet(nav, "velocity")
 	var tmp72 interface{} = FieldGet(nav, "heading")
 	var tmp73 interface{} = FieldGet(nav, "grPhi")
-	return &ShipNavigation{Position: tmp69.(Vec3), Orientation: tmp70.(Quaternion), Velocity: tmp71.(float64), Heading: tmp72.(Vec3), GrPhi: tmp73.(float64)}
+	return &ShipNavigation{Position: AsVec3(tmp69), Orientation: AsQuaternion(tmp70), Velocity: tmp71.(float64), Heading: AsVec3(tmp72), GrPhi: tmp73.(float64)}
 }
 
 func Travel(nav *ShipNavigation, properDuration float64) *ShipNavigation {
@@ -528,7 +528,7 @@ func stepNavigation_impl(nav interface{}, input interface{}) interface{} {
 	var tmp83 interface{} = FieldGet(nav, "position")
 	var tmp84 interface{} = FieldGet(nav, "orientation")
 	var tmp85 interface{} = FieldGet(nav, "heading")
-	return &ShipNavigation{Position: tmp83.(Vec3), Orientation: tmp84.(Quaternion), Velocity: finalV.(float64), Heading: tmp85.(Vec3), GrPhi: finalPhi.(float64)}
+	return &ShipNavigation{Position: AsVec3(tmp83), Orientation: AsQuaternion(tmp84), Velocity: finalV.(float64), Heading: AsVec3(tmp85), GrPhi: finalPhi.(float64)}
 }
 
 func StepNavigation(nav *ShipNavigation, input *FrameInput) *ShipNavigation {

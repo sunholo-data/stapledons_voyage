@@ -552,7 +552,7 @@ func InitSolarDemo() *SolarDemoState {
 
 func solar_demo__buildAmbientSettings_impl(level interface{}) interface{} {
 	var tmp53 interface{} = RGBColor{R: float64(0.08), G: float64(0.08), B: float64(0.1)}
-	return &AmbientSettings{Energy: level.(float64), Color: tmp53.(RGBColor)}
+	return &AmbientSettings{Energy: level.(float64), Color: AsRGBColor(tmp53)}
 }
 
 func solar_demo__buildAmbientSettings(level float64) *AmbientSettings {
@@ -561,7 +561,7 @@ func solar_demo__buildAmbientSettings(level float64) *AmbientSettings {
 
 func solar_demo__buildSunLight_impl(energy interface{}) interface{} {
 	var tmp54 interface{} = RGBColor{R: float64(1), G: float64(0.95), B: float64(0.85)}
-	return &LightSource{Id: "sun", X: float64(0), Y: float64(0), Z: float64(0), Energy: energy.(float64), Color: tmp54.(RGBColor), Range: float64(0)}
+	return &LightSource{Id: "sun", X: float64(0), Y: float64(0), Z: float64(0), Energy: energy.(float64), Color: AsRGBColor(tmp54), Range: float64(0)}
 }
 
 func solar_demo__buildSunLight(energy float64) *LightSource {
@@ -599,7 +599,7 @@ func solar_demo__buildGRContext(enabled bool, centerX float64, centerY float64, 
 func solar_demo__buildRelativityContext_impl(velocity interface{}, grEnabled interface{}, grCenterX interface{}, grCenterY interface{}, grPhi interface{}) interface{} {
 	var tmp59 interface{} = solar_demo__buildSRContext_impl(velocity)
 	var tmp60 interface{} = solar_demo__buildGRContext_impl(grEnabled, grCenterX, grCenterY, grPhi)
-	return &RelativityContext{Sr: tmp59.(SRContext), Gr: tmp60.(*GRContext)}
+	return &RelativityContext{Sr: AsSRContext(tmp59), Gr: tmp60.(*GRContext)}
 }
 
 func solar_demo__buildRelativityContext(velocity float64, grEnabled bool, grCenterX float64, grCenterY float64, grPhi float64) *RelativityContext {
@@ -763,7 +763,7 @@ func solar_demo__buildFrameOutput_impl(state interface{}) interface{} {
 	var tmp94 interface{} = []interface{}{}
 	var tmp95 interface{} = solar_demo__buildCamera_impl(state)
 	var tmp96 interface{} = solar_demo__buildDefaultLODConfig_impl(struct{}{})
-	return &FrameOutput{Draw: ConvertToDrawCmdSlice(drawCmds), Sounds: ConvertToInt64Slice(tmp93), Debug: ConvertToStringSlice(tmp94), Camera: tmp95.(Camera), Relativity: relativity.(*RelativityContext), Lighting: lighting.(*LightingContext), Lod: tmp96.(*LODConfig)}
+	return &FrameOutput{Draw: ConvertToDrawCmdSlice(drawCmds), Sounds: ConvertToInt64Slice(tmp93), Debug: ConvertToStringSlice(tmp94), Camera: AsCamera(tmp95), Relativity: relativity.(*RelativityContext), Lighting: lighting.(*LightingContext), Lod: tmp96.(*LODConfig)}
 }
 
 func solar_demo__buildFrameOutput(state *SolarDemoState) *FrameOutput {

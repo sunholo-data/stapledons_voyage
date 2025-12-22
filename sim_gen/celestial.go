@@ -205,7 +205,7 @@ func initSolSystem_impl(_unused0 interface{}) interface{} {
 	}()
 	var tmp13 interface{} = NewStarTypeMainSequence(NewSpectralClassG())
 	var tmp14 interface{} = SystemPos{X: float64(0), Y: float64(0), Z: float64(0)}
-	return &StarSystem{Id: int64(0), Name: "Sol", StarType: tmp13.(*StarType), Position: tmp14.(SystemPos), Planets: ConvertToCelestialPlanetSlice(planets)}
+	return &StarSystem{Id: int64(0), Name: "Sol", StarType: tmp13.(*StarType), Position: AsSystemPos(tmp14), Planets: ConvertToCelestialPlanetSlice(planets)}
 }
 
 func InitSolSystem() *StarSystem {
@@ -315,7 +315,7 @@ func stepSystem_impl(system interface{}, dt interface{}) interface{} {
 	var tmp55 interface{} = FieldGet(system, "name")
 	var tmp56 interface{} = FieldGet(system, "starType")
 	var tmp57 interface{} = FieldGet(system, "position")
-	return &StarSystem{Id: tmp54.(int64), Name: tmp55.(string), StarType: tmp56.(*StarType), Position: tmp57.(SystemPos), Planets: ConvertToCelestialPlanetSlice(updatedPlanets)}
+	return &StarSystem{Id: tmp54.(int64), Name: tmp55.(string), StarType: tmp56.(*StarType), Position: AsSystemPos(tmp57), Planets: ConvertToCelestialPlanetSlice(updatedPlanets)}
 }
 
 func StepSystem(system *StarSystem, dt float64) *StarSystem {
@@ -584,7 +584,7 @@ func renderPlanetTextured_impl(planet interface{}, centerX interface{}, centerY 
 									_adt := _scrutinee.(*Option)
 									switch _adt.Kind {
 									case OptionKindSome:
-										c := _adt.Some.Value0
+										c := _adt.Some.Value0.(*Color)
 										_ = c // suppress unused
 										return packColor_impl(c)
 									case OptionKindNone:
@@ -655,7 +655,7 @@ func celestial__renderPlanetRing_impl(planet interface{}, centerX interface{}, c
 									_adt := _scrutinee.(*Option)
 									switch _adt.Kind {
 									case OptionKindSome:
-										c := _adt.Some.Value0
+										c := _adt.Some.Value0.(*Color)
 										_ = c // suppress unused
 										return packColor_impl(c)
 									case OptionKindNone:

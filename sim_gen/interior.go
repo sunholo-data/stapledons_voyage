@@ -191,7 +191,7 @@ func MakeRoomTexturedScale(w float64, d float64, h float64, floor string, wall s
 func makeConsole_impl(id interface{}, x interface{}, z interface{}) interface{} {
 	var tmp16 interface{} = interior__vec3_impl(x, float64(0.5), z)
 	var tmp17 interface{} = interior__colorConsoleDefault_impl(struct{}{})
-	return &PropDef{Id: id.(string), Pos: tmp16.(Vec3), ScaleX: float64(1.5), ScaleY: float64(0.6), ScaleZ: float64(0.5), Texture: "", Color: tmp17.(int64)}
+	return &PropDef{Id: id.(string), Pos: AsVec3(tmp16), ScaleX: float64(1.5), ScaleY: float64(0.6), ScaleZ: float64(0.5), Texture: "", Color: tmp17.(int64)}
 }
 
 func MakeConsole(id string, x float64, z float64) *PropDef {
@@ -201,7 +201,7 @@ func MakeConsole(id string, x float64, z float64) *PropDef {
 func makeChair_impl(id interface{}, x interface{}, z interface{}) interface{} {
 	var tmp18 interface{} = interior__vec3_impl(x, float64(0.4), z)
 	var tmp19 interface{} = interior__colorChairDefault_impl(struct{}{})
-	return &PropDef{Id: id.(string), Pos: tmp18.(Vec3), ScaleX: float64(0.8), ScaleY: float64(0.8), ScaleZ: float64(0.8), Texture: "", Color: tmp19.(int64)}
+	return &PropDef{Id: id.(string), Pos: AsVec3(tmp18), ScaleX: float64(0.8), ScaleY: float64(0.8), ScaleZ: float64(0.8), Texture: "", Color: tmp19.(int64)}
 }
 
 func MakeChair(id string, x float64, z float64) *PropDef {
@@ -210,7 +210,7 @@ func MakeChair(id string, x float64, z float64) *PropDef {
 
 func makeProp_impl(id interface{}, x interface{}, y interface{}, z interface{}, sx interface{}, sy interface{}, sz interface{}, color interface{}) interface{} {
 	var tmp20 interface{} = interior__vec3_impl(x, y, z)
-	return &PropDef{Id: id.(string), Pos: tmp20.(Vec3), ScaleX: sx.(float64), ScaleY: sy.(float64), ScaleZ: sz.(float64), Texture: "", Color: color.(int64)}
+	return &PropDef{Id: id.(string), Pos: AsVec3(tmp20), ScaleX: sx.(float64), ScaleY: sy.(float64), ScaleZ: sz.(float64), Texture: "", Color: color.(int64)}
 }
 
 func MakeProp(id string, x float64, y float64, z float64, sx float64, sy float64, sz float64, color int64) *PropDef {
@@ -219,7 +219,7 @@ func MakeProp(id string, x float64, y float64, z float64, sx float64, sy float64
 
 func makeCharacter_impl(id interface{}, x interface{}, z interface{}, sprite interface{}) interface{} {
 	var tmp21 interface{} = interior__vec3_impl(x, float64(0), z)
-	return &CharacterDef{Id: id.(string), Pos: tmp21.(Vec3), SpriteId: sprite.(int64), Scale: float64(1)}
+	return &CharacterDef{Id: id.(string), Pos: AsVec3(tmp21), SpriteId: sprite.(int64), Scale: float64(1)}
 }
 
 func MakeCharacter(id string, x float64, z float64, sprite int64) *CharacterDef {
@@ -265,7 +265,7 @@ func initInterior_impl(_unused0 interface{}) interface{} {
 	var tmp32 interface{} = interior__eyeHeight_impl(struct{}{})
 	var tmp33 interface{} = interior__vec3_impl(float64(0), tmp32, float64(2))
 	var tmp34 interface{} = SubFloat(float64(0), float64(0.2))
-	var tmp35 interface{} = &InteriorPlayer{Pos: tmp33.(Vec3), Yaw: float64(0), Pitch: tmp34.(float64), IsRunning: false}
+	var tmp35 interface{} = &InteriorPlayer{Pos: AsVec3(tmp33), Yaw: float64(0), Pitch: tmp34.(float64), IsRunning: false}
 	var tmp36 interface{} = createBridgeInterior_impl(struct{}{})
 	return &InteriorState{Player: tmp35.(*InteriorPlayer), CurrentRoom: tmp36.(*InteriorRoom), CurrentDeck: NewDeckSelectionSceneBridge(), Fov: float64(70), Tick: int64(0)}
 }

@@ -2287,23 +2287,6 @@ type LookDelta struct {
 	PitchDelta float64
 }
 
-// Quaternion is a record type
-type Quaternion struct {
-	W float64
-	X float64
-	Y float64
-	Z float64
-}
-
-// ShipNavigation is a record type
-type ShipNavigation struct {
-	Position    Vec3
-	Orientation Quaternion
-	Velocity    float64
-	Heading     Vec3
-	GrPhi       float64
-}
-
 // Vector3 is a record type
 type Vector3 struct {
 	X float64
@@ -2366,6 +2349,23 @@ type SolarDemoState struct {
 	GrPhi        float64
 	SunEnergy    float64
 	AmbientLevel float64
+}
+
+// Quaternion is a record type
+type Quaternion struct {
+	W float64
+	X float64
+	Y float64
+	Z float64
+}
+
+// ShipNavigation is a record type
+type ShipNavigation struct {
+	Position    Vec3
+	Orientation Quaternion
+	Velocity    float64
+	Heading     Vec3
+	GrPhi       float64
 }
 
 // RoomTheme is a record type
