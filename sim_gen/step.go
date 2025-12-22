@@ -603,7 +603,7 @@ func step__updatePlanetView_impl(world interface{}, input interface{}, newTick i
 		_ = tmp105 // suppress unused
 		return updateAllNPCs_impl(tmp101, tmp103, tmp105)
 	}()
-	return RecordUpdate(world, map[string]interface{}{"tick": newTick, "npcs": updatedNpcs, "selection": newSelection})
+	return RecordUpdate(world, map[string]interface{}{"selection": newSelection, "tick": newTick, "npcs": updatedNpcs})
 }
 
 func step__updatePlanetView(world *World, input *FrameInput, newTick int64) *World {

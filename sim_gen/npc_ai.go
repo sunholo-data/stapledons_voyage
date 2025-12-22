@@ -240,7 +240,7 @@ func npc_ai__updatePatrol_impl(npc interface{}, path interface{}, width interfac
 							}()
 						}()
 						_ = nextIndex // suppress unused
-						return RecordUpdate(movedNpc, map[string]interface{}{"moveCounter": int64(20), "patrolIndex": nextIndex})
+						return RecordUpdate(movedNpc, map[string]interface{}{"patrolIndex": nextIndex, "moveCounter": int64(20)})
 					}()
 				}()
 			}()

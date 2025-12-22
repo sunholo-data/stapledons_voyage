@@ -696,58 +696,8 @@ func interior__applyMovement(player *InteriorPlayer, delta *Vec3, room *RoomDef)
 
 func interior__isTabPressed_impl(input interface{}) interface{} {
 	var tmp111 interface{} = FieldGet(input, "keys")
-	return func() interface{} {
-		_scrutinee := tmp111
-		_ = _scrutinee // suppress unused
-		if ListLen(_scrutinee) == 0 {
-			return false
-		} else if ListLen(_scrutinee) >= 1 {
-			key := ListHead(_scrutinee)
-			_ = key // suppress unused
-			rest := ListTail(_scrutinee)
-			_ = rest // suppress unused
-			return func() interface{} {
-				var tmp112 interface{} = FieldGet(key, "key")
-				_ = tmp112 // suppress unused
-				var tmp113 interface{} = EqInt(tmp112, int64(117))
-				_ = tmp113 // suppress unused
-				var tmp114 interface{} = FieldGet(key, "key")
-				_ = tmp114 // suppress unused
-				var tmp115 interface{} = EqInt(tmp114, int64(258))
-				_ = tmp115 // suppress unused
-				var tmp116 interface{} = func() interface{} {
-					if tmp113.(bool) {
-						return true
-					}
-					return tmp115
-				}()
-				_ = tmp116 // suppress unused
-				var tmp117 interface{} = FieldGet(key, "kind")
-				_ = tmp117 // suppress unused
-				var tmp118 interface{} = EqString(tmp117, "press")
-				_ = tmp118 // suppress unused
-				var tmp119 interface{} = func() interface{} {
-					if tmp116.(bool) {
-						return tmp118
-					}
-					return false
-				}()
-				_ = tmp119 // suppress unused
-				return func() interface{} {
-					if tmp119.(bool) {
-						return true
-					}
-					return func() interface{} {
-						var tmp120 interface{} = RecordUpdate(input, map[string]interface{}{"keys": rest})
-						_ = tmp120 // suppress unused
-						return interior__isTabPressed_impl(tmp120)
-					}()
-				}()
-			}()
-		} else {
-			panic("non-exhaustive match")
-		}
-	}()
+	var tmp112 interface{} = kEYTAB_impl(struct{}{})
+	return isKeyJustPressed_impl(tmp111, tmp112)
 }
 
 func interior__isTabPressed(input *FrameInput) bool {
@@ -755,48 +705,9 @@ func interior__isTabPressed(input *FrameInput) bool {
 }
 
 func isVPressed_impl(input interface{}) interface{} {
-	var tmp121 interface{} = FieldGet(input, "keys")
-	return func() interface{} {
-		_scrutinee := tmp121
-		_ = _scrutinee // suppress unused
-		if ListLen(_scrutinee) == 0 {
-			return false
-		} else if ListLen(_scrutinee) >= 1 {
-			key := ListHead(_scrutinee)
-			_ = key // suppress unused
-			rest := ListTail(_scrutinee)
-			_ = rest // suppress unused
-			return func() interface{} {
-				var tmp122 interface{} = FieldGet(key, "key")
-				_ = tmp122 // suppress unused
-				var tmp123 interface{} = EqInt(tmp122, int64(86))
-				_ = tmp123 // suppress unused
-				var tmp124 interface{} = FieldGet(key, "kind")
-				_ = tmp124 // suppress unused
-				var tmp125 interface{} = EqString(tmp124, "press")
-				_ = tmp125 // suppress unused
-				var tmp126 interface{} = func() interface{} {
-					if tmp123.(bool) {
-						return tmp125
-					}
-					return false
-				}()
-				_ = tmp126 // suppress unused
-				return func() interface{} {
-					if tmp126.(bool) {
-						return true
-					}
-					return func() interface{} {
-						var tmp127 interface{} = RecordUpdate(input, map[string]interface{}{"keys": rest})
-						_ = tmp127 // suppress unused
-						return isVPressed_impl(tmp127)
-					}()
-				}()
-			}()
-		} else {
-			panic("non-exhaustive match")
-		}
-	}()
+	var tmp113 interface{} = FieldGet(input, "keys")
+	var tmp114 interface{} = kEYV_impl(struct{}{})
+	return isKeyJustPressed_impl(tmp113, tmp114)
 }
 
 func IsVPressed(input *FrameInput) bool {
@@ -824,19 +735,19 @@ func interior__toggleDeck(current *DeckSelection) *DeckSelection {
 }
 
 func cycleVelocity_impl(current interface{}) interface{} {
-	var tmp128 interface{} = LtFloat(current, float64(0.1))
+	var tmp115 interface{} = LtFloat(current, float64(0.1))
 	return func() interface{} {
-		var tmp129 interface{} = LtFloat(current, float64(0.3))
-		_ = tmp129 // suppress unused
-		var tmp130 interface{} = LtFloat(current, float64(0.6))
-		_ = tmp130 // suppress unused
-		if tmp128.(bool) {
+		var tmp116 interface{} = LtFloat(current, float64(0.3))
+		_ = tmp116 // suppress unused
+		var tmp117 interface{} = LtFloat(current, float64(0.6))
+		_ = tmp117 // suppress unused
+		if tmp115.(bool) {
 			return float64(0.2)
 		}
-		if tmp129.(bool) {
+		if tmp116.(bool) {
 			return float64(0.5)
 		}
-		if tmp130.(bool) {
+		if tmp117.(bool) {
 			return float64(0.8)
 		}
 		return float64(0)
@@ -849,52 +760,52 @@ func CycleVelocity(current float64) float64 {
 
 func stepInterior_impl(state interface{}, input interface{}) interface{} {
 	var newDeck interface{} = func() interface{} {
-		var tmp141 interface{} = interior__isTabPressed_impl(input)
-		_ = tmp141 // suppress unused
+		var tmp128 interface{} = interior__isTabPressed_impl(input)
+		_ = tmp128 // suppress unused
 		return func() interface{} {
-			if tmp141.(bool) {
+			if tmp128.(bool) {
 				return func() interface{} {
-					var tmp142 interface{} = FieldGet(state, "currentDeck")
-					_ = tmp142 // suppress unused
-					return interior__toggleDeck_impl(tmp142)
+					var tmp129 interface{} = FieldGet(state, "currentDeck")
+					_ = tmp129 // suppress unused
+					return interior__toggleDeck_impl(tmp129)
 				}()
 			}
 			return FieldGet(state, "currentDeck")
 		}()
 	}()
 	var moveDelta interface{} = func() interface{} {
-		var tmp140 interface{} = FieldGet(state, "player")
-		_ = tmp140 // suppress unused
-		return interior__calculateMovement_impl(tmp140, input)
+		var tmp127 interface{} = FieldGet(state, "player")
+		_ = tmp127 // suppress unused
+		return interior__calculateMovement_impl(tmp127, input)
 	}()
 	var movedPlayer interface{} = func() interface{} {
-		var tmp137 interface{} = FieldGet(state, "player")
-		_ = tmp137 // suppress unused
-		var tmp138 interface{} = FieldGet(state, "currentRoom")
-		_ = tmp138 // suppress unused
-		var tmp139 interface{} = FieldGet(tmp138, "room")
-		_ = tmp139 // suppress unused
-		return interior__applyMovement_impl(tmp137, moveDelta, tmp139)
+		var tmp124 interface{} = FieldGet(state, "player")
+		_ = tmp124 // suppress unused
+		var tmp125 interface{} = FieldGet(state, "currentRoom")
+		_ = tmp125 // suppress unused
+		var tmp126 interface{} = FieldGet(tmp125, "room")
+		_ = tmp126 // suppress unused
+		return interior__applyMovement_impl(tmp124, moveDelta, tmp126)
 	}()
 	var lookAngles interface{} = interior__calculateLook_impl(input, float64(1280), float64(720))
 	var newYaw interface{} = FieldGet(lookAngles, "yawDelta")
 	var newPitch interface{} = func() interface{} {
-		var tmp134 interface{} = FieldGet(lookAngles, "pitchDelta")
-		_ = tmp134 // suppress unused
-		var tmp135 interface{} = interior__minPitch_impl(struct{}{})
-		_ = tmp135 // suppress unused
-		var tmp136 interface{} = interior__maxPitch_impl(struct{}{})
-		_ = tmp136 // suppress unused
-		return interior__clamp_impl(tmp134, tmp135, tmp136)
+		var tmp121 interface{} = FieldGet(lookAngles, "pitchDelta")
+		_ = tmp121 // suppress unused
+		var tmp122 interface{} = interior__minPitch_impl(struct{}{})
+		_ = tmp122 // suppress unused
+		var tmp123 interface{} = interior__maxPitch_impl(struct{}{})
+		_ = tmp123 // suppress unused
+		return interior__clamp_impl(tmp121, tmp122, tmp123)
 	}()
 	var updatedPlayer interface{} = func() interface{} {
-		var tmp133 interface{} = interior__isShiftHeld_impl(input)
-		_ = tmp133 // suppress unused
-		return RecordUpdate(movedPlayer, map[string]interface{}{"yaw": newYaw, "pitch": newPitch, "isRunning": tmp133})
+		var tmp120 interface{} = interior__isShiftHeld_impl(input)
+		_ = tmp120 // suppress unused
+		return RecordUpdate(movedPlayer, map[string]interface{}{"pitch": newPitch, "isRunning": tmp120, "yaw": newYaw})
 	}()
-	var tmp131 interface{} = FieldGet(state, "tick")
-	var tmp132 interface{} = AddInt(tmp131, int64(1))
-	return RecordUpdate(state, map[string]interface{}{"player": updatedPlayer, "currentDeck": newDeck, "tick": tmp132})
+	var tmp118 interface{} = FieldGet(state, "tick")
+	var tmp119 interface{} = AddInt(tmp118, int64(1))
+	return RecordUpdate(state, map[string]interface{}{"player": updatedPlayer, "currentDeck": newDeck, "tick": tmp119})
 }
 
 func StepInterior(state *InteriorState, input *FrameInput) *InteriorState {
@@ -902,15 +813,15 @@ func StepInterior(state *InteriorState, input *FrameInput) *InteriorState {
 }
 
 func interior__renderCamera_impl(player interface{}, fov interface{}) interface{} {
-	var tmp143 interface{} = FieldGet(player, "pos")
-	var tmp144 interface{} = FieldGet(tmp143, "x")
-	var tmp145 interface{} = FieldGet(player, "pos")
-	var tmp146 interface{} = FieldGet(tmp145, "y")
-	var tmp147 interface{} = FieldGet(player, "pos")
-	var tmp148 interface{} = FieldGet(tmp147, "z")
-	var tmp149 interface{} = FieldGet(player, "yaw")
-	var tmp150 interface{} = FieldGet(player, "pitch")
-	return NewDrawCmdCamera3D(tmp144.(float64), tmp146.(float64), tmp148.(float64), tmp149.(float64), tmp150.(float64), fov.(float64))
+	var tmp130 interface{} = FieldGet(player, "pos")
+	var tmp131 interface{} = FieldGet(tmp130, "x")
+	var tmp132 interface{} = FieldGet(player, "pos")
+	var tmp133 interface{} = FieldGet(tmp132, "y")
+	var tmp134 interface{} = FieldGet(player, "pos")
+	var tmp135 interface{} = FieldGet(tmp134, "z")
+	var tmp136 interface{} = FieldGet(player, "yaw")
+	var tmp137 interface{} = FieldGet(player, "pitch")
+	return NewDrawCmdCamera3D(tmp131.(float64), tmp133.(float64), tmp135.(float64), tmp136.(float64), tmp137.(float64), fov.(float64))
 }
 
 func interior__renderCamera(player *InteriorPlayer, fov float64) *DrawCmd {
@@ -918,17 +829,17 @@ func interior__renderCamera(player *InteriorPlayer, fov float64) *DrawCmd {
 }
 
 func interior__renderRoom_impl(room interface{}) interface{} {
-	var tmp151 interface{} = FieldGet(room, "width")
-	var tmp152 interface{} = FieldGet(room, "depth")
-	var tmp153 interface{} = FieldGet(room, "height")
-	var tmp154 interface{} = FieldGet(room, "floorTex")
-	var tmp155 interface{} = FieldGet(room, "wallTex")
-	var tmp156 interface{} = FieldGet(room, "ceilingTex")
-	var tmp157 interface{} = FieldGet(room, "floorColor")
-	var tmp158 interface{} = FieldGet(room, "wallColor")
-	var tmp159 interface{} = FieldGet(room, "ceilingColor")
-	var tmp160 interface{} = FieldGet(room, "uvScale")
-	return NewDrawCmdRoom3D(tmp151.(float64), tmp152.(float64), tmp153.(float64), tmp154.(string), tmp155.(string), tmp156.(string), tmp157.(int64), tmp158.(int64), tmp159.(int64), tmp160.(float64), int64(0))
+	var tmp138 interface{} = FieldGet(room, "width")
+	var tmp139 interface{} = FieldGet(room, "depth")
+	var tmp140 interface{} = FieldGet(room, "height")
+	var tmp141 interface{} = FieldGet(room, "floorTex")
+	var tmp142 interface{} = FieldGet(room, "wallTex")
+	var tmp143 interface{} = FieldGet(room, "ceilingTex")
+	var tmp144 interface{} = FieldGet(room, "floorColor")
+	var tmp145 interface{} = FieldGet(room, "wallColor")
+	var tmp146 interface{} = FieldGet(room, "ceilingColor")
+	var tmp147 interface{} = FieldGet(room, "uvScale")
+	return NewDrawCmdRoom3D(tmp138.(float64), tmp139.(float64), tmp140.(float64), tmp141.(string), tmp142.(string), tmp143.(string), tmp144.(int64), tmp145.(int64), tmp146.(int64), tmp147.(float64), int64(0))
 }
 
 func interior__renderRoom(room *RoomDef) *DrawCmd {
@@ -936,19 +847,19 @@ func interior__renderRoom(room *RoomDef) *DrawCmd {
 }
 
 func interior__renderProp_impl(prop interface{}) interface{} {
-	var tmp161 interface{} = FieldGet(prop, "id")
-	var tmp162 interface{} = FieldGet(prop, "pos")
-	var tmp163 interface{} = FieldGet(tmp162, "x")
-	var tmp164 interface{} = FieldGet(prop, "pos")
-	var tmp165 interface{} = FieldGet(tmp164, "y")
-	var tmp166 interface{} = FieldGet(prop, "pos")
-	var tmp167 interface{} = FieldGet(tmp166, "z")
-	var tmp168 interface{} = FieldGet(prop, "scaleX")
-	var tmp169 interface{} = FieldGet(prop, "scaleY")
-	var tmp170 interface{} = FieldGet(prop, "scaleZ")
-	var tmp171 interface{} = FieldGet(prop, "texture")
-	var tmp172 interface{} = FieldGet(prop, "color")
-	return NewDrawCmdProp3D(tmp161.(string), tmp163.(float64), tmp165.(float64), tmp167.(float64), tmp168.(float64), tmp169.(float64), tmp170.(float64), tmp171.(string), tmp172.(int64), int64(1))
+	var tmp148 interface{} = FieldGet(prop, "id")
+	var tmp149 interface{} = FieldGet(prop, "pos")
+	var tmp150 interface{} = FieldGet(tmp149, "x")
+	var tmp151 interface{} = FieldGet(prop, "pos")
+	var tmp152 interface{} = FieldGet(tmp151, "y")
+	var tmp153 interface{} = FieldGet(prop, "pos")
+	var tmp154 interface{} = FieldGet(tmp153, "z")
+	var tmp155 interface{} = FieldGet(prop, "scaleX")
+	var tmp156 interface{} = FieldGet(prop, "scaleY")
+	var tmp157 interface{} = FieldGet(prop, "scaleZ")
+	var tmp158 interface{} = FieldGet(prop, "texture")
+	var tmp159 interface{} = FieldGet(prop, "color")
+	return NewDrawCmdProp3D(tmp148.(string), tmp150.(float64), tmp152.(float64), tmp154.(float64), tmp155.(float64), tmp156.(float64), tmp157.(float64), tmp158.(string), tmp159.(int64), int64(1))
 }
 
 func interior__renderProp(prop *PropDef) *DrawCmd {
@@ -967,11 +878,11 @@ func interior__renderPropsRec_impl(props interface{}) interface{} {
 			rest := ListTail(_scrutinee)
 			_ = rest // suppress unused
 			return func() interface{} {
-				var tmp173 interface{} = interior__renderProp_impl(p)
-				_ = tmp173 // suppress unused
-				var tmp174 interface{} = interior__renderPropsRec_impl(rest)
-				_ = tmp174 // suppress unused
-				return Cons(tmp173, tmp174)
+				var tmp160 interface{} = interior__renderProp_impl(p)
+				_ = tmp160 // suppress unused
+				var tmp161 interface{} = interior__renderPropsRec_impl(rest)
+				_ = tmp161 // suppress unused
+				return Cons(tmp160, tmp161)
 			}()
 		} else {
 			panic("non-exhaustive match")
@@ -984,16 +895,16 @@ func interior__renderPropsRec(props []*PropDef) []*DrawCmd {
 }
 
 func interior__renderCharacter_impl(char interface{}) interface{} {
-	var tmp175 interface{} = FieldGet(char, "id")
-	var tmp176 interface{} = FieldGet(char, "pos")
-	var tmp177 interface{} = FieldGet(tmp176, "x")
-	var tmp178 interface{} = FieldGet(char, "pos")
-	var tmp179 interface{} = FieldGet(tmp178, "y")
-	var tmp180 interface{} = FieldGet(char, "pos")
-	var tmp181 interface{} = FieldGet(tmp180, "z")
-	var tmp182 interface{} = FieldGet(char, "spriteId")
-	var tmp183 interface{} = FieldGet(char, "scale")
-	return NewDrawCmdBillboard3D(tmp175.(string), tmp177.(float64), tmp179.(float64), tmp181.(float64), tmp182.(int64), tmp183.(float64), int64(2))
+	var tmp162 interface{} = FieldGet(char, "id")
+	var tmp163 interface{} = FieldGet(char, "pos")
+	var tmp164 interface{} = FieldGet(tmp163, "x")
+	var tmp165 interface{} = FieldGet(char, "pos")
+	var tmp166 interface{} = FieldGet(tmp165, "y")
+	var tmp167 interface{} = FieldGet(char, "pos")
+	var tmp168 interface{} = FieldGet(tmp167, "z")
+	var tmp169 interface{} = FieldGet(char, "spriteId")
+	var tmp170 interface{} = FieldGet(char, "scale")
+	return NewDrawCmdBillboard3D(tmp162.(string), tmp164.(float64), tmp166.(float64), tmp168.(float64), tmp169.(int64), tmp170.(float64), int64(2))
 }
 
 func interior__renderCharacter(char *CharacterDef) *DrawCmd {
@@ -1012,11 +923,11 @@ func interior__renderCharactersRec_impl(chars interface{}) interface{} {
 			rest := ListTail(_scrutinee)
 			_ = rest // suppress unused
 			return func() interface{} {
-				var tmp184 interface{} = interior__renderCharacter_impl(c)
-				_ = tmp184 // suppress unused
-				var tmp185 interface{} = interior__renderCharactersRec_impl(rest)
-				_ = tmp185 // suppress unused
-				return Cons(tmp184, tmp185)
+				var tmp171 interface{} = interior__renderCharacter_impl(c)
+				_ = tmp171 // suppress unused
+				var tmp172 interface{} = interior__renderCharactersRec_impl(rest)
+				_ = tmp172 // suppress unused
+				return Cons(tmp171, tmp172)
 			}()
 		} else {
 			panic("non-exhaustive match")
@@ -1030,10 +941,10 @@ func interior__renderCharactersRec(chars []*CharacterDef) []*DrawCmd {
 
 func interior__renderSceneHUD_impl(state interface{}, nav interface{}) interface{} {
 	var deckName interface{} = func() interface{} {
-		var tmp198 interface{} = FieldGet(state, "currentDeck")
-		_ = tmp198 // suppress unused
+		var tmp185 interface{} = FieldGet(state, "currentDeck")
+		_ = tmp185 // suppress unused
 		return func() interface{} {
-			_scrutinee := tmp198
+			_scrutinee := tmp185
 			_ = _scrutinee // suppress unused
 			_adt := _scrutinee.(*DeckSelection)
 			switch _adt.Kind {
@@ -1047,32 +958,32 @@ func interior__renderSceneHUD_impl(state interface{}, nav interface{}) interface
 		}()
 	}()
 	var velocityText interface{} = func() interface{} {
-		var tmp192 interface{} = FieldGet(nav, "velocity")
-		_ = tmp192 // suppress unused
-		var tmp193 interface{} = LtFloat(tmp192, float64(0.01))
-		_ = tmp193 // suppress unused
+		var tmp179 interface{} = FieldGet(nav, "velocity")
+		_ = tmp179 // suppress unused
+		var tmp180 interface{} = LtFloat(tmp179, float64(0.01))
+		_ = tmp180 // suppress unused
 		return func() interface{} {
-			if tmp193.(bool) {
+			if tmp180.(bool) {
 				return "Velocity: 0.0c"
 			}
 			return func() interface{} {
-				var tmp194 interface{} = FieldGet(nav, "velocity")
-				_ = tmp194 // suppress unused
+				var tmp181 interface{} = FieldGet(nav, "velocity")
+				_ = tmp181 // suppress unused
 				return func() interface{} {
-					var tmp195 interface{} = LtFloat(tmp194, float64(0.3))
-					_ = tmp195 // suppress unused
+					var tmp182 interface{} = LtFloat(tmp181, float64(0.3))
+					_ = tmp182 // suppress unused
 					return func() interface{} {
-						if tmp195.(bool) {
+						if tmp182.(bool) {
 							return "Velocity: 0.2c"
 						}
 						return func() interface{} {
-							var tmp196 interface{} = FieldGet(nav, "velocity")
-							_ = tmp196 // suppress unused
+							var tmp183 interface{} = FieldGet(nav, "velocity")
+							_ = tmp183 // suppress unused
 							return func() interface{} {
-								var tmp197 interface{} = LtFloat(tmp196, float64(0.6))
-								_ = tmp197 // suppress unused
+								var tmp184 interface{} = LtFloat(tmp183, float64(0.6))
+								_ = tmp184 // suppress unused
 								return func() interface{} {
-									if tmp197.(bool) {
+									if tmp184.(bool) {
 										return "Velocity: 0.5c"
 									}
 									return "Velocity: 0.8c"
@@ -1084,13 +995,13 @@ func interior__renderSceneHUD_impl(state interface{}, nav interface{}) interface
 			}()
 		}()
 	}()
-	var tmp186 interface{} = interior__layerUI_impl(struct{}{})
-	var tmp187 interface{} = NewDrawCmdText(deckName.(string), float64(10), float64(20), int64(12), int64(4294967295), tmp186.(int64))
-	var tmp188 interface{} = interior__layerUI_impl(struct{}{})
-	var tmp189 interface{} = NewDrawCmdText(velocityText.(string), float64(10), float64(40), int64(12), int64(4294967295), tmp188.(int64))
-	var tmp190 interface{} = interior__layerUI_impl(struct{}{})
-	var tmp191 interface{} = NewDrawCmdText("Tab: Switch Deck | V: Cycle Velocity | ESC: Exit", float64(10), float64(60), int64(12), int64(4294967295), tmp190.(int64))
-	return []interface{}{tmp187, tmp189, tmp191}
+	var tmp173 interface{} = interior__layerUI_impl(struct{}{})
+	var tmp174 interface{} = NewDrawCmdText(deckName.(string), float64(10), float64(20), int64(12), int64(4294967295), tmp173.(int64))
+	var tmp175 interface{} = interior__layerUI_impl(struct{}{})
+	var tmp176 interface{} = NewDrawCmdText(velocityText.(string), float64(10), float64(40), int64(12), int64(4294967295), tmp175.(int64))
+	var tmp177 interface{} = interior__layerUI_impl(struct{}{})
+	var tmp178 interface{} = NewDrawCmdText("Tab: Switch Deck | V: Cycle Velocity | ESC: Exit", float64(10), float64(60), int64(12), int64(4294967295), tmp177.(int64))
+	return []interface{}{tmp174, tmp176, tmp178}
 }
 
 func interior__renderSceneHUD(state *InteriorState, nav *ShipNavigation) []*DrawCmd {
@@ -1100,21 +1011,21 @@ func interior__renderSceneHUD(state *InteriorState, nav *ShipNavigation) []*Draw
 func interior__renderShipState_impl(nav interface{}) interface{} {
 	var forward interface{} = getForward_impl(nav)
 	var up interface{} = getUp_impl(nav)
-	var tmp199 interface{} = FieldGet(nav, "position")
-	var tmp200 interface{} = FieldGet(tmp199, "x")
-	var tmp201 interface{} = FieldGet(nav, "position")
-	var tmp202 interface{} = FieldGet(tmp201, "y")
-	var tmp203 interface{} = FieldGet(nav, "position")
-	var tmp204 interface{} = FieldGet(tmp203, "z")
-	var tmp205 interface{} = FieldGet(forward, "x")
-	var tmp206 interface{} = FieldGet(forward, "y")
-	var tmp207 interface{} = FieldGet(forward, "z")
-	var tmp208 interface{} = FieldGet(up, "x")
-	var tmp209 interface{} = FieldGet(up, "y")
-	var tmp210 interface{} = FieldGet(up, "z")
-	var tmp211 interface{} = FieldGet(nav, "velocity")
-	var tmp212 interface{} = FieldGet(nav, "grPhi")
-	return NewDrawCmdShipState3D(tmp200.(float64), tmp202.(float64), tmp204.(float64), tmp205.(float64), tmp206.(float64), tmp207.(float64), tmp208.(float64), tmp209.(float64), tmp210.(float64), tmp211.(float64), tmp212.(float64))
+	var tmp186 interface{} = FieldGet(nav, "position")
+	var tmp187 interface{} = FieldGet(tmp186, "x")
+	var tmp188 interface{} = FieldGet(nav, "position")
+	var tmp189 interface{} = FieldGet(tmp188, "y")
+	var tmp190 interface{} = FieldGet(nav, "position")
+	var tmp191 interface{} = FieldGet(tmp190, "z")
+	var tmp192 interface{} = FieldGet(forward, "x")
+	var tmp193 interface{} = FieldGet(forward, "y")
+	var tmp194 interface{} = FieldGet(forward, "z")
+	var tmp195 interface{} = FieldGet(up, "x")
+	var tmp196 interface{} = FieldGet(up, "y")
+	var tmp197 interface{} = FieldGet(up, "z")
+	var tmp198 interface{} = FieldGet(nav, "velocity")
+	var tmp199 interface{} = FieldGet(nav, "grPhi")
+	return NewDrawCmdShipState3D(tmp187.(float64), tmp189.(float64), tmp191.(float64), tmp192.(float64), tmp193.(float64), tmp194.(float64), tmp195.(float64), tmp196.(float64), tmp197.(float64), tmp198.(float64), tmp199.(float64))
 }
 
 func interior__renderShipState(nav *ShipNavigation) *DrawCmd {
@@ -1142,14 +1053,14 @@ func interior__getDeckSpriteId(deck *DeckSelection) int64 {
 }
 
 func interior__planetToDrawCmd_impl(p interface{}, z interface{}) interface{} {
-	var tmp213 interface{} = FieldGet(p, "name")
-	var tmp214 interface{} = FieldGet(p, "posX")
-	var tmp215 interface{} = FieldGet(p, "posY")
-	var tmp216 interface{} = FieldGet(p, "radius")
-	var tmp217 interface{} = FieldGet(p, "rotation")
-	var tmp218 interface{} = FieldGet(p, "hasRings")
-	var tmp219 interface{} = FieldGet(p, "ringColor")
-	return NewDrawCmdTexturedPlanet(tmp213.(string), tmp214.(float64), tmp215.(float64), tmp216.(float64), tmp217.(float64), tmp218.(bool), tmp219.(int64), z.(int64))
+	var tmp200 interface{} = FieldGet(p, "name")
+	var tmp201 interface{} = FieldGet(p, "posX")
+	var tmp202 interface{} = FieldGet(p, "posY")
+	var tmp203 interface{} = FieldGet(p, "radius")
+	var tmp204 interface{} = FieldGet(p, "rotation")
+	var tmp205 interface{} = FieldGet(p, "hasRings")
+	var tmp206 interface{} = FieldGet(p, "ringColor")
+	return NewDrawCmdTexturedPlanet(tmp200.(string), tmp201.(float64), tmp202.(float64), tmp203.(float64), tmp204.(float64), tmp205.(bool), tmp206.(int64), z.(int64))
 }
 
 func interior__planetToDrawCmd(p *SolarPlanet, z int64) *DrawCmd {
@@ -1168,11 +1079,11 @@ func interior__planetsToDrawCmds_impl(planets interface{}, z interface{}) interf
 			rest := ListTail(_scrutinee)
 			_ = rest // suppress unused
 			return func() interface{} {
-				var tmp220 interface{} = interior__planetToDrawCmd_impl(p, z)
-				_ = tmp220 // suppress unused
-				var tmp221 interface{} = interior__planetsToDrawCmds_impl(rest, z)
-				_ = tmp221 // suppress unused
-				return Cons(tmp220, tmp221)
+				var tmp207 interface{} = interior__planetToDrawCmd_impl(p, z)
+				_ = tmp207 // suppress unused
+				var tmp208 interface{} = interior__planetsToDrawCmds_impl(rest, z)
+				_ = tmp208 // suppress unused
+				return Cons(tmp207, tmp208)
 			}()
 		} else {
 			panic("non-exhaustive match")
@@ -1185,11 +1096,11 @@ func interior__planetsToDrawCmds(planets []*SolarPlanet, z int64) []*DrawCmd {
 }
 
 func interior__renderScenePlanets_impl(_unused0 interface{}) interface{} {
-	var tmp222 interface{} = NewDrawCmdTexturedPlanet("saturn", float64(400), float64(480), float64(120), float64(0), true, int64(3095314687), int64(5))
-	var tmp223 interface{} = NewDrawCmdTexturedPlanet("jupiter", float64(640), float64(400), float64(100), float64(0), false, int64(0), int64(5))
-	var tmp224 interface{} = NewDrawCmdTexturedPlanet("mars", float64(900), float64(500), float64(40), float64(0), false, int64(0), int64(5))
-	var tmp225 interface{} = NewDrawCmdTexturedPlanet("earth", float64(800), float64(350), float64(60), float64(0), false, int64(0), int64(5))
-	return []interface{}{tmp222, tmp223, tmp224, tmp225}
+	var tmp209 interface{} = NewDrawCmdTexturedPlanet("saturn", float64(400), float64(480), float64(120), float64(0), true, int64(3095314687), int64(5))
+	var tmp210 interface{} = NewDrawCmdTexturedPlanet("jupiter", float64(640), float64(400), float64(100), float64(0), false, int64(0), int64(5))
+	var tmp211 interface{} = NewDrawCmdTexturedPlanet("mars", float64(900), float64(500), float64(40), float64(0), false, int64(0), int64(5))
+	var tmp212 interface{} = NewDrawCmdTexturedPlanet("earth", float64(800), float64(350), float64(60), float64(0), false, int64(0), int64(5))
+	return []interface{}{tmp209, tmp210, tmp211, tmp212}
 }
 
 func interior__renderScenePlanets() []*DrawCmd {
@@ -1201,18 +1112,18 @@ func renderInterior_impl(state interface{}, nav interface{}) interface{} {
 	var spaceBg interface{} = NewDrawCmdSpaceBg(int64(0))
 	var planetCmds interface{} = interior__renderScenePlanets_impl(struct{}{})
 	var deckBackground interface{} = func() interface{} {
-		var tmp230 interface{} = FieldGet(state, "currentDeck")
-		_ = tmp230 // suppress unused
-		var tmp231 interface{} = interior__getDeckSpriteId_impl(tmp230)
-		_ = tmp231 // suppress unused
-		return NewDrawCmdUi("deck-background", NewUiKindUiPortrait(), float64(0), float64(0), float64(1), float64(1), "", tmp231.(int64), int64(50), int64(0), float64(0))
+		var tmp217 interface{} = FieldGet(state, "currentDeck")
+		_ = tmp217 // suppress unused
+		var tmp218 interface{} = interior__getDeckSpriteId_impl(tmp217)
+		_ = tmp218 // suppress unused
+		return NewDrawCmdUi("deck-background", NewUiKindUiPortrait(), float64(0), float64(0), float64(1), float64(1), "", tmp218.(int64), int64(50), int64(0), float64(0))
 	}()
 	var hud interface{} = interior__renderSceneHUD_impl(state, nav)
-	var tmp226 interface{} = []interface{}{deckBackground}
-	var tmp227 interface{} = ConcatList(tmp226, hud)
-	var tmp228 interface{} = ConcatList(planetCmds, tmp227)
-	var tmp229 interface{} = Cons(spaceBg, tmp228)
-	return Cons(shipState, tmp229)
+	var tmp213 interface{} = []interface{}{deckBackground}
+	var tmp214 interface{} = ConcatList(tmp213, hud)
+	var tmp215 interface{} = ConcatList(planetCmds, tmp214)
+	var tmp216 interface{} = Cons(spaceBg, tmp215)
+	return Cons(shipState, tmp216)
 }
 
 func RenderInterior(state *InteriorState, nav *ShipNavigation) []*DrawCmd {

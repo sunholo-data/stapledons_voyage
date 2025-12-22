@@ -291,6 +291,40 @@ Before writing or modifying `.ail` files, run `ailang prompt` to get the compreh
 
 Always reference `ailang prompt` output when writing AILANG code to ensure correct syntax and patterns.
 
+### Input Helpers (sim/input.ail)
+
+The `sim/input.ail` module provides helpers for handling keyboard input in AILANG:
+
+```ailang
+import sim/input (is_key_just_pressed, is_key_held, KEY_V, KEY_TAB, KEY_ESCAPE)
+
+-- Check if V was just pressed this frame (edge detection)
+if is_key_just_pressed(input.keys, KEY_V()) then
+    { state | velocity: next_velocity(state.velocity) }
+else
+    state
+
+-- Check if Escape is held down (continuous)
+if is_key_held(input.keys, KEY_ESCAPE()) then
+    exit_game(state)
+else
+    state
+```
+
+**Available functions:**
+- `is_key_just_pressed(keys, keyCode)` - True on first frame of press (use for toggles, cycling)
+- `is_key_held(keys, keyCode)` - True while key is held down (use for movement, acceleration)
+- `is_key_just_released(keys, keyCode)` - True on release frame (use for charge attacks)
+
+**Key constants** (call as functions, e.g., `KEY_V()`):
+- Letters: `KEY_A()` through `KEY_Z()`
+- Arrows: `KEY_UP()`, `KEY_DOWN()`, `KEY_LEFT()`, `KEY_RIGHT()`
+- Numbers: `KEY_0()` through `KEY_9()`
+- Control: `KEY_ESCAPE()`, `KEY_SPACE()`, `KEY_TAB()`, `KEY_ENTER()`, `KEY_SHIFT()`
+- Function: `KEY_F1()` through `KEY_F12()`
+
+**Important:** Always handle input in AILANG using these helpers. Do NOT handle keys in Go engine code.
+
 ## Code Generation Boundary
 
 - **Manually edit:** `sim/*.ail` files

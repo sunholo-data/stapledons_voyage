@@ -20,7 +20,8 @@
 | 3D scene (Tetra3D) | `engine/tetra/` | Working |
 | SR/GR physics | `engine/relativity/` | Working |
 | Shader effects | `engine/shader/` | Working |
-| Input capture | `engine/input/` | Working |
+| Input capture | `engine/input/`, `engine/render/input.go` | Working |
+| **AILANG Input helpers** | `sim/input.ail` | **NEW** |
 | Display config | `engine/display/` | Working |
 | Save system | `engine/save/` | Working |
 | Screenshot/test | `engine/screenshot/` | Working |
@@ -1300,9 +1301,11 @@ grWarp.SetEnabled(true)
 
 ## 10. Input System
 
-**File:** `engine/input/`
+**Files:** `engine/input/`, `engine/render/input.go`, `sim/input.ail`
 
-### Input Capture
+### Input Capture (Engine → AILANG)
+
+The engine captures all input and passes it to AILANG via `FrameInput`:
 
 ```go
 func CaptureInputWithCamera(cam Transform, w, h int) FrameInput
@@ -1311,33 +1314,99 @@ func CaptureInputWithCamera(cam Transform, w, h int) FrameInput
 **FrameInput Fields (from AILANG):**
 ```ailang
 type FrameInput = {
-    mouseX: float,           -- Screen position
-    mouseY: float,
-    worldMouseX: float,      -- World position (via camera)
+    mouse: MouseState,
+    keys: [KeyEvent],        -- All key events (press/down/up)
+    flight: FlightInput,     -- WASD/arrows pre-captured
+    clickedThisFrame: bool,
+    worldMouseX: float,
     worldMouseY: float,
-    tileMouseX: int,         -- Isometric tile
-    tileMouseY: int,
-    clickedThisFrame: bool,  -- Left button just pressed
-    rightClickedThisFrame: bool,
-    keys: [KeyEvent],
-    actionRequested: PlayerAction
+    actionRequested: PlayerAction,
+    testMode: bool
+}
+
+type KeyEvent = {
+    key: int,      -- Ebiten key code
+    kind: string   -- "press" (edge), "down" (held), "up" (released)
 }
 ```
 
-### Key Detection
+### AILANG Input Helpers (sim/input.ail)
 
-```go
-func IsKeyPressed(key ebiten.Key) bool
-func IsKeyJustPressed(key ebiten.Key) bool
+**The standard way to handle keyboard input in AILANG.** Do NOT handle keys in Go.
+
+```ailang
+import sim/input (is_key_just_pressed, is_key_held, KEY_V, KEY_TAB, KEY_ESCAPE)
+
+-- Edge detection: fires once per press (toggles, cycling)
+if is_key_just_pressed(input.keys, KEY_V()) then
+    { state | velocityIdx: (state.velocityIdx + 1) % 4 }
+else
+    state
+
+-- Continuous: fires every frame while held (movement)
+if is_key_held(input.keys, KEY_ESCAPE()) then
+    { state | shouldExit: true }
+else
+    state
 ```
 
-**PlayerAction (from keys I/B/X):**
+**Available Functions:**
+
+| Function | When to Use |
+|----------|-------------|
+| `is_key_just_pressed(keys, keyCode)` | Toggles, mode switches, cycling values |
+| `is_key_held(keys, keyCode)` | Movement, acceleration, continuous actions |
+| `is_key_just_released(keys, keyCode)` | Charge attacks, release triggers |
+
+**Key Constants** (call as functions, e.g., `KEY_V()`):
+
+| Category | Constants |
+|----------|-----------|
+| Letters | `KEY_A()` through `KEY_Z()` |
+| Arrows | `KEY_UP()`, `KEY_DOWN()`, `KEY_LEFT()`, `KEY_RIGHT()` |
+| Numbers | `KEY_0()` through `KEY_9()` |
+| Control | `KEY_ESCAPE()`, `KEY_SPACE()`, `KEY_TAB()`, `KEY_ENTER()`, `KEY_SHIFT()` |
+| Function | `KEY_F1()` through `KEY_F12()` |
+
+**Generated Go API:**
+```go
+sim_gen.IsKeyJustPressed(keys []*KeyEvent, keyCode int64) bool
+sim_gen.IsKeyHeld(keys []*KeyEvent, keyCode int64) bool
+sim_gen.IsKeyJustReleased(keys []*KeyEvent, keyCode int64) bool
+sim_gen.KEYV() int64  // Returns 21
+sim_gen.KEYTAB() int64 // Returns 117
+// etc.
+```
+
+### FlightInput (Pre-captured WASD/Arrows)
+
+For movement, use the pre-captured `FlightInput` instead of checking keys manually:
+
+```ailang
+type FlightInput = {
+    w: bool, a: bool, s: bool, d: bool,
+    up: bool, down: bool, left: bool, right: bool,
+    shift: bool
+}
+
+-- Example: get movement direction
+if input.flight.w || input.flight.up then
+    move_forward(state)
+else if input.flight.s || input.flight.down then
+    move_backward(state)
+else
+    state
+```
+
+### PlayerAction (Legacy)
+
+Hardcoded I/B/X key mappings (may be deprecated):
 ```ailang
 type PlayerAction =
     | ActionNone
-    | ActionInspect
-    | ActionBuild(StructureType)
-    | ActionClear
+    | ActionInspect    -- I key
+    | ActionBuild(StructureType)  -- B key
+    | ActionClear      -- X key
 ```
 
 ---
@@ -1480,4 +1549,4 @@ effects := shader.NewEffects()
 ---
 
 **Document created**: 2025-12-06
-**Last updated**: 2025-12-13 (LOD System with apparent-size thresholds, hysteresis, smooth transitions)
+**Last updated**: 2025-12-22 (AILANG Input Helpers: sim/input.ail with key constants and helper functions)

@@ -208,10 +208,57 @@ go run ./cmd/demo-engine-interior \
 | **Ocean World** | Deep blue | Cloud patterns | Hypothetical |
 | **Lava World** | Black + orange cracks | Magma rivers | Hypothetical |
 
+## Deck Scene Backgrounds (with Window Compositing)
+
+The game composites dynamic space views through deck windows. Each deck requires:
+1. **background.png** - Deck interior (1344x768) with bright/white windows
+2. **window_mask_large.png** - Mask identifying window regions (white=window)
+
+### Workflow: Bright Windows + Keep-Top-N
+
+```bash
+# 1. Generate deck scene with bright windows (widescreen 1344x768)
+go run ./cmd/voyage ai -generate-image -aspect 16:9 -prompt \
+  "Spaceship <DECK_TYPE> interior, <N> large windows showing pure bright white overexposed light, dark metallic interior, sci-fi aesthetic with <ACCENT_COLOR> lighting"
+
+# 2. Extract window mask (keep only N largest bright regions)
+go run ./cmd/generate-window-mask \
+  -mode=bright \
+  -threshold=200 \
+  -keep-top=<N> \
+  -mask \
+  assets/generated/response_XXX.png \
+  assets/decks/<DECK>/window_mask_large.png
+
+# 3. Copy background
+cp assets/generated/response_XXX.png assets/decks/<DECK>/background.png
+
+# 4. Test
+go run ./cmd/game
+```
+
+### Why Keep-Top-N?
+
+- AI generates images with many bright spots (console LEDs, ceiling lights)
+- `-keep-top=N` filters to only the N largest bright regions (the windows)
+- Result: Clean mask with only main window areas
+
+### Deck Asset Structure
+
+```
+assets/decks/<DECK>/
+├── background.png           # 1344x768 deck scene
+├── window_mask_large.png    # Window mask (white=window, transparent=interior)
+└── manifest.json           # Asset metadata
+```
+
+See [prompt_templates.md](resources/prompt_templates.md) for detailed prompts and alternative methods.
+
 ## Notes
 
 - Generated images go to `assets/generated/` first for review
 - 3D interior textures should be 512x512 or 1024x1024 for good detail
 - Planet textures (3D): Must be equirectangular (2:1 ratio) for proper UV mapping
+- Deck backgrounds: Must be 1344x768 (16:9 widescreen)
 - Always test new assets in-game before committing
 - Real-world reference data should cite sources (NASA, ESO are CC-compatible)

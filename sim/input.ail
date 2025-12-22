@@ -1,0 +1,163 @@
+module sim/input
+
+-- =============================================================================
+-- AILANG Input Helpers
+-- =============================================================================
+--
+-- This module provides helper functions for working with keyboard input.
+-- The engine captures all key events and passes them in FrameInput.keys.
+--
+-- Usage:
+--   import sim/input (is_key_just_pressed, KEY_V)
+--
+--   if is_key_just_pressed(input.keys, KEY_V()) then
+--       { state | velocity: next_velocity(state.velocity) }
+--   else
+--       state
+--
+-- Key event kinds:
+--   "press" - Key was just pressed this frame (edge detection)
+--   "down"  - Key is currently held down
+--   "up"    - Key was just released this frame
+--
+-- =============================================================================
+
+import sim/protocol (KeyEvent)
+
+-- =============================================================================
+-- Key Code Constants (matches Ebiten key codes exactly)
+-- Note: These are functions that return int, call as KEY_V() not KEY_V
+-- =============================================================================
+
+-- Letters (A=0 through Z=25)
+export pure func KEY_A() -> int = 0
+export pure func KEY_B() -> int = 1
+export pure func KEY_C() -> int = 2
+export pure func KEY_D() -> int = 3
+export pure func KEY_E() -> int = 4
+export pure func KEY_F() -> int = 5
+export pure func KEY_G() -> int = 6
+export pure func KEY_H() -> int = 7
+export pure func KEY_I() -> int = 8
+export pure func KEY_J() -> int = 9
+export pure func KEY_K() -> int = 10
+export pure func KEY_L() -> int = 11
+export pure func KEY_M() -> int = 12
+export pure func KEY_N() -> int = 13
+export pure func KEY_O() -> int = 14
+export pure func KEY_P() -> int = 15
+export pure func KEY_Q() -> int = 16
+export pure func KEY_R() -> int = 17
+export pure func KEY_S() -> int = 18
+export pure func KEY_T() -> int = 19
+export pure func KEY_U() -> int = 20
+export pure func KEY_V() -> int = 21
+export pure func KEY_W() -> int = 22
+export pure func KEY_X() -> int = 23
+export pure func KEY_Y() -> int = 24
+export pure func KEY_Z() -> int = 25
+
+-- Arrow keys
+export pure func KEY_DOWN() -> int = 28
+export pure func KEY_LEFT() -> int = 29
+export pure func KEY_RIGHT() -> int = 30
+export pure func KEY_UP() -> int = 31
+
+-- Numbers (0-9)
+export pure func KEY_0() -> int = 43
+export pure func KEY_1() -> int = 44
+export pure func KEY_2() -> int = 45
+export pure func KEY_3() -> int = 46
+export pure func KEY_4() -> int = 47
+export pure func KEY_5() -> int = 48
+export pure func KEY_6() -> int = 49
+export pure func KEY_7() -> int = 50
+export pure func KEY_8() -> int = 51
+export pure func KEY_9() -> int = 52
+
+-- Control keys
+export pure func KEY_ENTER() -> int = 54
+export pure func KEY_ESCAPE() -> int = 56
+export pure func KEY_F1() -> int = 57
+export pure func KEY_F2() -> int = 58
+export pure func KEY_F3() -> int = 59
+export pure func KEY_F4() -> int = 60
+export pure func KEY_F5() -> int = 61
+export pure func KEY_F6() -> int = 62
+export pure func KEY_F7() -> int = 63
+export pure func KEY_F8() -> int = 64
+export pure func KEY_F9() -> int = 65
+export pure func KEY_F10() -> int = 66
+export pure func KEY_F11() -> int = 67
+export pure func KEY_F12() -> int = 68
+export pure func KEY_SPACE() -> int = 116
+export pure func KEY_TAB() -> int = 117
+export pure func KEY_SHIFT() -> int = 120
+export pure func KEY_CTRL() -> int = 121
+export pure func KEY_ALT() -> int = 122
+
+-- Bracket keys
+export pure func KEY_BRACKET_LEFT() -> int = 36
+export pure func KEY_BRACKET_RIGHT() -> int = 37
+
+-- =============================================================================
+-- Helper Functions
+-- =============================================================================
+
+-- Check if a key has a specific event kind in the key list
+pure func has_key_event(keys: [KeyEvent], keyCode: int, eventKind: string) -> bool =
+    match keys {
+        [] => false,
+        k :: rest =>
+            if k.key == keyCode && k.kind == eventKind then
+                true
+            else
+                has_key_event(rest, keyCode, eventKind)
+    }
+
+-- Returns true if key was just pressed this frame (edge detection)
+-- Use for actions that should happen once per press (toggle, cycle, etc.)
+export pure func is_key_just_pressed(keys: [KeyEvent], keyCode: int) -> bool =
+    has_key_event(keys, keyCode, "press")
+
+-- Returns true if key is currently held down
+-- Use for continuous actions (movement, acceleration, etc.)
+export pure func is_key_held(keys: [KeyEvent], keyCode: int) -> bool =
+    has_key_event(keys, keyCode, "down")
+
+-- Returns true if key was just released this frame
+-- Use for actions that trigger on release
+export pure func is_key_just_released(keys: [KeyEvent], keyCode: int) -> bool =
+    has_key_event(keys, keyCode, "up")
+
+-- =============================================================================
+-- Convenience Functions
+-- =============================================================================
+
+-- Check if any of the given keys were just pressed
+pure func any_key_pressed_helper(keys: [KeyEvent], keyCodes: [int]) -> bool =
+    match keyCodes {
+        [] => false,
+        code :: rest =>
+            if is_key_just_pressed(keys, code) then
+                true
+            else
+                any_key_pressed_helper(keys, rest)
+    }
+
+export pure func any_key_just_pressed(keys: [KeyEvent], keyCodes: [int]) -> bool =
+    any_key_pressed_helper(keys, keyCodes)
+
+-- Check if any of the given keys are held
+pure func any_key_held_helper(keys: [KeyEvent], keyCodes: [int]) -> bool =
+    match keyCodes {
+        [] => false,
+        code :: rest =>
+            if is_key_held(keys, code) then
+                true
+            else
+                any_key_held_helper(keys, rest)
+    }
+
+export pure func any_key_held(keys: [KeyEvent], keyCodes: [int]) -> bool =
+    any_key_held_helper(keys, keyCodes)

@@ -20,6 +20,7 @@ import sim/solar_demo (
 import std/option (Option, Some, None)
 import std/list (concat)
 import std/math (sin, cos, PI)
+import sim/input (is_key_just_pressed, KEY_TAB, KEY_V)
 
 -- =============================================================================
 -- Constants
@@ -427,24 +428,13 @@ pure func applyMovement(player: InteriorPlayer, delta: Vec3, room: RoomDef) -> I
 -- =============================================================================
 
 -- Check if Tab key was pressed (for deck switching)
--- Tab key code is 117 (macOS) or 258 (other platforms)
 pure func isTabPressed(input: FrameInput) -> bool {
-    match input.keys {
-        [] => false,
-        key :: rest =>
-            if (key.key == 117 || key.key == 258) && key.kind == "press" then true
-            else isTabPressed({ input | keys: rest })
-    }
+    is_key_just_pressed(input.keys, KEY_TAB())
 }
 
 -- Check if V key was just pressed (for velocity cycling)
 export pure func isVPressed(input: FrameInput) -> bool {
-    match input.keys {
-        [] => false,
-        key :: rest =>
-            if key.key == 86 && key.kind == "press" then true
-            else isVPressed({ input | keys: rest })
-    }
+    is_key_just_pressed(input.keys, KEY_V())
 }
 
 -- Toggle between decks
