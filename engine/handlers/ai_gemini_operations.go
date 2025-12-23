@@ -170,15 +170,18 @@ func (h *GeminiAIHandler) generateImage(req AIRequest) (string, error) {
 				imgConfig = &genai.ImageConfig{}
 			}
 			imgConfig.AspectRatio = aspectRatio
+			fmt.Printf("[Gemini] Setting AspectRatio: %s\n", aspectRatio)
 		}
 		if imageSize, ok := req.Context["image_size"].(string); ok && imageSize != "" {
 			if imgConfig == nil {
 				imgConfig = &genai.ImageConfig{}
 			}
 			imgConfig.ImageSize = imageSize
+			fmt.Printf("[Gemini] Setting ImageSize: %s\n", imageSize)
 		}
 		if imgConfig != nil {
 			config.ImageConfig = imgConfig
+			fmt.Printf("[Gemini] ImageConfig applied: AspectRatio=%s, ImageSize=%s\n", imgConfig.AspectRatio, imgConfig.ImageSize)
 		}
 	}
 

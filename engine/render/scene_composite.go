@@ -109,9 +109,38 @@ func (r *Renderer) compositeSceneWindows(screen *ebiten.Image, out *sim_gen.Fram
 		return
 	}
 
-	// Step 1: Render deck background
-	if deckBackground != nil {
-		r.drawUiElement(screen, deckBackground.Ui, screenW, screenH)
+	// Step 1: Render deck background with same transform as mask
+	// Get actual sprite dimensions (supports any aspect ratio: 16:9, 21:9, etc.)
+	var bgW, bgH float64
+	var sprite *ebiten.Image
+	if deckBackground != nil && r.assets != nil {
+		sprite = r.assets.GetSprite(int(deckBackground.Ui.SpriteId))
+		if sprite != nil {
+			bounds := sprite.Bounds()
+			bgW = float64(bounds.Dx())
+			bgH = float64(bounds.Dy())
+		}
+	}
+
+	// If we couldn't get sprite dimensions, fall back to default 16:9
+	if bgW == 0 || bgH == 0 {
+		bgW, bgH = 1344.0, 768.0
+	}
+
+	// Calculate uniform scale and offset for both background and mask
+	scaleX := float64(screenW) / bgW
+	scaleY := float64(screenH) / bgH
+	scale := min(scaleX, scaleY) // Maintain aspect ratio
+
+	offsetX := (float64(screenW) - bgW*scale) / 2
+	offsetY := (float64(screenH) - bgH*scale) / 2
+
+	// Render deck background
+	if sprite != nil {
+		opBg := &ebiten.DrawImageOptions{}
+		opBg.GeoM.Scale(scale, scale)
+		opBg.GeoM.Translate(offsetX, offsetY)
+		screen.DrawImage(sprite, opBg)
 	}
 
 	// Step 2: Render 3D space to offscreen buffer
@@ -135,22 +164,13 @@ func (r *Renderer) compositeSceneWindows(screen *ebiten.Image, out *sim_gen.Fram
 	// Render space commands to buffer
 	r.RenderFrame(spaceBuffer, *spaceOut)
 
-	// Step 3: Create fullscreen mask
+	// Step 3: Create fullscreen mask using same scale/offset
 	fullscreenMask := ebiten.NewImage(screenW, screenH)
 	fullscreenMask.Clear()
 
-	// Scale window mask to match deck background
-	bgW, bgH := 1344.0, 768.0 // Deck backgrounds are 1344x768
-	scaleX := float64(screenW) / bgW
-	scaleY := float64(screenH) / bgH
-	scale := min(scaleX, scaleY)
-
-	maskOffsetX := (float64(screenW) - bgW*scale) / 2
-	maskOffsetY := (float64(screenH) - bgH*scale) / 2
-
 	opMask := &ebiten.DrawImageOptions{}
 	opMask.GeoM.Scale(scale, scale)
-	opMask.GeoM.Translate(maskOffsetX, maskOffsetY)
+	opMask.GeoM.Translate(offsetX, offsetY)
 	fullscreenMask.DrawImage(windowMask, opMask)
 
 	// Step 4: Apply mask to space view (DestinationIn keeps only masked regions)

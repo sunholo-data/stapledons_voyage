@@ -23,12 +23,14 @@ demo-bridge: sim
 demo-engine-dome:
 	go run ./cmd/demo-engine-dome
 
-# CLI tool
-cli:
+demo-scene-observation: sim
+	go run ./cmd/demo-scene-observation
+
+# CLI tool (voyage command)
+voyage:
 	go build -o bin/voyage ./cmd/voyage
 
-cli-mock:
-	go build -o bin/voyage ./cmd/voyage
+cli: voyage  # Alias for backward compatibility
 
 # Install voyage CLI globally
 install:
@@ -161,4 +163,4 @@ clean:
 clean-all:
 	rm -rf sim_gen bin out/*
 
-.PHONY: sim game eval run demo-bridge cli cli-mock install game-mock eval-mock run-mock sprites build engine test test-all test-visual test-golden update-golden lint clean clean-all screenshot screenshot-zoomed screenshot-panned screenshots scenario-pan scenario-zoom scenario-npc scenarios
+.PHONY: sim game eval run demo-bridge demo-scene-observation cli cli-mock install game-mock eval-mock run-mock sprites build engine test test-all test-visual test-golden update-golden lint clean clean-all screenshot screenshot-zoomed screenshot-panned screenshots scenario-pan scenario-zoom scenario-npc scenarios

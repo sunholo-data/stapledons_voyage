@@ -582,7 +582,7 @@ func step__updateInteriorView_impl(world interface{}, input interface{}, newTick
 		_ = tmp95 // suppress unused
 		return RecordUpdate(tmp95, map[string]interface{}{"velocity": newVelocity})
 	}()
-	return RecordUpdate(world, map[string]interface{}{"interior": updatedInterior, "currentSystem": updatedSystem, "shipNavigation": updatedNav, "tick": newTick})
+	return RecordUpdate(world, map[string]interface{}{"shipNavigation": updatedNav, "tick": newTick, "interior": updatedInterior, "currentSystem": updatedSystem})
 }
 
 func step__updateInteriorView(world *World, input *FrameInput, newTick int64) *World {
@@ -604,7 +604,7 @@ func step__updatePlanetView_impl(world interface{}, input interface{}, newTick i
 		_ = tmp106 // suppress unused
 		return updateAllNPCs_impl(tmp102, tmp104, tmp106)
 	}()
-	return RecordUpdate(world, map[string]interface{}{"tick": newTick, "npcs": updatedNpcs, "selection": newSelection})
+	return RecordUpdate(world, map[string]interface{}{"selection": newSelection, "tick": newTick, "npcs": updatedNpcs})
 }
 
 func step__updatePlanetView(world *World, input *FrameInput, newTick int64) *World {

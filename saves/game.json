@@ -1,9 +1,9 @@
 {
   "version": "0.4.0",
-  "timestamp": 1766405963,
-  "play_time": 1649.149999998829,
+  "timestamp": 1766497531,
+  "play_time": 3520.4666666838816,
   "world": {
-    "Tick": 98949,
+    "Tick": 211228,
     "Planet": {
       "Width": 8,
       "Height": 8,
@@ -339,8 +339,8 @@
           "Y": 1.7,
           "Z": -2.4856858434378335
         },
-        "Yaw": -2.5140000000000002,
-        "Pitch": 0.75,
+        "Yaw": -2.5020000000000002,
+        "Pitch": 0.766,
         "IsRunning": false
       },
       "CurrentRoom": {
@@ -439,7 +439,7 @@
         "SceneObservation": {}
       },
       "Fov": 70,
-      "Tick": 98949
+      "Tick": 211228
     },
     "ViewMode": {
       "Kind": 0,
@@ -979,7 +979,7 @@
           "OrbitDistance": 0.39,
           "Radius": 0.38,
           "OrbitalPeriod": 0.24,
-          "CurrentAngle": 1.8064157758270563,
+          "CurrentAngle": 0.7330382858650222,
           "HasRings": false,
           "RingColor": {
             "Kind": 1,
@@ -1008,7 +1008,7 @@
           "OrbitDistance": 0.72,
           "Radius": 0.95,
           "OrbitalPeriod": 0.62,
-          "CurrentAngle": 4.939508674745924,
+          "CurrentAngle": 5.537424695900342,
           "HasRings": false,
           "RingColor": {
             "Kind": 1,
@@ -1044,7 +1044,7 @@
           "OrbitDistance": 1,
           "Radius": 1,
           "OrbitalPeriod": 1,
-          "CurrentAngle": 1.7795575493404105,
+          "CurrentAngle": 3.5325662500511146,
           "HasRings": false,
           "RingColor": {
             "Kind": 1,
@@ -1080,7 +1080,7 @@
           "OrbitDistance": 1.52,
           "Radius": 0.53,
           "OrbitalPeriod": 1.88,
-          "CurrentAngle": 1.190595187629309,
+          "CurrentAngle": 5.732536055960537,
           "HasRings": false,
           "RingColor": {
             "Kind": 1,
@@ -1116,7 +1116,7 @@
           "OrbitDistance": 5.2,
           "Radius": 11.2,
           "OrbitalPeriod": 11.86,
-          "CurrentAngle": 2.9556729354918247,
+          "CurrentAngle": 5.890121790171379,
           "HasRings": false,
           "RingColor": {
             "Kind": 1,
@@ -1145,7 +1145,7 @@
           "OrbitDistance": 9.5,
           "Radius": 9.4,
           "OrbitalPeriod": 29.46,
-          "CurrentAngle": 0.17095540943129114,
+          "CurrentAngle": 5.268098846503493,
           "HasRings": true,
           "RingColor": {
             "Kind": 0,
@@ -1181,7 +1181,7 @@
           "OrbitDistance": 19.2,
           "Radius": 4,
           "OrbitalPeriod": 84.01,
-          "CurrentAngle": 6.217301574869084,
+          "CurrentAngle": 2.04838082487541,
           "HasRings": true,
           "RingColor": {
             "Kind": 0,
@@ -1217,7 +1217,7 @@
           "OrbitDistance": 30.1,
           "Radius": 3.9,
           "OrbitalPeriod": 164.8,
-          "CurrentAngle": 5.672541886902626,
+          "CurrentAngle": 3.6701197053616568,
           "HasRings": false,
           "RingColor": {
             "Kind": 1,

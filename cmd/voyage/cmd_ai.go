@@ -148,6 +148,13 @@ func buildAIRequest(flags aiFlags) (handlers.AIRequest, error) {
 			}
 			req.Context["reference_image"] = flags.referencePath
 		}
+		// Add aspect ratio and image size for edit operations
+		if flags.aspectRatio != "" {
+			req.Context["aspect_ratio"] = flags.aspectRatio
+		}
+		if flags.imageSize != "" {
+			req.Context["image_size"] = flags.imageSize
+		}
 	}
 
 	req.Messages = append(req.Messages, handlers.ContentBlock{

@@ -211,48 +211,54 @@ go run ./cmd/demo-engine-interior \
 ## Deck Scene Backgrounds (with Window Compositing)
 
 The game composites dynamic space views through deck windows. Each deck requires:
-1. **background.png** - Deck interior (1344x768) with bright/white windows
+1. **background.png** - Deck interior (1344x768)
 2. **window_mask_large.png** - Mask identifying window regions (white=window)
 
-### Workflow: Bright Windows + Keep-Top-N
+### Workflow: AI Segmentation
 
 ```bash
-# 1. Generate deck scene with bright windows (widescreen 1344x768)
-go run ./cmd/voyage ai -generate-image -aspect 16:9 -prompt \
-  "Spaceship <DECK_TYPE> interior, <N> large windows showing pure bright white overexposed light, dark metallic interior, sci-fi aesthetic with <ACCENT_COLOR> lighting"
+# 1. Generate deck scene (widescreen 1344x768)
+bin/voyage ai -generate-image -aspect 16:9 -prompt \
+  "Spaceship <DECK_TYPE> interior, large windows showing sky/space, sci-fi aesthetic"
 
-# 2. Extract window mask (keep only N largest bright regions)
-go run ./cmd/generate-window-mask \
-  -mode=bright \
-  -threshold=200 \
-  -keep-top=<N> \
-  -mask \
-  assets/generated/response_XXX.png \
-  assets/decks/<DECK>/window_mask_large.png
+# 2. Generate mask using AI segmentation (recommended)
+bin/generate-window-mask-ai \
+  -deck <observation|bridge|generic> \
+  -overlay \
+  assets/generated/response_XXX.png
 
-# 3. Copy background
+# 3. Copy to final location
 cp assets/generated/response_XXX.png assets/decks/<DECK>/background.png
+cp assets/generated/response_XXX_mask.png assets/decks/<DECK>/window_mask_large.png
 
 # 4. Test
 go run ./cmd/game
 ```
 
-### Why Keep-Top-N?
+### One-Command Pipeline
 
-- AI generates images with many bright spots (console LEDs, ceiling lights)
-- `-keep-top=N` filters to only the N largest bright regions (the windows)
-- Result: Clean mask with only main window areas
+For fully automated generation + masking:
+
+```bash
+.claude/skills/asset-manager/scripts/generate_transparent_scene.sh \
+  --deck observation \
+  myobservation "large panoramic dome with views of space"
+```
+
+### AI Segmentation Benefits
+
+- **No threshold tuning** - AI detects windows semantically
+- **Accurate boundaries** - Polygon-based masks follow actual shapes
+- **Deck-aware prompts** - Optimized for observation, bridge, or generic decks
 
 ### Deck Asset Structure
 
 ```
 assets/decks/<DECK>/
 ├── background.png           # 1344x768 deck scene
-├── window_mask_large.png    # Window mask (white=window, transparent=interior)
+├── window_mask_large.png    # Window mask (white=window, black=interior)
 └── manifest.json           # Asset metadata
 ```
-
-See [prompt_templates.md](resources/prompt_templates.md) for detailed prompts and alternative methods.
 
 ## Notes
 
