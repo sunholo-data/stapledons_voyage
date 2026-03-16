@@ -246,11 +246,12 @@ func (r *Renderer) drawGalaxyBackgroundParallax(screen *ebiten.Image, opacity fl
 
 // loadGalaxyBackground loads the galaxy background image from disk.
 func (r *Renderer) loadGalaxyBackground() {
-	// Try different paths for the galaxy background
+	// Try different paths for the galaxy background (prefer higher resolution)
 	paths := []string{
+		"assets/data/starmap/background/galaxy_10k.jpg",
+		"assets/data/starmap/background/galaxy_8k.jpg",
 		"assets/data/starmap/background/galaxy_4k.jpg",
 		"assets/data/starmap/background/galaxy_2k.jpg",
-		"assets/data/starmap/background/galaxy_8k.jpg",
 	}
 
 	for _, path := range paths {

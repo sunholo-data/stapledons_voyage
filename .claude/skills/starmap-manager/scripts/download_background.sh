@@ -1,7 +1,8 @@
 #!/bin/bash
-# Download galactic background imagery from ESA
+# Download galactic background imagery from NOIRLab
+# Source: NOIRLab all-sky panorama by Eckhard Slawik (noirlab2430b)
 # Usage: download_background.sh [resolution]
-#   resolution: 2k, 4k (default), 8k
+#   resolution: 4k (default), 10k
 
 set -e
 
@@ -13,82 +14,72 @@ RESOLUTION="${1:-4k}"
 
 mkdir -p "$OUTPUT_DIR"
 
-echo "=== ESA Gaia All-Sky Map Downloader ==="
-echo "Source: ESA/Gaia/DPAC"
-echo "License: CC BY-SA 3.0 IGO"
-echo "Credit: ESA/Gaia/DPAC"
+echo "=== NOIRLab All-Sky Panorama Downloader ==="
+echo "Source: NOIRLab / Eckhard Slawik (noirlab2430b)"
+echo "License: CC BY 4.0"
+echo "Credit: NOIRLab/NOIRLab/Eckhard Slawik"
+echo "URL: https://noirlab.edu/public/images/noirlab2430b/"
 echo ""
 
 case "$RESOLUTION" in
-    2k)
-        echo "Downloading 2K resolution (~1024x768)..."
-        echo "  Size: ~800 KB"
-        # ESO CDN - Gaia's view of the Milky Way (eso1908e)
-        URL="https://cdn.eso.org/images/wallpaper2/eso1908e.jpg"
-        OUTPUT="$OUTPUT_DIR/galaxy_2k.jpg"
-        ;;
     4k)
-        echo "Downloading 4K resolution (publication quality)..."
-        echo "  Size: ~2.6 MB"
-        URL="https://cdn.eso.org/images/publicationjpg/eso1908e.jpg"
+        echo "Downloading 4K resolution (4000x2000)..."
+        echo "  Size: ~3.5 MB"
+        URL="https://noirlab.edu/public/media/archives/images/publicationjpg/noirlab2430b.jpg"
         OUTPUT="$OUTPUT_DIR/galaxy_4k.jpg"
         ;;
-    8k)
-        echo "Downloading 8K resolution (large, ~15MB)..."
-        echo "  Size: ~15 MB"
-        URL="https://cdn.eso.org/images/large/eso1908e.jpg"
-        OUTPUT="$OUTPUT_DIR/galaxy_8k.jpg"
+    10k)
+        echo "Downloading 10K resolution (10000x5000)..."
+        echo "  Size: ~91 MB (TIF, will convert to JPEG)"
+        URL="https://noirlab.edu/public/media/archives/images/publicationtiff10k/noirlab2430b.tif"
+        OUTPUT_TIF="$OUTPUT_DIR/galaxy_10k.tif"
+        OUTPUT="$OUTPUT_DIR/galaxy_10k.jpg"
         ;;
     *)
         echo "ERROR: Unknown resolution '$RESOLUTION'"
-        echo "Usage: $0 [2k|4k|8k]"
+        echo "Usage: $0 [4k|10k]"
         echo ""
         echo "Resolutions:"
-        echo "  2k - ~1024x768, ~800 KB (low-end devices)"
-        echo "  4k - Publication quality, ~2.6 MB (default, recommended)"
-        echo "  8k - Large, ~15 MB (HD/4K displays)"
+        echo "  4k  - 4000x2000, ~3.5 MB JPEG (default, recommended)"
+        echo "  10k - 10000x5000, ~27 MB JPEG (HD/4K displays, downloaded as TIF and converted)"
+        echo ""
+        echo "Higher resolutions available manually from:"
+        echo "  https://noirlab.edu/public/images/noirlab2430b/"
         exit 1
         ;;
 esac
 
 echo ""
 
-# Try primary URL
-if curl -L --fail -o "$OUTPUT" "$URL" 2>/dev/null; then
-    echo "  Downloaded: $(basename "$OUTPUT")"
-    echo "  Size: $(du -h "$OUTPUT" | cut -f1)"
-else
-    echo "  Primary URL failed, trying alternative sources..."
-
-    # Alternative: ESO archive
-    ALT_URL="https://cdn.eso.org/images/original/ESA_Gaia_DR2_AllSky_Brightness_Colour_black_bg_${RESOLUTION}.png"
-    if curl -L --fail -o "$OUTPUT" "$ALT_URL" 2>/dev/null; then
-        echo "  Downloaded from ESO: $(basename "$OUTPUT")"
-    else
-        # Fallback: Direct sci.esa.int
-        case "$RESOLUTION" in
-            4k)
-                FALLBACK="https://sci.esa.int/documents/33565/0/Gaia_EDR3_flux_equirect_4096x2048.png"
-                ;;
-            8k)
-                FALLBACK="https://sci.esa.int/documents/33565/0/Gaia_EDR3_flux_equirect_8192x4096.png"
-                ;;
-            *)
-                FALLBACK=""
-                ;;
-        esac
-
-        if [ -n "$FALLBACK" ] && curl -L --fail -o "$OUTPUT" "$FALLBACK" 2>/dev/null; then
-            echo "  Downloaded from sci.esa.int: $(basename "$OUTPUT")"
+if [ "$RESOLUTION" = "10k" ]; then
+    # Download TIF and convert to JPEG
+    if curl -L --fail -o "$OUTPUT_TIF" "$URL" 2>/dev/null; then
+        echo "  Downloaded TIF, converting to JPEG..."
+        if command -v sips &>/dev/null; then
+            sips -s format jpeg -s formatOptions 90 "$OUTPUT_TIF" --out "$OUTPUT" 2>/dev/null
+        elif command -v convert &>/dev/null; then
+            convert "$OUTPUT_TIF" -quality 90 "$OUTPUT"
         else
-            echo "  ERROR: Could not download galactic background"
-            echo ""
-            echo "  Manual download options:"
-            echo "  1. ESA Gaia Archive: https://www.cosmos.esa.int/web/gaia/edr3-gcns"
-            echo "  2. ESO Image Archive: https://www.eso.org/public/images/eso1908e/"
-            echo "  3. Sci.esa.int: https://sci.esa.int/web/gaia/-/60196-gaia-s-sky-in-colour"
+            echo "  ERROR: Need 'sips' (macOS) or 'convert' (ImageMagick) to convert TIF to JPEG"
+            echo "  TIF saved at: $OUTPUT_TIF"
             exit 1
         fi
+        rm -f "$OUTPUT_TIF"
+        echo "  Converted: $(basename "$OUTPUT")"
+        echo "  Size: $(du -h "$OUTPUT" | cut -f1)"
+    else
+        echo "  ERROR: Could not download 10K background"
+        exit 1
+    fi
+else
+    if curl -L --fail -o "$OUTPUT" "$URL" 2>/dev/null; then
+        echo "  Downloaded: $(basename "$OUTPUT")"
+        echo "  Size: $(du -h "$OUTPUT" | cut -f1)"
+    else
+        echo "  ERROR: Could not download background"
+        echo ""
+        echo "  Manual download: https://noirlab.edu/public/images/noirlab2430b/"
+        exit 1
     fi
 fi
 
@@ -99,4 +90,4 @@ echo "Files in $OUTPUT_DIR:"
 ls -lh "$OUTPUT_DIR"/ 2>/dev/null || echo "  (empty)"
 echo ""
 echo "IMPORTANT: Add credit to game:"
-echo '  "Galaxy imagery: ESA/Gaia/DPAC (CC BY-SA 3.0 IGO)"'
+echo '  "All-sky panorama: NOIRLab/Eckhard Slawik (CC BY 4.0)"'

@@ -5,7 +5,7 @@ description: Manage starmap data assets for Stapledons Voyage. Use when download
 
 # Starmap Manager
 
-Download, process, and manage astronomical data for the game's 3D starmap. Handles real star catalogs (Gaia), exoplanet data (NASA), and galactic background imagery (ESA/ESO).
+Download, process, and manage astronomical data for the game's 3D starmap. Handles real star catalogs (Gaia), exoplanet data (NASA), and galactic background imagery (NOIRLab all-sky panorama).
 
 ## Quick Start
 
@@ -65,14 +65,14 @@ Download NASA Exoplanet Archive confirmed planets (~3MB).
 ```
 
 ### `scripts/download_background.sh [resolution]`
-Download ESA Gaia all-sky map for galactic background.
+Download NOIRLab all-sky panorama (noirlab2430b) for galactic background.
 
 ```bash
-# 4K version (4096x2048, ~5MB) - default
+# 4K version (4000x2000, ~3.5MB) - default
 .claude/skills/starmap-manager/scripts/download_background.sh 4k
 
-# 8K version (8192x4096, ~20MB)
-.claude/skills/starmap-manager/scripts/download_background.sh 8k
+# 10K version (10000x5000, ~27MB JPEG) - HD/4K displays
+.claude/skills/starmap-manager/scripts/download_background.sh 10k
 ```
 
 ### `scripts/process_stars.sh`
@@ -115,7 +115,7 @@ Show current starmap asset status.
 ```bash
 # Full catalog + high-res background
 .claude/skills/starmap-manager/scripts/download_stars.sh large
-.claude/skills/starmap-manager/scripts/download_background.sh 8k
+.claude/skills/starmap-manager/scripts/download_background.sh 10k
 .claude/skills/starmap-manager/scripts/process_stars.sh
 ```
 
@@ -150,7 +150,7 @@ See [`resources/processing.md`](resources/processing.md) for:
 
 ## Notes
 
-- **Licensing**: All data is CC BY-SA 3.0 or public domain
+- **Licensing**: Star data CC BY-SA 3.0, background imagery CC BY 4.0 (NOIRLab)
 - **Updates**: Star positions don't change; exoplanets update quarterly
 - **Determinism**: Same processing produces identical output
 - **Dependencies**: Requires `curl`, `jq`, `python3` (for coordinate conversion)
