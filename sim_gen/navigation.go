@@ -14,12 +14,12 @@ func QuatIdentity() Quaternion {
 }
 
 func quatFromAxisAngle_impl(ax interface{}, ay interface{}, az interface{}, angle interface{}) interface{} {
-	var halfAngle interface{} = DivFloat(angle, float64(2))
+	var halfAngle interface{} = dict_Fractional_Float.Div(angle, float64(2))
 	var s interface{} = math.Sin(halfAngle.(float64))
 	var tmp1 interface{} = math.Cos(halfAngle.(float64))
-	var tmp2 interface{} = MulFloat(ax, s)
-	var tmp3 interface{} = MulFloat(ay, s)
-	var tmp4 interface{} = MulFloat(az, s)
+	var tmp2 interface{} = dict_Fractional_Float.Mul(ax, s)
+	var tmp3 interface{} = dict_Fractional_Float.Mul(ay, s)
+	var tmp4 interface{} = dict_Fractional_Float.Mul(az, s)
 	return Quaternion{W: tmp1.(float64), X: tmp2.(float64), Y: tmp3.(float64), Z: tmp4.(float64)}
 }
 
@@ -36,59 +36,59 @@ func quatRotateVec_impl(q interface{}, v interface{}) interface{} {
 	var vy interface{} = FieldGet(v, "y")
 	var vz interface{} = FieldGet(v, "z")
 	var cx interface{} = func() interface{} {
-		var tmp27 interface{} = MulFloat(qy, vz)
+		var tmp27 interface{} = dict_Fractional_Float.Mul(qy, vz)
 		_ = tmp27 // suppress unused
-		var tmp28 interface{} = MulFloat(qz, vy)
+		var tmp28 interface{} = dict_Fractional_Float.Mul(qz, vy)
 		_ = tmp28 // suppress unused
-		return SubFloat(tmp27, tmp28)
+		return dict_Fractional_Float.Sub(tmp27, tmp28)
 	}()
 	var cy interface{} = func() interface{} {
-		var tmp25 interface{} = MulFloat(qz, vx)
+		var tmp25 interface{} = dict_Fractional_Float.Mul(qz, vx)
 		_ = tmp25 // suppress unused
-		var tmp26 interface{} = MulFloat(qx, vz)
+		var tmp26 interface{} = dict_Fractional_Float.Mul(qx, vz)
 		_ = tmp26 // suppress unused
-		return SubFloat(tmp25, tmp26)
+		return dict_Fractional_Float.Sub(tmp25, tmp26)
 	}()
 	var cz interface{} = func() interface{} {
-		var tmp23 interface{} = MulFloat(qx, vy)
+		var tmp23 interface{} = dict_Fractional_Float.Mul(qx, vy)
 		_ = tmp23 // suppress unused
-		var tmp24 interface{} = MulFloat(qy, vx)
+		var tmp24 interface{} = dict_Fractional_Float.Mul(qy, vx)
 		_ = tmp24 // suppress unused
-		return SubFloat(tmp23, tmp24)
+		return dict_Fractional_Float.Sub(tmp23, tmp24)
 	}()
 	var cx2 interface{} = func() interface{} {
-		var tmp21 interface{} = MulFloat(qy, cz)
+		var tmp21 interface{} = dict_Fractional_Float.Mul(qy, cz)
 		_ = tmp21 // suppress unused
-		var tmp22 interface{} = MulFloat(qz, cy)
+		var tmp22 interface{} = dict_Fractional_Float.Mul(qz, cy)
 		_ = tmp22 // suppress unused
-		return SubFloat(tmp21, tmp22)
+		return dict_Fractional_Float.Sub(tmp21, tmp22)
 	}()
 	var cy2 interface{} = func() interface{} {
-		var tmp19 interface{} = MulFloat(qz, cx)
+		var tmp19 interface{} = dict_Fractional_Float.Mul(qz, cx)
 		_ = tmp19 // suppress unused
-		var tmp20 interface{} = MulFloat(qx, cz)
+		var tmp20 interface{} = dict_Fractional_Float.Mul(qx, cz)
 		_ = tmp20 // suppress unused
-		return SubFloat(tmp19, tmp20)
+		return dict_Fractional_Float.Sub(tmp19, tmp20)
 	}()
 	var cz2 interface{} = func() interface{} {
-		var tmp17 interface{} = MulFloat(qx, cy)
+		var tmp17 interface{} = dict_Fractional_Float.Mul(qx, cy)
 		_ = tmp17 // suppress unused
-		var tmp18 interface{} = MulFloat(qy, cx)
+		var tmp18 interface{} = dict_Fractional_Float.Mul(qy, cx)
 		_ = tmp18 // suppress unused
-		return SubFloat(tmp17, tmp18)
+		return dict_Fractional_Float.Sub(tmp17, tmp18)
 	}()
-	var tmp5 interface{} = MulFloat(qw, cx)
-	var tmp6 interface{} = AddFloat(tmp5, cx2)
-	var tmp7 interface{} = MulFloat(float64(2), tmp6)
-	var tmp8 interface{} = AddFloat(vx, tmp7)
-	var tmp9 interface{} = MulFloat(qw, cy)
-	var tmp10 interface{} = AddFloat(tmp9, cy2)
-	var tmp11 interface{} = MulFloat(float64(2), tmp10)
-	var tmp12 interface{} = AddFloat(vy, tmp11)
-	var tmp13 interface{} = MulFloat(qw, cz)
-	var tmp14 interface{} = AddFloat(tmp13, cz2)
-	var tmp15 interface{} = MulFloat(float64(2), tmp14)
-	var tmp16 interface{} = AddFloat(vz, tmp15)
+	var tmp5 interface{} = dict_Fractional_Float.Mul(qw, cx)
+	var tmp6 interface{} = dict_Fractional_Float.Add(tmp5, cx2)
+	var tmp7 interface{} = dict_Fractional_Float.Mul(float64(2), tmp6)
+	var tmp8 interface{} = dict_Fractional_Float.Add(vx, tmp7)
+	var tmp9 interface{} = dict_Fractional_Float.Mul(qw, cy)
+	var tmp10 interface{} = dict_Fractional_Float.Add(tmp9, cy2)
+	var tmp11 interface{} = dict_Fractional_Float.Mul(float64(2), tmp10)
+	var tmp12 interface{} = dict_Fractional_Float.Add(vy, tmp11)
+	var tmp13 interface{} = dict_Fractional_Float.Mul(qw, cz)
+	var tmp14 interface{} = dict_Fractional_Float.Add(tmp13, cz2)
+	var tmp15 interface{} = dict_Fractional_Float.Mul(float64(2), tmp14)
+	var tmp16 interface{} = dict_Fractional_Float.Add(vz, tmp15)
 	return makeVec3_impl(tmp8, tmp12, tmp16)
 }
 
@@ -122,9 +122,9 @@ func SetPosition(nav *ShipNavigation, x float64, y float64, z float64) *ShipNavi
 
 func setVelocity_impl(nav interface{}, v interface{}) interface{} {
 	var clampedV interface{} = func() interface{} {
-		var tmp41 interface{} = LtFloat(v, float64(0))
+		var tmp41 interface{} = dict_Ord_Float.Lt(v, float64(0))
 		_ = tmp41 // suppress unused
-		var tmp42 interface{} = GtFloat(v, float64(0.999))
+		var tmp42 interface{} = dict_Ord_Float.Gt(v, float64(0.999))
 		_ = tmp42 // suppress unused
 		if tmp41.(bool) {
 			return float64(0)
@@ -147,29 +147,29 @@ func SetVelocity(nav *ShipNavigation, v float64) *ShipNavigation {
 
 func setHeading_impl(nav interface{}, hx interface{}, hy interface{}, hz interface{}) interface{} {
 	var len interface{} = func() interface{} {
-		var tmp51 interface{} = MulFloat(hx, hx)
+		var tmp51 interface{} = dict_Fractional_Float.Mul(hx, hx)
 		_ = tmp51 // suppress unused
-		var tmp52 interface{} = MulFloat(hy, hy)
+		var tmp52 interface{} = dict_Fractional_Float.Mul(hy, hy)
 		_ = tmp52 // suppress unused
-		var tmp53 interface{} = AddFloat(tmp51, tmp52)
+		var tmp53 interface{} = dict_Fractional_Float.Add(tmp51, tmp52)
 		_ = tmp53 // suppress unused
-		var tmp54 interface{} = MulFloat(hz, hz)
+		var tmp54 interface{} = dict_Fractional_Float.Mul(hz, hz)
 		_ = tmp54 // suppress unused
-		var tmp55 interface{} = AddFloat(tmp53, tmp54)
+		var tmp55 interface{} = dict_Fractional_Float.Add(tmp53, tmp54)
 		_ = tmp55 // suppress unused
 		return math.Sqrt(tmp55.(float64))
 	}()
 	var normalizedH interface{} = func() interface{} {
-		var tmp47 interface{} = GtFloat(len, float64(0.001))
+		var tmp47 interface{} = dict_Ord_Float.Gt(len, float64(0.001))
 		_ = tmp47 // suppress unused
 		return func() interface{} {
 			if tmp47.(bool) {
 				return func() interface{} {
-					var tmp48 interface{} = DivFloat(hx, len)
+					var tmp48 interface{} = dict_Fractional_Float.Div(hx, len)
 					_ = tmp48 // suppress unused
-					var tmp49 interface{} = DivFloat(hy, len)
+					var tmp49 interface{} = dict_Fractional_Float.Div(hy, len)
 					_ = tmp49 // suppress unused
-					var tmp50 interface{} = DivFloat(hz, len)
+					var tmp50 interface{} = dict_Fractional_Float.Div(hz, len)
 					_ = tmp50 // suppress unused
 					return makeVec3_impl(tmp48, tmp49, tmp50)
 				}()
@@ -220,11 +220,11 @@ func GetRight(nav *ShipNavigation) Vec3 {
 
 func windowViewDirection_impl(nav interface{}, windowNormalX interface{}, windowNormalY interface{}, windowNormalZ interface{}) interface{} {
 	var localView interface{} = func() interface{} {
-		var tmp63 interface{} = SubFloat(float64(0), windowNormalX)
+		var tmp63 interface{} = dict_Fractional_Float.Sub(float64(0), windowNormalX)
 		_ = tmp63 // suppress unused
-		var tmp64 interface{} = SubFloat(float64(0), windowNormalY)
+		var tmp64 interface{} = dict_Fractional_Float.Sub(float64(0), windowNormalY)
 		_ = tmp64 // suppress unused
-		var tmp65 interface{} = SubFloat(float64(0), windowNormalZ)
+		var tmp65 interface{} = dict_Fractional_Float.Sub(float64(0), windowNormalZ)
 		_ = tmp65 // suppress unused
 		return makeVec3_impl(tmp63, tmp64, tmp65)
 	}()
@@ -246,10 +246,10 @@ func WindowViewUp(nav *ShipNavigation) Vec3 {
 
 func timeDilationFactor_impl(nav interface{}) interface{} {
 	var v interface{} = FieldGet(nav, "velocity")
-	var vsq interface{} = MulFloat(v, v)
-	var tmp66 interface{} = SubFloat(float64(1), vsq)
+	var vsq interface{} = dict_Fractional_Float.Mul(v, v)
+	var tmp66 interface{} = dict_Fractional_Float.Sub(float64(1), vsq)
 	var tmp67 interface{} = math.Sqrt(tmp66.(float64))
-	return DivFloat(float64(1), tmp67)
+	return dict_Fractional_Float.Div(float64(1), tmp67)
 }
 
 func TimeDilationFactor(nav *ShipNavigation) float64 {
@@ -258,7 +258,7 @@ func TimeDilationFactor(nav *ShipNavigation) float64 {
 
 func properTime_impl(nav interface{}, coordinateTime interface{}) interface{} {
 	var tmp68 interface{} = timeDilationFactor_impl(nav)
-	return DivFloat(coordinateTime, tmp68)
+	return dict_Fractional_Float.Div(coordinateTime, tmp68)
 }
 
 func ProperTime(nav *ShipNavigation, coordinateTime float64) float64 {
@@ -267,11 +267,11 @@ func ProperTime(nav *ShipNavigation, coordinateTime float64) float64 {
 
 func travel_impl(nav interface{}, properDuration interface{}) interface{} {
 	var gamma interface{} = timeDilationFactor_impl(nav)
-	var coordinateDuration interface{} = MulFloat(properDuration, gamma)
+	var coordinateDuration interface{} = dict_Fractional_Float.Mul(properDuration, gamma)
 	var travelDist interface{} = func() interface{} {
 		var tmp77 interface{} = FieldGet(nav, "velocity")
 		_ = tmp77 // suppress unused
-		return MulFloat(tmp77, coordinateDuration)
+		return dict_Fractional_Float.Mul(tmp77, coordinateDuration)
 	}()
 	var pos interface{} = FieldGet(nav, "position")
 	var heading interface{} = FieldGet(nav, "heading")
@@ -282,19 +282,19 @@ func travel_impl(nav interface{}, properDuration interface{}) interface{} {
 	var hy interface{} = FieldGet(heading, "y")
 	var hz interface{} = FieldGet(heading, "z")
 	var newX interface{} = func() interface{} {
-		var tmp76 interface{} = MulFloat(hx, travelDist)
+		var tmp76 interface{} = dict_Fractional_Float.Mul(hx, travelDist)
 		_ = tmp76 // suppress unused
-		return AddFloat(px, tmp76)
+		return dict_Fractional_Float.Add(px, tmp76)
 	}()
 	var newY interface{} = func() interface{} {
-		var tmp75 interface{} = MulFloat(hy, travelDist)
+		var tmp75 interface{} = dict_Fractional_Float.Mul(hy, travelDist)
 		_ = tmp75 // suppress unused
-		return AddFloat(py, tmp75)
+		return dict_Fractional_Float.Add(py, tmp75)
 	}()
 	var newZ interface{} = func() interface{} {
-		var tmp74 interface{} = MulFloat(hz, travelDist)
+		var tmp74 interface{} = dict_Fractional_Float.Mul(hz, travelDist)
 		_ = tmp74 // suppress unused
-		return AddFloat(pz, tmp74)
+		return dict_Fractional_Float.Add(pz, tmp74)
 	}()
 	var tmp69 interface{} = makeVec3_impl(newX, newY, newZ)
 	var tmp70 interface{} = FieldGet(nav, "orientation")
@@ -341,11 +341,11 @@ func navigation__maxGrPhi() float64 {
 }
 
 func cycleVelocity_impl(current interface{}) interface{} {
-	var tmp78 interface{} = LtFloat(current, float64(0.1))
+	var tmp78 interface{} = dict_Ord_Float.Lt(current, float64(0.1))
 	return func() interface{} {
-		var tmp79 interface{} = LtFloat(current, float64(0.3))
+		var tmp79 interface{} = dict_Ord_Float.Lt(current, float64(0.3))
 		_ = tmp79 // suppress unused
-		var tmp80 interface{} = LtFloat(current, float64(0.6))
+		var tmp80 interface{} = dict_Ord_Float.Lt(current, float64(0.6))
 		_ = tmp80 // suppress unused
 		if tmp78.(bool) {
 			return float64(0.2)
@@ -365,9 +365,9 @@ func CycleVelocity(current float64) float64 {
 }
 
 func navigation__clampFloat_impl(value interface{}, minVal interface{}, maxVal interface{}) interface{} {
-	var tmp81 interface{} = LtFloat(value, minVal)
+	var tmp81 interface{} = dict_Ord_Float.Lt(value, minVal)
 	return func() interface{} {
-		var tmp82 interface{} = GtFloat(value, maxVal)
+		var tmp82 interface{} = dict_Ord_Float.Gt(value, maxVal)
 		_ = tmp82 // suppress unused
 		if tmp81.(bool) {
 			return minVal
@@ -412,7 +412,7 @@ func stepNavigation_impl(nav interface{}, input interface{}) interface{} {
 					var tmp108 interface{} = navigation__velocityStep_impl(struct{}{})
 					_ = tmp108 // suppress unused
 					return func() interface{} {
-						var tmp109 interface{} = AddFloat(v1, tmp108)
+						var tmp109 interface{} = dict_Fractional_Float.Add(v1, tmp108)
 						_ = tmp109 // suppress unused
 						return func() interface{} {
 							var tmp110 interface{} = navigation__maxVelocity_impl(struct{}{})
@@ -436,7 +436,7 @@ func stepNavigation_impl(nav interface{}, input interface{}) interface{} {
 					var tmp103 interface{} = navigation__velocityStep_impl(struct{}{})
 					_ = tmp103 // suppress unused
 					return func() interface{} {
-						var tmp104 interface{} = SubFloat(v2, tmp103)
+						var tmp104 interface{} = dict_Fractional_Float.Sub(v2, tmp103)
 						_ = tmp104 // suppress unused
 						return func() interface{} {
 							var tmp105 interface{} = navigation__maxVelocity_impl(struct{}{})
@@ -463,7 +463,7 @@ func stepNavigation_impl(nav interface{}, input interface{}) interface{} {
 						var tmp98 interface{} = navigation__grPhiStep_impl(struct{}{})
 						_ = tmp98 // suppress unused
 						return func() interface{} {
-							var tmp99 interface{} = AddFloat(tmp97, tmp98)
+							var tmp99 interface{} = dict_Fractional_Float.Add(tmp97, tmp98)
 							_ = tmp99 // suppress unused
 							return func() interface{} {
 								var tmp100 interface{} = navigation__maxGrPhi_impl(struct{}{})
@@ -488,7 +488,7 @@ func stepNavigation_impl(nav interface{}, input interface{}) interface{} {
 					var tmp92 interface{} = navigation__grPhiStep_impl(struct{}{})
 					_ = tmp92 // suppress unused
 					return func() interface{} {
-						var tmp93 interface{} = SubFloat(phi1, tmp92)
+						var tmp93 interface{} = dict_Fractional_Float.Sub(phi1, tmp92)
 						_ = tmp93 // suppress unused
 						return func() interface{} {
 							var tmp94 interface{} = navigation__maxGrPhi_impl(struct{}{})

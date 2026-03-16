@@ -343,6 +343,10 @@ func (r *Renderer) RenderFrame(screen *ebiten.Image, out sim_gen.FrameOutput) {
 
 		case sim_gen.DrawCmdKindShipState3D:
 			r.handleShipState3D(cmd.ShipState3D, screenW, screenH)
+
+		// TODO: Uncomment when AILANG codegen List type bug is fixed (issue #116)
+		// case sim_gen.DrawCmdKindBubbleShipHUD:
+		// 	r.handleBubbleShipHUD(screen, cmd.BubbleShipHUD, screenW, screenH)
 		}
 	}
 
@@ -913,6 +917,13 @@ func getZ(cmd *sim_gen.DrawCmd) int {
 		return int(cmd.TexturedPlanet.Z)
 	case sim_gen.DrawCmdKindMarker:
 		return int(cmd.Marker.Z)
+	// TODO: Uncomment when AILANG codegen List type bug is fixed (issue #116)
+	// case sim_gen.DrawCmdKindBubbleShipHUD:
+	// 	return int(cmd.BubbleShipHUD.Z) + 10000 // HUD always on top
 	}
 	return 0
 }
+
+// TODO: handleBubbleShipHUD - uncomment when AILANG codegen List type bug is fixed (issue #116)
+// The implementation is ready in sim/interior.ail and sim/protocol.ail
+// See design doc: design_docs/planned/next/bubble-ship-hud-view.md

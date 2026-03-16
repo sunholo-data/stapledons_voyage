@@ -580,7 +580,7 @@ func solar_demo__buildLightingContext(sunEnergy float64, ambientLevel float64) *
 }
 
 func solar_demo__buildSRContext_impl(velocity interface{}) interface{} {
-	var tmp58 interface{} = GtFloat(velocity, float64(0.01))
+	var tmp58 interface{} = dict_Ord_Float.Gt(velocity, float64(0.01))
 	return SRContext{Enabled: tmp58.(bool), Velocity: velocity.(float64), Gamma: float64(1), ViewAngle: float64(0)}
 }
 
@@ -670,7 +670,7 @@ func solar_demo__updatePlanetRotation_impl(p interface{}) interface{} {
 	var tmp76 interface{} = FieldGet(p, "textureName")
 	var tmp77 interface{} = FieldGet(p, "rotation")
 	var tmp78 interface{} = FieldGet(p, "rotationSpeed")
-	var tmp79 interface{} = AddFloat(tmp77, tmp78)
+	var tmp79 interface{} = dict_Fractional_Float.Add(tmp77, tmp78)
 	var tmp80 interface{} = FieldGet(p, "rotationSpeed")
 	var tmp81 interface{} = FieldGet(p, "hasRings")
 	var tmp82 interface{} = FieldGet(p, "ringColor")
@@ -678,7 +678,7 @@ func solar_demo__updatePlanetRotation_impl(p interface{}) interface{} {
 	var tmp84 interface{} = FieldGet(p, "orbitSpeed")
 	var tmp85 interface{} = FieldGet(p, "orbitPhase")
 	var tmp86 interface{} = FieldGet(p, "orbitSpeed")
-	var tmp87 interface{} = AddFloat(tmp85, tmp86)
+	var tmp87 interface{} = dict_Fractional_Float.Add(tmp85, tmp86)
 	var tmp88 interface{} = FieldGet(p, "parentName")
 	return &SolarPlanet{Name: tmp70.(string), PosX: tmp71.(float64), PosY: tmp72.(float64), PosZ: tmp73.(float64), Radius: tmp74.(float64), ColorRgba: tmp75.(int64), TextureName: tmp76.(string), Rotation: tmp79.(float64), RotationSpeed: tmp80.(float64), HasRings: tmp81.(bool), RingColor: tmp82.(int64), OrbitRadius: tmp83.(float64), OrbitSpeed: tmp84.(float64), OrbitPhase: tmp87.(float64), ParentName: tmp88.(string)}
 }
@@ -772,7 +772,7 @@ func solar_demo__buildFrameOutput(state *SolarDemoState) *FrameOutput {
 
 func solar_demo__incrementTick_impl(state interface{}) interface{} {
 	var tmp105 interface{} = FieldGet(state, "tick")
-	var tmp106 interface{} = AddInt(tmp105, int64(1))
+	var tmp106 interface{} = dict_Num_Int.Add(tmp105, int64(1))
 	var tmp107 interface{} = FieldGet(state, "cameraX")
 	var tmp108 interface{} = FieldGet(state, "cameraY")
 	var tmp109 interface{} = FieldGet(state, "cameraZ")

@@ -8,7 +8,7 @@ module sim/interior
 import sim/protocol (
     Coord, DrawCmd, FrameInput, KeyEvent,
     Camera3D, Room3D, Prop3D, Billboard3D, Window3D, ShipState3D, Text, RectRGBA,
-    Sprite, Viewport, Ui, UiPortrait, SpaceBg, TexturedPlanet
+    Sprite, Viewport, Ui, UiPortrait, SpaceBg, TexturedPlanet, BubbleShipHUD
 )
 import sim/navigation (
     ShipNavigation, getForward, getUp, cycleVelocity
@@ -657,6 +657,19 @@ pure func renderScenePlanets() -> [DrawCmd] {
     ]
 }
 
+-- Render bubble ship HUD (3rd-person external view)
+-- Shows transparent bubble with ship silhouette, positioned in corner of screen
+pure func renderBubbleShipHUD(nav: ShipNavigation) -> DrawCmd {
+    -- Position in bottom-right corner
+    let screenX = 0.75;   -- 75% from left
+    let screenY = 0.70;   -- 70% from top (bottom area)
+    let size = 200.0;     -- 200x200 pixel viewport
+    let alpha = 0.25;     -- Semi-transparent bubble
+    let showStars = true; -- Show stars through bubble
+
+    BubbleShipHUD(screenX, screenY, size, alpha, nav.velocity, showStars, 200)
+}
+
 -- Render entire interior scene with ship navigation state
 -- SCENE-BASED RENDERING (2D backgrounds + 3D solar system through transparent windows)
 export pure func renderInterior(state: InteriorState, nav: ShipNavigation) -> [DrawCmd] {
@@ -686,6 +699,9 @@ export pure func renderInterior(state: InteriorState, nav: ShipNavigation) -> [D
     -- HUD overlay (renders on top)
     let hud = renderSceneHUD(state, nav);
 
-    -- Combine all layers: ship state, space, planets, deck, HUD
-    shipState :: spaceBg :: concat(planetCmds, concat([deckBackground], hud))
+    -- Bubble ship HUD (3rd-person external view in corner)
+    let bubbleHud = renderBubbleShipHUD(nav);
+
+    -- Combine all layers: ship state, space, planets, deck, HUD, bubble ship
+    shipState :: spaceBg :: concat(planetCmds, concat([deckBackground], concat(hud, [bubbleHud])))
 }

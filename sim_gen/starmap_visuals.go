@@ -21,36 +21,36 @@ func starmap_visuals__apparentRadius_impl(starPos interface{}, starRadius interf
 		_ = tmp13 // suppress unused
 		var tmp14 interface{} = FieldGet(camPos, "x")
 		_ = tmp14 // suppress unused
-		return SubFloat(tmp13, tmp14)
+		return dict_Fractional_Float.Sub(tmp13, tmp14)
 	}()
 	var dy interface{} = func() interface{} {
 		var tmp11 interface{} = FieldGet(starPos, "y")
 		_ = tmp11 // suppress unused
 		var tmp12 interface{} = FieldGet(camPos, "y")
 		_ = tmp12 // suppress unused
-		return SubFloat(tmp11, tmp12)
+		return dict_Fractional_Float.Sub(tmp11, tmp12)
 	}()
 	var dz interface{} = func() interface{} {
 		var tmp9 interface{} = FieldGet(starPos, "z")
 		_ = tmp9 // suppress unused
 		var tmp10 interface{} = FieldGet(camPos, "z")
 		_ = tmp10 // suppress unused
-		return SubFloat(tmp9, tmp10)
+		return dict_Fractional_Float.Sub(tmp9, tmp10)
 	}()
 	var dist interface{} = func() interface{} {
-		var tmp4 interface{} = MulFloat(dx, dx)
+		var tmp4 interface{} = dict_Fractional_Float.Mul(dx, dx)
 		_ = tmp4 // suppress unused
-		var tmp5 interface{} = MulFloat(dy, dy)
+		var tmp5 interface{} = dict_Fractional_Float.Mul(dy, dy)
 		_ = tmp5 // suppress unused
-		var tmp6 interface{} = AddFloat(tmp4, tmp5)
+		var tmp6 interface{} = dict_Fractional_Float.Add(tmp4, tmp5)
 		_ = tmp6 // suppress unused
-		var tmp7 interface{} = MulFloat(dz, dz)
+		var tmp7 interface{} = dict_Fractional_Float.Mul(dz, dz)
 		_ = tmp7 // suppress unused
-		var tmp8 interface{} = AddFloat(tmp6, tmp7)
+		var tmp8 interface{} = dict_Fractional_Float.Add(tmp6, tmp7)
 		_ = tmp8 // suppress unused
 		return math.Sqrt(tmp8.(float64))
 	}()
-	var tmp2 interface{} = LtFloat(dist, float64(0.01))
+	var tmp2 interface{} = dict_Ord_Float.Lt(dist, float64(0.01))
 	return func() interface{} {
 		if tmp2.(bool) {
 			return float64(10000)
@@ -58,9 +58,9 @@ func starmap_visuals__apparentRadius_impl(starPos interface{}, starRadius interf
 		return func() interface{} {
 			var fovScale interface{} = float64(623)
 			_ = fovScale // suppress unused
-			var tmp3 interface{} = DivFloat(starRadius, dist)
+			var tmp3 interface{} = dict_Fractional_Float.Div(starRadius, dist)
 			_ = tmp3 // suppress unused
-			return MulFloat(tmp3, fovScale)
+			return dict_Fractional_Float.Mul(tmp3, fovScale)
 		}()
 	}()
 }
@@ -141,25 +141,25 @@ func starmap_visuals__generateStarDrawCmd_impl(star interface{}, camPos interfac
 		_ = tmp23 // suppress unused
 		var tmp24 interface{} = FieldGet(tmp23, "x")
 		_ = tmp24 // suppress unused
-		var tmp25 interface{} = MulFloat(tmp24, float64(20))
+		var tmp25 interface{} = dict_Fractional_Float.Mul(tmp24, float64(20))
 		_ = tmp25 // suppress unused
-		return AddFloat(float64(640), tmp25)
+		return dict_Fractional_Float.Add(float64(640), tmp25)
 	}()
 	var screenY interface{} = func() interface{} {
 		var tmp20 interface{} = FieldGet(star, "pos")
 		_ = tmp20 // suppress unused
 		var tmp21 interface{} = FieldGet(tmp20, "y")
 		_ = tmp21 // suppress unused
-		var tmp22 interface{} = MulFloat(tmp21, float64(20))
+		var tmp22 interface{} = dict_Fractional_Float.Mul(tmp21, float64(20))
 		_ = tmp22 // suppress unused
-		return SubFloat(float64(360), tmp22)
+		return dict_Fractional_Float.Sub(float64(360), tmp22)
 	}()
 	var scale interface{} = func() interface{} {
-		var tmp17 interface{} = GtFloat(size, float64(10))
+		var tmp17 interface{} = dict_Ord_Float.Gt(size, float64(10))
 		_ = tmp17 // suppress unused
-		var tmp18 interface{} = GtFloat(size, float64(5))
+		var tmp18 interface{} = dict_Ord_Float.Gt(size, float64(5))
 		_ = tmp18 // suppress unused
-		var tmp19 interface{} = GtFloat(size, float64(1))
+		var tmp19 interface{} = dict_Ord_Float.Gt(size, float64(1))
 		_ = tmp19 // suppress unused
 		if tmp17.(bool) {
 			return float64(2)
@@ -173,7 +173,7 @@ func starmap_visuals__generateStarDrawCmd_impl(star interface{}, camPos interfac
 		return float64(0.5)
 	}()
 	var alpha interface{} = func() interface{} {
-		var tmp16 interface{} = GtFloat(size, float64(1))
+		var tmp16 interface{} = dict_Ord_Float.Gt(size, float64(1))
 		_ = tmp16 // suppress unused
 		return func() interface{} {
 			if tmp16.(bool) {
@@ -257,7 +257,7 @@ func starmap_visuals__updateCamera_impl(state interface{}, input interface{}) in
 		var tmp50 interface{} = FieldGet(input, "right")
 		_ = tmp50 // suppress unused
 		if tmp49.(bool) {
-			return SubFloat(float64(0), speed)
+			return dict_Fractional_Float.Sub(float64(0), speed)
 		}
 		if tmp50.(bool) {
 			return speed
@@ -270,7 +270,7 @@ func starmap_visuals__updateCamera_impl(state interface{}, input interface{}) in
 		var tmp48 interface{} = FieldGet(input, "up")
 		_ = tmp48 // suppress unused
 		if tmp47.(bool) {
-			return SubFloat(float64(0), speed)
+			return dict_Fractional_Float.Sub(float64(0), speed)
 		}
 		if tmp48.(bool) {
 			return speed
@@ -283,7 +283,7 @@ func starmap_visuals__updateCamera_impl(state interface{}, input interface{}) in
 		var tmp46 interface{} = FieldGet(input, "s")
 		_ = tmp46 // suppress unused
 		if tmp45.(bool) {
-			return SubFloat(float64(0), speed)
+			return dict_Fractional_Float.Sub(float64(0), speed)
 		}
 		if tmp46.(bool) {
 			return speed
@@ -291,13 +291,13 @@ func starmap_visuals__updateCamera_impl(state interface{}, input interface{}) in
 		return float64(0)
 	}()
 	var tmp33 interface{} = FieldGet(state, "tick")
-	var tmp34 interface{} = AddInt(tmp33, int64(1))
+	var tmp34 interface{} = dict_Num_Int.Add(tmp33, int64(1))
 	var tmp35 interface{} = FieldGet(state, "cameraX")
-	var tmp36 interface{} = AddFloat(tmp35, dx)
+	var tmp36 interface{} = dict_Fractional_Float.Add(tmp35, dx)
 	var tmp37 interface{} = FieldGet(state, "cameraY")
-	var tmp38 interface{} = AddFloat(tmp37, dy)
+	var tmp38 interface{} = dict_Fractional_Float.Add(tmp37, dy)
 	var tmp39 interface{} = FieldGet(state, "cameraZ")
-	var tmp40 interface{} = AddFloat(tmp39, dz)
+	var tmp40 interface{} = dict_Fractional_Float.Add(tmp39, dz)
 	var tmp41 interface{} = FieldGet(state, "lookAtX")
 	var tmp42 interface{} = FieldGet(state, "lookAtY")
 	var tmp43 interface{} = FieldGet(state, "lookAtZ")

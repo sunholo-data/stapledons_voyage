@@ -104,19 +104,19 @@ func arrival__shouldTransition_impl(phase interface{}, phaseTime interface{}) in
 		_adt := _scrutinee.(*ArrivalPhase)
 		switch _adt.Kind {
 		case ArrivalPhaseKindPhaseBlackHole:
-			return GtFloat(phaseTime, float64(8))
+			return dict_Ord_Float.Gt(phaseTime, float64(8))
 		case ArrivalPhaseKindPhaseEmergence:
-			return GtFloat(phaseTime, float64(5))
+			return dict_Ord_Float.Gt(phaseTime, float64(5))
 		case ArrivalPhaseKindPhaseStabilizing:
-			return GtFloat(phaseTime, float64(3))
+			return dict_Ord_Float.Gt(phaseTime, float64(3))
 		case ArrivalPhaseKindPhaseSaturn:
-			return GtFloat(phaseTime, float64(5))
+			return dict_Ord_Float.Gt(phaseTime, float64(5))
 		case ArrivalPhaseKindPhaseJupiter:
-			return GtFloat(phaseTime, float64(5))
+			return dict_Ord_Float.Gt(phaseTime, float64(5))
 		case ArrivalPhaseKindPhaseMars:
-			return GtFloat(phaseTime, float64(5))
+			return dict_Ord_Float.Gt(phaseTime, float64(5))
 		case ArrivalPhaseKindPhaseEarth:
-			return GtFloat(phaseTime, float64(5))
+			return dict_Ord_Float.Gt(phaseTime, float64(5))
 		case ArrivalPhaseKindPhaseComplete:
 			return false
 		default:
@@ -232,15 +232,15 @@ func arrival__calcGRDecay_impl(phase interface{}, phaseTime interface{}, current
 		switch _adt.Kind {
 		case ArrivalPhaseKindPhaseBlackHole:
 			return func() interface{} {
-				var progress interface{} = DivFloat(phaseTime, float64(8))
+				var progress interface{} = dict_Fractional_Float.Div(phaseTime, float64(8))
 				_ = progress // suppress unused
-				var tmp4 interface{} = GtFloat(progress, float64(1))
+				var tmp4 interface{} = dict_Ord_Float.Gt(progress, float64(1))
 				_ = tmp4 // suppress unused
 				return func() interface{} {
 					if tmp4.(bool) {
 						return float64(0)
 					}
-					return SubFloat(float64(1), progress)
+					return dict_Fractional_Float.Sub(float64(1), progress)
 				}()
 			}()
 		default:
@@ -258,12 +258,12 @@ func stepArrival_impl(state interface{}, input interface{}) interface{} {
 	var newPhaseTime interface{} = func() interface{} {
 		var tmp12 interface{} = FieldGet(state, "phaseTime")
 		_ = tmp12 // suppress unused
-		return AddFloat(tmp12, dt)
+		return dict_Fractional_Float.Add(tmp12, dt)
 	}()
 	var newTotalTime interface{} = func() interface{} {
 		var tmp11 interface{} = FieldGet(state, "totalTime")
 		_ = tmp11 // suppress unused
-		return AddFloat(tmp11, dt)
+		return dict_Fractional_Float.Add(tmp11, dt)
 	}()
 	var newGR interface{} = func() interface{} {
 		var tmp9 interface{} = FieldGet(state, "phase")
@@ -297,7 +297,7 @@ func stepArrival_impl(state interface{}, input interface{}) interface{} {
 				return &ArrivalState{Phase: nextPh.(*ArrivalPhase), PhaseTime: float64(0), TotalTime: newTotalTime.(float64), Velocity: nextVel.(float64), GrIntensity: float64(0), CurrentPlanet: nextPlanet.(*CurrentPlanet), ShipTimeYears: tmp5.(float64), GalaxyYear: tmp6.(int64)}
 			}()
 		}
-		return RecordUpdate(state, map[string]interface{}{"phaseTime": newPhaseTime, "totalTime": newTotalTime, "grIntensity": newGR})
+		return RecordUpdate(state, map[string]interface{}{"grIntensity": newGR, "phaseTime": newPhaseTime, "totalTime": newTotalTime})
 	}()
 }
 

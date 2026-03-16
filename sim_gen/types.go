@@ -720,56 +720,6 @@ type StarSystem struct {
 	Planets  []*CelestialPlanet
 }
 
-// OptionKind discriminates between variants of Option
-type OptionKind int
-
-const (
-	OptionKindSome OptionKind = iota
-	OptionKindNone
-)
-
-// OptionSome holds data for the Some variant
-type OptionSome struct {
-	Value0 interface{}
-}
-
-// OptionNone holds data for the None variant
-type OptionNone struct {
-}
-
-// Option is a sum type (discriminated union)
-type Option struct {
-	Kind OptionKind
-	Some *OptionSome
-	None *OptionNone
-}
-
-// NewOptionSome creates a new Some variant
-func NewOptionSome(v0 interface{}) *Option {
-	return &Option{
-		Kind: OptionKindSome,
-		Some: &OptionSome{Value0: v0},
-	}
-}
-
-// NewOptionNone creates a new None variant
-func NewOptionNone() *Option {
-	return &Option{
-		Kind: OptionKindNone,
-		None: &OptionNone{},
-	}
-}
-
-// IsSome returns true if this is a Some variant
-func (v *Option) IsSome() bool {
-	return v.Kind == OptionKindSome
-}
-
-// IsNone returns true if this is a None variant
-func (v *Option) IsNone() bool {
-	return v.Kind == OptionKindNone
-}
-
 // Coord is a record type
 type Coord struct {
 	X int64
@@ -1041,7 +991,7 @@ type FlightInput struct {
 
 // FrameInput is a record type
 type FrameInput struct {
-	Mouse            MouseState
+	Mouse            *MouseState
 	Keys             []KeyEvent
 	MouseEvents      []MouseEvent
 	Flight           *FlightInput
@@ -1206,6 +1156,7 @@ const (
 	DrawCmdKindShipState3D
 	DrawCmdKindWindow3D
 	DrawCmdKindViewport
+	DrawCmdKindBubbleShipHUD
 )
 
 // DrawCmdSprite holds data for the Sprite variant
@@ -1477,6 +1428,17 @@ type DrawCmdViewport struct {
 	Z             int64
 }
 
+// DrawCmdBubbleShipHUD holds data for the BubbleShipHUD variant
+type DrawCmdBubbleShipHUD struct {
+	ScreenX   float64
+	ScreenY   float64
+	Size      float64
+	Alpha     float64
+	Velocity  float64
+	ShowStars bool
+	Z         int64
+}
+
 // DrawCmd is a sum type (discriminated union)
 type DrawCmd struct {
 	Kind           DrawCmdKind
@@ -1505,6 +1467,7 @@ type DrawCmd struct {
 	ShipState3D    *DrawCmdShipState3D
 	Window3D       *DrawCmdWindow3D
 	Viewport       *DrawCmdViewport
+	BubbleShipHUD  *DrawCmdBubbleShipHUD
 }
 
 // NewDrawCmdSprite creates a new Sprite variant
@@ -1707,6 +1670,14 @@ func NewDrawCmdViewport(id string, shapeType int64, shapeParams []float64, conte
 	}
 }
 
+// NewDrawCmdBubbleShipHUD creates a new BubbleShipHUD variant
+func NewDrawCmdBubbleShipHUD(screenX float64, screenY float64, size float64, alpha float64, velocity float64, showStars bool, z int64) *DrawCmd {
+	return &DrawCmd{
+		Kind:          DrawCmdKindBubbleShipHUD,
+		BubbleShipHUD: &DrawCmdBubbleShipHUD{ScreenX: screenX, ScreenY: screenY, Size: size, Alpha: alpha, Velocity: velocity, ShowStars: showStars, Z: z},
+	}
+}
+
 // IsSprite returns true if this is a Sprite variant
 func (v *DrawCmd) IsSprite() bool {
 	return v.Kind == DrawCmdKindSprite
@@ -1832,6 +1803,11 @@ func (v *DrawCmd) IsViewport() bool {
 	return v.Kind == DrawCmdKindViewport
 }
 
+// IsBubbleShipHUD returns true if this is a BubbleShipHUD variant
+func (v *DrawCmd) IsBubbleShipHUD() bool {
+	return v.Kind == DrawCmdKindBubbleShipHUD
+}
+
 // SRContext is a record type
 type SRContext struct {
 	Enabled   bool
@@ -1909,6 +1885,56 @@ type FrameOutput struct {
 	Relativity *RelativityContext
 	Lighting   *LightingContext
 	Lod        *LODConfig
+}
+
+// OptionKind discriminates between variants of Option
+type OptionKind int
+
+const (
+	OptionKindSome OptionKind = iota
+	OptionKindNone
+)
+
+// OptionSome holds data for the Some variant
+type OptionSome struct {
+	Value0 interface{}
+}
+
+// OptionNone holds data for the None variant
+type OptionNone struct {
+}
+
+// Option is a sum type (discriminated union)
+type Option struct {
+	Kind OptionKind
+	Some *OptionSome
+	None *OptionNone
+}
+
+// NewOptionSome creates a new Some variant
+func NewOptionSome(v0 interface{}) *Option {
+	return &Option{
+		Kind: OptionKindSome,
+		Some: &OptionSome{Value0: v0},
+	}
+}
+
+// NewOptionNone creates a new None variant
+func NewOptionNone() *Option {
+	return &Option{
+		Kind: OptionKindNone,
+		None: &OptionNone{},
+	}
+}
+
+// IsSome returns true if this is a Some variant
+func (v *Option) IsSome() bool {
+	return v.Kind == OptionKindSome
+}
+
+// IsNone returns true if this is a None variant
+func (v *Option) IsNone() bool {
+	return v.Kind == OptionKindNone
 }
 
 // DepthLayerKind discriminates between variants of DepthLayer

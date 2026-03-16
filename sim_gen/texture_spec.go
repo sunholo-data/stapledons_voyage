@@ -9,7 +9,7 @@ func specPixelWidth_impl(spec interface{}) interface{} {
 	var tmp1 interface{} = FieldGet(spec, "widthMeters")
 	var tmp2 interface{} = FieldGet(spec, "pixelsPerMeter")
 	var tmp3 interface{} = IntToFloat(tmp2)
-	var tmp4 interface{} = MulFloat(tmp1, tmp3)
+	var tmp4 interface{} = dict_Fractional_Float.Mul(tmp1, tmp3)
 	return FloatToInt(tmp4)
 }
 
@@ -21,7 +21,7 @@ func specPixelHeight_impl(spec interface{}) interface{} {
 	var tmp5 interface{} = FieldGet(spec, "heightMeters")
 	var tmp6 interface{} = FieldGet(spec, "pixelsPerMeter")
 	var tmp7 interface{} = IntToFloat(tmp6)
-	var tmp8 interface{} = MulFloat(tmp5, tmp7)
+	var tmp8 interface{} = dict_Fractional_Float.Mul(tmp5, tmp7)
 	return FloatToInt(tmp8)
 }
 
@@ -30,15 +30,15 @@ func SpecPixelHeight(spec *TextureSpec) int64 {
 }
 
 func clampToPowerOf2_impl(n interface{}) interface{} {
-	var tmp9 interface{} = LeInt(n, int64(64))
+	var tmp9 interface{} = dict_Ord_Int.Lte(n, int64(64))
 	return func() interface{} {
-		var tmp10 interface{} = LeInt(n, int64(128))
+		var tmp10 interface{} = dict_Ord_Int.Lte(n, int64(128))
 		_ = tmp10 // suppress unused
-		var tmp11 interface{} = LeInt(n, int64(256))
+		var tmp11 interface{} = dict_Ord_Int.Lte(n, int64(256))
 		_ = tmp11 // suppress unused
-		var tmp12 interface{} = LeInt(n, int64(512))
+		var tmp12 interface{} = dict_Ord_Int.Lte(n, int64(512))
 		_ = tmp12 // suppress unused
-		var tmp13 interface{} = LeInt(n, int64(1024))
+		var tmp13 interface{} = dict_Ord_Int.Lte(n, int64(1024))
 		_ = tmp13 // suppress unused
 		if tmp9.(bool) {
 			return int64(64)
@@ -82,23 +82,23 @@ func SpecPixelHeightClamped(spec *TextureSpec) int64 {
 }
 
 func texture_spec__digitToChar_impl(d interface{}) interface{} {
-	var tmp16 interface{} = EqInt(d, int64(0))
+	var tmp16 interface{} = dict_Eq_Int.Eq(d, int64(0))
 	return func() interface{} {
-		var tmp17 interface{} = EqInt(d, int64(1))
+		var tmp17 interface{} = dict_Eq_Int.Eq(d, int64(1))
 		_ = tmp17 // suppress unused
-		var tmp18 interface{} = EqInt(d, int64(2))
+		var tmp18 interface{} = dict_Eq_Int.Eq(d, int64(2))
 		_ = tmp18 // suppress unused
-		var tmp19 interface{} = EqInt(d, int64(3))
+		var tmp19 interface{} = dict_Eq_Int.Eq(d, int64(3))
 		_ = tmp19 // suppress unused
-		var tmp20 interface{} = EqInt(d, int64(4))
+		var tmp20 interface{} = dict_Eq_Int.Eq(d, int64(4))
 		_ = tmp20 // suppress unused
-		var tmp21 interface{} = EqInt(d, int64(5))
+		var tmp21 interface{} = dict_Eq_Int.Eq(d, int64(5))
 		_ = tmp21 // suppress unused
-		var tmp22 interface{} = EqInt(d, int64(6))
+		var tmp22 interface{} = dict_Eq_Int.Eq(d, int64(6))
 		_ = tmp22 // suppress unused
-		var tmp23 interface{} = EqInt(d, int64(7))
+		var tmp23 interface{} = dict_Eq_Int.Eq(d, int64(7))
 		_ = tmp23 // suppress unused
-		var tmp24 interface{} = EqInt(d, int64(8))
+		var tmp24 interface{} = dict_Eq_Int.Eq(d, int64(8))
 		_ = tmp24 // suppress unused
 		if tmp16.(bool) {
 			return "0"
@@ -136,7 +136,7 @@ func texture_spec__digitToChar(d int64) string {
 }
 
 func texture_spec__positiveToStr_impl(n interface{}) interface{} {
-	var tmp25 interface{} = EqInt(n, int64(0))
+	var tmp25 interface{} = dict_Eq_Int.Eq(n, int64(0))
 	return func() interface{} {
 		if tmp25.(bool) {
 			return ""
@@ -144,7 +144,7 @@ func texture_spec__positiveToStr_impl(n interface{}) interface{} {
 		return func() interface{} {
 			var digit interface{} = ModInt(n, int64(10))
 			_ = digit // suppress unused
-			var rest interface{} = DivInt(n, int64(10))
+			var rest interface{} = dict_Num_Int.Div(n, int64(10))
 			_ = rest // suppress unused
 			var ch interface{} = texture_spec__digitToChar_impl(digit)
 			_ = ch // suppress unused
@@ -160,13 +160,13 @@ func texture_spec__positiveToStr(n int64) string {
 }
 
 func texture_spec__intToStr_impl(n interface{}) interface{} {
-	var tmp27 interface{} = LtInt(n, int64(0))
+	var tmp27 interface{} = dict_Ord_Int.Lt(n, int64(0))
 	return func() interface{} {
-		var tmp30 interface{} = EqInt(n, int64(0))
+		var tmp30 interface{} = dict_Eq_Int.Eq(n, int64(0))
 		_ = tmp30 // suppress unused
 		if tmp27.(bool) {
 			return func() interface{} {
-				var tmp28 interface{} = SubInt(int64(0), n)
+				var tmp28 interface{} = dict_Num_Int.Sub(int64(0), n)
 				_ = tmp28 // suppress unused
 				return func() interface{} {
 					var tmp29 interface{} = texture_spec__positiveToStr_impl(tmp28)
@@ -215,11 +215,11 @@ func SpecCacheKey(spec *TextureSpec) string {
 
 func texture_spec__getSurfaceStyle_impl(spec interface{}) interface{} {
 	var tmp48 interface{} = FieldGet(spec, "surfaceType")
-	var tmp49 interface{} = EqString(tmp48, "floor")
+	var tmp49 interface{} = dict_Eq_String.Eq(tmp48, "floor")
 	return func() interface{} {
 		var tmp51 interface{} = FieldGet(spec, "surfaceType")
 		_ = tmp51 // suppress unused
-		var tmp52 interface{} = EqString(tmp51, "ceiling")
+		var tmp52 interface{} = dict_Eq_String.Eq(tmp51, "ceiling")
 		_ = tmp52 // suppress unused
 		if tmp49.(bool) {
 			return func() interface{} {
@@ -274,15 +274,15 @@ func BuildPrompt(spec *TextureSpec) string {
 
 func buildRoomSpecs_impl(roomId interface{}, width interface{}, depth interface{}, height interface{}, theme interface{}, ppm interface{}, seed interface{}) interface{} {
 	var tmp69 interface{} = &TextureSpec{SurfaceType: "floor", WidthMeters: width.(float64), HeightMeters: depth.(float64), PixelsPerMeter: ppm.(int64), Theme: theme.(*RoomTheme), RoomId: roomId.(string), Seed: seed.(int64)}
-	var tmp70 interface{} = AddInt(seed, int64(1))
+	var tmp70 interface{} = dict_Num_Int.Add(seed, int64(1))
 	var tmp71 interface{} = &TextureSpec{SurfaceType: "ceiling", WidthMeters: width.(float64), HeightMeters: depth.(float64), PixelsPerMeter: ppm.(int64), Theme: theme.(*RoomTheme), RoomId: roomId.(string), Seed: tmp70.(int64)}
-	var tmp72 interface{} = AddInt(seed, int64(2))
+	var tmp72 interface{} = dict_Num_Int.Add(seed, int64(2))
 	var tmp73 interface{} = &TextureSpec{SurfaceType: "wall_n", WidthMeters: width.(float64), HeightMeters: height.(float64), PixelsPerMeter: ppm.(int64), Theme: theme.(*RoomTheme), RoomId: roomId.(string), Seed: tmp72.(int64)}
-	var tmp74 interface{} = AddInt(seed, int64(3))
+	var tmp74 interface{} = dict_Num_Int.Add(seed, int64(3))
 	var tmp75 interface{} = &TextureSpec{SurfaceType: "wall_s", WidthMeters: width.(float64), HeightMeters: height.(float64), PixelsPerMeter: ppm.(int64), Theme: theme.(*RoomTheme), RoomId: roomId.(string), Seed: tmp74.(int64)}
-	var tmp76 interface{} = AddInt(seed, int64(4))
+	var tmp76 interface{} = dict_Num_Int.Add(seed, int64(4))
 	var tmp77 interface{} = &TextureSpec{SurfaceType: "wall_e", WidthMeters: depth.(float64), HeightMeters: height.(float64), PixelsPerMeter: ppm.(int64), Theme: theme.(*RoomTheme), RoomId: roomId.(string), Seed: tmp76.(int64)}
-	var tmp78 interface{} = AddInt(seed, int64(5))
+	var tmp78 interface{} = dict_Num_Int.Add(seed, int64(5))
 	var tmp79 interface{} = &TextureSpec{SurfaceType: "wall_w", WidthMeters: depth.(float64), HeightMeters: height.(float64), PixelsPerMeter: ppm.(int64), Theme: theme.(*RoomTheme), RoomId: roomId.(string), Seed: tmp78.(int64)}
 	return []interface{}{tmp69, tmp71, tmp73, tmp75, tmp77, tmp79}
 }

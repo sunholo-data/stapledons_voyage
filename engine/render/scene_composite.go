@@ -137,10 +137,14 @@ func (r *Renderer) compositeSceneWindows(screen *ebiten.Image, out *sim_gen.Fram
 
 	// Render deck background
 	if sprite != nil {
+		log.Printf("DEBUG: Rendering deck background sprite ID %d (%dx%d) at scale %.2f, offset (%.0f, %.0f)",
+			deckBackground.Ui.SpriteId, int(bgW), int(bgH), scale, offsetX, offsetY)
 		opBg := &ebiten.DrawImageOptions{}
 		opBg.GeoM.Scale(scale, scale)
 		opBg.GeoM.Translate(offsetX, offsetY)
 		screen.DrawImage(sprite, opBg)
+	} else {
+		log.Printf("DEBUG: No sprite found for deck background ID %d", deckBackground.Ui.SpriteId)
 	}
 
 	// Step 2: Render 3D space to offscreen buffer

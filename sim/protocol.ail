@@ -229,6 +229,26 @@ export type DrawCmd =
         z: int
     )
 
+    -- ==========================================================================
+    -- Bubble Ship HUD (3rd-person external view of the ship)
+    -- ==========================================================================
+
+    -- BubbleShipHUD: Render transparent bubble ship in corner of screen
+    -- Shows external view of ship during space navigation
+    -- screenX, screenY: HUD position (0,0 = top-left, normalized 0-1)
+    -- size: HUD size in pixels (square viewport)
+    -- alpha: bubble transparency (0.0-1.0, recommend 0.2-0.4)
+    -- velocity: ship velocity for boundary glow intensity (0-1)
+    -- showStars: whether to render stars through the bubble
+    | BubbleShipHUD(
+        screenX: float, screenY: float,
+        size: float,
+        alpha: float,
+        velocity: float,
+        showStars: bool,
+        z: int
+    )
+
 -- =============================================================================
 -- Relativity Types (for SR/GR shader effects)
 -- =============================================================================

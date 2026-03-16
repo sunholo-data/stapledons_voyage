@@ -53,7 +53,7 @@ func starmap__countStars_impl(stars interface{}) interface{} {
 			return func() interface{} {
 				var tmp3 interface{} = starmap__countStars_impl(rest)
 				_ = tmp3 // suppress unused
-				return AddInt(int64(1), tmp3)
+				return dict_Num_Int.Add(int64(1), tmp3)
 			}()
 		} else {
 			panic("non-exhaustive match")
@@ -71,27 +71,27 @@ func distance_impl(a interface{}, b interface{}) interface{} {
 		_ = tmp13 // suppress unused
 		var tmp14 interface{} = FieldGet(b, "x")
 		_ = tmp14 // suppress unused
-		return SubFloat(tmp13, tmp14)
+		return dict_Fractional_Float.Sub(tmp13, tmp14)
 	}()
 	var dy interface{} = func() interface{} {
 		var tmp11 interface{} = FieldGet(a, "y")
 		_ = tmp11 // suppress unused
 		var tmp12 interface{} = FieldGet(b, "y")
 		_ = tmp12 // suppress unused
-		return SubFloat(tmp11, tmp12)
+		return dict_Fractional_Float.Sub(tmp11, tmp12)
 	}()
 	var dz interface{} = func() interface{} {
 		var tmp9 interface{} = FieldGet(a, "z")
 		_ = tmp9 // suppress unused
 		var tmp10 interface{} = FieldGet(b, "z")
 		_ = tmp10 // suppress unused
-		return SubFloat(tmp9, tmp10)
+		return dict_Fractional_Float.Sub(tmp9, tmp10)
 	}()
-	var tmp4 interface{} = MulFloat(dx, dx)
-	var tmp5 interface{} = MulFloat(dy, dy)
-	var tmp6 interface{} = AddFloat(tmp4, tmp5)
-	var tmp7 interface{} = MulFloat(dz, dz)
-	var tmp8 interface{} = AddFloat(tmp6, tmp7)
+	var tmp4 interface{} = dict_Fractional_Float.Mul(dx, dx)
+	var tmp5 interface{} = dict_Fractional_Float.Mul(dy, dy)
+	var tmp6 interface{} = dict_Fractional_Float.Add(tmp4, tmp5)
+	var tmp7 interface{} = dict_Fractional_Float.Mul(dz, dz)
+	var tmp8 interface{} = dict_Fractional_Float.Add(tmp6, tmp7)
 	return math.Sqrt(tmp8.(float64))
 }
 
@@ -147,7 +147,7 @@ func StarCount(cat *StarCatalog) int64 {
 func starmap__withinRadius_impl(center interface{}, radius interface{}, star interface{}) interface{} {
 	var tmp20 interface{} = FieldGet(star, "pos")
 	var tmp21 interface{} = distance_impl(tmp20, center)
-	return LeFloat(tmp21, radius)
+	return dict_Ord_Float.Lte(tmp21, radius)
 }
 
 func starmap__withinRadius(center Vec3, radius float64, star *Star) bool {
@@ -216,7 +216,7 @@ func nearestStar_impl(cat interface{}, pos interface{}) interface{} {
 		_ = _scrutinee // suppress unused
 		if ListLen(_scrutinee) == 0 {
 			return func() interface{} {
-				var tmp27 interface{} = SubInt(int64(0), int64(1))
+				var tmp27 interface{} = dict_Num_Int.Sub(int64(0), int64(1))
 				_ = tmp27 // suppress unused
 				var tmp28 interface{} = vec3Zero_impl(struct{}{})
 				_ = tmp28 // suppress unused
@@ -239,17 +239,17 @@ func NearestStar(cat *StarCatalog, pos Vec3) *Star {
 }
 
 func spectralFromRoll_impl(roll interface{}) interface{} {
-	if LtFloat(roll, float64(0.76)).(bool) {
+	if dict_Ord_Float.Lt(roll, float64(0.76)).(bool) {
 		return NewSpectralTypeM()
-	} else if LtFloat(roll, float64(0.88)).(bool) {
+	} else if dict_Ord_Float.Lt(roll, float64(0.88)).(bool) {
 		return NewSpectralTypeK()
-	} else if LtFloat(roll, float64(0.955)).(bool) {
+	} else if dict_Ord_Float.Lt(roll, float64(0.955)).(bool) {
 		return NewSpectralTypeG()
-	} else if LtFloat(roll, float64(0.985)).(bool) {
+	} else if dict_Ord_Float.Lt(roll, float64(0.985)).(bool) {
 		return NewSpectralTypeF()
-	} else if LtFloat(roll, float64(0.991)).(bool) {
+	} else if dict_Ord_Float.Lt(roll, float64(0.991)).(bool) {
 		return NewSpectralTypeA()
-	} else if LtFloat(roll, float64(0.99913)).(bool) {
+	} else if dict_Ord_Float.Lt(roll, float64(0.99913)).(bool) {
 		return NewSpectralTypeB()
 	} else {
 		return NewSpectralTypeO()
@@ -402,115 +402,115 @@ func initLocalCatalog_impl(_unused0 interface{}) interface{} {
 	var stars interface{} = func() interface{} {
 		var tmp37 interface{} = makeSol_impl(struct{}{})
 		_ = tmp37 // suppress unused
-		var tmp38 interface{} = NegFloat(float64(1.55))
+		var tmp38 interface{} = dict_Fractional_Float.Neg(float64(1.55))
 		_ = tmp38 // suppress unused
-		var tmp39 interface{} = NegFloat(float64(1.32))
+		var tmp39 interface{} = dict_Fractional_Float.Neg(float64(1.32))
 		_ = tmp39 // suppress unused
-		var tmp40 interface{} = NegFloat(float64(3.77))
+		var tmp40 interface{} = dict_Fractional_Float.Neg(float64(3.77))
 		_ = tmp40 // suppress unused
 		var tmp41 interface{} = makeStar_impl(int64(1), "Proxima Centauri", tmp38, tmp39, tmp40, NewSpectralTypeM(), float64(0.15), int64(3042), true)
 		_ = tmp41 // suppress unused
-		var tmp42 interface{} = NegFloat(float64(1.64))
+		var tmp42 interface{} = dict_Fractional_Float.Neg(float64(1.64))
 		_ = tmp42 // suppress unused
-		var tmp43 interface{} = NegFloat(float64(1.36))
+		var tmp43 interface{} = dict_Fractional_Float.Neg(float64(1.36))
 		_ = tmp43 // suppress unused
-		var tmp44 interface{} = NegFloat(float64(3.84))
+		var tmp44 interface{} = dict_Fractional_Float.Neg(float64(3.84))
 		_ = tmp44 // suppress unused
 		var tmp45 interface{} = makeStar_impl(int64(2), "Alpha Centauri A", tmp42, tmp43, tmp44, NewSpectralTypeG(), float64(1.22), int64(5790), true)
 		_ = tmp45 // suppress unused
-		var tmp46 interface{} = NegFloat(float64(1.64))
+		var tmp46 interface{} = dict_Fractional_Float.Neg(float64(1.64))
 		_ = tmp46 // suppress unused
-		var tmp47 interface{} = NegFloat(float64(1.36))
+		var tmp47 interface{} = dict_Fractional_Float.Neg(float64(1.36))
 		_ = tmp47 // suppress unused
-		var tmp48 interface{} = NegFloat(float64(3.84))
+		var tmp48 interface{} = dict_Fractional_Float.Neg(float64(3.84))
 		_ = tmp48 // suppress unused
 		var tmp49 interface{} = makeStar_impl(int64(3), "Alpha Centauri B", tmp46, tmp47, tmp48, NewSpectralTypeK(), float64(0.86), int64(5260), true)
 		_ = tmp49 // suppress unused
-		var tmp50 interface{} = NegFloat(float64(0.06))
+		var tmp50 interface{} = dict_Fractional_Float.Neg(float64(0.06))
 		_ = tmp50 // suppress unused
 		var tmp51 interface{} = makeStar_impl(int64(4), "Barnard's Star", tmp50, float64(5.94), float64(0.49), NewSpectralTypeM(), float64(0.2), int64(3134), false)
 		_ = tmp51 // suppress unused
-		var tmp52 interface{} = NegFloat(float64(7.43))
+		var tmp52 interface{} = dict_Fractional_Float.Neg(float64(7.43))
 		_ = tmp52 // suppress unused
-		var tmp53 interface{} = NegFloat(float64(0.66))
+		var tmp53 interface{} = dict_Fractional_Float.Neg(float64(0.66))
 		_ = tmp53 // suppress unused
 		var tmp54 interface{} = makeStar_impl(int64(5), "Wolf 359", tmp52, float64(2.11), tmp53, NewSpectralTypeM(), float64(0.16), int64(2800), false)
 		_ = tmp54 // suppress unused
-		var tmp55 interface{} = NegFloat(float64(6.52))
+		var tmp55 interface{} = dict_Fractional_Float.Neg(float64(6.52))
 		_ = tmp55 // suppress unused
-		var tmp56 interface{} = NegFloat(float64(1.9))
+		var tmp56 interface{} = dict_Fractional_Float.Neg(float64(1.9))
 		_ = tmp56 // suppress unused
 		var tmp57 interface{} = makeStar_impl(int64(6), "Lalande 21185", tmp55, tmp56, float64(4.88), NewSpectralTypeM(), float64(0.39), int64(3550), true)
 		_ = tmp57 // suppress unused
-		var tmp58 interface{} = NegFloat(float64(1.61))
+		var tmp58 interface{} = dict_Fractional_Float.Neg(float64(1.61))
 		_ = tmp58 // suppress unused
-		var tmp59 interface{} = NegFloat(float64(2.47))
+		var tmp59 interface{} = dict_Fractional_Float.Neg(float64(2.47))
 		_ = tmp59 // suppress unused
 		var tmp60 interface{} = makeStar_impl(int64(7), "Sirius A", tmp58, float64(8.06), tmp59, NewSpectralTypeA(), float64(1.71), int64(9940), false)
 		_ = tmp60 // suppress unused
-		var tmp61 interface{} = NegFloat(float64(1.61))
+		var tmp61 interface{} = dict_Fractional_Float.Neg(float64(1.61))
 		_ = tmp61 // suppress unused
-		var tmp62 interface{} = NegFloat(float64(2.47))
+		var tmp62 interface{} = dict_Fractional_Float.Neg(float64(2.47))
 		_ = tmp62 // suppress unused
 		var tmp63 interface{} = makeStar_impl(int64(8), "Sirius B", tmp61, float64(8.06), tmp62, NewSpectralTypeA(), float64(0.0084), int64(25200), false)
 		_ = tmp63 // suppress unused
-		var tmp64 interface{} = NegFloat(float64(0.8))
+		var tmp64 interface{} = dict_Fractional_Float.Neg(float64(0.8))
 		_ = tmp64 // suppress unused
 		var tmp65 interface{} = makeStar_impl(int64(9), "Luyten 726-8 A", float64(8.56), tmp64, float64(1.28), NewSpectralTypeM(), float64(0.14), int64(2670), false)
 		_ = tmp65 // suppress unused
-		var tmp66 interface{} = NegFloat(float64(8.87))
+		var tmp66 interface{} = dict_Fractional_Float.Neg(float64(8.87))
 		_ = tmp66 // suppress unused
-		var tmp67 interface{} = NegFloat(float64(3.32))
+		var tmp67 interface{} = dict_Fractional_Float.Neg(float64(3.32))
 		_ = tmp67 // suppress unused
 		var tmp68 interface{} = makeStar_impl(int64(10), "Ross 154", float64(1.91), tmp66, tmp67, NewSpectralTypeM(), float64(0.24), int64(3340), false)
 		_ = tmp68 // suppress unused
-		var tmp69 interface{} = NegFloat(float64(0.59))
+		var tmp69 interface{} = dict_Fractional_Float.Neg(float64(0.59))
 		_ = tmp69 // suppress unused
 		var tmp70 interface{} = makeStar_impl(int64(11), "Ross 248", float64(7.38), tmp69, float64(7.19), NewSpectralTypeM(), float64(0.16), int64(2800), false)
 		_ = tmp70 // suppress unused
-		var tmp71 interface{} = NegFloat(float64(6.22))
+		var tmp71 interface{} = dict_Fractional_Float.Neg(float64(6.22))
 		_ = tmp71 // suppress unused
-		var tmp72 interface{} = NegFloat(float64(1.73))
+		var tmp72 interface{} = dict_Fractional_Float.Neg(float64(1.73))
 		_ = tmp72 // suppress unused
 		var tmp73 interface{} = makeStar_impl(int64(12), "Epsilon Eridani", tmp71, float64(8.31), tmp72, NewSpectralTypeK(), float64(0.74), int64(5084), true)
 		_ = tmp73 // suppress unused
-		var tmp74 interface{} = NegFloat(float64(8.46))
+		var tmp74 interface{} = dict_Fractional_Float.Neg(float64(8.46))
 		_ = tmp74 // suppress unused
-		var tmp75 interface{} = NegFloat(float64(2))
+		var tmp75 interface{} = dict_Fractional_Float.Neg(float64(2))
 		_ = tmp75 // suppress unused
-		var tmp76 interface{} = NegFloat(float64(6.3))
+		var tmp76 interface{} = dict_Fractional_Float.Neg(float64(6.3))
 		_ = tmp76 // suppress unused
 		var tmp77 interface{} = makeStar_impl(int64(13), "Lacaille 9352", tmp74, tmp75, tmp76, NewSpectralTypeM(), float64(0.46), int64(3626), false)
 		_ = tmp77 // suppress unused
-		var tmp78 interface{} = NegFloat(float64(10.9))
+		var tmp78 interface{} = dict_Fractional_Float.Neg(float64(10.9))
 		_ = tmp78 // suppress unused
-		var tmp79 interface{} = NegFloat(float64(1.35))
+		var tmp79 interface{} = dict_Fractional_Float.Neg(float64(1.35))
 		_ = tmp79 // suppress unused
 		var tmp80 interface{} = makeStar_impl(int64(14), "Ross 128", tmp78, float64(0.58), tmp79, NewSpectralTypeM(), float64(0.21), int64(3192), true)
 		_ = tmp80 // suppress unused
-		var tmp81 interface{} = NegFloat(float64(2.97))
+		var tmp81 interface{} = dict_Fractional_Float.Neg(float64(2.97))
 		_ = tmp81 // suppress unused
 		var tmp82 interface{} = makeStar_impl(int64(15), "EZ Aquarii A", float64(10.19), float64(3.79), tmp81, NewSpectralTypeM(), float64(0.12), int64(2800), false)
 		_ = tmp82 // suppress unused
-		var tmp83 interface{} = NegFloat(float64(4.77))
+		var tmp83 interface{} = dict_Fractional_Float.Neg(float64(4.77))
 		_ = tmp83 // suppress unused
-		var tmp84 interface{} = NegFloat(float64(0.39))
+		var tmp84 interface{} = dict_Fractional_Float.Neg(float64(0.39))
 		_ = tmp84 // suppress unused
 		var tmp85 interface{} = makeStar_impl(int64(16), "Procyon A", tmp83, float64(10.31), tmp84, NewSpectralTypeF(), float64(2.05), int64(6530), false)
 		_ = tmp85 // suppress unused
-		var tmp86 interface{} = NegFloat(float64(6.06))
+		var tmp86 interface{} = dict_Fractional_Float.Neg(float64(6.06))
 		_ = tmp86 // suppress unused
 		var tmp87 interface{} = makeStar_impl(int64(17), "61 Cygni A", float64(6.4), tmp86, float64(7.14), NewSpectralTypeK(), float64(0.67), int64(4520), false)
 		_ = tmp87 // suppress unused
-		var tmp88 interface{} = NegFloat(float64(6.06))
+		var tmp88 interface{} = dict_Fractional_Float.Neg(float64(6.06))
 		_ = tmp88 // suppress unused
 		var tmp89 interface{} = makeStar_impl(int64(18), "61 Cygni B", float64(6.4), tmp88, float64(7.14), NewSpectralTypeK(), float64(0.6), int64(4110), false)
 		_ = tmp89 // suppress unused
-		var tmp90 interface{} = NegFloat(float64(7.59))
+		var tmp90 interface{} = dict_Fractional_Float.Neg(float64(7.59))
 		_ = tmp90 // suppress unused
 		var tmp91 interface{} = makeStar_impl(int64(19), "Struve 2398 A", float64(7.02), tmp90, float64(4.73), NewSpectralTypeM(), float64(0.35), int64(3480), false)
 		_ = tmp91 // suppress unused
-		var tmp92 interface{} = NegFloat(float64(10.84))
+		var tmp92 interface{} = dict_Fractional_Float.Neg(float64(10.84))
 		_ = tmp92 // suppress unused
 		var tmp93 interface{} = makeStar_impl(int64(20), "Groombridge 34 A", float64(0.05), float64(4.18), tmp92, NewSpectralTypeM(), float64(0.38), int64(3596), false)
 		_ = tmp93 // suppress unused

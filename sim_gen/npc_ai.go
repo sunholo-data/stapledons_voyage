@@ -2,22 +2,22 @@
 package sim_gen
 
 func isInBounds_impl(x interface{}, y interface{}, width interface{}, height interface{}) interface{} {
-	var tmp1 interface{} = GeInt(x, int64(0))
-	var tmp2 interface{} = LtInt(x, width)
+	var tmp1 interface{} = dict_Ord_Int.Gte(x, int64(0))
+	var tmp2 interface{} = dict_Ord_Int.Lt(x, width)
 	var tmp3 interface{} = func() interface{} {
 		if tmp1.(bool) {
 			return tmp2
 		}
 		return false
 	}()
-	var tmp4 interface{} = GeInt(y, int64(0))
+	var tmp4 interface{} = dict_Ord_Int.Gte(y, int64(0))
 	var tmp5 interface{} = func() interface{} {
 		if tmp3.(bool) {
 			return tmp4
 		}
 		return false
 	}()
-	var tmp6 interface{} = LtInt(y, height)
+	var tmp6 interface{} = dict_Ord_Int.Lt(y, height)
 	return func() interface{} {
 		if tmp5.(bool) {
 			return tmp6
@@ -43,7 +43,7 @@ func npc_ai__directionDx_impl(dir interface{}) interface{} {
 		case DirectionKindEast:
 			return int64(1)
 		case DirectionKindWest:
-			return NegInt(int64(1))
+			return dict_Num_Int.Neg(int64(1))
 		default:
 			panic("non-exhaustive match")
 		}
@@ -61,7 +61,7 @@ func npc_ai__directionDy_impl(dir interface{}) interface{} {
 		_adt := _scrutinee.(*Direction)
 		switch _adt.Kind {
 		case DirectionKindNorth:
-			return NegInt(int64(1))
+			return dict_Num_Int.Neg(int64(1))
 		case DirectionKindSouth:
 			return int64(1)
 		case DirectionKindEast:
@@ -156,14 +156,14 @@ func tryMoveDirection_impl(npc interface{}, dir interface{}, width interface{}, 
 		_ = tmp13 // suppress unused
 		var tmp14 interface{} = FieldGet(tmp13, "x")
 		_ = tmp14 // suppress unused
-		return AddInt(tmp14, dx)
+		return dict_Num_Int.Add(tmp14, dx)
 	}()
 	var newY interface{} = func() interface{} {
 		var tmp11 interface{} = FieldGet(npc, "pos")
 		_ = tmp11 // suppress unused
 		var tmp12 interface{} = FieldGet(tmp11, "y")
 		_ = tmp12 // suppress unused
-		return AddInt(tmp12, dy)
+		return dict_Num_Int.Add(tmp12, dy)
 	}()
 	var tmp10 interface{} = isInBounds_impl(newX, newY, width, height)
 	return func() interface{} {
@@ -180,7 +180,7 @@ func TryMoveDirection(npc *NPC, dir *Direction, width int64, height int64) *NPC 
 
 func npc_ai__updateRandomWalk_impl(npc interface{}, interval interface{}, width interface{}, height interface{}) interface{} {
 	var tmp15 interface{} = FieldGet(npc, "moveCounter")
-	var tmp16 interface{} = LeInt(tmp15, int64(0))
+	var tmp16 interface{} = dict_Ord_Int.Lte(tmp15, int64(0))
 	return func() interface{} {
 		if tmp16.(bool) {
 			return func() interface{} {
@@ -196,7 +196,7 @@ func npc_ai__updateRandomWalk_impl(npc interface{}, interval interface{}, width 
 		return func() interface{} {
 			var tmp17 interface{} = FieldGet(npc, "moveCounter")
 			_ = tmp17 // suppress unused
-			var tmp18 interface{} = SubInt(tmp17, int64(1))
+			var tmp18 interface{} = dict_Num_Int.Sub(tmp17, int64(1))
 			_ = tmp18 // suppress unused
 			return npc_ai__npcWithCounter_impl(npc, tmp18)
 		}()
@@ -209,11 +209,11 @@ func npc_ai__updateRandomWalk(npc *NPC, interval int64, width int64, height int6
 
 func npc_ai__updatePatrol_impl(npc interface{}, path interface{}, width interface{}, height interface{}) interface{} {
 	var len interface{} = npc_ai__pathLength_impl(path)
-	var tmp19 interface{} = LeInt(len, int64(0))
+	var tmp19 interface{} = dict_Ord_Int.Lte(len, int64(0))
 	return func() interface{} {
 		var tmp20 interface{} = FieldGet(npc, "moveCounter")
 		_ = tmp20 // suppress unused
-		var tmp21 interface{} = LeInt(tmp20, int64(0))
+		var tmp21 interface{} = dict_Ord_Int.Lte(tmp20, int64(0))
 		_ = tmp21 // suppress unused
 		if tmp19.(bool) {
 			return npc
@@ -234,13 +234,13 @@ func npc_ai__updatePatrol_impl(npc interface{}, path interface{}, width interfac
 							var tmp22 interface{} = FieldGet(npc, "patrolIndex")
 							_ = tmp22 // suppress unused
 							return func() interface{} {
-								var tmp23 interface{} = AddInt(tmp22, int64(1))
+								var tmp23 interface{} = dict_Num_Int.Add(tmp22, int64(1))
 								_ = tmp23 // suppress unused
 								return ModInt(tmp23, len)
 							}()
 						}()
 						_ = nextIndex // suppress unused
-						return RecordUpdate(movedNpc, map[string]interface{}{"patrolIndex": nextIndex, "moveCounter": int64(20)})
+						return RecordUpdate(movedNpc, map[string]interface{}{"moveCounter": int64(20), "patrolIndex": nextIndex})
 					}()
 				}()
 			}()
@@ -249,7 +249,7 @@ func npc_ai__updatePatrol_impl(npc interface{}, path interface{}, width interfac
 			var tmp25 interface{} = FieldGet(npc, "moveCounter")
 			_ = tmp25 // suppress unused
 			return func() interface{} {
-				var tmp26 interface{} = SubInt(tmp25, int64(1))
+				var tmp26 interface{} = dict_Num_Int.Sub(tmp25, int64(1))
 				_ = tmp26 // suppress unused
 				return npc_ai__npcWithCounter_impl(npc, tmp26)
 			}()

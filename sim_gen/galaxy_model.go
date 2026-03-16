@@ -43,13 +43,13 @@ func galaxy_model__galactocentricRadius_impl(pos interface{}) interface{} {
 		_ = tmp6 // suppress unused
 		var tmp7 interface{} = FieldGet(pos, "x")
 		_ = tmp7 // suppress unused
-		return SubFloat(tmp6, tmp7)
+		return dict_Fractional_Float.Sub(tmp6, tmp7)
 	}()
-	var tmp1 interface{} = MulFloat(r, r)
+	var tmp1 interface{} = dict_Fractional_Float.Mul(r, r)
 	var tmp2 interface{} = FieldGet(pos, "y")
 	var tmp3 interface{} = FieldGet(pos, "y")
-	var tmp4 interface{} = MulFloat(tmp2, tmp3)
-	var tmp5 interface{} = AddFloat(tmp1, tmp4)
+	var tmp4 interface{} = dict_Fractional_Float.Mul(tmp2, tmp3)
+	var tmp5 interface{} = dict_Fractional_Float.Add(tmp1, tmp4)
 	return math.Sqrt(tmp5.(float64))
 }
 
@@ -63,20 +63,20 @@ func stellarDensity_impl(pos interface{}) interface{} {
 	var radialFactor interface{} = func() interface{} {
 		var tmp12 interface{} = galaxy_model__sunGalacticRadius_impl(struct{}{})
 		_ = tmp12 // suppress unused
-		var tmp13 interface{} = SubFloat(tmp12, r)
+		var tmp13 interface{} = dict_Fractional_Float.Sub(tmp12, r)
 		_ = tmp13 // suppress unused
 		var tmp14 interface{} = galaxy_model__diskScaleLength_impl(struct{}{})
 		_ = tmp14 // suppress unused
-		var tmp15 interface{} = DivFloat(tmp13, tmp14)
+		var tmp15 interface{} = dict_Fractional_Float.Div(tmp13, tmp14)
 		_ = tmp15 // suppress unused
 		return math.Exp(tmp15.(float64))
 	}()
 	var absZ interface{} = func() interface{} {
-		var tmp11 interface{} = LtFloat(z, float64(0))
+		var tmp11 interface{} = dict_Ord_Float.Lt(z, float64(0))
 		_ = tmp11 // suppress unused
 		return func() interface{} {
 			if tmp11.(bool) {
-				return SubFloat(float64(0), z)
+				return dict_Fractional_Float.Sub(float64(0), z)
 			} else {
 				return z
 			}
@@ -85,13 +85,13 @@ func stellarDensity_impl(pos interface{}) interface{} {
 	var verticalFactor interface{} = func() interface{} {
 		var tmp8 interface{} = galaxy_model__diskScaleHeight_impl(struct{}{})
 		_ = tmp8 // suppress unused
-		var tmp9 interface{} = DivFloat(absZ, tmp8)
+		var tmp9 interface{} = dict_Fractional_Float.Div(absZ, tmp8)
 		_ = tmp9 // suppress unused
-		var tmp10 interface{} = SubFloat(float64(0), tmp9)
+		var tmp10 interface{} = dict_Fractional_Float.Sub(float64(0), tmp9)
 		_ = tmp10 // suppress unused
 		return math.Exp(tmp10.(float64))
 	}()
-	return MulFloat(radialFactor, verticalFactor)
+	return dict_Fractional_Float.Mul(radialFactor, verticalFactor)
 }
 
 func StellarDensity(pos Vec3) float64 {
@@ -99,22 +99,22 @@ func StellarDensity(pos Vec3) float64 {
 }
 
 func galaxy_model__positionHash_impl(x interface{}, y interface{}, z interface{}, seed interface{}) interface{} {
-	var h1 interface{} = MulInt(x, int64(374761393))
-	var h2 interface{} = MulInt(y, int64(668265263))
-	var h3 interface{} = MulInt(z, int64(1274126177))
-	var h4 interface{} = MulInt(seed, int64(1911520717))
+	var h1 interface{} = dict_Num_Int.Mul(x, int64(374761393))
+	var h2 interface{} = dict_Num_Int.Mul(y, int64(668265263))
+	var h3 interface{} = dict_Num_Int.Mul(z, int64(1274126177))
+	var h4 interface{} = dict_Num_Int.Mul(seed, int64(1911520717))
 	var combined interface{} = func() interface{} {
-		var tmp17 interface{} = AddInt(h1, h2)
+		var tmp17 interface{} = dict_Num_Int.Add(h1, h2)
 		_ = tmp17 // suppress unused
-		var tmp18 interface{} = AddInt(tmp17, h3)
+		var tmp18 interface{} = dict_Num_Int.Add(tmp17, h3)
 		_ = tmp18 // suppress unused
-		return AddInt(tmp18, h4)
+		return dict_Num_Int.Add(tmp18, h4)
 	}()
-	var mixed interface{} = MulInt(combined, int64(2654435769))
-	var tmp16 interface{} = LtInt(mixed, int64(0))
+	var mixed interface{} = dict_Num_Int.Mul(combined, int64(2654435769))
+	var tmp16 interface{} = dict_Ord_Int.Lt(mixed, int64(0))
 	return func() interface{} {
 		if tmp16.(bool) {
-			return SubInt(int64(0), mixed)
+			return dict_Num_Int.Sub(int64(0), mixed)
 		} else {
 			return mixed
 		}
@@ -130,7 +130,7 @@ func galaxy_model__hashToFloat_impl(hash interface{}) interface{} {
 	var tmp19 interface{} = ModInt(hash, maxInt)
 	var tmp20 interface{} = IntToFloat(tmp19)
 	var tmp21 interface{} = IntToFloat(maxInt)
-	return DivFloat(tmp20, tmp21)
+	return dict_Fractional_Float.Div(tmp20, tmp21)
 }
 
 func galaxy_model__hashToFloat(hash int64) float64 {
@@ -138,13 +138,13 @@ func galaxy_model__hashToFloat(hash int64) float64 {
 }
 
 func galaxy_model__intToStringPositive_impl(n interface{}) interface{} {
-	if EqInt(n, int64(0)).(bool) {
+	if dict_Eq_Int.Eq(n, int64(0)).(bool) {
 		return ""
 	} else {
 		return func() interface{} {
 			var digit interface{} = ModInt(n, int64(10))
 			_ = digit // suppress unused
-			var rest interface{} = DivInt(n, int64(10))
+			var rest interface{} = dict_Num_Int.Div(n, int64(10))
 			_ = rest // suppress unused
 			var digitChar interface{} = func() interface{} {
 				_scrutinee := digit
@@ -185,15 +185,15 @@ func galaxy_model__intToStringPositive(n int64) string {
 }
 
 func galaxy_model__intToString_impl(n interface{}) interface{} {
-	if LtInt(n, int64(0)).(bool) {
+	if dict_Ord_Int.Lt(n, int64(0)).(bool) {
 		return func() interface{} {
-			var tmp25 interface{} = SubInt(int64(0), n)
+			var tmp25 interface{} = dict_Num_Int.Sub(int64(0), n)
 			_ = tmp25 // suppress unused
 			var tmp26 interface{} = galaxy_model__intToStringPositive_impl(tmp25)
 			_ = tmp26 // suppress unused
 			return ConcatString("-", tmp26)
 		}()
-	} else if EqInt(n, int64(0)).(bool) {
+	} else if dict_Eq_Int.Eq(n, int64(0)).(bool) {
 		return "0"
 	} else {
 		return galaxy_model__intToStringPositive_impl(n)
@@ -207,21 +207,21 @@ func galaxy_model__intToString(n int64) string {
 func generateStar_impl(seed interface{}, cellX interface{}, cellY interface{}, cellZ interface{}, cellSize interface{}) interface{} {
 	var hash interface{} = galaxy_model__positionHash_impl(cellX, cellY, cellZ, seed)
 	var jitterX interface{} = func() interface{} {
-		var tmp43 interface{} = AddInt(seed, int64(1))
+		var tmp43 interface{} = dict_Num_Int.Add(seed, int64(1))
 		_ = tmp43 // suppress unused
 		var tmp44 interface{} = galaxy_model__positionHash_impl(cellX, cellY, cellZ, tmp43)
 		_ = tmp44 // suppress unused
 		return galaxy_model__hashToFloat_impl(tmp44)
 	}()
 	var jitterY interface{} = func() interface{} {
-		var tmp41 interface{} = AddInt(seed, int64(2))
+		var tmp41 interface{} = dict_Num_Int.Add(seed, int64(2))
 		_ = tmp41 // suppress unused
 		var tmp42 interface{} = galaxy_model__positionHash_impl(cellX, cellY, cellZ, tmp41)
 		_ = tmp42 // suppress unused
 		return galaxy_model__hashToFloat_impl(tmp42)
 	}()
 	var jitterZ interface{} = func() interface{} {
-		var tmp39 interface{} = AddInt(seed, int64(3))
+		var tmp39 interface{} = dict_Num_Int.Add(seed, int64(3))
 		_ = tmp39 // suppress unused
 		var tmp40 interface{} = galaxy_model__positionHash_impl(cellX, cellY, cellZ, tmp39)
 		_ = tmp40 // suppress unused
@@ -230,26 +230,26 @@ func generateStar_impl(seed interface{}, cellX interface{}, cellY interface{}, c
 	var x interface{} = func() interface{} {
 		var tmp37 interface{} = IntToFloat(cellX)
 		_ = tmp37 // suppress unused
-		var tmp38 interface{} = AddFloat(tmp37, jitterX)
+		var tmp38 interface{} = dict_Fractional_Float.Add(tmp37, jitterX)
 		_ = tmp38 // suppress unused
-		return MulFloat(tmp38, cellSize)
+		return dict_Fractional_Float.Mul(tmp38, cellSize)
 	}()
 	var y interface{} = func() interface{} {
 		var tmp35 interface{} = IntToFloat(cellY)
 		_ = tmp35 // suppress unused
-		var tmp36 interface{} = AddFloat(tmp35, jitterY)
+		var tmp36 interface{} = dict_Fractional_Float.Add(tmp35, jitterY)
 		_ = tmp36 // suppress unused
-		return MulFloat(tmp36, cellSize)
+		return dict_Fractional_Float.Mul(tmp36, cellSize)
 	}()
 	var z interface{} = func() interface{} {
 		var tmp33 interface{} = IntToFloat(cellZ)
 		_ = tmp33 // suppress unused
-		var tmp34 interface{} = AddFloat(tmp33, jitterZ)
+		var tmp34 interface{} = dict_Fractional_Float.Add(tmp33, jitterZ)
 		_ = tmp34 // suppress unused
-		return MulFloat(tmp34, cellSize)
+		return dict_Fractional_Float.Mul(tmp34, cellSize)
 	}()
 	var spectralRoll interface{} = func() interface{} {
-		var tmp31 interface{} = AddInt(cellX, int64(100))
+		var tmp31 interface{} = dict_Num_Int.Add(cellX, int64(100))
 		_ = tmp31 // suppress unused
 		var tmp32 interface{} = galaxy_model__positionHash_impl(tmp31, cellY, cellZ, seed)
 		_ = tmp32 // suppress unused
@@ -257,7 +257,7 @@ func generateStar_impl(seed interface{}, cellX interface{}, cellY interface{}, c
 	}()
 	var spectral interface{} = spectralFromRoll_impl(spectralRoll)
 	var hzRoll interface{} = func() interface{} {
-		var tmp29 interface{} = AddInt(cellY, int64(100))
+		var tmp29 interface{} = dict_Num_Int.Add(cellY, int64(100))
 		_ = tmp29 // suppress unused
 		var tmp30 interface{} = galaxy_model__positionHash_impl(cellX, tmp29, cellZ, seed)
 		_ = tmp30 // suppress unused
@@ -269,11 +269,11 @@ func generateStar_impl(seed interface{}, cellX interface{}, cellY interface{}, c
 		_adt := _scrutinee.(*SpectralType)
 		switch _adt.Kind {
 		case SpectralTypeKindG:
-			return LtFloat(hzRoll, float64(0.22))
+			return dict_Ord_Float.Lt(hzRoll, float64(0.22))
 		case SpectralTypeKindK:
-			return LtFloat(hzRoll, float64(0.15))
+			return dict_Ord_Float.Lt(hzRoll, float64(0.15))
 		case SpectralTypeKindM:
-			return LtFloat(hzRoll, float64(0.05))
+			return dict_Ord_Float.Lt(hzRoll, float64(0.05))
 		default:
 			return false
 		}
@@ -296,7 +296,7 @@ func GenerateStar(seed int64, cellX int64, cellY int64, cellZ int64, cellSize fl
 func blendWeight_impl(distanceFromSol interface{}) interface{} {
 	var innerRadius interface{} = float64(20)
 	var outerRadius interface{} = float64(100)
-	var tmp45 interface{} = LtFloat(distanceFromSol, innerRadius)
+	var tmp45 interface{} = dict_Ord_Float.Lt(distanceFromSol, innerRadius)
 	return func() interface{} {
 		_scrutinee := tmp45
 		_ = _scrutinee // suppress unused
@@ -305,15 +305,15 @@ func blendWeight_impl(distanceFromSol interface{}) interface{} {
 			return float64(0)
 		case false:
 			return func() interface{} {
-				if GtFloat(distanceFromSol, outerRadius).(bool) {
+				if dict_Ord_Float.Gt(distanceFromSol, outerRadius).(bool) {
 					return float64(1)
 				} else {
 					return func() interface{} {
-						var tmp47 interface{} = SubFloat(distanceFromSol, innerRadius)
+						var tmp47 interface{} = dict_Fractional_Float.Sub(distanceFromSol, innerRadius)
 						_ = tmp47 // suppress unused
-						var tmp48 interface{} = SubFloat(outerRadius, innerRadius)
+						var tmp48 interface{} = dict_Fractional_Float.Sub(outerRadius, innerRadius)
 						_ = tmp48 // suppress unused
-						return DivFloat(tmp47, tmp48)
+						return dict_Fractional_Float.Div(tmp47, tmp48)
 					}()
 				}
 			}()
@@ -331,52 +331,52 @@ func shouldGenerateStar_impl(seed interface{}, cellX interface{}, cellY interfac
 	var x interface{} = func() interface{} {
 		var tmp60 interface{} = IntToFloat(cellX)
 		_ = tmp60 // suppress unused
-		var tmp61 interface{} = MulFloat(tmp60, cellSize)
+		var tmp61 interface{} = dict_Fractional_Float.Mul(tmp60, cellSize)
 		_ = tmp61 // suppress unused
-		var tmp62 interface{} = DivFloat(cellSize, float64(2))
+		var tmp62 interface{} = dict_Fractional_Float.Div(cellSize, float64(2))
 		_ = tmp62 // suppress unused
-		return AddFloat(tmp61, tmp62)
+		return dict_Fractional_Float.Add(tmp61, tmp62)
 	}()
 	var y interface{} = func() interface{} {
 		var tmp57 interface{} = IntToFloat(cellY)
 		_ = tmp57 // suppress unused
-		var tmp58 interface{} = MulFloat(tmp57, cellSize)
+		var tmp58 interface{} = dict_Fractional_Float.Mul(tmp57, cellSize)
 		_ = tmp58 // suppress unused
-		var tmp59 interface{} = DivFloat(cellSize, float64(2))
+		var tmp59 interface{} = dict_Fractional_Float.Div(cellSize, float64(2))
 		_ = tmp59 // suppress unused
-		return AddFloat(tmp58, tmp59)
+		return dict_Fractional_Float.Add(tmp58, tmp59)
 	}()
 	var z interface{} = func() interface{} {
 		var tmp54 interface{} = IntToFloat(cellZ)
 		_ = tmp54 // suppress unused
-		var tmp55 interface{} = MulFloat(tmp54, cellSize)
+		var tmp55 interface{} = dict_Fractional_Float.Mul(tmp54, cellSize)
 		_ = tmp55 // suppress unused
-		var tmp56 interface{} = DivFloat(cellSize, float64(2))
+		var tmp56 interface{} = dict_Fractional_Float.Div(cellSize, float64(2))
 		_ = tmp56 // suppress unused
-		return AddFloat(tmp55, tmp56)
+		return dict_Fractional_Float.Add(tmp55, tmp56)
 	}()
 	var pos interface{} = makeVec3_impl(x, y, z)
 	var density interface{} = stellarDensity_impl(pos)
 	var cellVolume interface{} = func() interface{} {
-		var tmp53 interface{} = MulFloat(cellSize, cellSize)
+		var tmp53 interface{} = dict_Fractional_Float.Mul(cellSize, cellSize)
 		_ = tmp53 // suppress unused
-		return MulFloat(tmp53, cellSize)
+		return dict_Fractional_Float.Mul(tmp53, cellSize)
 	}()
 	var expectedStars interface{} = func() interface{} {
 		var tmp51 interface{} = galaxy_model__localStellarDensity_impl(struct{}{})
 		_ = tmp51 // suppress unused
-		var tmp52 interface{} = MulFloat(density, tmp51)
+		var tmp52 interface{} = dict_Fractional_Float.Mul(density, tmp51)
 		_ = tmp52 // suppress unused
-		return MulFloat(tmp52, cellVolume)
+		return dict_Fractional_Float.Mul(tmp52, cellVolume)
 	}()
 	var roll interface{} = func() interface{} {
-		var tmp49 interface{} = AddInt(seed, int64(999))
+		var tmp49 interface{} = dict_Num_Int.Add(seed, int64(999))
 		_ = tmp49 // suppress unused
 		var tmp50 interface{} = galaxy_model__positionHash_impl(cellX, cellY, cellZ, tmp49)
 		_ = tmp50 // suppress unused
 		return galaxy_model__hashToFloat_impl(tmp50)
 	}()
-	return LtFloat(roll, expectedStars)
+	return dict_Ord_Float.Lt(roll, expectedStars)
 }
 
 func ShouldGenerateStar(seed int64, cellX int64, cellY int64, cellZ int64, cellSize float64) bool {

@@ -10,11 +10,11 @@ func step__generate_impl(n interface{}, f interface{}) interface{} {
 			return []interface{}{}
 		default:
 			return func() interface{} {
-				var tmp1 interface{} = SubInt(n, int64(1))
+				var tmp1 interface{} = dict_Num_Int.Sub(n, int64(1))
 				_ = tmp1 // suppress unused
 				var tmp2 interface{} = CallFunc(f, tmp1)
 				_ = tmp2 // suppress unused
-				var tmp3 interface{} = SubInt(n, int64(1))
+				var tmp3 interface{} = dict_Num_Int.Sub(n, int64(1))
 				_ = tmp3 // suppress unused
 				var tmp4 interface{} = step__generate_impl(tmp3, f)
 				_ = tmp4 // suppress unused
@@ -42,16 +42,16 @@ func step__tilesToDraw_impl(tiles interface{}, width interface{}, idx interface{
 			return func() interface{} {
 				var x interface{} = ModInt(idx, width)
 				_ = x // suppress unused
-				var y interface{} = DivInt(idx, width)
+				var y interface{} = dict_Num_Int.Div(idx, width)
 				_ = y // suppress unused
 				var cmd interface{} = func() interface{} {
-					var tmp7 interface{} = MulInt(x, int64(8))
+					var tmp7 interface{} = dict_Num_Int.Mul(x, int64(8))
 					_ = tmp7 // suppress unused
 					return func() interface{} {
 						var tmp8 interface{} = IntToFloat(tmp7)
 						_ = tmp8 // suppress unused
 						return func() interface{} {
-							var tmp9 interface{} = MulInt(y, int64(8))
+							var tmp9 interface{} = dict_Num_Int.Mul(y, int64(8))
 							_ = tmp9 // suppress unused
 							return func() interface{} {
 								var tmp10 interface{} = IntToFloat(tmp9)
@@ -66,7 +66,7 @@ func step__tilesToDraw_impl(tiles interface{}, width interface{}, idx interface{
 					}()
 				}()
 				_ = cmd // suppress unused
-				var tmp5 interface{} = AddInt(idx, int64(1))
+				var tmp5 interface{} = dict_Num_Int.Add(idx, int64(1))
 				_ = tmp5 // suppress unused
 				var tmp6 interface{} = step__tilesToDraw_impl(rest, width, tmp5)
 				_ = tmp6 // suppress unused
@@ -101,7 +101,7 @@ func step__npcsToDraw_impl(npcs interface{}) interface{} {
 						var tmp14 interface{} = FieldGet(tmp13, "x")
 						_ = tmp14 // suppress unused
 						return func() interface{} {
-							var tmp15 interface{} = MulInt(tmp14, int64(8))
+							var tmp15 interface{} = dict_Num_Int.Mul(tmp14, int64(8))
 							_ = tmp15 // suppress unused
 							return func() interface{} {
 								var tmp16 interface{} = IntToFloat(tmp15)
@@ -113,7 +113,7 @@ func step__npcsToDraw_impl(npcs interface{}) interface{} {
 										var tmp18 interface{} = FieldGet(tmp17, "y")
 										_ = tmp18 // suppress unused
 										return func() interface{} {
-											var tmp19 interface{} = MulInt(tmp18, int64(8))
+											var tmp19 interface{} = dict_Num_Int.Mul(tmp18, int64(8))
 											_ = tmp19 // suppress unused
 											return func() interface{} {
 												var tmp20 interface{} = IntToFloat(tmp19)
@@ -122,7 +122,7 @@ func step__npcsToDraw_impl(npcs interface{}) interface{} {
 													var tmp21 interface{} = FieldGet(npc, "id")
 													_ = tmp21 // suppress unused
 													return func() interface{} {
-														var tmp22 interface{} = AddInt(int64(10), tmp21)
+														var tmp22 interface{} = dict_Num_Int.Add(int64(10), tmp21)
 														_ = tmp22 // suppress unused
 														return NewDrawCmdRect(tmp16.(float64), tmp20.(float64), float64(8), float64(8), tmp22.(int64), int64(2))
 													}()
@@ -164,11 +164,11 @@ func step__selectionToDraw_impl(sel interface{}) interface{} {
 			y := _adt.SelectionTile.Value1
 			_ = y // suppress unused
 			return func() interface{} {
-				var tmp23 interface{} = MulInt(x, int64(8))
+				var tmp23 interface{} = dict_Num_Int.Mul(x, int64(8))
 				_ = tmp23 // suppress unused
 				var tmp24 interface{} = IntToFloat(tmp23)
 				_ = tmp24 // suppress unused
-				var tmp25 interface{} = MulInt(y, int64(8))
+				var tmp25 interface{} = dict_Num_Int.Mul(y, int64(8))
 				_ = tmp25 // suppress unused
 				var tmp26 interface{} = IntToFloat(tmp25)
 				_ = tmp26 // suppress unused
@@ -217,11 +217,11 @@ func step__starToScreen_impl(pos interface{}) interface{} {
 	var centerY interface{} = float64(240)
 	var scale interface{} = float64(20)
 	var tmp29 interface{} = FieldGet(pos, "x")
-	var tmp30 interface{} = MulFloat(tmp29, scale)
-	var tmp31 interface{} = AddFloat(centerX, tmp30)
+	var tmp30 interface{} = dict_Fractional_Float.Mul(tmp29, scale)
+	var tmp31 interface{} = dict_Fractional_Float.Add(centerX, tmp30)
 	var tmp32 interface{} = FieldGet(pos, "y")
-	var tmp33 interface{} = MulFloat(tmp32, scale)
-	var tmp34 interface{} = AddFloat(centerY, tmp33)
+	var tmp33 interface{} = dict_Fractional_Float.Mul(tmp32, scale)
+	var tmp34 interface{} = dict_Fractional_Float.Add(centerY, tmp33)
 	return []interface{}{tmp31, tmp34}
 }
 
@@ -231,24 +231,24 @@ func step__starToScreen(pos Vec3) interface{} {
 
 func step__starRadius_impl(luminosity interface{}) interface{} {
 	var logLum interface{} = func() interface{} {
-		var tmp35 interface{} = GtFloat(luminosity, float64(0))
+		var tmp35 interface{} = dict_Ord_Float.Gt(luminosity, float64(0))
 		_ = tmp35 // suppress unused
 		return func() interface{} {
 			if tmp35.(bool) {
 				return func() interface{} {
-					if GtFloat(luminosity, float64(100)).(bool) {
+					if dict_Ord_Float.Gt(luminosity, float64(100)).(bool) {
 						return float64(4)
-					} else if GtFloat(luminosity, float64(1)).(bool) {
+					} else if dict_Ord_Float.Gt(luminosity, float64(1)).(bool) {
 						return func() interface{} {
-							var tmp38 interface{} = DivFloat(luminosity, float64(50))
+							var tmp38 interface{} = dict_Fractional_Float.Div(luminosity, float64(50))
 							_ = tmp38 // suppress unused
-							return AddFloat(float64(3), tmp38)
+							return dict_Fractional_Float.Add(float64(3), tmp38)
 						}()
 					} else {
 						return func() interface{} {
-							var tmp39 interface{} = MulFloat(luminosity, float64(2))
+							var tmp39 interface{} = dict_Fractional_Float.Mul(luminosity, float64(2))
 							_ = tmp39 // suppress unused
-							return AddFloat(float64(2), tmp39)
+							return dict_Fractional_Float.Add(float64(2), tmp39)
 						}()
 					}
 				}()
@@ -357,7 +357,7 @@ func step__processSelection_impl(input interface{}, world interface{}) interface
 					var tmp65 interface{} = FieldGet(input, "worldMouseX")
 					_ = tmp65 // suppress unused
 					return func() interface{} {
-						var tmp66 interface{} = DivFloat(tmp65, float64(8))
+						var tmp66 interface{} = dict_Fractional_Float.Div(tmp65, float64(8))
 						_ = tmp66 // suppress unused
 						return FloatToInt(tmp66)
 					}()
@@ -367,19 +367,19 @@ func step__processSelection_impl(input interface{}, world interface{}) interface
 					var tmp63 interface{} = FieldGet(input, "worldMouseY")
 					_ = tmp63 // suppress unused
 					return func() interface{} {
-						var tmp64 interface{} = DivFloat(tmp63, float64(8))
+						var tmp64 interface{} = dict_Fractional_Float.Div(tmp63, float64(8))
 						_ = tmp64 // suppress unused
 						return FloatToInt(tmp64)
 					}()
 				}()
 				_ = tileY // suppress unused
-				var tmp52 interface{} = GeInt(tileX, int64(0))
+				var tmp52 interface{} = dict_Ord_Int.Gte(tileX, int64(0))
 				_ = tmp52 // suppress unused
 				var tmp53 interface{} = FieldGet(world, "planet")
 				_ = tmp53 // suppress unused
 				var tmp54 interface{} = FieldGet(tmp53, "width")
 				_ = tmp54 // suppress unused
-				var tmp55 interface{} = LtInt(tileX, tmp54)
+				var tmp55 interface{} = dict_Ord_Int.Lt(tileX, tmp54)
 				_ = tmp55 // suppress unused
 				var tmp56 interface{} = func() interface{} {
 					if tmp52.(bool) {
@@ -388,7 +388,7 @@ func step__processSelection_impl(input interface{}, world interface{}) interface
 					return false
 				}()
 				_ = tmp56 // suppress unused
-				var tmp57 interface{} = GeInt(tileY, int64(0))
+				var tmp57 interface{} = dict_Ord_Int.Gte(tileY, int64(0))
 				_ = tmp57 // suppress unused
 				var tmp58 interface{} = func() interface{} {
 					if tmp56.(bool) {
@@ -401,7 +401,7 @@ func step__processSelection_impl(input interface{}, world interface{}) interface
 				_ = tmp59 // suppress unused
 				var tmp60 interface{} = FieldGet(tmp59, "height")
 				_ = tmp60 // suppress unused
-				var tmp61 interface{} = LtInt(tileY, tmp60)
+				var tmp61 interface{} = dict_Ord_Int.Lt(tileY, tmp60)
 				_ = tmp61 // suppress unused
 				var tmp62 interface{} = func() interface{} {
 					if tmp58.(bool) {
@@ -430,7 +430,7 @@ func initWorld_impl(seed interface{}) interface{} {
 	var w interface{} = int64(8)
 	var h interface{} = int64(8)
 	var tiles interface{} = func() interface{} {
-		var tmp82 interface{} = MulInt(w, h)
+		var tmp82 interface{} = dict_Num_Int.Mul(w, h)
 		_ = tmp82 // suppress unused
 		return step__generate_impl(tmp82, func(i interface{}) interface{} {
 			return func() interface{} {
@@ -497,44 +497,36 @@ func step__renderForView_impl(world interface{}, input interface{}) interface{} 
 		case ViewModeKindViewPlanet:
 			return func() interface{} {
 				var tileCmds interface{} = func() interface{} {
-					var tmp90 interface{} = FieldGet(world, "planet")
-					_ = tmp90 // suppress unused
+					var tmp88 interface{} = FieldGet(world, "planet")
+					_ = tmp88 // suppress unused
 					return func() interface{} {
-						var tmp91 interface{} = FieldGet(tmp90, "tiles")
-						_ = tmp91 // suppress unused
+						var tmp89 interface{} = FieldGet(tmp88, "tiles")
+						_ = tmp89 // suppress unused
 						return func() interface{} {
-							var tmp92 interface{} = FieldGet(world, "planet")
-							_ = tmp92 // suppress unused
+							var tmp90 interface{} = FieldGet(world, "planet")
+							_ = tmp90 // suppress unused
 							return func() interface{} {
-								var tmp93 interface{} = FieldGet(tmp92, "width")
-								_ = tmp93 // suppress unused
-								return step__tilesToDraw_impl(tmp91, tmp93, int64(0))
+								var tmp91 interface{} = FieldGet(tmp90, "width")
+								_ = tmp91 // suppress unused
+								return step__tilesToDraw_impl(tmp89, tmp91, int64(0))
 							}()
 						}()
 					}()
 				}()
 				_ = tileCmds // suppress unused
-				var npcCmds interface{} = func() interface{} {
-					var tmp89 interface{} = FieldGet(world, "npcs")
-					_ = tmp89 // suppress unused
-					return step__npcsToDraw_impl(tmp89)
-				}()
-				_ = npcCmds // suppress unused
 				var selCmds interface{} = func() interface{} {
-					var tmp88 interface{} = FieldGet(world, "selection")
-					_ = tmp88 // suppress unused
-					return step__selectionToDraw_impl(tmp88)
+					var tmp87 interface{} = FieldGet(world, "selection")
+					_ = tmp87 // suppress unused
+					return step__selectionToDraw_impl(tmp87)
 				}()
 				_ = selCmds // suppress unused
-				var tmp87 interface{} = step__concatDrawCmds_impl(tileCmds, npcCmds)
-				_ = tmp87 // suppress unused
-				return step__concatDrawCmds_impl(tmp87, selCmds)
+				return step__concatDrawCmds_impl(tileCmds, selCmds)
 			}()
 		case ViewModeKindViewGalaxyMap:
 			return func() interface{} {
-				var tmp94 interface{} = FieldGet(world, "starCatalog")
-				_ = tmp94 // suppress unused
-				return step__renderGalaxyMap_impl(tmp94)
+				var tmp92 interface{} = FieldGet(world, "starCatalog")
+				_ = tmp92 // suppress unused
+				return step__renderGalaxyMap_impl(tmp92)
 			}()
 		default:
 			panic("non-exhaustive match")
@@ -548,41 +540,41 @@ func step__renderForView(world *World, input *FrameInput) []*DrawCmd {
 
 func step__updateInteriorView_impl(world interface{}, input interface{}, newTick interface{}) interface{} {
 	var updatedInterior interface{} = func() interface{} {
-		var tmp101 interface{} = FieldGet(world, "interior")
-		_ = tmp101 // suppress unused
-		return stepInterior_impl(tmp101, input)
+		var tmp99 interface{} = FieldGet(world, "interior")
+		_ = tmp99 // suppress unused
+		return stepInterior_impl(tmp99, input)
 	}()
 	var updatedSystem interface{} = func() interface{} {
-		var tmp100 interface{} = FieldGet(world, "currentSystem")
-		_ = tmp100 // suppress unused
-		return stepSystem_impl(tmp100, float64(0.001))
+		var tmp98 interface{} = FieldGet(world, "currentSystem")
+		_ = tmp98 // suppress unused
+		return stepSystem_impl(tmp98, float64(0.001))
 	}()
 	var newVelocity interface{} = func() interface{} {
-		var tmp96 interface{} = isVPressed_impl(input)
-		_ = tmp96 // suppress unused
+		var tmp94 interface{} = isVPressed_impl(input)
+		_ = tmp94 // suppress unused
 		return func() interface{} {
-			if tmp96.(bool) {
+			if tmp94.(bool) {
 				return func() interface{} {
-					var tmp97 interface{} = FieldGet(world, "shipNavigation")
-					_ = tmp97 // suppress unused
-					var tmp98 interface{} = FieldGet(tmp97, "velocity")
-					_ = tmp98 // suppress unused
-					return cycleVelocity_impl(tmp98)
+					var tmp95 interface{} = FieldGet(world, "shipNavigation")
+					_ = tmp95 // suppress unused
+					var tmp96 interface{} = FieldGet(tmp95, "velocity")
+					_ = tmp96 // suppress unused
+					return cycleVelocity_impl(tmp96)
 				}()
 			}
 			return func() interface{} {
-				var tmp99 interface{} = FieldGet(world, "shipNavigation")
-				_ = tmp99 // suppress unused
-				return FieldGet(tmp99, "velocity")
+				var tmp97 interface{} = FieldGet(world, "shipNavigation")
+				_ = tmp97 // suppress unused
+				return FieldGet(tmp97, "velocity")
 			}()
 		}()
 	}()
 	var updatedNav interface{} = func() interface{} {
-		var tmp95 interface{} = FieldGet(world, "shipNavigation")
-		_ = tmp95 // suppress unused
-		return RecordUpdate(tmp95, map[string]interface{}{"velocity": newVelocity})
+		var tmp93 interface{} = FieldGet(world, "shipNavigation")
+		_ = tmp93 // suppress unused
+		return RecordUpdate(tmp93, map[string]interface{}{"velocity": newVelocity})
 	}()
-	return RecordUpdate(world, map[string]interface{}{"shipNavigation": updatedNav, "tick": newTick, "interior": updatedInterior, "currentSystem": updatedSystem})
+	return RecordUpdate(world, map[string]interface{}{"tick": newTick, "interior": updatedInterior, "currentSystem": updatedSystem, "shipNavigation": updatedNav})
 }
 
 func step__updateInteriorView(world *World, input *FrameInput, newTick int64) *World {
@@ -592,19 +584,19 @@ func step__updateInteriorView(world *World, input *FrameInput, newTick int64) *W
 func step__updatePlanetView_impl(world interface{}, input interface{}, newTick interface{}) interface{} {
 	var newSelection interface{} = step__processSelection_impl(input, world)
 	var updatedNpcs interface{} = func() interface{} {
-		var tmp102 interface{} = FieldGet(world, "npcs")
+		var tmp100 interface{} = FieldGet(world, "npcs")
+		_ = tmp100 // suppress unused
+		var tmp101 interface{} = FieldGet(world, "planet")
+		_ = tmp101 // suppress unused
+		var tmp102 interface{} = FieldGet(tmp101, "width")
 		_ = tmp102 // suppress unused
 		var tmp103 interface{} = FieldGet(world, "planet")
 		_ = tmp103 // suppress unused
-		var tmp104 interface{} = FieldGet(tmp103, "width")
+		var tmp104 interface{} = FieldGet(tmp103, "height")
 		_ = tmp104 // suppress unused
-		var tmp105 interface{} = FieldGet(world, "planet")
-		_ = tmp105 // suppress unused
-		var tmp106 interface{} = FieldGet(tmp105, "height")
-		_ = tmp106 // suppress unused
-		return updateAllNPCs_impl(tmp102, tmp104, tmp106)
+		return updateAllNPCs_impl(tmp100, tmp102, tmp104)
 	}()
-	return RecordUpdate(world, map[string]interface{}{"selection": newSelection, "tick": newTick, "npcs": updatedNpcs})
+	return RecordUpdate(world, map[string]interface{}{"tick": newTick, "npcs": updatedNpcs, "selection": newSelection})
 }
 
 func step__updatePlanetView(world *World, input *FrameInput, newTick int64) *World {
@@ -621,15 +613,15 @@ func step__updateGalaxyView(world *World, newTick int64) *World {
 
 func step_impl(world interface{}, input interface{}) interface{} {
 	var newTick interface{} = func() interface{} {
-		var tmp117 interface{} = FieldGet(world, "tick")
-		_ = tmp117 // suppress unused
-		return AddInt(tmp117, int64(1))
+		var tmp115 interface{} = FieldGet(world, "tick")
+		_ = tmp115 // suppress unused
+		return dict_Num_Int.Add(tmp115, int64(1))
 	}()
 	var newWorld interface{} = func() interface{} {
-		var tmp116 interface{} = FieldGet(world, "viewMode")
-		_ = tmp116 // suppress unused
+		var tmp114 interface{} = FieldGet(world, "viewMode")
+		_ = tmp114 // suppress unused
 		return func() interface{} {
-			_scrutinee := tmp116
+			_scrutinee := tmp114
 			_ = _scrutinee // suppress unused
 			_adt := _scrutinee.(*ViewMode)
 			switch _adt.Kind {
@@ -647,45 +639,45 @@ func step_impl(world interface{}, input interface{}) interface{} {
 	var drawCmds interface{} = step__renderForView_impl(newWorld, input)
 	var cam interface{} = Camera{X: float64(0), Y: float64(0), Zoom: float64(1)}
 	var shipV interface{} = func() interface{} {
-		var tmp115 interface{} = FieldGet(newWorld, "shipNavigation")
-		_ = tmp115 // suppress unused
-		return FieldGet(tmp115, "velocity")
+		var tmp113 interface{} = FieldGet(newWorld, "shipNavigation")
+		_ = tmp113 // suppress unused
+		return FieldGet(tmp113, "velocity")
 	}()
 	var lorentzFactor interface{} = func() interface{} {
-		var tmp114 interface{} = FieldGet(newWorld, "shipNavigation")
-		_ = tmp114 // suppress unused
-		return timeDilationFactor_impl(tmp114)
+		var tmp112 interface{} = FieldGet(newWorld, "shipNavigation")
+		_ = tmp112 // suppress unused
+		return timeDilationFactor_impl(tmp112)
 	}()
 	var srCtx interface{} = func() interface{} {
-		var tmp113 interface{} = GtFloat(shipV, float64(0.01))
-		_ = tmp113 // suppress unused
-		return SRContext{Enabled: tmp113.(bool), Velocity: shipV.(float64), Gamma: lorentzFactor.(float64), ViewAngle: float64(0)}
+		var tmp111 interface{} = dict_Ord_Float.Gt(shipV, float64(0.01))
+		_ = tmp111 // suppress unused
+		return SRContext{Enabled: tmp111.(bool), Velocity: shipV.(float64), Gamma: lorentzFactor.(float64), ViewAngle: float64(0)}
 	}()
 	var grCtx interface{} = func() interface{} {
-		var tmp111 interface{} = FieldGet(newWorld, "shipNavigation")
-		_ = tmp111 // suppress unused
-		var tmp112 interface{} = FieldGet(tmp111, "grPhi")
-		_ = tmp112 // suppress unused
-		return &GRContext{Enabled: false, CenterX: float64(0.5), CenterY: float64(0.5), Phi: tmp112.(float64), Rs: float64(0), ObjectType: ""}
+		var tmp109 interface{} = FieldGet(newWorld, "shipNavigation")
+		_ = tmp109 // suppress unused
+		var tmp110 interface{} = FieldGet(tmp109, "grPhi")
+		_ = tmp110 // suppress unused
+		return &GRContext{Enabled: false, CenterX: float64(0.5), CenterY: float64(0.5), Phi: tmp110.(float64), Rs: float64(0), ObjectType: ""}
 	}()
 	var relCtx interface{} = &RelativityContext{Sr: AsSRContext(srCtx), Gr: grCtx.(*GRContext)}
 	var ambientSettings interface{} = func() interface{} {
-		var tmp110 interface{} = RGBColor{R: float64(1), G: float64(1), B: float64(1)}
-		_ = tmp110 // suppress unused
-		return &AmbientSettings{Energy: float64(1), Color: AsRGBColor(tmp110)}
+		var tmp108 interface{} = RGBColor{R: float64(1), G: float64(1), B: float64(1)}
+		_ = tmp108 // suppress unused
+		return &AmbientSettings{Energy: float64(1), Color: AsRGBColor(tmp108)}
 	}()
 	var lightingCtx interface{} = func() interface{} {
-		var tmp109 interface{} = []interface{}{}
-		_ = tmp109 // suppress unused
-		return &LightingContext{Enabled: false, Ambient: ambientSettings.(*AmbientSettings), Lights: ConvertToLightSourceSlice(tmp109), LightMultiplier: float64(1)}
+		var tmp107 interface{} = []interface{}{}
+		_ = tmp107 // suppress unused
+		return &LightingContext{Enabled: false, Ambient: ambientSettings.(*AmbientSettings), Lights: ConvertToLightSourceSlice(tmp107), LightMultiplier: float64(1)}
 	}()
 	var lodConfig interface{} = &LODConfig{Enabled: true, TransitionTime: float64(0), Hysteresis: float64(0.4), Full3DPixels: float64(12), BillboardPixels: float64(6), CirclePixels: float64(3), PointPixels: float64(1), Max3DObjects: int64(30)}
 	var output interface{} = func() interface{} {
-		var tmp107 interface{} = []interface{}{}
-		_ = tmp107 // suppress unused
-		var tmp108 interface{} = []interface{}{}
-		_ = tmp108 // suppress unused
-		return &FrameOutput{Draw: ConvertToDrawCmdSlice(drawCmds), Sounds: ConvertToInt64Slice(tmp107), Debug: ConvertToStringSlice(tmp108), Camera: AsCamera(cam), Relativity: relCtx.(*RelativityContext), Lighting: lightingCtx.(*LightingContext), Lod: lodConfig.(*LODConfig)}
+		var tmp105 interface{} = []interface{}{}
+		_ = tmp105 // suppress unused
+		var tmp106 interface{} = []interface{}{}
+		_ = tmp106 // suppress unused
+		return &FrameOutput{Draw: ConvertToDrawCmdSlice(drawCmds), Sounds: ConvertToInt64Slice(tmp105), Debug: ConvertToStringSlice(tmp106), Camera: AsCamera(cam), Relativity: relCtx.(*RelativityContext), Lighting: lightingCtx.(*LightingContext), Lod: lodConfig.(*LODConfig)}
 	}()
 	return []interface{}{newWorld, output}
 }

@@ -275,11 +275,11 @@ func updateTransition_impl(levels interface{}, dt interface{}) interface{} {
 			progress := _adt.Transitioning.Value2
 			_ = progress // suppress unused
 			return func() interface{} {
-				var tmp11 interface{} = MulFloat(dt, float64(2))
+				var tmp11 interface{} = dict_Fractional_Float.Mul(dt, float64(2))
 				_ = tmp11 // suppress unused
-				var newProgress interface{} = AddFloat(progress, tmp11)
+				var newProgress interface{} = dict_Fractional_Float.Add(progress, tmp11)
 				_ = newProgress // suppress unused
-				var tmp12 interface{} = GeFloat(newProgress, float64(1))
+				var tmp12 interface{} = dict_Ord_Float.Gte(newProgress, float64(1))
 				_ = tmp12 // suppress unused
 				return func() interface{} {
 					if tmp12.(bool) {

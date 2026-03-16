@@ -7,15 +7,15 @@ import (
 
 func packColor_impl(c interface{}) interface{} {
 	var tmp1 interface{} = FieldGet(c, "r")
-	var tmp2 interface{} = MulInt(tmp1, int64(16777216))
+	var tmp2 interface{} = dict_Num_Int.Mul(tmp1, int64(16777216))
 	var tmp3 interface{} = FieldGet(c, "g")
-	var tmp4 interface{} = MulInt(tmp3, int64(65536))
-	var tmp5 interface{} = AddInt(tmp2, tmp4)
+	var tmp4 interface{} = dict_Num_Int.Mul(tmp3, int64(65536))
+	var tmp5 interface{} = dict_Num_Int.Add(tmp2, tmp4)
 	var tmp6 interface{} = FieldGet(c, "b")
-	var tmp7 interface{} = MulInt(tmp6, int64(256))
-	var tmp8 interface{} = AddInt(tmp5, tmp7)
+	var tmp7 interface{} = dict_Num_Int.Mul(tmp6, int64(256))
+	var tmp8 interface{} = dict_Num_Int.Add(tmp5, tmp7)
 	var tmp9 interface{} = FieldGet(c, "a")
-	return AddInt(tmp8, tmp9)
+	return dict_Num_Int.Add(tmp8, tmp9)
 }
 
 func PackColor(c Color) int64 {
@@ -221,15 +221,15 @@ func celestial__twoPi() float64 {
 }
 
 func celestial__modFloat_impl(x interface{}, m interface{}) interface{} {
-	if LtFloat(x, float64(0)).(bool) {
+	if dict_Ord_Float.Lt(x, float64(0)).(bool) {
 		return func() interface{} {
-			var tmp34 interface{} = AddFloat(x, m)
+			var tmp34 interface{} = dict_Fractional_Float.Add(x, m)
 			_ = tmp34 // suppress unused
 			return celestial__modFloat_impl(tmp34, m)
 		}()
-	} else if GeFloat(x, m).(bool) {
+	} else if dict_Ord_Float.Gte(x, m).(bool) {
 		return func() interface{} {
-			var tmp36 interface{} = SubFloat(x, m)
+			var tmp36 interface{} = dict_Fractional_Float.Sub(x, m)
 			_ = tmp36 // suppress unused
 			return celestial__modFloat_impl(tmp36, m)
 		}()
@@ -248,14 +248,14 @@ func stepPlanetOrbit_impl(planet interface{}, dt interface{}) interface{} {
 		_ = tmp50 // suppress unused
 		var tmp51 interface{} = FieldGet(planet, "orbitalPeriod")
 		_ = tmp51 // suppress unused
-		return DivFloat(tmp50, tmp51)
+		return dict_Fractional_Float.Div(tmp50, tmp51)
 	}()
 	var newAngle interface{} = func() interface{} {
 		var tmp46 interface{} = FieldGet(planet, "currentAngle")
 		_ = tmp46 // suppress unused
-		var tmp47 interface{} = MulFloat(angularVel, dt)
+		var tmp47 interface{} = dict_Fractional_Float.Mul(angularVel, dt)
 		_ = tmp47 // suppress unused
-		var tmp48 interface{} = AddFloat(tmp46, tmp47)
+		var tmp48 interface{} = dict_Fractional_Float.Add(tmp46, tmp47)
 		_ = tmp48 // suppress unused
 		var tmp49 interface{} = celestial__twoPi_impl(struct{}{})
 		_ = tmp49 // suppress unused
@@ -334,7 +334,7 @@ func celestial__countPlanets_impl(planets interface{}) interface{} {
 			return func() interface{} {
 				var tmp59 interface{} = celestial__countPlanets_impl(rest)
 				_ = tmp59 // suppress unused
-				return AddInt(int64(1), tmp59)
+				return dict_Num_Int.Add(int64(1), tmp59)
 			}()
 		} else {
 			panic("non-exhaustive match")
@@ -367,11 +367,11 @@ func celestial__getPlanetAt_impl(planets interface{}, idx interface{}) interface
 			rest := ListTail(_scrutinee)
 			_ = rest // suppress unused
 			return func() interface{} {
-				if EqInt(idx, int64(0)).(bool) {
+				if dict_Eq_Int.Eq(idx, int64(0)).(bool) {
 					return NewOptionSome(p)
 				} else {
 					return func() interface{} {
-						var tmp62 interface{} = SubInt(idx, int64(1))
+						var tmp62 interface{} = dict_Num_Int.Sub(idx, int64(1))
 						_ = tmp62 // suppress unused
 						return celestial__getPlanetAt_impl(rest, tmp62)
 					}()
@@ -404,9 +404,9 @@ func planetPosition2D_impl(planet interface{}, scale interface{}) interface{} {
 		_ = tmp69 // suppress unused
 		var tmp70 interface{} = FieldGet(planet, "orbitDistance")
 		_ = tmp70 // suppress unused
-		var tmp71 interface{} = MulFloat(tmp69, tmp70)
+		var tmp71 interface{} = dict_Fractional_Float.Mul(tmp69, tmp70)
 		_ = tmp71 // suppress unused
-		return MulFloat(tmp71, scale)
+		return dict_Fractional_Float.Mul(tmp71, scale)
 	}()
 	var y interface{} = func() interface{} {
 		var tmp64 interface{} = FieldGet(planet, "currentAngle")
@@ -415,9 +415,9 @@ func planetPosition2D_impl(planet interface{}, scale interface{}) interface{} {
 		_ = tmp65 // suppress unused
 		var tmp66 interface{} = FieldGet(planet, "orbitDistance")
 		_ = tmp66 // suppress unused
-		var tmp67 interface{} = MulFloat(tmp65, tmp66)
+		var tmp67 interface{} = dict_Fractional_Float.Mul(tmp65, tmp66)
 		_ = tmp67 // suppress unused
-		return MulFloat(tmp67, scale)
+		return dict_Fractional_Float.Mul(tmp67, scale)
 	}()
 	return []interface{}{x, y}
 }
@@ -443,7 +443,7 @@ func celestial__renderScreenHeight() float64 {
 }
 
 func celestial__layerPlanets_impl(_unused0 interface{}) interface{} {
-	return SubInt(int64(0), int64(5))
+	return dict_Num_Int.Sub(int64(0), int64(5))
 }
 
 func celestial__layerPlanets() int64 {
@@ -452,7 +452,7 @@ func celestial__layerPlanets() int64 {
 
 func celestial__planetScreenRadius_impl(planet interface{}) interface{} {
 	var tmp72 interface{} = FieldGet(planet, "radius")
-	var tmp73 interface{} = GtFloat(tmp72, float64(5))
+	var tmp73 interface{} = dict_Ord_Float.Gt(tmp72, float64(5))
 	return func() interface{} {
 		_scrutinee := tmp73
 		_ = _scrutinee // suppress unused
@@ -461,17 +461,17 @@ func celestial__planetScreenRadius_impl(planet interface{}) interface{} {
 			return func() interface{} {
 				var tmp74 interface{} = FieldGet(planet, "radius")
 				_ = tmp74 // suppress unused
-				var tmp75 interface{} = MulFloat(tmp74, float64(2))
+				var tmp75 interface{} = dict_Fractional_Float.Mul(tmp74, float64(2))
 				_ = tmp75 // suppress unused
-				return AddFloat(float64(15), tmp75)
+				return dict_Fractional_Float.Add(float64(15), tmp75)
 			}()
 		case false:
 			return func() interface{} {
 				var tmp76 interface{} = FieldGet(planet, "radius")
 				_ = tmp76 // suppress unused
-				var tmp77 interface{} = MulFloat(tmp76, float64(5))
+				var tmp77 interface{} = dict_Fractional_Float.Mul(tmp76, float64(5))
 				_ = tmp77 // suppress unused
-				return AddFloat(float64(8), tmp77)
+				return dict_Fractional_Float.Add(float64(8), tmp77)
 			}()
 		default:
 			panic("non-exhaustive match")
@@ -494,9 +494,9 @@ func renderPlanet2D_impl(planet interface{}, centerX interface{}, centerY interf
 			py := _scrutinee.([]interface{})[1]
 			_ = py // suppress unused
 			return func() interface{} {
-				var screenX interface{} = AddFloat(centerX, px)
+				var screenX interface{} = dict_Fractional_Float.Add(centerX, px)
 				_ = screenX // suppress unused
-				var screenY interface{} = SubFloat(centerY, py)
+				var screenY interface{} = dict_Fractional_Float.Sub(centerY, py)
 				_ = screenY // suppress unused
 				var radius interface{} = celestial__planetScreenRadius_impl(planet)
 				_ = radius // suppress unused
@@ -523,7 +523,7 @@ func RenderPlanet2D(planet *CelestialPlanet, centerX float64, centerY float64, s
 }
 
 func celestial__layerOrbits_impl(_unused0 interface{}) interface{} {
-	return SubInt(int64(0), int64(10))
+	return dict_Num_Int.Sub(int64(0), int64(10))
 }
 
 func celestial__layerOrbits() int64 {
@@ -542,7 +542,7 @@ func renderOrbitPath_impl(planet interface{}, centerX interface{}, centerY inter
 	var orbitRadius interface{} = func() interface{} {
 		var tmp82 interface{} = FieldGet(planet, "orbitDistance")
 		_ = tmp82 // suppress unused
-		return MulFloat(tmp82, scale)
+		return dict_Fractional_Float.Mul(tmp82, scale)
 	}()
 	var tmp80 interface{} = celestial__orbitPathColor_impl(struct{}{})
 	var tmp81 interface{} = celestial__layerOrbits_impl(struct{}{})
@@ -564,9 +564,9 @@ func renderPlanetTextured_impl(planet interface{}, centerX interface{}, centerY 
 			py := _scrutinee.([]interface{})[1]
 			_ = py // suppress unused
 			return func() interface{} {
-				var screenX interface{} = AddFloat(centerX, px)
+				var screenX interface{} = dict_Fractional_Float.Add(centerX, px)
 				_ = screenX // suppress unused
-				var screenY interface{} = SubFloat(centerY, py)
+				var screenY interface{} = dict_Fractional_Float.Sub(centerY, py)
 				_ = screenY // suppress unused
 				var radius interface{} = celestial__planetScreenRadius_impl(planet)
 				_ = radius // suppress unused
@@ -636,15 +636,15 @@ func celestial__renderPlanetRing_impl(planet interface{}, centerX interface{}, c
 						py := _scrutinee.([]interface{})[1]
 						_ = py // suppress unused
 						return func() interface{} {
-							var screenX interface{} = AddFloat(centerX, px)
+							var screenX interface{} = dict_Fractional_Float.Add(centerX, px)
 							_ = screenX // suppress unused
-							var screenY interface{} = SubFloat(centerY, py)
+							var screenY interface{} = dict_Fractional_Float.Sub(centerY, py)
 							_ = screenY // suppress unused
 							var planetRadius interface{} = celestial__planetScreenRadius_impl(planet)
 							_ = planetRadius // suppress unused
-							var innerRing interface{} = MulFloat(planetRadius, float64(1.5))
+							var innerRing interface{} = dict_Fractional_Float.Mul(planetRadius, float64(1.5))
 							_ = innerRing // suppress unused
-							var outerRing interface{} = MulFloat(planetRadius, float64(2.5))
+							var outerRing interface{} = dict_Fractional_Float.Mul(planetRadius, float64(2.5))
 							_ = outerRing // suppress unused
 							var ringColor interface{} = func() interface{} {
 								var tmp96 interface{} = FieldGet(planet, "ringColor")
@@ -668,13 +668,13 @@ func celestial__renderPlanetRing_impl(planet interface{}, centerX interface{}, c
 							_ = ringColor // suppress unused
 							var tmp90 interface{} = celestial__layerPlanets_impl(struct{}{})
 							_ = tmp90 // suppress unused
-							var tmp91 interface{} = SubInt(tmp90, int64(1))
+							var tmp91 interface{} = dict_Num_Int.Sub(tmp90, int64(1))
 							_ = tmp91 // suppress unused
 							var tmp92 interface{} = NewDrawCmdCircleRGBA(screenX.(float64), screenY.(float64), outerRing.(float64), ringColor.(int64), false, tmp91.(int64))
 							_ = tmp92 // suppress unused
 							var tmp93 interface{} = celestial__layerPlanets_impl(struct{}{})
 							_ = tmp93 // suppress unused
-							var tmp94 interface{} = SubInt(tmp93, int64(1))
+							var tmp94 interface{} = dict_Num_Int.Sub(tmp93, int64(1))
 							_ = tmp94 // suppress unused
 							var tmp95 interface{} = NewDrawCmdCircleRGBA(screenX.(float64), screenY.(float64), innerRing.(float64), ringColor.(int64), false, tmp94.(int64))
 							_ = tmp95 // suppress unused
@@ -870,7 +870,7 @@ func renderSolarSystem_impl(system interface{}) interface{} {
 	var centerX interface{} = func() interface{} {
 		var tmp112 interface{} = celestial__renderScreenWidth_impl(struct{}{})
 		_ = tmp112 // suppress unused
-		return DivFloat(tmp112, float64(2))
+		return dict_Fractional_Float.Div(tmp112, float64(2))
 	}()
 	var centerY interface{} = float64(250)
 	var scale interface{} = float64(15)
@@ -887,12 +887,12 @@ func renderSolarSystemTextured_impl(system interface{}) interface{} {
 	var centerX interface{} = func() interface{} {
 		var tmp115 interface{} = celestial__renderScreenWidth_impl(struct{}{})
 		_ = tmp115 // suppress unused
-		return DivFloat(tmp115, float64(2))
+		return dict_Fractional_Float.Div(tmp115, float64(2))
 	}()
 	var centerY interface{} = func() interface{} {
 		var tmp114 interface{} = celestial__renderScreenHeight_impl(struct{}{})
 		_ = tmp114 // suppress unused
-		return DivFloat(tmp114, float64(2))
+		return dict_Fractional_Float.Div(tmp114, float64(2))
 	}()
 	var scale interface{} = float64(15)
 	var orbitCmds interface{} = renderOrbitPaths_impl(system, centerX, centerY, scale)

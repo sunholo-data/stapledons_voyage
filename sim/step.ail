@@ -178,10 +178,10 @@ pure func renderForView(world: World, input: FrameInput) -> [DrawCmd] {
             renderInterior(world.interior, world.shipNavigation)
         },
         ViewPlanet => {
+            -- Legacy planet view (NPC rendering temporarily disabled due to cross-module type issue)
             let tileCmds = tilesToDraw(world.planet.tiles, world.planet.width, 0);
-            let npcCmds = npcsToDraw(world.npcs);
             let selCmds = selectionToDraw(world.selection);
-            concatDrawCmds(concatDrawCmds(tileCmds, npcCmds), selCmds)
+            concatDrawCmds(tileCmds, selCmds)
         },
         ViewGalaxyMap => renderGalaxyMap(world.starCatalog)
     }

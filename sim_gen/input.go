@@ -503,11 +503,11 @@ func input__hasKeyEvent_impl(keys interface{}, keyCode interface{}, eventKind in
 			return func() interface{} {
 				var tmp1 interface{} = FieldGet(k, "key")
 				_ = tmp1 // suppress unused
-				var tmp2 interface{} = EqInt(tmp1, keyCode)
+				var tmp2 interface{} = dict_Eq_Int.Eq(tmp1, keyCode)
 				_ = tmp2 // suppress unused
 				var tmp3 interface{} = FieldGet(k, "kind")
 				_ = tmp3 // suppress unused
-				var tmp4 interface{} = EqString(tmp3, eventKind)
+				var tmp4 interface{} = dict_Eq_String.Eq(tmp3, eventKind)
 				_ = tmp4 // suppress unused
 				var tmp5 interface{} = func() interface{} {
 					if tmp2.(bool) {
@@ -673,11 +673,11 @@ func input__hasMouseEvent_impl(events interface{}, buttonCode interface{}, event
 			return func() interface{} {
 				var tmp8 interface{} = FieldGet(e, "button")
 				_ = tmp8 // suppress unused
-				var tmp9 interface{} = EqInt(tmp8, buttonCode)
+				var tmp9 interface{} = dict_Eq_Int.Eq(tmp8, buttonCode)
 				_ = tmp9 // suppress unused
 				var tmp10 interface{} = FieldGet(e, "kind")
 				_ = tmp10 // suppress unused
-				var tmp11 interface{} = EqString(tmp10, eventKind)
+				var tmp11 interface{} = dict_Eq_String.Eq(tmp10, eventKind)
 				_ = tmp11 // suppress unused
 				var tmp12 interface{} = func() interface{} {
 					if tmp9.(bool) {

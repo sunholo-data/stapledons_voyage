@@ -158,17 +158,17 @@ func ThemeMedical() *RoomTheme {
 }
 
 func getThemeByName_impl(name interface{}) interface{} {
-	var tmp13 interface{} = EqString(name, "bridge")
+	var tmp13 interface{} = dict_Eq_String.Eq(name, "bridge")
 	return func() interface{} {
-		var tmp14 interface{} = EqString(name, "engineering")
+		var tmp14 interface{} = dict_Eq_String.Eq(name, "engineering")
 		_ = tmp14 // suppress unused
-		var tmp15 interface{} = EqString(name, "habitat")
+		var tmp15 interface{} = dict_Eq_String.Eq(name, "habitat")
 		_ = tmp15 // suppress unused
-		var tmp16 interface{} = EqString(name, "corridor")
+		var tmp16 interface{} = dict_Eq_String.Eq(name, "corridor")
 		_ = tmp16 // suppress unused
-		var tmp17 interface{} = EqString(name, "storage")
+		var tmp17 interface{} = dict_Eq_String.Eq(name, "storage")
 		_ = tmp17 // suppress unused
-		var tmp18 interface{} = EqString(name, "medical")
+		var tmp18 interface{} = dict_Eq_String.Eq(name, "medical")
 		_ = tmp18 // suppress unused
 		if tmp13.(bool) {
 			return themeBridge_impl(struct{}{})
@@ -197,7 +197,7 @@ func GetThemeByName(name string) *RoomTheme {
 }
 
 func colorR_impl(c interface{}) interface{} {
-	var tmp19 interface{} = DivInt(c, int64(16777216))
+	var tmp19 interface{} = dict_Num_Int.Div(c, int64(16777216))
 	return ModInt(tmp19, int64(256))
 }
 
@@ -206,7 +206,7 @@ func ColorR(c int64) int64 {
 }
 
 func colorG_impl(c interface{}) interface{} {
-	var tmp20 interface{} = DivInt(c, int64(65536))
+	var tmp20 interface{} = dict_Num_Int.Div(c, int64(65536))
 	return ModInt(tmp20, int64(256))
 }
 
@@ -215,7 +215,7 @@ func ColorG(c int64) int64 {
 }
 
 func colorB_impl(c interface{}) interface{} {
-	var tmp21 interface{} = DivInt(c, int64(256))
+	var tmp21 interface{} = dict_Num_Int.Div(c, int64(256))
 	return ModInt(tmp21, int64(256))
 }
 
@@ -232,12 +232,12 @@ func ColorA(c int64) int64 {
 }
 
 func packColorRGBA_impl(r interface{}, g interface{}, b interface{}, a interface{}) interface{} {
-	var tmp22 interface{} = MulInt(r, int64(16777216))
-	var tmp23 interface{} = MulInt(g, int64(65536))
-	var tmp24 interface{} = AddInt(tmp22, tmp23)
-	var tmp25 interface{} = MulInt(b, int64(256))
-	var tmp26 interface{} = AddInt(tmp24, tmp25)
-	return AddInt(tmp26, a)
+	var tmp22 interface{} = dict_Num_Int.Mul(r, int64(16777216))
+	var tmp23 interface{} = dict_Num_Int.Mul(g, int64(65536))
+	var tmp24 interface{} = dict_Num_Int.Add(tmp22, tmp23)
+	var tmp25 interface{} = dict_Num_Int.Mul(b, int64(256))
+	var tmp26 interface{} = dict_Num_Int.Add(tmp24, tmp25)
+	return dict_Num_Int.Add(tmp26, a)
 }
 
 func PackColorRGBA(r int64, g int64, b int64, a int64) int64 {

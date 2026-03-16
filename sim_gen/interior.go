@@ -30,7 +30,7 @@ func interior__lookSensitivity() float64 {
 }
 
 func interior__minPitch_impl(_unused0 interface{}) interface{} {
-	return SubFloat(float64(0), float64(1.4))
+	return dict_Fractional_Float.Sub(float64(0), float64(1.4))
 }
 
 func interior__minPitch() float64 {
@@ -229,11 +229,11 @@ func MakeCharacter(id string, x float64, z float64, sprite int64) *CharacterDef 
 func createBridgeInterior_impl(_unused0 interface{}) interface{} {
 	var room interface{} = makeRoomTextured_impl(float64(8), float64(6), float64(3), "assets/textures/interior/bridge_floor.png", "assets/textures/interior/bridge_wall.png", "assets/textures/interior/bridge_ceiling.png")
 	var props interface{} = func() interface{} {
-		var tmp26 interface{} = SubFloat(float64(0), float64(2))
+		var tmp26 interface{} = dict_Fractional_Float.Sub(float64(0), float64(2))
 		_ = tmp26 // suppress unused
 		var tmp27 interface{} = makeConsole_impl("helm", float64(0), tmp26)
 		_ = tmp27 // suppress unused
-		var tmp28 interface{} = SubFloat(float64(0), float64(3))
+		var tmp28 interface{} = dict_Fractional_Float.Sub(float64(0), float64(3))
 		_ = tmp28 // suppress unused
 		var tmp29 interface{} = makeConsole_impl("left_console", tmp28, float64(0))
 		_ = tmp29 // suppress unused
@@ -244,11 +244,11 @@ func createBridgeInterior_impl(_unused0 interface{}) interface{} {
 		return []interface{}{tmp27, tmp29, tmp30, tmp31}
 	}()
 	var characters interface{} = func() interface{} {
-		var tmp22 interface{} = SubFloat(float64(0), float64(1.5))
+		var tmp22 interface{} = dict_Fractional_Float.Sub(float64(0), float64(1.5))
 		_ = tmp22 // suppress unused
 		var tmp23 interface{} = makeCharacter_impl("pilot", float64(0), tmp22, int64(1200))
 		_ = tmp23 // suppress unused
-		var tmp24 interface{} = SubFloat(float64(0), float64(2.5))
+		var tmp24 interface{} = dict_Fractional_Float.Sub(float64(0), float64(2.5))
 		_ = tmp24 // suppress unused
 		var tmp25 interface{} = makeCharacter_impl("engineer", tmp24, float64(0), int64(1202))
 		_ = tmp25 // suppress unused
@@ -264,7 +264,7 @@ func CreateBridgeInterior() *InteriorRoom {
 func initInterior_impl(_unused0 interface{}) interface{} {
 	var tmp32 interface{} = interior__eyeHeight_impl(struct{}{})
 	var tmp33 interface{} = interior__vec3_impl(float64(0), tmp32, float64(2))
-	var tmp34 interface{} = SubFloat(float64(0), float64(0.2))
+	var tmp34 interface{} = dict_Fractional_Float.Sub(float64(0), float64(0.2))
 	var tmp35 interface{} = &InteriorPlayer{Pos: AsVec3(tmp33), Yaw: float64(0), Pitch: tmp34.(float64), IsRunning: false}
 	var tmp36 interface{} = createBridgeInterior_impl(struct{}{})
 	return &InteriorState{Player: tmp35.(*InteriorPlayer), CurrentRoom: tmp36.(*InteriorRoom), CurrentDeck: NewDeckSelectionSceneBridge(), Fov: float64(70), Tick: int64(0)}
@@ -344,11 +344,11 @@ func interior__hasKeyRec_impl(keyCode interface{}, keys interface{}) interface{}
 			return func() interface{} {
 				var tmp37 interface{} = FieldGet(k, "key")
 				_ = tmp37 // suppress unused
-				var tmp38 interface{} = EqInt(tmp37, keyCode)
+				var tmp38 interface{} = dict_Eq_Int.Eq(tmp37, keyCode)
 				_ = tmp38 // suppress unused
 				var tmp39 interface{} = FieldGet(k, "kind")
 				_ = tmp39 // suppress unused
-				var tmp40 interface{} = EqString(tmp39, "pressed")
+				var tmp40 interface{} = dict_Eq_String.Eq(tmp39, "pressed")
 				_ = tmp40 // suppress unused
 				var tmp41 interface{} = func() interface{} {
 					if tmp38.(bool) {
@@ -413,7 +413,7 @@ func interior__calculateMovement_impl(player interface{}, input interface{}) int
 		_ = tmp70 // suppress unused
 		var tmp71 interface{} = math.Cos(tmp70.(float64))
 		_ = tmp71 // suppress unused
-		return SubFloat(float64(0), tmp71)
+		return dict_Fractional_Float.Sub(float64(0), tmp71)
 	}()
 	var rightX interface{} = func() interface{} {
 		var tmp69 interface{} = FieldGet(player, "yaw")
@@ -435,9 +435,9 @@ func interior__calculateMovement_impl(player interface{}, input interface{}) int
 		return func() interface{} {
 			if tmp66.(bool) {
 				return func() interface{} {
-					var tmp67 interface{} = MulFloat(forwardX, speed)
+					var tmp67 interface{} = dict_Fractional_Float.Mul(forwardX, speed)
 					_ = tmp67 // suppress unused
-					return AddFloat(dx0, tmp67)
+					return dict_Fractional_Float.Add(dx0, tmp67)
 				}()
 			}
 			return dx0
@@ -451,9 +451,9 @@ func interior__calculateMovement_impl(player interface{}, input interface{}) int
 		return func() interface{} {
 			if tmp63.(bool) {
 				return func() interface{} {
-					var tmp64 interface{} = MulFloat(forwardZ, speed)
+					var tmp64 interface{} = dict_Fractional_Float.Mul(forwardZ, speed)
 					_ = tmp64 // suppress unused
-					return AddFloat(dz0, tmp64)
+					return dict_Fractional_Float.Add(dz0, tmp64)
 				}()
 			}
 			return dz0
@@ -467,9 +467,9 @@ func interior__calculateMovement_impl(player interface{}, input interface{}) int
 		return func() interface{} {
 			if tmp60.(bool) {
 				return func() interface{} {
-					var tmp61 interface{} = MulFloat(forwardX, speed)
+					var tmp61 interface{} = dict_Fractional_Float.Mul(forwardX, speed)
 					_ = tmp61 // suppress unused
-					return SubFloat(dx1, tmp61)
+					return dict_Fractional_Float.Sub(dx1, tmp61)
 				}()
 			}
 			return dx1
@@ -483,9 +483,9 @@ func interior__calculateMovement_impl(player interface{}, input interface{}) int
 		return func() interface{} {
 			if tmp57.(bool) {
 				return func() interface{} {
-					var tmp58 interface{} = MulFloat(forwardZ, speed)
+					var tmp58 interface{} = dict_Fractional_Float.Mul(forwardZ, speed)
 					_ = tmp58 // suppress unused
-					return SubFloat(dz1, tmp58)
+					return dict_Fractional_Float.Sub(dz1, tmp58)
 				}()
 			}
 			return dz1
@@ -499,9 +499,9 @@ func interior__calculateMovement_impl(player interface{}, input interface{}) int
 		return func() interface{} {
 			if tmp54.(bool) {
 				return func() interface{} {
-					var tmp55 interface{} = MulFloat(rightX, speed)
+					var tmp55 interface{} = dict_Fractional_Float.Mul(rightX, speed)
 					_ = tmp55 // suppress unused
-					return SubFloat(dx2, tmp55)
+					return dict_Fractional_Float.Sub(dx2, tmp55)
 				}()
 			}
 			return dx2
@@ -515,9 +515,9 @@ func interior__calculateMovement_impl(player interface{}, input interface{}) int
 		return func() interface{} {
 			if tmp51.(bool) {
 				return func() interface{} {
-					var tmp52 interface{} = MulFloat(rightZ, speed)
+					var tmp52 interface{} = dict_Fractional_Float.Mul(rightZ, speed)
 					_ = tmp52 // suppress unused
-					return SubFloat(dz2, tmp52)
+					return dict_Fractional_Float.Sub(dz2, tmp52)
 				}()
 			}
 			return dz2
@@ -531,9 +531,9 @@ func interior__calculateMovement_impl(player interface{}, input interface{}) int
 		return func() interface{} {
 			if tmp48.(bool) {
 				return func() interface{} {
-					var tmp49 interface{} = MulFloat(rightX, speed)
+					var tmp49 interface{} = dict_Fractional_Float.Mul(rightX, speed)
 					_ = tmp49 // suppress unused
-					return AddFloat(dx3, tmp49)
+					return dict_Fractional_Float.Add(dx3, tmp49)
 				}()
 			}
 			return dx3
@@ -547,9 +547,9 @@ func interior__calculateMovement_impl(player interface{}, input interface{}) int
 		return func() interface{} {
 			if tmp45.(bool) {
 				return func() interface{} {
-					var tmp46 interface{} = MulFloat(rightZ, speed)
+					var tmp46 interface{} = dict_Fractional_Float.Mul(rightZ, speed)
 					_ = tmp46 // suppress unused
-					return AddFloat(dz3, tmp46)
+					return dict_Fractional_Float.Add(dz3, tmp46)
 				}()
 			}
 			return dz3
@@ -563,24 +563,24 @@ func interior__calculateMovement(player *InteriorPlayer, input *FrameInput) Vec3
 }
 
 func interior__calculateLook_impl(input interface{}, screenWidth interface{}, screenHeight interface{}) interface{} {
-	var centerX interface{} = DivFloat(screenWidth, float64(2))
-	var centerY interface{} = DivFloat(screenHeight, float64(2))
+	var centerX interface{} = dict_Fractional_Float.Div(screenWidth, float64(2))
+	var centerY interface{} = dict_Fractional_Float.Div(screenHeight, float64(2))
 	var deltaX interface{} = func() interface{} {
 		var tmp78 interface{} = FieldGet(input, "mouse")
 		_ = tmp78 // suppress unused
 		var tmp79 interface{} = FieldGet(tmp78, "x")
 		_ = tmp79 // suppress unused
-		return SubFloat(tmp79, centerX)
+		return dict_Fractional_Float.Sub(tmp79, centerX)
 	}()
 	var deltaY interface{} = func() interface{} {
 		var tmp76 interface{} = FieldGet(input, "mouse")
 		_ = tmp76 // suppress unused
 		var tmp77 interface{} = FieldGet(tmp76, "y")
 		_ = tmp77 // suppress unused
-		return SubFloat(centerY, tmp77)
+		return dict_Fractional_Float.Sub(centerY, tmp77)
 	}()
-	var tmp74 interface{} = MulFloat(deltaX, float64(0.003))
-	var tmp75 interface{} = MulFloat(deltaY, float64(0.002))
+	var tmp74 interface{} = dict_Fractional_Float.Mul(deltaX, float64(0.003))
+	var tmp75 interface{} = dict_Fractional_Float.Mul(deltaY, float64(0.002))
 	return LookDelta{YawDelta: tmp74.(float64), PitchDelta: tmp75.(float64)}
 }
 
@@ -589,9 +589,9 @@ func interior__calculateLook(input *FrameInput, screenWidth float64, screenHeigh
 }
 
 func interior__clamp_impl(value interface{}, minVal interface{}, maxVal interface{}) interface{} {
-	var tmp80 interface{} = LtFloat(value, minVal)
+	var tmp80 interface{} = dict_Ord_Float.Lt(value, minVal)
 	return func() interface{} {
-		var tmp81 interface{} = GtFloat(value, maxVal)
+		var tmp81 interface{} = dict_Ord_Float.Gt(value, maxVal)
 		_ = tmp81 // suppress unused
 		if tmp80.(bool) {
 			return minVal
@@ -611,21 +611,21 @@ func interior__isInRoomBounds_impl(pos interface{}, room interface{}) interface{
 	var halfW interface{} = func() interface{} {
 		var tmp99 interface{} = FieldGet(room, "width")
 		_ = tmp99 // suppress unused
-		return DivFloat(tmp99, float64(2))
+		return dict_Fractional_Float.Div(tmp99, float64(2))
 	}()
 	var halfD interface{} = func() interface{} {
 		var tmp98 interface{} = FieldGet(room, "depth")
 		_ = tmp98 // suppress unused
-		return DivFloat(tmp98, float64(2))
+		return dict_Fractional_Float.Div(tmp98, float64(2))
 	}()
 	var margin interface{} = float64(0.5)
 	var tmp82 interface{} = FieldGet(pos, "x")
-	var tmp83 interface{} = SubFloat(float64(0), halfW)
-	var tmp84 interface{} = AddFloat(tmp83, margin)
-	var tmp85 interface{} = GtFloat(tmp82, tmp84)
+	var tmp83 interface{} = dict_Fractional_Float.Sub(float64(0), halfW)
+	var tmp84 interface{} = dict_Fractional_Float.Add(tmp83, margin)
+	var tmp85 interface{} = dict_Ord_Float.Gt(tmp82, tmp84)
 	var tmp86 interface{} = FieldGet(pos, "x")
-	var tmp87 interface{} = SubFloat(halfW, margin)
-	var tmp88 interface{} = LtFloat(tmp86, tmp87)
+	var tmp87 interface{} = dict_Fractional_Float.Sub(halfW, margin)
+	var tmp88 interface{} = dict_Ord_Float.Lt(tmp86, tmp87)
 	var tmp89 interface{} = func() interface{} {
 		if tmp85.(bool) {
 			return tmp88
@@ -633,9 +633,9 @@ func interior__isInRoomBounds_impl(pos interface{}, room interface{}) interface{
 		return false
 	}()
 	var tmp90 interface{} = FieldGet(pos, "z")
-	var tmp91 interface{} = SubFloat(float64(0), halfD)
-	var tmp92 interface{} = AddFloat(tmp91, margin)
-	var tmp93 interface{} = GtFloat(tmp90, tmp92)
+	var tmp91 interface{} = dict_Fractional_Float.Sub(float64(0), halfD)
+	var tmp92 interface{} = dict_Fractional_Float.Add(tmp91, margin)
+	var tmp93 interface{} = dict_Ord_Float.Gt(tmp90, tmp92)
 	var tmp94 interface{} = func() interface{} {
 		if tmp89.(bool) {
 			return tmp93
@@ -643,8 +643,8 @@ func interior__isInRoomBounds_impl(pos interface{}, room interface{}) interface{
 		return false
 	}()
 	var tmp95 interface{} = FieldGet(pos, "z")
-	var tmp96 interface{} = SubFloat(halfD, margin)
-	var tmp97 interface{} = LtFloat(tmp95, tmp96)
+	var tmp96 interface{} = dict_Fractional_Float.Sub(halfD, margin)
+	var tmp97 interface{} = dict_Ord_Float.Lt(tmp95, tmp96)
 	return func() interface{} {
 		if tmp94.(bool) {
 			return tmp97
@@ -665,7 +665,7 @@ func interior__applyMovement_impl(player interface{}, delta interface{}, room in
 		_ = tmp102 // suppress unused
 		var tmp103 interface{} = FieldGet(delta, "x")
 		_ = tmp103 // suppress unused
-		var tmp104 interface{} = AddFloat(tmp102, tmp103)
+		var tmp104 interface{} = dict_Fractional_Float.Add(tmp102, tmp103)
 		_ = tmp104 // suppress unused
 		var tmp105 interface{} = FieldGet(player, "pos")
 		_ = tmp105 // suppress unused
@@ -677,7 +677,7 @@ func interior__applyMovement_impl(player interface{}, delta interface{}, room in
 		_ = tmp108 // suppress unused
 		var tmp109 interface{} = FieldGet(delta, "z")
 		_ = tmp109 // suppress unused
-		var tmp110 interface{} = AddFloat(tmp108, tmp109)
+		var tmp110 interface{} = dict_Fractional_Float.Add(tmp108, tmp109)
 		_ = tmp110 // suppress unused
 		return interior__vec3_impl(tmp104, tmp106, tmp110)
 	}()
@@ -780,7 +780,7 @@ func stepInterior_impl(state interface{}, input interface{}) interface{} {
 		return RecordUpdate(movedPlayer, map[string]interface{}{"yaw": newYaw, "pitch": newPitch, "isRunning": tmp117})
 	}()
 	var tmp115 interface{} = FieldGet(state, "tick")
-	var tmp116 interface{} = AddInt(tmp115, int64(1))
+	var tmp116 interface{} = dict_Num_Int.Add(tmp115, int64(1))
 	return RecordUpdate(state, map[string]interface{}{"player": updatedPlayer, "currentDeck": newDeck, "tick": tmp116})
 }
 
@@ -936,7 +936,7 @@ func interior__renderSceneHUD_impl(state interface{}, nav interface{}) interface
 	var velocityText interface{} = func() interface{} {
 		var tmp176 interface{} = FieldGet(nav, "velocity")
 		_ = tmp176 // suppress unused
-		var tmp177 interface{} = LtFloat(tmp176, float64(0.01))
+		var tmp177 interface{} = dict_Ord_Float.Lt(tmp176, float64(0.01))
 		_ = tmp177 // suppress unused
 		return func() interface{} {
 			if tmp177.(bool) {
@@ -946,7 +946,7 @@ func interior__renderSceneHUD_impl(state interface{}, nav interface{}) interface
 				var tmp178 interface{} = FieldGet(nav, "velocity")
 				_ = tmp178 // suppress unused
 				return func() interface{} {
-					var tmp179 interface{} = LtFloat(tmp178, float64(0.3))
+					var tmp179 interface{} = dict_Ord_Float.Lt(tmp178, float64(0.3))
 					_ = tmp179 // suppress unused
 					return func() interface{} {
 						if tmp179.(bool) {
@@ -956,7 +956,7 @@ func interior__renderSceneHUD_impl(state interface{}, nav interface{}) interface
 							var tmp180 interface{} = FieldGet(nav, "velocity")
 							_ = tmp180 // suppress unused
 							return func() interface{} {
-								var tmp181 interface{} = LtFloat(tmp180, float64(0.6))
+								var tmp181 interface{} = dict_Ord_Float.Lt(tmp180, float64(0.6))
 								_ = tmp181 // suppress unused
 								return func() interface{} {
 									if tmp181.(bool) {
@@ -1083,23 +1083,40 @@ func interior__renderScenePlanets() []*DrawCmd {
 	return ConvertToDrawCmdSlice(interior__renderScenePlanets_impl(struct{}{}))
 }
 
+func interior__renderBubbleShipHUD_impl(nav interface{}) interface{} {
+	var screenX interface{} = float64(0.75)
+	var screenY interface{} = float64(0.7)
+	var size interface{} = float64(200)
+	var alpha interface{} = float64(0.25)
+	var showStars interface{} = true
+	var tmp210 interface{} = FieldGet(nav, "velocity")
+	return NewDrawCmdBubbleShipHUD(screenX.(float64), screenY.(float64), size.(float64), alpha.(float64), tmp210.(float64), showStars.(bool), int64(200))
+}
+
+func interior__renderBubbleShipHUD(nav *ShipNavigation) *DrawCmd {
+	return interior__renderBubbleShipHUD_impl(nav).(*DrawCmd)
+}
+
 func renderInterior_impl(state interface{}, nav interface{}) interface{} {
 	var shipState interface{} = interior__renderShipState_impl(nav)
 	var spaceBg interface{} = NewDrawCmdSpaceBg(int64(0))
 	var planetCmds interface{} = interior__renderScenePlanets_impl(struct{}{})
 	var deckBackground interface{} = func() interface{} {
-		var tmp214 interface{} = FieldGet(state, "currentDeck")
-		_ = tmp214 // suppress unused
-		var tmp215 interface{} = interior__getDeckSpriteId_impl(tmp214)
-		_ = tmp215 // suppress unused
-		return NewDrawCmdUi("deck-background", NewUiKindUiPortrait(), float64(0), float64(0), float64(1), float64(1), "", tmp215.(int64), int64(50), int64(0), float64(0))
+		var tmp217 interface{} = FieldGet(state, "currentDeck")
+		_ = tmp217 // suppress unused
+		var tmp218 interface{} = interior__getDeckSpriteId_impl(tmp217)
+		_ = tmp218 // suppress unused
+		return NewDrawCmdUi("deck-background", NewUiKindUiPortrait(), float64(0), float64(0), float64(1), float64(1), "", tmp218.(int64), int64(50), int64(0), float64(0))
 	}()
 	var hud interface{} = interior__renderSceneHUD_impl(state, nav)
-	var tmp210 interface{} = []interface{}{deckBackground}
-	var tmp211 interface{} = ConcatList(tmp210, hud)
-	var tmp212 interface{} = ConcatList(planetCmds, tmp211)
-	var tmp213 interface{} = Cons(spaceBg, tmp212)
-	return Cons(shipState, tmp213)
+	var bubbleHud interface{} = interior__renderBubbleShipHUD_impl(nav)
+	var tmp211 interface{} = []interface{}{deckBackground}
+	var tmp212 interface{} = []interface{}{bubbleHud}
+	var tmp213 interface{} = ConcatList(hud, tmp212)
+	var tmp214 interface{} = ConcatList(tmp211, tmp213)
+	var tmp215 interface{} = ConcatList(planetCmds, tmp214)
+	var tmp216 interface{} = Cons(spaceBg, tmp215)
+	return Cons(shipState, tmp216)
 }
 
 func RenderInterior(state *InteriorState, nav *ShipNavigation) []*DrawCmd {
